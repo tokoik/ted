@@ -1,0 +1,143 @@
+newmtl arm_ude_sita
+Kd 0.368624 0.690189 0.568621
+Ke 0 0 0
+Ka 1 1 1
+Ks 0 0 0
+Ns 54
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+
+newmtl leg_center_slinder
+Kd 0.78 0.78 0.78
+Ke 0 0 0
+Ka 0.5 0.5 0.5
+Ks 0 0 0
+Ns 400
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+
+newmtl arm_sholder
+Kd 0.294115 0.28235 0.290193
+Ke 0 0 0
+Ka 1 1 1
+Ks 0.48 0.48 0.48
+Ns 54
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+
+newmtl arm_elbow
+Kd 0.666667 0.666667 0.666667
+Ke 0 0 0
+Ka 1 1 1
+Ks 0 0 0
+Ns 400
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+
+newmtl arm_ude_sita
+Kd 0.368624 0.690189 0.568621
+Ke 0 0 0
+Ka 1 1 1
+Ks 0 0 0
+Ns 54
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+
+newmtl body
+Kd 0.141175 0.41176 0.380388
+Ke 0 0 0
+Ka 1 1 1
+Ks 0.62 0.62 0.62
+Ns 8
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+
+newmtl body_side_slinder_frame
+Kd 0.599994 0.752933 0.686267
+Ke 0 0 0
+Ka 1 1 1
+Ks 0 0 0
+Ns 54
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+
+newmtl sholder_kansetu_ring_body
+Kd 0.235292 0.270585 0.243135
+Ke 0 0 0
+Ka 1 1 1
+Ks 0.345 0.345 0.345
+Ns 400
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+
+newmtl sholder_srinder
+Kd 0.439216 0.423529 0.411765
+Ke 0 0 0
+Ka 0.5 0.5 0.5
+Ks 0.95 0.95 0.95
+Ns 8
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+
+newmtl srnder
+Kd 0.78 0.78 0.78
+Ke 0 0 0
+Ka 0.5 0.5 0.5
+Ks 0 0 0
+Ns 400
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+
+newmtl arm_elbow
+Kd 0.666667 0.666667 0.666667
+Ke 0 0 0
+Ka 0.6 0.6 0.6
+Ks 0.3 0.3 0.3
+Ns 699
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+
+newmtl arm_sholder
+Kd 0.294115 0.28235 0.290193
+Ke 0 0 0
+Ka 1 1 1
+Ks 0.48 0.48 0.48
+Ns 54
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+
+newmtl arm_ude_up
+Kd 0.368624 0.690189 0.568621
+Ke 0 0 0
+Ka 1 1 1
+Ks 0 0 0
+Ns 54
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+

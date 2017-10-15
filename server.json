@@ -1,0 +1,43 @@
+{
+  "stereo": 5,
+  "use_secondary": 1,
+  "screen_samples": 1271,
+  "display_distance": 1.5,
+  "display_center": 0.5,
+  "depth_near": 0.1,
+  "depth_far": 5,
+  "capture_width": 0,
+  "capture_height": 0,
+  "capture_fps": 0,
+  "ovrvision_property": 1,
+  "fisheye_fov_x": 1,
+  "fisheye_fov_y": 1,
+  "fisheye_center_x": 0,
+  "fisheye_center_y": 0,
+  "left_camera": 0,
+  "left_image": "normal_left.jpg",
+  "right_camera": 1,
+  "right_image": "normal_right.jpg",
+  "texture_repeat": false,
+  "zoom": 1,
+  "max_level": 10,
+  "port": 1234,
+  "server": "",
+  "texture_quality": 50,
+  "texture_samples": 1271,
+  "remote_fov_x": 0.8726646,
+  "remote_fov_y": 0.8552113,
+  "vertex_shader": "fixed.vert",
+  "fragment_shader": "normal.frag",
+  "scene": "scene.json",
+  "target": {
+    "position": [ 0, 0, -0.5 ],
+    "scale": [ 0.5, 0.5, 0.5 ],
+    "model": "target.obj"
+  },
+  "remote": {
+    "position": [ 0, 0, -0.5 ],
+    "scale": [ 0.5, 0.5, 0.5 ],
+    "model": "remote.obj"
+  }
+}
