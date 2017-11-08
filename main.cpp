@@ -45,10 +45,6 @@ const LPCWSTR localShareName = L"TED_LOCAL_SHARE";
 const LPCWSTR remoteMutexName = L"TED_REMOTE_MUTEX";
 const LPCWSTR remoteShareName = L"TED_REMOTE_SHARE";
 
-// 共有メモリに置く姿勢変換行列
-SharedMemory *localAttitude;
-SharedMemory *remoteAttitude;
-
 //
 // メインプログラム
 //
@@ -61,7 +57,7 @@ int main(int argc, const char *const *const argv)
   if (!defaults.load(config_file)) defaults.save(config_file);
 
   // ローカルの変換行列を保持する共有メモリを確保する
-  localAttitude = new SharedMemory(localMutexName, localShareName, defaults.local_share_size);
+  std::unique_ptr<SharedMemory> localAttitude(new SharedMemory(localMutexName, localShareName, defaults.local_share_size));
 
   // ローカルの変換行列を保持する共有メモリが確保できたかチェックする
   if (!localAttitude->get())
@@ -71,11 +67,8 @@ int main(int argc, const char *const *const argv)
     return EXIT_FAILURE;
   }
 
-  // スマートポインタにしておく
-  std::unique_ptr<SharedMemory> localAttitudePtr(localAttitude);
-
   // リモートの変換行列を保持する共有メモリを確保する
-  remoteAttitude = new SharedMemory(remoteMutexName, remoteShareName, defaults.remote_share_size);
+  std::unique_ptr<SharedMemory> remoteAttitude(new SharedMemory(remoteMutexName, remoteShareName, defaults.remote_share_size));
 
   // リモートの変換行列を保持する共有メモリが確保できたかチェックする
   if (!remoteAttitude->get())
@@ -84,9 +77,6 @@ int main(int argc, const char *const *const argv)
     NOTIFY("リモートの変換行列を保持する共有メモリが確保できませんでした。");
     return EXIT_FAILURE;
   }
-
-  // スマートポインタにしておく
-  std::unique_ptr<SharedMemory> remoteAttitudePtr(remoteAttitude);
 
   // GLFW を初期化する
   if (glfwInit() == GL_FALSE)
@@ -364,7 +354,7 @@ int main(int argc, const char *const *const argv)
   }
 
   // カメラで参照する変換行列の票を選択する
-  camera->selectTable(localAttitude, remoteAttitude);
+  camera->selectTable(localAttitude.get(), remoteAttitude.get());
 
   // ウィンドウにそのカメラを結び付ける
   window.setControlCamera(camera.get());
@@ -428,7 +418,7 @@ int main(int argc, const char *const *const argv)
   Scene::selectController(&listener);
 
   // シーンで参照する変換行列の票を選択する
-  Scene::selectTable(localAttitude, remoteAttitude);
+  Scene::selectTable(localAttitude.get(), remoteAttitude.get());
 
   // ローカルの姿勢の姿勢のインデックスを得る
   int localAttitudeIndex[eyeCount];

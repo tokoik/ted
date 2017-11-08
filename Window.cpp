@@ -6,13 +6,6 @@
 // Oculus Rift SDK ライブラリ (LibOVR) の組み込み
 #if defined(_WIN32)
 #  pragma comment(lib, "libOVR.lib")
-#  if !defined(NOTIFY)
-#    define NOTIFY(msg) MessageBox(NULL, TEXT(msg), TEXT("STER Display"), MB_ICONERROR | MB_OK)
-#  endif
-#else
-#  if !defined(NOTIFY)
-#    define NOTIFY(msg) std::cerr << msg << '\n'
-#  endif
 #endif
 
 // 設定ファイルは JSON で読み書きする
