@@ -76,7 +76,7 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
   if (v_controller != o.end() && v_controller->second.is<double>())
   {
     // 共有メモリに変換行列を追加
-    index = matrix->push(ggIdentity());
+    index = localMatrix->push(ggIdentity());
 
     // 追加に成功したら
     if (~index != 0 && controller != nullptr)
@@ -130,7 +130,7 @@ void Scene::drawNode(const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mm)
   if (obj)
   {
     // それが参照する共有メモリ上の変換行列を累積して
-    if (~index) mw *= matrix->get(index)->get();
+    if (~index) mw *= localMatrix->get(index)->get();
 
     // シェーダが設定されていれば変換行列を設定し
     if (obj->getShader()) obj->getShader()->loadMatrix(mp, mv * mw);
@@ -144,7 +144,7 @@ void Scene::drawNode(const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mm)
 }
 
 // モデル変換行列のテーブル
-SharedMemory *Scene::matrix(nullptr);
+SharedMemory *Scene::localMatrix(nullptr), *Scene::remoteMatrix(nullptr);
 
 // モデル変換行列を制御するコントローラ
 LeapListener *Scene::controller(nullptr);

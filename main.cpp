@@ -37,20 +37,57 @@ const int defaultWindowHeight(540);
 const char windowTitle[] = "TED";
 
 // メッセージボックスのタイトル
-const LPCWSTR messageTitle  = L"TED";
+const LPCWSTR messageTitle = L"TED";
 
 // ファイルマッピングオブジェクト名
-const LPCTSTR mutexName = L"STER_DISPLAY_MUTEX";
-const LPCTSTR shareName = L"STER_DISPLAY_SHARE";
+const LPCWSTR localMutexName = L"TED_LOCAL_MUTEX";
+const LPCWSTR localShareName = L"TED_LOCAL_SHARE";
+const LPCWSTR remoteMutexName = L"TED_REMOTE_MUTEX";
+const LPCWSTR remoteShareName = L"TED_REMOTE_SHARE";
 
-// 変換行列の数
-const unsigned int shareSize(50);
+// 共有メモリに置く姿勢変換行列
+SharedMemory *localAttitude;
+SharedMemory *remoteAttitude;
 
 //
 // メインプログラム
 //
 int main(int argc, const char *const *const argv)
 {
+  // 引数を設定ファイル名に使う（指定されていなければ config.json にする）
+  const char *config_file(argc > 1 ? argv[1] : "config.json");
+
+  // 設定ファイルを読み込む (見つからなかったら作る)
+  if (!defaults.load(config_file)) defaults.save(config_file);
+
+  // ローカルの変換行列を保持する共有メモリを確保する
+  localAttitude = new SharedMemory(localMutexName, localShareName, defaults.local_share_size);
+
+  // ローカルの変換行列を保持する共有メモリが確保できたかチェックする
+  if (!localAttitude->get())
+  {
+    // 共有メモリが確保できなかった
+    NOTIFY("ローカルの変換行列を保持する共有メモリが確保できませんでした。");
+    return EXIT_FAILURE;
+  }
+
+  // スマートポインタにしておく
+  std::unique_ptr<SharedMemory> localAttitudePtr(localAttitude);
+
+  // リモートの変換行列を保持する共有メモリを確保する
+  remoteAttitude = new SharedMemory(remoteMutexName, remoteShareName, defaults.remote_share_size);
+
+  // リモートの変換行列を保持する共有メモリが確保できたかチェックする
+  if (!remoteAttitude->get())
+  {
+    // 共有メモリが確保できなかった
+    NOTIFY("リモートの変換行列を保持する共有メモリが確保できませんでした。");
+    return EXIT_FAILURE;
+  }
+
+  // スマートポインタにしておく
+  std::unique_ptr<SharedMemory> remoteAttitudePtr(remoteAttitude);
+
   // GLFW を初期化する
   if (glfwInit() == GL_FALSE)
   {
@@ -61,12 +98,6 @@ int main(int argc, const char *const *const argv)
 
   // プログラム終了時には GLFW を終了する
   atexit(glfwTerminate);
-
-  // 引数を設定ファイル名に使う（指定されていなければ config.json にする）
-  const char *config_file(argc > 1 ? argv[1] : "config.json");
-
-  // 設定ファイルを読み込む (見つからなかったら作る)
-  if (!defaults.load(config_file)) defaults.save(config_file);
 
   // ディスプレイの情報
   GLFWmonitor *monitor;
@@ -332,6 +363,9 @@ int main(int argc, const char *const *const argv)
     }
   }
 
+  // カメラで参照する変換行列の票を選択する
+  camera->selectTable(localAttitude, remoteAttitude);
+
   // ウィンドウにそのカメラを結び付ける
   window.setControlCamera(camera.get());
 
@@ -381,18 +415,6 @@ int main(int argc, const char *const *const argv)
     return EXIT_FAILURE;
   }
 
-  // 共有メモリ
-  SharedMemory share(mutexName, shareName, shareSize);
-  if (!share.get())
-  {
-    // 共有メモリが確保できなかった
-    NOTIFY("共有メモリが確保できませんでした。");
-    return EXIT_FAILURE;
-  }
-
-  // シーングラフの関節の変換行列を保持する共有メモリを指定する
-  Scene::selectTable(&share);
-
   // Leap Motion の listener と controller を作る
   LeapListener listener;
   Leap::Controller controller;
@@ -404,6 +426,13 @@ int main(int argc, const char *const *const argv)
 
   // シーンの変換行列を Leap Motion で制御できるようにする
   Scene::selectController(&listener);
+
+  // シーンで参照する変換行列の票を選択する
+  Scene::selectTable(localAttitude, remoteAttitude);
+
+  // ローカルの姿勢の姿勢のインデックスを得る
+  int localAttitudeIndex[eyeCount];
+  for (int eye = 0; eye < eyeCount; ++eye) localAttitudeIndex[eye] = localAttitude->push(ggIdentity());
 
   // シーングラフ
   Scene scene(defaults.scene, simple);
@@ -435,10 +464,6 @@ int main(int argc, const char *const *const argv)
 
   // 描画回数
   const int drawCount(defaults.display_mode == MONO ? 1 : 2);
-
-  // ローカルとリモートの変換行列の姿勢のインデックス
-  const int localIndex(share.push(ggIdentity()));
-  const int remoteIndex(share.push(ggIdentity()));
 
   // ウィンドウが開いている間くり返し描画する
   while (!window.shouldClose())
@@ -482,15 +507,15 @@ int main(int argc, const char *const *const argv)
         const GgQuaternion qo(window.getQo(eye));
         const GgMatrix mo(qo.getMatrix());
 
-		// ローカルのヘッドトラッキング情報を共有メモリに保存する
-		share.set(localIndex, mo);
+        // ローカルのヘッドトラッキング情報を共有メモリに保存する
+        localAttitude->set(localAttitudeIndex[eye], mo);
 
         // リモートのヘッドトラッキングの変換行列
         GgMatrix mr;
 
         // 背景を描く
         rect.draw(texture[eye], defaults.camera_tracking
-          ? (camera->isOperator() ? mr = (qo * camera->getRemoteAttitude(eye).orientation.conjugate()).getMatrix() : mo)
+          ? (camera->isOperator() ? mr = mo * camera->getRemoteAttitude(eye).transpose().get() : mo)
           : ggIdentity(), window.getSamples());
 
         // 図形と照準の描画設定
@@ -510,14 +535,11 @@ int main(int argc, const char *const *const argv)
         if (window.showTarget) target.draw(window.getMp(eye), window.getMv(eye));
 
         // ネットワークが有効の時
-		if (window.showTarget && camera->useNetwork())
-		{
-			// リモートのヘッドトラッキング情報を共有メモリに保存する
-			share.set(remoteIndex, mr);
-
-			// リモートの回転変換行列を使ってリモートの照準を描画する
-			remote.draw(window.getMp(eye), mr * window.getMv(eye));
-		}
+        if (window.showTarget && camera->useNetwork())
+        {
+          // リモートの回転変換行列を使ってリモートの照準を描画する
+          remote.draw(window.getMp(eye), mr * window.getMv(eye));
+        }
 
         // 片目の処理を完了する
         window.commit(eye);

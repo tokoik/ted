@@ -51,6 +51,8 @@ config defaults =
   1271,                         // int texture_samples;
   1.0,                          // GLfloat remote_fov_x;
   1.0,                          // GLfloat remote_fov_y;
+  50,                           // int local_share_size;
+  50,                           // int remote_share_size;
   10                            // int max_level;
 };
 
@@ -308,6 +310,16 @@ bool config::load(const std::string &file)
   if (v_remote_fov_y != o.end() && v_remote_fov_y->second.is<double>())
     remote_fov_y = static_cast<GLfloat>(v_remote_fov_y->second.get<double>());
 
+  // ローカルの姿勢変換行列の最大数
+  const auto &v_local_share_size(o.find("local_share_size"));
+  if (v_local_share_size != o.end())
+    local_share_size = static_cast<int>(v_local_share_size->second.get<double>());
+
+  // リモートの姿勢変換行列の最大数
+  const auto &v_remote_share_size(o.find("remote_share_size"));
+  if (v_remote_share_size != o.end())
+    remote_share_size = static_cast<int>(v_remote_share_size->second.get<double>());
+
   // シーングラフの最大の深さ
   const auto &v_max_level(o.find("max_level"));
   if (v_max_level != o.end())
@@ -448,6 +460,12 @@ bool config::save(const std::string &file) const
 
   // リモートカメラの縦の画角
   o.insert(std::make_pair("remote_fov_y", picojson::value(static_cast<double>(remote_fov_y))));
+
+  // ローカルの姿勢変換行列の最大数
+  o.insert(std::make_pair("local_share_size", picojson::value(static_cast<double>(local_share_size))));
+
+  // リモートの姿勢変換行列の最大数
+  o.insert(std::make_pair("remote_share_size", picojson::value(static_cast<double>(remote_share_size))));
 
   // シーングラフの最大の深さ
   o.insert(std::make_pair("max_level", picojson::value(static_cast<double>(max_level))));

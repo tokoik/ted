@@ -17,7 +17,7 @@
 Camera::Camera()
 {
   // 作業用のメモリ領域
-  frame = nullptr;
+  sendbuf = recvbuf = nullptr;
 
   // キャプチャされる画像のフォーマット
   format = GL_BGR;
@@ -29,14 +29,10 @@ Camera::Camera()
   for (int cam = 0; cam < camCount; ++cam)
   {
     // ローカルの姿勢に初期値を設定する
-    attitude[cam].position[0] = 0.0f;
-    attitude[cam].position[1] = 0.0f;
-    attitude[cam].position[2] = 0.0f;
-    attitude[cam].position[3] = 0.0f;
-    attitude[cam].orientation = ggIdentityQuaternion();
+    localMatrix->set(cam, ggIdentity());
 
     // リモートの姿勢に初期値を設定する
-    fifo[cam].emplace(attitude[cam]);
+    fifo[cam].emplace(ggIdentity());
 
     // 画像がまだ取得されていないことを記録しておく
     buffer[cam] = nullptr;
@@ -50,8 +46,8 @@ Camera::Camera()
 Camera::~Camera()
 {
   // 作業用のメモリを開放する
-  delete frame;
-  frame = nullptr;
+  delete[] sendbuf, recvbuf;
+  sendbuf = recvbuf = nullptr;
 }
 
 // スレッドを停止する
@@ -120,43 +116,63 @@ void Camera::send()
     // キャプチャデバイスをロックする
     captureMutex[camL].lock();
 
+    // ヘッダのフォーマット
+    unsigned int *const head(reinterpret_cast<unsigned int *>(sendbuf));
+
     // 左フレームのサイズを保存する
-    frame->length[camL] = static_cast<unsigned int>(encoded[camL].size());
+    head[camL] = static_cast<unsigned int>(encoded[camL].size());
+
+    // 右フレームのサイズを 0 にしておく
+    head[camR] = 0;
+
+    // 変換行列の数を保存する
+    head[camCount] = localMatrix->getUsed();
+
+    // 変換行列の保存先
+    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
+
+    // 変換行列を保存する
+    localMatrix->extract(body);
+
+    // 左フレームの保存先 (変換行列の最後)
+    char *data(reinterpret_cast<char *>(body + head[camCount]));
 
     // 左フレームのデータをコピーする
-    memcpy(frame->data, encoded[camL].data(), frame->length[camL]);
+    memcpy(data, encoded[camL].data(), head[camL]);
 
     // フレームの転送が完了すればロックを解除する
     captureMutex[camL].unlock();
 
-    // 右フレームのサイズを 0 にしておく
-    frame->length[camR] = 0;
-
     // 左フレームに画像があれば
-    if (frame->length[camL] > 0)
+    if (head[camL] > 0)
     {
+      // 右フレームの保存先 (左フレームの最後)
+      data += head[camL];
+
       if (run[camR])
       {
         // キャプチャデバイスをロックする
         captureMutex[camR].lock();
 
         // 右フレームのサイズを保存する
-        frame->length[camR] = static_cast<unsigned int>(encoded[camR].size());
+        head[camR] = static_cast<unsigned int>(encoded[camR].size());
 
         // 右フレームのデータを左フレームのデータの後ろにコピーする
-        memcpy(frame->data + frame->length[camL], encoded[camR].data(), frame->length[camR]);
+        memcpy(data, encoded[camR].data(), head[camR]);
 
         // フレームの転送が完了すればロックを解除する
         captureMutex[camR].unlock();
+
+        // 右フレームの最後
+        data += head[camR];
       }
-
-      // フレームを送信する
-      network.sendFrame(frame, static_cast<unsigned int>(sizeof(Frame)
-        - workingMemorySize * sizeof(uchar) + frame->length[camL] + frame->length[camR]));
-
-      // 他のスレッドがリソースにアクセスするために少し待つ
-      std::this_thread::sleep_for(std::chrono::milliseconds(10L));
     }
+
+    // フレームを送信する
+    network.sendFrame(sendbuf, static_cast<unsigned int>(data - sendbuf));
+
+    // 他のスレッドがリソースにアクセスするために少し待つ
+    std::this_thread::sleep_for(std::chrono::milliseconds(10L));
   }
 }
 
@@ -166,14 +182,19 @@ void Camera::recv()
   // スレッドが実行可の間
   while (run[camL])
   {
-    Attitude attitude[camCount];
-
     // 姿勢データを受信する
-    if (network.recvFrame(&attitude, sizeof attitude) != SOCKET_ERROR)
+    if (network.recvFrame(recvbuf, maxFrameSize) != SOCKET_ERROR)
     {
-      // 姿勢データを保存する
-      queueRemoteAttitude(camL, attitude[camL]);
-      queueRemoteAttitude(camR, attitude[camR]);
+      // ヘッダのフォーマット
+      unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
+      GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
+
+      // カメラの姿勢を保存する
+      queueRemoteAttitude(camL, body[camL]);
+      queueRemoteAttitude(camR, body[camR]);
+
+      // 変換行列を保存する
+      remoteMatrix->store(body, head[camCount]);
     }
 
     // 他のスレッドがリソースにアクセスするために少し待つ
@@ -188,8 +209,9 @@ void Camera::startWorker(unsigned short port, const char *address)
   if (network.initialize(2, port, address)) return;
 
   // 作業用のメモリを確保する
-  delete frame;
-  frame = new Frame;
+  delete[] sendbuf, recvbuf;
+  sendbuf = new char[maxFrameSize];
+  recvbuf = new char[maxFrameSize];
 
   // 送信スレッドを開始する
   sendThread = std::thread([this]() { this->send(); });

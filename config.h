@@ -71,6 +71,8 @@ struct config
   int remote_texture_samples;
   GLfloat remote_fov_x;
   GLfloat remote_fov_y;
+  int local_share_size;
+  int remote_share_size;
   int max_level;
   picojson::value scene;
   picojson::value target;

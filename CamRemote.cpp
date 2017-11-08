@@ -54,22 +54,32 @@ CamRemote::~CamRemote()
 int CamRemote::open(unsigned short port, const char *address, const GLuint *texture)
 {
   // 作業用のメモリを確保する（これは Camera のデストラクタで delete する）
-  delete frame;
-  frame = new Frame;
+  delete sendbuf, recvbuf;
+  sendbuf = new char[maxFrameSize];
+  recvbuf = new char[maxFrameSize];
 
   // 操縦者として初期化して
   network.initialize(1, port, address);
 
+  // ヘッダのフォーマット
+  unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
+
   // 1 フレーム受け取って
   for (int i = 0;;)
   {
-    const int ret(network.recvFrame(frame, sizeof (Frame)));
-    if (ret > 0 && frame->length[camL] > 0) break;
+    const int ret(network.recvFrame(recvbuf, maxFrameSize));
+    if (ret > 0 && head[camL] > 0) break;
     if (++i > retry) return ret;
   }
 
+  // 変換行列を保存する
+  remoteMatrix->store(head + camCount + 1, head[camCount]);
+
+  // データ本体
+  uchar *const body(reinterpret_cast<uchar *>(head + camCount + 1 + head[camCount]));
+
   // 左フレームデータを vector に変換して
-  encoded[camL].assign(frame->data, frame->data + frame->length[camL]);
+  encoded[camL].assign(body, body + head[camL]);
 
   // 左フレームをデコードする
   remote[camL] = cv::imdecode(cv::Mat(encoded[camL]), 1);
@@ -82,10 +92,10 @@ int CamRemote::open(unsigned short port, const char *address, const GLuint *text
   rsize[camL][1] = remote[camL].rows;
 
   // 右フレームが存在すれば
-  if (frame->length[camR] > 0)
+  if (head[camR] > 0)
   {
     // 右フレームデータを vector に変換して
-    encoded[camR].assign(frame->data + frame->length[camL], frame->data + frame->length[camL] + frame->length[camR]);
+    encoded[camR].assign(body + head[camL], body + head[camL] + head[camR]);
 
     // 右フレームをデコードする
     remote[camR] = cv::imdecode(cv::Mat(encoded[camR]), 1);
@@ -174,7 +184,7 @@ bool CamRemote::transmit(int cam, GLuint texture, const GLsizei *size)
     glBindTexture(GL_TEXTURE_2D, resample[cam]);
 
     // リモートのヘッドトラッキング情報を設定してレンダリング
-    glUniformMatrix4fv(rotationLoc, 1, GL_FALSE, getRemoteAttitude(cam).orientation.getMatrix().get());
+    glUniformMatrix4fv(rotationLoc, 1, GL_FALSE, getRemoteAttitude(cam).transpose().get());
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, slices * 2, stacks - 1);
 
     // レンダリング先を通常のフレームバッファに戻す
@@ -195,8 +205,26 @@ void CamRemote::send()
   // カメラスレッドが実行可の間
   while (run[camL])
   {
+    // ヘッダのフォーマット
+    unsigned int *const head(reinterpret_cast<unsigned int *>(sendbuf));
+
+    // 左右のフレームのサイズは 0 にする
+    head[camL] = head[camR] = 0;
+
+    // 変換行列の数を保存する
+    head[camCount] = localMatrix->getUsed();
+
+    // 変換行列の保存先
+    char *body(sendbuf + sizeof head[camCount + 1]);
+
+    // 変換行列を保存する
+    localMatrix->extract(body);
+
+    // 左フレームの保存先 (変換行列の最後)
+    body += head[camCount] * sizeof (GgMatrix);
+
     // フレームを送信する
-    network.sendFrame(attitude, static_cast<unsigned int>(sizeof attitude));
+    network.sendFrame(sendbuf, static_cast<unsigned int>(body - sendbuf));
 
     // 他のスレッドがリソースにアクセスするために少し待つ
     std::this_thread::sleep_for(std::chrono::milliseconds(10L));
@@ -209,68 +237,94 @@ void CamRemote::recv()
   // スレッドが実行可の間
   while (run[camL])
   {
+    // ヘッダのフォーマット
+    unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
+    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
+
     // 1 フレーム受け取って
     for (int i = 0;;)
     {
-      const int ret(network.recvFrame(frame, sizeof(Frame)));
-      if (ret > 0 && frame->length[camL] > 0) break;
+      const int ret(network.recvFrame(recvbuf, maxFrameSize));
+      if (ret > 0 && head[camL] > 0) break;
       if (++i > retry) return;
     }
 
-    // 左フレームをロックして
-    captureMutex[camL].lock();
+    // 変換行列を保存する
+    remoteMatrix->store(body, head[camCount]);
 
-    // 左バッファが空のとき
-    if (!buffer[camL])
+    // カメラの姿勢を保存する
+    queueRemoteAttitude(camL, body[camL]);
+    queueRemoteAttitude(camR, body[camR]);
+
+    // フレームデータの先頭
+    uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
+
+    // リモートから取得したフレームのサイズ
+    GLsizei rsize[camCount][2];
+
+    // 左フレームが送られてきていて左バッファが空のとき
+    if (head[camL] > 0 && !buffer[camL])
     {
       // 左フレームデータを vector に変換して
-      encoded[camL].assign(frame->data, frame->data + frame->length[camL]);
+      encoded[camL].assign(data, data + head[camL]);
+
+      // 左フレームをロックして
+      captureMutex[camL].lock();
 
       // 左フレームをデコードして
       remote[camL] = cv::imdecode(cv::Mat(encoded[camL]), 1);
 
-      // 左画像を更新する
+      // 左画像を更新し
       buffer[camL] = remote[camL].data;
 
-      // 左フレームのヘッドトラッキング情報を保存する
-      queueRemoteAttitude(camL, frame->attitude[camL]);
+      // 左フレームのサイズを求める
+      rsize[camL][0] = remote[camL].cols;
+      rsize[camL][1] = remote[camL].rows;
+
+      // 左フレームの転送が完了すればロックを解除する
+      captureMutex[camL].unlock();
     }
 
-    // 左フレームの転送が完了すればロックを解除する
-    captureMutex[camL].unlock();
-
-    // 右フレームをロックして
-    captureMutex[camR].lock();
-
-    // 右バッファが空のとき
-    if (!buffer[camR])
+    // 右フレームが送られてきていて右バッファが空のとき
+    if (head[camR] > 0 && !buffer[camR])
     {
-      // 右カメラのデータが存在すれば
-      if (frame[camR].length > 0)
+      // 左フレームが存在すれば
+      if (head[camL] > 0)
       {
         // 右フレームデータを vector に変換して
-        encoded[camR].assign(frame->data + frame->length[camL], frame->data + frame->length[camL] + frame->length[camR]);
+        encoded[camR].assign(data + head[camL], data + head[camL] + head[camR]);
+
+        // 右フレームをロックして
+        captureMutex[camR].lock();
 
         // 右フレームをデコードして
         remote[camR] = cv::imdecode(cv::Mat(encoded[camR]), 1);
 
-        // 右画像を更新する
+        // 右画像を更新し
         buffer[camR] = remote[camR].data;
 
-        // 右フレームのヘッドトラッキング情報を保存する
-        queueRemoteAttitude(camR, frame->attitude[camR]);
+        // 右フレームのサイズを求める
+        rsize[camR][0] = remote[camR].cols;
+        rsize[camR][1] = remote[camR].rows;
+
+        // フレームの転送が完了すればロックを解除する
+        captureMutex[camR].unlock();
       }
       else
       {
+        // 右フレームをロックして
+        captureMutex[camR].lock();
+
         // 右画像は左画像と同じにする
         buffer[camR] = remote[camL].data;
 
-        // 右フレームのヘッドトラッキング情報は左フレームと同じにする
-        queueRemoteAttitude(camR, frame->attitude[camL]);
+        // 右フレームのサイズは左フレームと同じにする
+        rsize[camR][0] = rsize[camL][0];
+        rsize[camR][1] = rsize[camL][1];
+
+        // フレームの転送が完了すればロックを解除する
+        captureMutex[camR].unlock();
       }
     }
-
-    // フレームの転送が完了すればロックを解除する
-    captureMutex[camR].unlock();
   }
 }

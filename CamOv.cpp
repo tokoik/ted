@@ -67,13 +67,6 @@ void CamOv::capture()
         // 作業者として動作していたら
         if (isWorker())
         {
-          // ヘッドトラッキング情報を保存する
-          if (frame)
-          {
-            frame->attitude[camL] = getLocalAttitude(camL);
-            frame->attitude[camR] = getLocalAttitude(camR);
-          }
-
           // フレームを圧縮して保存する
           cv::Mat frameL(size[camL][1], size[camL][0], CV_8UC4, bufferL);
           cv::imencode(coder, frameL, encoded[camL], param);

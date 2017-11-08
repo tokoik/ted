@@ -175,7 +175,7 @@ struct Packet
 };
 
 // 1 フレーム送信
-int Network::sendFrame(const void *buf, unsigned int len) const
+unsigned int Network::sendFrame(const void *buf, unsigned int len) const
 {
   // パケット
   Packet packet;

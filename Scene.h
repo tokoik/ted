@@ -32,7 +32,7 @@ class Scene
   unsigned int index;
 
   // 外部モデル変換行列のテーブル
-  static SharedMemory *matrix;
+  static SharedMemory *localMatrix, *remoteMatrix;
 
   // この骨格を制御する Leap Motion
   static LeapListener *controller;
@@ -53,7 +53,7 @@ public:
   Scene(const GgMatrix &mat = ggIdentity(), const GgObj *obj = nullptr)
     : obj(obj)
   {
-    index = matrix->push(mat);
+    index = localMatrix->push(mat);
   }
 
   // 新規に変換行列を作成してシーンのオブジェクトを作成するコンストラクタ
@@ -77,9 +77,10 @@ public:
   virtual ~Scene();
 
   // モデル変換行列のテーブルを選択する
-  static void selectTable(SharedMemory *table)
+  static void selectTable(SharedMemory *local, SharedMemory *remote)
   {
-    Scene::matrix = table;
+    Scene::localMatrix = local;
+    Scene::remoteMatrix = remote;
   }
 
   // モデル変換行列を制御するコントローラを選択する
@@ -89,7 +90,7 @@ public:
     Scene::controller = controller;
 
     // コントローラが制御する変換行列を指定する
-    controller->selectTable(matrix);
+    controller->selectTable(localMatrix);
   }
 
   // シーングラフを読み込む
@@ -125,10 +126,10 @@ public:
     const GgMatrix &mv = ggIdentity(),
     const GgMatrix &mm = ggIdentity()) const
   {
-    if (matrix->lock())
+    if (localMatrix->lock())
     {
       drawNode(mp, mv, mm);
-      matrix->unlock();
+      localMatrix->unlock();
     }
   }
 };
