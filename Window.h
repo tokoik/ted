@@ -18,7 +18,7 @@
 #  include <GLFW/glfw3native.h>
 #  undef APIENTRY
 #  define OVR_OS_WIN32
-#  define NOTIFY(msg) MessageBox(NULL, TEXT(msg), TEXT("STER Display"), MB_ICONERROR | MB_OK)
+#  define NOTIFY(msg) MessageBox(NULL, TEXT(msg), TEXT("TED"), MB_ICONERROR | MB_OK)
 #else
 #  define NOTIFY(msg) std::cerr << msg << '\n'
 #endif
