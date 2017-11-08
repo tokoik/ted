@@ -70,7 +70,7 @@ public:
   int recv(void *buf, unsigned int len);
 
   // 1 フレーム送信
-  int sendFrame(const void *buf, unsigned int len) const;
+  unsigned int sendFrame(const void *buf, unsigned int len) const;
 
   // 1 フレーム受信
   int recvFrame(void *buf, unsigned int len);

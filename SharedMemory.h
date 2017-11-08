@@ -60,8 +60,20 @@ public:
     return pShare + i;
   }
 
+  // 共有メモリの全要素数を得る
+  unsigned int getSize() const
+  {
+    return size;
+  }
+
+  // 使用中の共有メモリの要素数を得る
+  unsigned int getUsed() const
+  {
+    return used;
+  }
+
   // 共有メモリに値を設定して番号を返す
-  unsigned int set(unsigned int i, const GgMatrix &m)
+  unsigned int set(unsigned int i, const GgMatrix &m) const
   {
     if (i >= used) return ~0;
 
@@ -86,5 +98,26 @@ public:
     }
 
     return used++;
+  }
+
+  // メモリの内容を共有メモリに保存する
+  void store(const void *src, unsigned int count)
+  {
+    if (count > 0 && lock())
+    {
+      if (count > size) count = size;
+      for (used = 0; used < count; ++used) pShare[used] = static_cast<const GgMatrix *>(src)[used];
+      unlock();
+    }
+  }
+
+  // 共有メモリの内容をメモリに取り出す
+  void extract(void *dst) const
+  {
+    if (used > 0 && lock())
+    {
+      for (unsigned int i = 0; i < used; ++i) static_cast<GgMatrix *>(dst)[i] = pShare[i];
+      unlock();
+    }
   }
 };

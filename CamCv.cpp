@@ -39,9 +39,6 @@ void CamCv::capture(int cam)
         // 作業者として動作していたら
         if (isWorker())
         {
-          // ヘッドトラッキング情報を保存して
-          if (frame) frame->attitude[cam] = getLocalAttitude(cam);
-
           // フレームを圧縮して保存し
           cv::imencode(coder, image[cam], encoded[cam], param);
         }

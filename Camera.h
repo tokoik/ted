@@ -10,6 +10,9 @@
 // ネットワーク関連の処理
 #include "Network.h"
 
+// 共有メモリ
+#include "SharedMemory.h"
+
 // OpenCV
 #include <opencv2/highgui/highgui.hpp>
 
@@ -24,7 +27,7 @@
 const int camCount(2), camL(0), camR(1);
 
 // 作業用メモリのサイズ
-const int workingMemorySize(1024 * 1024);
+const int maxFrameSize(1024 * 1024);
 
 //
 // カメラ関連の処理を担当するクラス
@@ -118,43 +121,8 @@ protected:
   // 受信スレッド
   std::thread recvThread;
 
-  // カメラの姿勢
-  struct Attitude
-  {
-    // コンストラクタ
-    Attitude()
-    {
-    }
-
-    // コンストラクタ
-    Attitude(GLfloat p0, GLfloat p1, GLfloat p2, GLfloat p3, const GgQuaternion &q)
-    {
-      position[0] = p0;
-      position[1] = p1;
-      position[2] = p2;
-      position[3] = p3;
-      orientation = q;
-    }
-
-    // コンストラクタ
-    Attitude(const GLfloat *p, const GgQuaternion &q)
-      : Attitude(p[0], p[1], p[2], p[3], q) {}
-
-    // 視点の位置
-    GLfloat position[4];
-
-    // 視線の向き
-    GgQuaternion orientation;
-  };
-
-  // ローカルカメラの姿勢
-  Attitude attitude[camCount];
-
-  // ローカルカメラのトラッキング情報を保存する際に使うミューテックス
-  std::mutex attitudeMutex[camCount];
-
   // リモートカメラの姿勢のタイミングをフレームに合わせて遅らせるためのキュー
-  std::queue<Attitude> fifo[camCount];
+  std::queue<GgMatrix> fifo[camCount];
 
   // エンコードのパラメータ
   std::vector<int> param;
@@ -162,52 +130,29 @@ protected:
   // エンコードした画像
   std::vector<uchar> encoded[camCount];
 
-  // フレームのレイアウト
-  struct Frame
-  {
-    // そのフレーム撮影時のカメラの姿勢
-    Attitude attitude[camCount];
+  // 変換行列のテーブル
+  SharedMemory *localMatrix, *remoteMatrix;
 
-    // フレームデータの長さ
-    unsigned int length[camCount];
-
-    // 作業用のメモリ
-    uchar data[workingMemorySize];
-  };
-
-  // 作業用のメモリ
-  Frame *frame;
+  // データ送信用のメモリ
+  char *sendbuf;
+  
+  // データ受信用のメモリ
+  char *recvbuf;
 
   // 通信データ
   Network network;
 
 public:
 
-  // ローカルの Oculus Rift のトラッキング情報を保存する
-  void storeLocalAttitude(int eye, const Attitude &new_attitude)
+  // モデル変換行列のテーブルを選択する
+  void selectTable(SharedMemory *local, SharedMemory *remote)
   {
-    if (attitudeMutex[eye].try_lock())
-    {
-      attitude[eye] = new_attitude;
-      attitudeMutex[eye].unlock();
-    }
-  }
-
-  // ローカルの Oculus Rift のトラッキング情報を保存する
-  void storeLocalAttitude(int eye, const GLfloat *position, const GgQuaternion &orientation)
-  {
-    storeLocalAttitude(eye, Attitude(position, orientation));
-  }
-
-  // ローカルの Oculus Rift のヘッドラッキングによる移動を得る
-  const Attitude &getLocalAttitude(int eye)
-  {
-    std::lock_guard<std::mutex> lock(attitudeMutex[eye]);
-    return attitude[eye];
+    localMatrix = local;
+    remoteMatrix = remote;
   }
 
   // リモートの Oculus Rift のトラッキング情報を遅延させる
-  void queueRemoteAttitude(int eye, const Attitude &new_attitude)
+  void queueRemoteAttitude(int eye, const GgMatrix &new_attitude)
   {
     // 新しいトラッキングデータを追加する
     fifo[eye].push(new_attitude);
@@ -216,17 +161,10 @@ public:
     if (fifo[eye].size() > defaults.tracking_delay[eye] + 1) fifo[eye].pop();
   }
 
-  // リモートの Oculus Rift のトラッキング情報を遅延させる
-  void queueRemoteAttitude(int eye, const GLfloat *position, const GgQuaternion &orientation)
-  {
-    queueRemoteAttitude(eye, Attitude(position, orientation));
-  }
-
   // リモートの Oculus Rift のヘッドラッキングによる移動を得る
-  const Attitude &getRemoteAttitude(int eye)
+  const GgMatrix &getRemoteAttitude(int eye)
   {
-    static Attitude initialAttitude(0.0f, 0.0f, 0.0f, 1.0f, ggIdentityQuaternion());
-    if (fifo[eye].empty()) return initialAttitude;
+    if (fifo[eye].empty()) fifo[eye].push(ggIdentity());
     return fifo[eye].front();
   }
 

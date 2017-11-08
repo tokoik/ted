@@ -1378,9 +1378,6 @@ void Window::select(int eye)
     // Oculus Rift の片目の回転を保存する
     qo[eye] = GgQuaternion(o.x, o.y, o.z, -o.w);
 
-    // ネットワークを使っていれば Oculus Rift の位置と回転をカメラにも設定する
-    if (camera->useNetwork()) camera->storeLocalAttitude(eye, po[eye], qo[eye]);
-
     // カラーバッファとデプスバッファを消去する
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
