@@ -405,11 +405,14 @@ int main(int argc, const char *const *const argv)
     return EXIT_FAILURE;
   }
 
+  // Leap Motion のデータを書き込む変換行列の表を選択する
+  LeapListener::selectTable(localAttitude.get());
+
   // Leap Motion の listener と controller を作る
   LeapListener listener;
-  Leap::Controller controller;
 
   // Leap Motion の listener が controller からイベントを受け取るようにする
+  Leap::Controller controller;
   controller.addListener(listener);
   controller.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
   controller.setPolicy(Leap::Controller::POLICY_ALLOW_PAUSE_RESUME);
@@ -417,7 +420,7 @@ int main(int argc, const char *const *const argv)
   // シーンの変換行列を Leap Motion で制御できるようにする
   Scene::selectController(&listener);
 
-  // シーンで参照する変換行列の票を選択する
+  // シーンで参照する変換行列の表を選択する
   Scene::selectTable(localAttitude.get(), remoteAttitude.get());
 
   // ローカルの姿勢の姿勢のインデックスを得る

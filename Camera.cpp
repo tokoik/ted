@@ -28,9 +28,6 @@ Camera::Camera()
 
   for (int cam = 0; cam < camCount; ++cam)
   {
-    // ローカルの姿勢に初期値を設定する
-    localMatrix->set(cam, ggIdentity());
-
     // リモートの姿勢に初期値を設定する
     fifo[cam].emplace(ggIdentity());
 

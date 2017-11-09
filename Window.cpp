@@ -29,7 +29,7 @@ const int axesOffset(1);
 // GetDefaultAdapterLuid ‚Ì‚½‚ß
 #if defined(_WIN32)
 #include <dxgi.h>
-#pragma comment(lib, "dxgi.lib")
+#  pragma comment(lib, "dxgi.lib")
 #endif
 
 static ovrGraphicsLuid GetDefaultAdapterLuid()
