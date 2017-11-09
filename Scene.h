@@ -88,9 +88,6 @@ public:
   {
     // コントローラを登録する
     Scene::controller = controller;
-
-    // コントローラが制御する変換行列を指定する
-    controller->selectTable(localMatrix);
   }
 
   // シーングラフを読み込む
