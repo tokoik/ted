@@ -42,9 +42,6 @@
     <ClInclude Include="gg.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="glext.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="LeapListener.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
