@@ -1,11 +1,12 @@
 {
   "left_camera": -1,
   "left_image": "theta_left.jpg",
-  "right_camera": 1,
+  "right_camera": -1,
   "right_image": "theta_right.jpg",
   "capture_fps": 0,
-  "capture_height": 0,
-  "capture_width": 0,
+  "capture_width": 1920,
+  "capture_height": 1080,
+  "tracking": true,
   "stereo": 5,
   "use_secondary": 1,
   "ovrvision_property": 3,
@@ -27,17 +28,14 @@
   "texture_samples": 1271,
   "tracking_delay_left": 0,
   "tracking_delay_right": 0,
-  "vertex_shader": "fixed.vert",
-  "fragment_shader": "normal.frag",
-  "host": "10.0.1.8",
+  "vertex_shader": "theta.vert",
+  "fragment_shader": "theta.frag",
+  "host": "10.0.1.6",
   "port": 12345,
-  "role": 2,
+  "role": 0,
   "max_level": 10,
-  "xscene": "scene.json",
-  "target": {
-    "controller": 44,
-    "model": "target.obj"
-  },
+  "scene": null,
+  "target": "hand.json",
   "remote": {
     "model": "remote.obj"
   }

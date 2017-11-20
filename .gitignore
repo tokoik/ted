@@ -29,6 +29,10 @@ attitude.json
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
+# Installer
+/INSTALL/Debug/
+/INSTALL/Release/
+
 # NUNIT
 *.VisualState.xml
 TestResult.xml
