@@ -55,8 +55,8 @@ int CamRemote::open(unsigned short port, const char *address, const GLuint *text
 {
   // 作業用のメモリを確保する（これは Camera のデストラクタで delete する）
   delete sendbuf, recvbuf;
-  sendbuf = new char[maxFrameSize];
-  recvbuf = new char[maxFrameSize];
+  sendbuf = new uchar[maxFrameSize];
+  recvbuf = new uchar[maxFrameSize];
 
   // 操縦者として初期化して
   network.initialize(1, port, address);
@@ -72,14 +72,17 @@ int CamRemote::open(unsigned short port, const char *address, const GLuint *text
     if (++i > retry) return ret;
   }
 
-  // 変換行列を保存する
-  remoteMatrix->store(head + camCount + 1, head[camCount]);
+  // 変換行列の保存先
+  GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
 
-  // データ本体
-  uchar *const body(reinterpret_cast<uchar *>(head + camCount + 1 + head[camCount]));
+  // 変換行列を復帰する
+  remoteMatrix->store(body, 0, head[camCount]);
+
+  // 左フレームの保存先 (変換行列の最後)
+  uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
 
   // 左フレームデータを vector に変換して
-  encoded[camL].assign(body, body + head[camL]);
+  encoded[camL].assign(data, data + head[camL]);
 
   // 左フレームをデコードする
   remote[camL] = cv::imdecode(cv::Mat(encoded[camL]), 1);
@@ -95,7 +98,7 @@ int CamRemote::open(unsigned short port, const char *address, const GLuint *text
   if (head[camR] > 0)
   {
     // 右フレームデータを vector に変換して
-    encoded[camR].assign(body + head[camL], body + head[camL] + head[camR]);
+    encoded[camR].assign(data + head[camL], data + head[camL] + head[camR]);
 
     // 右フレームをデコードする
     remote[camR] = cv::imdecode(cv::Mat(encoded[camR]), 1);
@@ -215,16 +218,16 @@ void CamRemote::send()
     head[camCount] = localMatrix->getUsed();
 
     // 変換行列の保存先
-    char *body(sendbuf + sizeof head[camCount + 1]);
+    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
 
     // 変換行列を保存する
     localMatrix->load(body);
 
     // 左フレームの保存先 (変換行列の最後)
-    body += head[camCount] * sizeof (GgMatrix);
+    uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
 
     // フレームを送信する
-    network.sendFrame(sendbuf, static_cast<unsigned int>(body - sendbuf));
+    network.sendFrame(sendbuf, static_cast<unsigned int>(data - sendbuf));
 
     // 他のスレッドがリソースにアクセスするために少し待つ
     std::this_thread::sleep_for(std::chrono::milliseconds(10L));
@@ -239,7 +242,6 @@ void CamRemote::recv()
   {
     // ヘッダのフォーマット
     unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
-    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
 
     // 1 フレーム受け取って
     for (int i = 0;;)
@@ -249,14 +251,17 @@ void CamRemote::recv()
       if (++i > retry) return;
     }
 
-    // 変換行列を保存する
-    remoteMatrix->store(body, head[camCount]);
+    // 変換行列の保存先
+    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
 
-    // カメラの姿勢を保存する
+    // 変換行列を復帰する
+    remoteMatrix->store(body, 0, head[camCount]);
+
+    // カメラの姿勢を復帰する
     queueRemoteAttitude(camL, body[camL]);
     queueRemoteAttitude(camR, body[camR]);
 
-    // フレームデータの先頭
+    // 左フレームの保存先 (変換行列の最後)
     uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
 
     // リモートから取得したフレームのサイズ

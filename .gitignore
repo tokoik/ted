@@ -33,6 +33,9 @@ attitude.json
 /INSTALL/Debug/
 /INSTALL/Release/
 
+# Configuration File
+/config.json
+
 # NUNIT
 *.VisualState.xml
 TestResult.xml

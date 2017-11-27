@@ -200,7 +200,7 @@ unsigned int Network::sendFrame(const void *buf, unsigned int len) const
 
 #ifdef _DEBUG
     // シーケンス番号・残りパケット数・データサイズ
-    std::cerr << packet.head.sequence << ", " << packet.head.count << ", " << size << "\n";
+    std::cerr << "seq:" << packet.head.sequence << ", cnt:" << packet.head.count << ", size:" << size << "\n";
 #endif
 
     // 1 パケット分データを送信する
