@@ -151,6 +151,7 @@ void LeapListener::onFrame(const Leap::Controller &controller)
       for (int b = 0; b < 4; ++b)
       {
         const int jointId(4 + finger.type() * 8 + b * 2 + base);
+
         if (~jointIndex[jointId])
         {
           const Leap::Bone::Type boneType(static_cast<Leap::Bone::Type>(b));

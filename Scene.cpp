@@ -75,24 +75,9 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
   const auto &v_controller(o.find("controller"));
   if (v_controller != o.end() && v_controller->second.is<double>())
   {
-    // 共有メモリに変換行列を追加
-    index = localMatrix->push(ggIdentity());
-
-    // 追加に成功したら
-    if (~index != 0 && controller != nullptr)
-    {
-      // 引数に指定されている関節番号を取り出し
-      const auto joint(static_cast<unsigned int>(v_controller->second.get<double>()));
-
-      // その関節番号に追加した共有メモリ上の変換行列のインデックスを割り当てる
-      controller->assign(joint, index);
-    }
-#if defined(_DEBUG)
-    else
-    {
-      std::cerr << "Controller is not selected.\n";
-    }
-#endif
+    // 引数に指定されている変換行列の番号を取り出し
+    const auto i(static_cast<unsigned int>(v_controller->second.get<double>()));
+    if (i < localMatrix->getSize()) index = i;
   }
 
   // パーツの図形データ

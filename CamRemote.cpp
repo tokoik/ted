@@ -218,7 +218,7 @@ void CamRemote::send()
     char *body(sendbuf + sizeof head[camCount + 1]);
 
     // 変換行列を保存する
-    localMatrix->extract(body);
+    localMatrix->load(body);
 
     // 左フレームの保存先 (変換行列の最後)
     body += head[camCount] * sizeof (GgMatrix);
