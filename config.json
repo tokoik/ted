@@ -1,7 +1,7 @@
 {
-  "left_camera": -1,
+  "left_camera": 1,
   "left_image": "theta_left.jpg",
-  "right_camera": -1,
+  "right_camera": 3,
   "right_image": "theta_right.jpg",
   "capture_fps": 0,
   "capture_width": 1920,
@@ -30,7 +30,7 @@
   "tracking_delay_right": 0,
   "vertex_shader": "theta.vert",
   "fragment_shader": "theta.frag",
-  "host": "10.0.1.6",
+  "host": "10.0.1.7",
   "port": 12345,
   "role": 0,
   "max_level": 10,

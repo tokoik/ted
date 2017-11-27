@@ -42,23 +42,9 @@ class Scene
 
 public:
 
-  // 既存の変換行列を指定してシーンのオブジェクトを作成するコンストラクタ
-  Scene(unsigned int i, const GgObj *obj = nullptr)
+  // コンストラクタ
+  Scene(const GgObj *obj = nullptr)
     : obj(obj)
-  {
-    index = i;
-  }
-
-  // 新規に変換行列を作成してシーンのオブジェクトを作成するコンストラクタ
-  Scene(const GgMatrix &mat = ggIdentity(), const GgObj *obj = nullptr)
-    : obj(obj)
-  {
-    index = localMatrix->push(mat);
-  }
-
-  // 新規に変換行列を作成してシーンのオブジェクトを作成するコンストラクタ
-  Scene(const GLfloat *mat, const GgObj *obj = nullptr)
-    : Scene(GgMatrix(mat), obj)
   {
   }
 
@@ -93,29 +79,17 @@ public:
   // シーングラフを読み込む
   Scene *load(const picojson::value &v, const GgSimpleShader *shader, int level);
 
-  // 子供のパーツにシーンオブジェクトを追加する
+  // 子供にシーンを追加する
   Scene *addChild(Scene *scene)
   {
     children.push_back(scene);
     return scene;
   }
 
-  // 既存の変換行列を指定して子供のパーツを追加する
-  Scene *addChild(int i, GgObj *obj = nullptr)
+  // 子供にパーツに追加する
+  Scene *addChild(GgObj *obj = nullptr)
   {
-    return addChild(new Scene(i, obj));
-  }
-
-  // 新規に変換行列を作成して子供のパーツを追加する
-  Scene *addChild(const GgMatrix &mm = ggIdentity(), GgObj *obj = nullptr)
-  {
-    return addChild(new Scene(mm, obj));
-  }
-
-  // 新規に変換行列を作成して子供のパーツを追加する
-  Scene *addChild(const GLfloat *mm, GgObj *obj = nullptr)
-  {
-    return addChild(GgMatrix(mm), obj);
+    return addChild(new Scene(obj));
   }
 
   // このパーツ以下のすべてのパーツを描画する

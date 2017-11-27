@@ -168,6 +168,9 @@ int main(int argc, const char *const *const argv)
       // 生成したカメラを記録しておく
       camera.reset(cam);
 
+      // カメラで参照する変換行列の票を選択する
+      camera->selectTable(localAttitude.get(), remoteAttitude.get());
+
       // 操縦者側を起動する
       if (cam->open(defaults.port, defaults.address.c_str(), texture) < 0)
       {
@@ -345,6 +348,9 @@ int main(int argc, const char *const *const argv)
       }
     }
 
+    // カメラで参照する変換行列の票を選択する
+    camera->selectTable(localAttitude.get(), remoteAttitude.get());
+
     // 作業者として動作する場合
     if (defaults.role == WORKER && defaults.port > 0 && !defaults.address.empty())
     {
@@ -352,9 +358,6 @@ int main(int argc, const char *const *const argv)
       camera->startWorker(defaults.port, defaults.address.c_str());
     }
   }
-
-  // カメラで参照する変換行列の票を選択する
-  camera->selectTable(localAttitude.get(), remoteAttitude.get());
 
   // ウィンドウにそのカメラを結び付ける
   window.setControlCamera(camera.get());
@@ -405,6 +408,10 @@ int main(int argc, const char *const *const argv)
     return EXIT_FAILURE;
   }
 
+  // ローカルの姿勢の姿勢のインデックスを得る
+  int localAttitudeIndex[eyeCount];
+  for (int eye = 0; eye < eyeCount; ++eye) localAttitudeIndex[eye] = localAttitude->push(ggIdentity());
+
   // Leap Motion のデータを書き込む変換行列の表を選択する
   LeapListener::selectTable(localAttitude.get());
 
@@ -422,10 +429,6 @@ int main(int argc, const char *const *const argv)
 
   // シーンで参照する変換行列の表を選択する
   Scene::selectTable(localAttitude.get(), remoteAttitude.get());
-
-  // ローカルの姿勢の姿勢のインデックスを得る
-  int localAttitudeIndex[eyeCount];
-  for (int eye = 0; eye < eyeCount; ++eye) localAttitudeIndex[eye] = localAttitude->push(ggIdentity());
 
   // シーングラフ
   Scene scene(defaults.scene, simple);

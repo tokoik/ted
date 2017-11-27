@@ -39,7 +39,7 @@ public:
   // コンストラクタ
   LeapListener()
   {
-    jointIndex.fill(~0);
+    for (auto &index : jointIndex) index = matrix->push(ggIdentity());
   }
 
   // デストラクタ
@@ -49,15 +49,5 @@ public:
   static void selectTable(SharedMemory *table)
   {
     matrix = table;
-  }
-
-  // 操作する関節を指定する
-  bool assign(unsigned int joint, unsigned int index)
-  {
-    if (joint >= jointIndex.size()) return false;
-
-    jointIndex[joint] = index;
-
-    return true;
   }
 };

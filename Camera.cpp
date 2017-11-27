@@ -129,7 +129,7 @@ void Camera::send()
     GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
 
     // 変換行列を保存する
-    localMatrix->extract(body);
+    localMatrix->load(body);
 
     // 左フレームの保存先 (変換行列の最後)
     char *data(reinterpret_cast<char *>(body + head[camCount]));

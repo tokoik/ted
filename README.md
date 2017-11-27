@@ -85,7 +85,7 @@ CMake などは使っていません.
 * OpenGL 3.2 以降
 	+ GLFW 3.2.1 をプロジェクトに組み込んでいます.
 		- 「プロジェクトのプロパティ」の「構成プロパティ」の「C/C++」の「コード生成」の「ランタイムライブラリ」を, Release ビルドでは「マルチスレッド (/MT)」, Debug ビルドでは「マルチスレッド デバッグ (/MTd)」にしています.
-* Oculus Rift DK2 (0.8) または CV1 (1.18)
+* Oculus Rift DK2 (0.8) または CV1 (1.20)
 	+ ソースは両対応で, 使用する SDK のバージョンで自動判別しています.
 	+ OculusSDK の LibOVR フォルダが C:\LibOVR にあることを想定しています.
 		- OculusSDK には Debug ビルドのライブラリが含まれていないので, このプログラムを Debug ビルドする場合は, Samples.sln を使って LibOVR を Debug ビルドしてください. その際,「プロジェクトのプロパティ」の「構成プロパティ」の「C/C++」の「コード生成」の「ランタイムライブラリ」を「マルチスレッド デバッグ (/MTd)」にしておく必要があります.
@@ -101,6 +101,8 @@ CMake などは使っていません.
 	+ 開発には CUDA 8 による cudacodec を有効にしたものを使っていますが, 現状はなくてもいいかも知れません.
 * USB カメラ
 	+ 通常の USB カメラ, RICOH THETA S, Kodak PIXPRO 360 4K, 正距円筒図法 (RICOH THETA V など)
+* [Microsoft Visual Studio 2017 Installer Projects](https://marketplace.visualstudio.com/items?itemName=VisualStudioProductTeam.MicrosoftVisualStudio2017InstallerProjects)
+  + "INSTALL" プロジェクトをビルドするとインストーラが作れます.
 
 これらのほか, 設定ファイルの読み書きに [picojson](https://github.com/kazuho/picojson)
 を使用しています. ありがとうございます.
