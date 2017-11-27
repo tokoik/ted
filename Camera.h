@@ -134,10 +134,10 @@ protected:
   SharedMemory *localMatrix, *remoteMatrix;
 
   // データ送信用のメモリ
-  char *sendbuf;
+  uchar *sendbuf;
   
   // データ受信用のメモリ
-  char *recvbuf;
+  uchar *recvbuf;
 
   // 通信データ
   Network network;

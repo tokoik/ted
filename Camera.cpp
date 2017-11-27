@@ -132,7 +132,7 @@ void Camera::send()
     localMatrix->load(body);
 
     // 左フレームの保存先 (変換行列の最後)
-    char *data(reinterpret_cast<char *>(body + head[camCount]));
+    uchar *data(reinterpret_cast<uchar *>(body + head[camCount]));
 
     // 左フレームのデータをコピーする
     memcpy(data, encoded[camL].data(), head[camL]);
@@ -191,7 +191,7 @@ void Camera::recv()
       queueRemoteAttitude(camR, body[camR]);
 
       // 変換行列を保存する
-      remoteMatrix->store(body, head[camCount]);
+      remoteMatrix->store(body, 0, head[camCount]);
     }
 
     // 他のスレッドがリソースにアクセスするために少し待つ
@@ -207,8 +207,8 @@ void Camera::startWorker(unsigned short port, const char *address)
 
   // 作業用のメモリを確保する
   delete[] sendbuf, recvbuf;
-  sendbuf = new char[maxFrameSize];
-  recvbuf = new char[maxFrameSize];
+  sendbuf = new uchar[maxFrameSize];
+  recvbuf = new uchar[maxFrameSize];
 
   // 送信スレッドを開始する
   sendThread = std::thread([this]() { this->send(); });

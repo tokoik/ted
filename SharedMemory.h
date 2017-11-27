@@ -101,30 +101,8 @@ public:
   }
 
   // メモリの内容を共有メモリに保存する
-  void store(const void *src, unsigned int begin = 0, unsigned int count = 0) const
-  {
-    if (begin >= used) return;
-    if (count == 0) count = used;
-    const unsigned int last(begin + count);
-    if (last > used) count -= last - used;
-    if (lock())
-    {
-      for (unsigned int i = 0; i < count; ++i) pShare[begin++] = static_cast<const GgMatrix *>(src)[i];
-      unlock();
-    }
-  }
+  void store(const void *src, unsigned int begin, unsigned int count) const;
 
   // 共有メモリの内容をメモリに取り出す
-  void load(void *dst, unsigned int begin = 0, unsigned int count = 0) const
-  {
-    if (begin >= used) return;
-    if (count == 0) count = used;
-    const unsigned int last(begin + count);
-    if (last > size) count -= last - used;
-    if (lock())
-    {
-      for (unsigned int i = 0; i < count; ++i) static_cast<GgMatrix *>(dst)[i] = pShare[begin++];
-      unlock();
-    }
-  }
+  void load(void *dst, unsigned int begin = 0, unsigned int count = 0) const;
 };
