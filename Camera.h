@@ -124,6 +124,12 @@ protected:
   // リモートカメラの姿勢のタイミングをフレームに合わせて遅らせるためのキュー
   std::queue<GgMatrix> fifo[camCount];
 
+  // キューのミューテックス
+  std::mutex fifoMutex[camCount];
+
+  // キューの先頭
+  GgMatrix attitude[camCount];
+
   // エンコードのパラメータ
   std::vector<int> param;
 
@@ -152,21 +158,10 @@ public:
   }
 
   // リモートの Oculus Rift のトラッキング情報を遅延させる
-  void queueRemoteAttitude(int eye, const GgMatrix &new_attitude)
-  {
-    // 新しいトラッキングデータを追加する
-    fifo[eye].push(new_attitude);
-
-    // キューの長さが遅延させるフレーム数より長ければキューを進める
-    if (fifo[eye].size() > defaults.tracking_delay[eye] + 1) fifo[eye].pop();
-  }
+  void queueRemoteAttitude(int eye, const GgMatrix &new_attitude);
 
   // リモートの Oculus Rift のヘッドラッキングによる移動を得る
-  const GgMatrix &getRemoteAttitude(int eye)
-  {
-    if (!fifo[eye].empty()) return fifo[eye].front();
-    return ggIdentity();
-  }
+  const GgMatrix &getRemoteAttitude(int eye);
 
   // 作業者通信スレッド起動
   void startWorker(unsigned short port, const char *address);

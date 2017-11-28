@@ -12,6 +12,25 @@ const unsigned int maxSize(65507);
 // 受信のタイムアウト (10秒)
 const unsigned long timeout(10000UL);
 
+// コンストラクタ
+Network::Network()
+  : sendSock(INVALID_SOCKET), recvSock(INVALID_SOCKET), sender(false)
+{
+}
+
+// コンストラクタ (role == 0 : STANDALONE, 1: OPERATOR, 2: WORKER)
+Network::Network(int role, unsigned short port, const char *address)
+  : Network()
+{
+  initialize(role, port, address);
+}
+
+// デストラクタ
+Network::~Network()
+{
+  finalize();
+}
+
 // エラーコードの表示
 int Network::getError() const
 {
@@ -130,6 +149,29 @@ int Network::initialize(int role, unsigned short port, const char *address)
   }
 
   return 0;
+}
+
+// 終了処理
+void Network::finalize()
+{
+  if (running())
+  {
+    if (sendSock != INVALID_SOCKET) closesocket(sendSock);
+    if (recvSock != INVALID_SOCKET) closesocket(recvSock);
+    sendSock = recvSock = INVALID_SOCKET;
+  }
+}
+
+// 実行中なら真
+bool Network::running() const
+{
+  return sendSock != INVALID_SOCKET;
+}
+
+// 送信側なら真
+bool Network::isSender() const
+{
+  return sender;
 }
 
 // データ送信

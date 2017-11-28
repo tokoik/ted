@@ -58,34 +58,19 @@ public:
   ~Rect();
 
   // シェーダプログラム名を得る
-  GLuint get() const
-  {
-    return shader;
-  }
+  GLuint get() const;
 
   // 格子間隔を設定する
-  void setGap(const GLfloat *gap)
-  {
-    this->gap = gap;
-  }
+  void setGap(const GLfloat *gap);
 
   // スクリーンのサイズと中心位置を設定する
-  void setScreen(const GLfloat *screen)
-  {
-    this->screen = screen;
-  }
+  void setScreen(const GLfloat *screen);
 
   // 焦点距離を設定する
-  void setFocal(GLfloat focal)
-  {
-    this->focal = focal;
-  }
+  void setFocal(GLfloat focal);
 
   // 背景テクスチャの半径と中心位置を設定する
-  void setCircle(const GLfloat *circle)
-  {
-    this->circle = circle;
-  }
+  void setCircle(const GLfloat *circle);
 
   // 描画
   void draw(GLint texture, const GgMatrix &rotation, const GLsizei *samples) const;

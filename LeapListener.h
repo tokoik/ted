@@ -40,13 +40,8 @@ class LeapListener
 public:
 
   // コンストラクタ
-  LeapListener(SharedMemory *matrix)
-    : matrix(matrix)
-    , begin(matrix->getUsed())
-  {
-    for (auto &m : jointMatrix) matrix->push(m = ggIdentity());
-  }
+  LeapListener(SharedMemory *matrix);
 
   // デストラクタ
-  virtual ~LeapListener() {}
+  virtual ~LeapListener();
 };

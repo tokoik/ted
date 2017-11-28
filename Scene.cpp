@@ -5,6 +5,23 @@
 // シーングラフ
 //
 
+// コンストラクタ
+Scene::Scene(const GgObj *ob)
+  : obj(obj)
+{
+}
+
+// シーングラフからシーンのオブジェクトを作成するコンストラクタ
+Scene::Scene(const picojson::value &v, const GgSimpleShader *shader, int level)
+  : obj(nullptr)
+{
+  load(v, shader, level);
+}
+
+// シーングラフからシーンのオブジェクトを作成するコンストラクタ
+Scene::Scene(const picojson::value &v, const GgSimpleShader &shader, int level)
+  : Scene(v, &shader, level) {}
+
 // デストラクタ
 Scene::~Scene()
 {
@@ -15,6 +32,21 @@ Scene::~Scene()
   delete obj;
 }
 
+// モデル変換行列のテーブルを選択する
+void Scene::selectTable(SharedMemory *local, SharedMemory *remote)
+{
+  Scene::localMatrix = local;
+  Scene::remoteMatrix = remote;
+}
+
+// モデル変換行列を制御するコントローラを選択する
+void Scene::selectController(LeapListener *controller)
+{
+  // コントローラを登録する
+  Scene::controller = controller;
+}
+
+// シーングラフを読み込む
 Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int level)
 {
   // 引数ををパースする
@@ -112,6 +144,29 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
   }
 
   return this;
+}
+
+// 子供にシーンを追加する
+Scene *Scene::addChild(Scene *scene)
+{
+  children.push_back(scene);
+  return scene;
+}
+
+// 子供にパーツに追加する
+Scene *Scene::addChild(GgObj *obj)
+{
+  return addChild(new Scene(obj));
+}
+
+// このパーツ以下のすべてのパーツを描画する
+void Scene::draw(const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mm) const
+{
+  if (localMatrix->lock())
+  {
+    drawNode(mp, mv, mm);
+    localMatrix->unlock();
+  }
 }
 
 // このパーツ以下のすべてのパーツを描画する

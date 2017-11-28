@@ -274,3 +274,16 @@ void LeapListener::onLogMessage(const Leap::Controller &controller,
   std::cerr << msg << std::endl;
 #endif
 }
+
+// コンストラクタ
+LeapListener::LeapListener(SharedMemory *matrix)
+  : matrix(matrix)
+  , begin(matrix->getUsed())
+{
+  for (auto &m : jointMatrix) matrix->push(m = ggIdentity());
+}
+
+// デストラクタ
+LeapListener::~LeapListener()
+{
+}
