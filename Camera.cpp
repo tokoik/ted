@@ -75,8 +75,8 @@ void Camera::stop()
     if (recvThread.joinable()) recvThread.join();
 
     // キューをアンロックする
-    fifoMutex[camL].unlock();
-    fifoMutex[camR].unlock();
+    if (fifoMutex[camL].try_lock()) fifoMutex[camL].unlock();
+    if (fifoMutex[camR].try_lock()) fifoMutex[camR].unlock();
   }
 }
 
