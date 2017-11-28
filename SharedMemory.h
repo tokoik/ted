@@ -72,7 +72,7 @@ public:
     return used;
   }
 
-  // 共有メモリに値を設定して番号を返す
+  // 共有メモリの既存の変換行列に値を設定して番号を返す
   unsigned int set(unsigned int i, const GgMatrix &m) const
   {
     if (i >= used) return ~0;
@@ -86,7 +86,7 @@ public:
     return i;
   }
 
-  // 格納先に変換行列を追加して番号を返す
+  // 共有メモリに変換行列を追加して番号を返す
   unsigned int push(const GgMatrix &m)
   {
     if (used >= size) return ~0;

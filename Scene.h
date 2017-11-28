@@ -28,8 +28,8 @@ class Scene
   // このパーツのモデル変換行列
   GgMatrix mm;
 
-  // このパーツが参照する外部モデル変換行列のインデックス
-  unsigned int index;
+  // このパーツが参照する外部モデル変換行列
+  const GgMatrix *me;
 
   // 外部モデル変換行列のテーブル
   static SharedMemory *localMatrix, *remoteMatrix;

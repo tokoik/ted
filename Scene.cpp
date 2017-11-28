@@ -32,8 +32,8 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
   // シーンオブジェクトの変換行列
   mm = ggIdentity();
 
-  // 共有メモリの変換行列を指定していなければインデックスは ~0
-  index = ~0;
+  // 共有メモリの変換行列を指定していないとき
+  me = nullptr;
 
   // パーツの位置
   const auto &v_position(o.find("position"));
@@ -77,7 +77,16 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
   {
     // 引数に指定されている変換行列の番号を取り出し
     const auto i(static_cast<unsigned int>(v_controller->second.get<double>()));
-    if (i < localMatrix->getSize()) index = i;
+    if (i < localMatrix->getSize()) me = localMatrix->get(i);
+  }
+
+  // 遠隔コントローラーによる制御
+  const auto &v_remote_controller(o.find("remote_controller"));
+  if (v_remote_controller != o.end() && v_remote_controller->second.is<double>())
+  {
+    // 引数に指定されている変換行列の番号を取り出し
+    const auto i(static_cast<unsigned int>(v_remote_controller->second.get<double>()));
+    if (i < remoteMatrix->getSize()) me = remoteMatrix->get(i);
   }
 
   // パーツの図形データ
@@ -115,7 +124,7 @@ void Scene::drawNode(const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mm)
   if (obj)
   {
     // それが参照する共有メモリ上の変換行列を累積して
-    if (~index) mw *= localMatrix->get(index)->get();
+    if (me) mw *= *me;
 
     // シェーダが設定されていれば変換行列を設定し
     if (obj->getShader()) obj->getShader()->loadMatrix(mp, mv * mw);

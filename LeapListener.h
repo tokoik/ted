@@ -13,7 +13,7 @@ class LeapListener
   : public Leap::Listener
 {
   // 変換行列のテーブル
-  static SharedMemory *matrix;
+  SharedMemory *const matrix;
 
   // 変換行列のインデックスのテーブル
   std::array<unsigned int, (2 + 5 * 4) * 2> jointIndex;
@@ -37,17 +37,12 @@ class LeapListener
 public:
 
   // コンストラクタ
-  LeapListener()
+  LeapListener(SharedMemory *matrix)
+    : matrix(matrix)
   {
     for (auto &index : jointIndex) index = matrix->push(ggIdentity());
   }
 
   // デストラクタ
   virtual ~LeapListener() {}
-
-  // 操作する変換行列を指定する
-  static void selectTable(SharedMemory *table)
-  {
-    matrix = table;
-  }
 };
