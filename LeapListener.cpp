@@ -283,6 +283,3 @@ void LeapListener::onLogMessage(const Leap::Controller &controller,
   std::cerr << msg << std::endl;
 #endif
 }
-
-// モデル変換行列のテーブル
-SharedMemory *LeapListener::matrix(nullptr);

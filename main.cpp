@@ -412,11 +412,8 @@ int main(int argc, const char *const *const argv)
   int localAttitudeIndex[eyeCount];
   for (int eye = 0; eye < eyeCount; ++eye) localAttitudeIndex[eye] = localAttitude->push(ggIdentity());
 
-  // Leap Motion のデータを書き込む変換行列の表を選択する
-  LeapListener::selectTable(localAttitude.get());
-
   // Leap Motion の listener と controller を作る
-  LeapListener listener;
+  LeapListener listener(localAttitude.get());
 
   // Leap Motion の listener が controller からイベントを受け取るようにする
   Leap::Controller controller;
