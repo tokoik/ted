@@ -164,8 +164,8 @@ public:
   // リモートの Oculus Rift のヘッドラッキングによる移動を得る
   const GgMatrix &getRemoteAttitude(int eye)
   {
-    if (fifo[eye].empty()) fifo[eye].push(ggIdentity());
-    return fifo[eye].front();
+    if (!fifo[eye].empty()) return fifo[eye].front();
+    return ggIdentity();
   }
 
   // 作業者通信スレッド起動

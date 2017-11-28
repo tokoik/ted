@@ -184,14 +184,16 @@ void Camera::recv()
     {
       // ヘッダのフォーマット
       unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
+
+      // 変換行列の保存先
       GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
+
+      // 変換行列を復帰する
+      remoteMatrix->store(body, 0, head[camCount]);
 
       // カメラの姿勢を保存する
       queueRemoteAttitude(camL, body[camL]);
       queueRemoteAttitude(camR, body[camR]);
-
-      // 変換行列を保存する
-      remoteMatrix->store(body, 0, head[camCount]);
     }
 
     // 他のスレッドがリソースにアクセスするために少し待つ

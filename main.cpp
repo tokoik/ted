@@ -504,11 +504,12 @@ int main(int argc, const char *const *const argv)
         localAttitude->set(localAttitudeIndex[eye], mo);
 
         // リモートのヘッドトラッキングの変換行列
-        GgMatrix mr;
+        const GgMatrix mr(mo * camera->getRemoteAttitude(eye).transpose());
 
         // 背景を描く
-        rect.draw(texture[eye], defaults.camera_tracking
-          ? (camera->isOperator() ? mr = mo * camera->getRemoteAttitude(eye).transpose().get() : mo)
+        rect.draw(texture[eye],
+          defaults.camera_tracking
+          ? (camera->isOperator() ? mr : mo)
           : ggIdentity(), window.getSamples());
 
         // 図形と照準の描画設定

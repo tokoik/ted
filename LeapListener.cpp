@@ -81,28 +81,24 @@ void LeapListener::onFrame(const Leap::Controller &controller)
     // 手のひらの法線と方向に直交するベクトル
     const Leap::Vector tangent(direction.cross(normal));
 
-    // 0 番か 1 番のインデックスが定義されていたら
-    if (~jointIndex[0 + base])
+    // 手のひらの変換行列を作成する
+    const GLfloat mPalm[] =
     {
-      // 変換行列を作成する
-      const GLfloat m[] =
-      {
-        tangent.x, tangent.z, -tangent.y, 0.0f,
-        direction.x, direction.z, -direction.y, 0.0f,
-        normal.x, normal.z, -normal.y, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-      };
+      tangent.x, tangent.z, -tangent.y, 0.0f,
+      direction.x, direction.z, -direction.y, 0.0f,
+      normal.x, normal.z, -normal.y, 0.0f,
+      handPos.x, handPos.z, -handPos.y, 1.0f
+    };
 
-      // 変換行列を共有メモリに格納する
-      matrix->set(jointIndex[0 + base], ggTranslate(handPos.x, handPos.z, -handPos.y) * m);
+    // 変換行列を共有メモリに格納する
+    jointMatrix[0 + base] = mPalm;
 
 #if defined(_DEBUG)
-      std::cerr << "Hand: " << (base ? "Right" : "Left") << '\n';
-      std::cerr << "Position: " << handPos.x << ", " << handPos.y << ", " << handPos.z << '\n';
-      std::cerr << "Direction: " << direction.x << ", " << direction.y << ", " << direction.z << '\n';
-      std::cerr << "Normal: " << normal.x << ", " << normal.y << ", " << normal.z << '\n';
+    std::cerr << "Hand: " << (base ? "Right" : "Left") << '\n';
+    std::cerr << "Position: " << handPos.x << ", " << handPos.y << ", " << handPos.z << '\n';
+    std::cerr << "Direction: " << direction.x << ", " << direction.y << ", " << direction.z << '\n';
+    std::cerr << "Normal: " << normal.x << ", " << normal.y << ", " << normal.z << '\n';
 #endif
-    }
 
 #if defined(VERBOSE)
     // Get the Arm bone
@@ -112,31 +108,27 @@ void LeapListener::onFrame(const Leap::Controller &controller)
       << " elbow position: " << arm.elbowPosition() << std::endl;
 #endif
 
-    // 2 番か 3 番のインデックスが定義されていたら
-    if (~jointIndex[2 + base])
+    // 手首の位置と腕の方向ベクトルを求める
+    Leap::Vector wristPosition(hand.arm().wristPosition() * scale);
+    Leap::Vector armDirection((wristPosition - hand.arm().elbowPosition() * scale).normalized());
+
+    // 腕の方向ベクトルと直交するベクトルを求める
+    const Leap::Vector armTangent(armDirection.cross(normal).normalized());
+
+    // 腕の法線ベクトルを求める
+    const Leap::Vector armNormal(armDirection.cross(armTangent));
+
+    // 変換行列を作成する
+    const GLfloat mWrist[] =
     {
-      // 手首の位置と腕の方向ベクトルを求める
-      Leap::Vector wristPosition(hand.arm().wristPosition() * scale);
-      Leap::Vector armDirection((wristPosition - hand.arm().elbowPosition() * scale).normalized());
+      armTangent.x, armTangent.z, -armTangent.y, 0.0f,
+      armNormal.x, armNormal.z, -armNormal.y, 0.0f,
+      armDirection.x, armDirection.z, -armDirection.y, 0.0f,
+      wristPosition.x, wristPosition.z, -wristPosition.y, 1.0f
+    };
 
-      // 腕の方向ベクトルと直交するベクトルを求める
-      const Leap::Vector armTangent(armDirection.cross(normal).normalized());
-
-      // 腕の法線ベクトルを求める
-      const Leap::Vector armNormal(armDirection.cross(armTangent));
-
-      // 変換行列を作成する
-      const GLfloat m[] =
-      {
-        armTangent.x, armTangent.z, -armTangent.y, 0.0f,
-        armNormal.x, armNormal.z, -armNormal.y, 0.0f,
-        armDirection.x, armDirection.z, -armDirection.y, 0.0f,
-        wristPosition.x, wristPosition.z, -wristPosition.y, 1.0f
-      };
-
-      // 変換行列を共有メモリに格納する
-      matrix->set(jointIndex[2 + base], GgMatrix(m));
-    }
+    // 手首の変換行列を共有メモリに格納する
+    jointMatrix[2 + base] = mWrist;
 
     for (auto finger : hand.fingers())
     {
@@ -150,45 +142,44 @@ void LeapListener::onFrame(const Leap::Controller &controller)
       // Get finger bones
       for (int b = 0; b < 4; ++b)
       {
-        const int jointId(4 + finger.type() * 8 + b * 2 + base);
-
-        if (~jointIndex[jointId])
-        {
-          const Leap::Bone::Type boneType(static_cast<Leap::Bone::Type>(b));
-          const Leap::Bone bone(finger.bone(boneType));
+        // 指の種類と骨格を取り出す
+        const Leap::Bone::Type boneType(static_cast<Leap::Bone::Type>(b));
+        const Leap::Bone bone(finger.bone(boneType));
 
 #if defined(VERBOSE)
-          std::cerr << jointId << std::string(6, ' ') << boneNames[boneType]
-            << " bone, start: " << bone.prevJoint()
-            << ", end: " << bone.nextJoint()
-            << ", direction: " << bone.direction() << std::endl;
+        std::cerr << jointId << std::string(6, ' ') << boneNames[boneType]
+          << " bone, start: " << bone.prevJoint()
+          << ", end: " << bone.nextJoint()
+          << ", direction: " << bone.direction() << std::endl;
 #endif
 
-          // 指先の位置と指の方向ベクトルを求める
-          const Leap::Vector bonePosition(bone.nextJoint() * scale);
-          const Leap::Vector boneDirection((bonePosition - bone.prevJoint() * scale).normalized());
+        // 指先の位置と指の方向ベクトルを求める
+        const Leap::Vector bonePosition(bone.nextJoint() * scale);
+        const Leap::Vector boneDirection((bonePosition - bone.prevJoint() * scale).normalized());
 
-          // 指の手のひらの法線方向のベクトルを求める
-          const Leap::Vector boneNormal(boneDirection.cross(tangent).normalized());
+        // 指の手のひらの法線方向のベクトルを求める
+        const Leap::Vector boneNormal(boneDirection.cross(tangent).normalized());
 
-          // 指の手のひらの接線方向のベクトルを求める
-          const Leap::Vector boneTangent(boneNormal.cross(boneDirection));
+        // 指の手のひらの接線方向のベクトルを求める
+        const Leap::Vector boneTangent(boneNormal.cross(boneDirection));
 
-          // 変換行列を作成する
-          const GLfloat m[] =
-          {
-            boneTangent.x, boneTangent.z, -boneTangent.y, 0.0f,
-            boneNormal.x, boneNormal.z, -boneNormal.y, 0.0f,
-            boneDirection.x, boneDirection.z, -boneDirection.y, 0.0f,
-            bonePosition.x, bonePosition.z, -bonePosition.y, 1.0f
-          };
+        // 変換行列を作成する
+        const GLfloat mFinger[] =
+        {
+          boneTangent.x, boneTangent.z, -boneTangent.y, 0.0f,
+          boneNormal.x, boneNormal.z, -boneNormal.y, 0.0f,
+          boneDirection.x, boneDirection.z, -boneDirection.y, 0.0f,
+          bonePosition.x, bonePosition.z, -bonePosition.y, 1.0f
+        };
 
-          // 変換行列を共有メモリに格納する
-          matrix->set(jointIndex[jointId], GgMatrix(m));
-        }
+        // 変換行列を共有メモリに格納する
+        jointMatrix[4 + finger.type() * 8 + b * 2 + base] = mFinger;
       }
     }
   }
+
+  // 変換行列を共有メモリに格納する
+  matrix->store(jointMatrix.data(), begin, jointMatrix.size());
 
 #if defined(VERBOSE)
   if (!frame.hands().isEmpty()) std::cerr << std::endl;
