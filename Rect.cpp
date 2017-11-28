@@ -24,6 +24,36 @@ Rect::~Rect()
   glDeleteVertexArrays(1, &vao);
 }
 
+// シェーダプログラム名を得る
+GLuint Rect::get() const
+{
+  return shader;
+}
+
+// 格子間隔を設定する
+void Rect::setGap(const GLfloat *gap)
+{
+  this->gap = gap;
+}
+
+// スクリーンのサイズと中心位置を設定する
+void Rect::setScreen(const GLfloat *screen)
+{
+  this->screen = screen;
+}
+
+// 焦点距離を設定する
+void Rect::setFocal(GLfloat focal)
+{
+  this->focal = focal;
+}
+
+// 背景テクスチャの半径と中心位置を設定する
+void Rect::setCircle(const GLfloat *circle)
+{
+  this->circle = circle;
+}
+
 // 描画
 void Rect::draw(GLint texture, const GgMatrix &rotation, const GLsizei *samples) const
 {

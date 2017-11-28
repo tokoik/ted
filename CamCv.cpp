@@ -15,6 +15,26 @@ CamCv::~CamCv()
   stop();
 }
 
+// カメラから入力する
+bool CamCv::open(int device, int cam)
+{
+  // カメラを開いてキャプチャを開始する
+  return camera[cam].open(device) && start(cam);
+}
+
+// ファイル／ネットワークからキャプチャを開始する
+bool CamCv::open(const std::string &file, int cam)
+{
+  // ファイル／ネットワークを開く
+  return camera[cam].open(file) && start(cam);
+}
+
+// カメラが使用可能か判定する
+bool CamCv::opened(int cam)
+{
+  return camera[cam].isOpened();
+}
+
 // フレームをキャプチャする
 void CamCv::capture(int cam)
 {

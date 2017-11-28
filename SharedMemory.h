@@ -37,68 +37,28 @@ public:
   virtual ~SharedMemory();
 
   // ミューテックスオブジェクトを獲得する（獲得できるまで待つ）
-  bool lock() const
-  {
-    return WaitForSingleObject(hMutex, INFINITE) == WAIT_OBJECT_0;
-  }
+  bool lock() const;
 
   // ミューテックスオブジェクトを獲得する（獲得できなかったら false を返す）
-  bool try_lock() const
-  {
-    return WaitForSingleObject(hMutex, 0) == WAIT_OBJECT_0;
-  }
+  bool try_lock() const;
 
   // ミューテックスオブジェクトを解放する
-  void unlock() const
-  {
-    ReleaseMutex(hMutex);
-  }
+  void unlock() const;
 
   // 確保した共有メモリのアドレスを得る
-  const GgMatrix *get(unsigned int i = 0) const
-  {
-    return pShare + i;
-  }
+  const GgMatrix *get(unsigned int i = 0) const;
 
   // 共有メモリの全要素数を得る
-  unsigned int getSize() const
-  {
-    return size;
-  }
+  unsigned int getSize() const;
 
   // 使用中の共有メモリの要素数を得る
-  unsigned int getUsed() const
-  {
-    return used;
-  }
+  unsigned int getUsed() const;
 
   // 共有メモリの既存の変換行列に値を設定して番号を返す
-  unsigned int set(unsigned int i, const GgMatrix &m) const
-  {
-    if (i >= used) return ~0;
-
-    if (lock())
-    {
-      pShare[i] = m;
-      unlock();
-    }
-
-    return i;
-  }
+  unsigned int set(unsigned int i, const GgMatrix &m) const;
 
   // 共有メモリに変換行列を追加して番号を返す
-  unsigned int push(const GgMatrix &m)
-  {
-    if (used >= size) return ~0;
-
-    if (lock())
-    {
-      pShare[used] = m;
-      unlock();
-    }
-
-    return used++;
-  }
+  unsigned int push(const GgMatrix &m);
 
   // メモリの内容を共有メモリに保存する
   void store(const void *src, unsigned int begin, unsigned int count) const;

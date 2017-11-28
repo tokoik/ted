@@ -29,7 +29,7 @@ Camera::Camera()
   for (int cam = 0; cam < camCount; ++cam)
   {
     // リモートの姿勢に初期値を設定する
-    fifo[cam].emplace(ggIdentity());
+    attitude[cam].loadIdentity();
 
     // 画像がまだ取得されていないことを記録しておく
     buffer[cam] = nullptr;
@@ -73,6 +73,10 @@ void Camera::stop()
 
     // 受信スレッドが終了するのを待つ
     if (recvThread.joinable()) recvThread.join();
+
+    // キューをアンロックする
+    fifoMutex[camL].unlock();
+    fifoMutex[camR].unlock();
   }
 }
 
@@ -199,6 +203,39 @@ void Camera::recv()
     // 他のスレッドがリソースにアクセスするために少し待つ
     std::this_thread::sleep_for(std::chrono::milliseconds(10L));
   }
+}
+
+// リモートの Oculus Rift のトラッキング情報を遅延させる
+void Camera::queueRemoteAttitude(int eye, const GgMatrix &new_attitude)
+{
+  // キューをロックする
+  if (fifoMutex[eye].try_lock())
+  {
+    // 新しいトラッキングデータを追加する
+    fifo[eye].push(new_attitude);
+
+    // キューの長さが遅延させるフレーム数より長ければキューを進める
+    if (fifo[eye].size() > defaults.tracking_delay[eye] + 1) fifo[eye].pop();
+
+    // キューをアンロックする
+    fifoMutex[eye].unlock();
+  }
+}
+
+// リモートの Oculus Rift のヘッドラッキングによる移動を得る
+const GgMatrix &Camera::getRemoteAttitude(int eye)
+{
+  // キューをロックできてキューが空でなかったら
+  if (fifoMutex[eye].try_lock() && !fifo[eye].empty())
+  {
+    // キューの先頭を取り出す
+    attitude[eye] = fifo[eye].front();
+
+    // キューをアンロックする
+    fifoMutex[eye].unlock();
+  }
+
+  return attitude[eye];
 }
 
 // 作業者通信スレッド起動

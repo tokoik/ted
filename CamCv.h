@@ -35,24 +35,13 @@ public:
   virtual ~CamCv();
 
   // カメラから入力する
-  bool open(int device, int cam)
-  {
-    // カメラを開いてキャプチャを開始する
-    return camera[cam].open(device) && start(cam);
-  }
+  bool open(int device, int cam);
 
   // ファイル／ネットワークからキャプチャを開始する
-  bool open(const std::string &file, int cam)
-  {
-    // ファイル／ネットワークを開く
-    return camera[cam].open(file) && start(cam);
-  }
+  bool open(const std::string &file, int cam);
 
   // カメラが使用可能か判定する
-  bool opened(int cam)
-  {
-    return camera[cam].isOpened();
-  }
+  bool opened(int cam);
 
   // 露出を上げる
   virtual void increaseExposure();

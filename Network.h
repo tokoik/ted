@@ -15,53 +15,29 @@ class Network
 
 public:
 
-  // エラーコードの表示
-  int getError() const;
-
   // コンストラクタ
-  Network()
-    : sendSock(INVALID_SOCKET), recvSock(INVALID_SOCKET), sender(false)
-  {
-  }
+  Network();
 
   // コンストラクタ (role == 0 : STANDALONE, 1: OPERATOR, 2: WORKER)
-  Network(int role, unsigned short port, const char *address)
-    : Network()
-  {
-    initialize(role, port, address);
-  }
+  Network(int role, unsigned short port, const char *address);
 
   // デストラクタ
-  ~Network()
-  {
-    finalize();
-  }
+  virtual ~Network();
+
+  // エラーコードの表示
+  int getError() const;
 
   // 初期化（アドレスを指定していなければ操縦者，していれば作業者）
   int initialize(int role, unsigned short port, const char *address = nullptr);
 
   // 終了処理
-  void finalize()
-  {
-    if (running())
-    {
-      if (sendSock != INVALID_SOCKET) closesocket(sendSock);
-      if (recvSock != INVALID_SOCKET) closesocket(recvSock);
-      sendSock = recvSock = INVALID_SOCKET;
-    }
-  }
+  void finalize();
 
   // 実行中なら真
-  bool running() const
-  {
-    return sendSock != INVALID_SOCKET;
-  }
+  bool running() const;
 
   // 送信側なら真
-  bool isSender() const
-  {
-    return sender;
-  }
+  bool isSender() const;
 
   // データ送信
   int send(const void *buf, unsigned int len) const;
