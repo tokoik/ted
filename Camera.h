@@ -136,9 +136,6 @@ protected:
   // エンコードした画像
   std::vector<uchar> encoded[camCount];
 
-  // 変換行列のテーブル
-  SharedMemory *localMatrix, *remoteMatrix;
-
   // データ送信用のメモリ
   uchar *sendbuf;
   
@@ -147,6 +144,9 @@ protected:
 
   // 通信データ
   Network network;
+
+  // 変換行列のテーブル
+  SharedMemory *localMatrix, *remoteMatrix;
 
 public:
 

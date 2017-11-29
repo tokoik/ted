@@ -73,10 +73,6 @@ void Camera::stop()
 
     // 受信スレッドが終了するのを待つ
     if (recvThread.joinable()) recvThread.join();
-
-    // キューをアンロックする
-    if (fifoMutex[camL].try_lock()) fifoMutex[camL].unlock();
-    if (fifoMutex[camR].try_lock()) fifoMutex[camR].unlock();
   }
 }
 
@@ -250,8 +246,8 @@ void Camera::startWorker(unsigned short port, const char *address)
   recvbuf = new uchar[maxFrameSize];
 
   // 送信スレッドを開始する
-  sendThread = std::thread([this]() { this->send(); });
+  sendThread = std::thread([this]() { send(); });
 
   // 受信スレッドを開始する
-  recvThread = std::thread([this]() { this->recv(); });
+  recvThread = std::thread([this]() { recv(); });
 }

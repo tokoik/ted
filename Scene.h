@@ -34,6 +34,9 @@ class Scene
   // 外部モデル変換行列のテーブル
   static SharedMemory *localMatrix, *remoteMatrix;
 
+  // リモートの外部モデル変換行列のテーブルのコピー
+  static std::vector<GgMatrix> localJointMatrix, remoteJointMatrix;
+
   // この骨格を制御する Leap Motion
   static LeapListener *controller;
 

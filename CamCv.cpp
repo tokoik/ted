@@ -126,7 +126,7 @@ bool CamCv::start(int cam)
 
     // キャプチャスレッドを起動する
     run[cam] = true;
-    captureThread[cam] = std::thread([this, cam]() { this->capture(cam); });
+    captureThread[cam] = std::thread([this, cam]() { capture(cam); });
 
     return true;
   }

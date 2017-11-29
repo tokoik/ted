@@ -63,9 +63,9 @@ void SharedMemory::unlock() const
 }
 
 // 確保した共有メモリのアドレスを得る
-const GgMatrix *SharedMemory::get(unsigned int i) const
+const GgMatrix *SharedMemory::get() const
 {
-  return pShare + i;
+  return pShare;
 }
 
 // 共有メモリの全要素数を得る
@@ -111,14 +111,19 @@ unsigned int SharedMemory::push(const GgMatrix &m)
 // メモリの内容を共有メモリに保存する
 void SharedMemory::store(const void *src, unsigned int begin, unsigned int count) const
 {
+  printf("begin=%d, used=%d\n", begin, used);
   if (begin >= used) return;
+  printf("count=%d\n", count);
   if (count == 0) count = used;
   const unsigned int last(begin + count);
   if (last > used) count -= last - used;
-  if (lock())
+  printf("last=%d, used=%d\n", last, used);
+  if (lock(), true)
   {
-    for (unsigned int i = 0; i < count; ++i) pShare[begin++] = static_cast<const GgMatrix *>(src)[i];
+    std::copy(static_cast<const GgMatrix *>(src), static_cast<const GgMatrix *>(src) + count, pShare + begin);
+    //for (unsigned int i = 0; i < count; ++i) pShare[begin++] = static_cast<const GgMatrix *>(src)[i];
     unlock();
+    printf("<%f,%f,%f,%f>\n", pShare[0].get()[0], pShare[0].get()[1], pShare[0].get()[2], pShare[0].get()[3]);
   }
 }
 
@@ -127,11 +132,12 @@ void SharedMemory::load(void *dst, unsigned int begin, unsigned int count) const
 {
   if (begin >= used) return;
   if (count == 0) count = used;
-  const unsigned int last(begin + count);
-  if (last > size) count -= last - used;
+  unsigned int last(begin + count);
+  if (last > used) last = used;
   if (lock())
   {
-    for (unsigned int i = 0; i < count; ++i) static_cast<GgMatrix *>(dst)[i] = pShare[begin++];
+    std::copy(pShare + begin, pShare + last, static_cast<GgMatrix *>(dst));
+    //for (unsigned int i = 0; i < count; ++i) static_cast<GgMatrix *>(dst)[i] = pShare[begin++];
     unlock();
   }
 }

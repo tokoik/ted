@@ -156,8 +156,8 @@ int CamRemote::open(unsigned short port, const char *address, const GLuint *text
 
   // 通信スレッドを開始する
   run[camL] = true;
-  sendThread = std::thread([this]() { this->send(); });
-  recvThread = std::thread([this]() { this->recv(); });
+  sendThread = std::thread([this]() { send(); });
+  recvThread = std::thread([this]() { recv(); });
 
   return 0;
 }
