@@ -2,6 +2,7 @@
 // リモートカメラからキャプチャ
 //
 #include "CamRemote.h"
+#include "Scene.h"
 
 // リトライ回数
 const int retry(3);
@@ -187,7 +188,7 @@ bool CamRemote::transmit(int cam, GLuint texture, const GLsizei *size)
     glBindTexture(GL_TEXTURE_2D, resample[cam]);
 
     // リモートのヘッドトラッキング情報を設定してレンダリング
-    glUniformMatrix4fv(rotationLoc, 1, GL_FALSE, getRemoteAttitude(cam).transpose().get());
+    glUniformMatrix4fv(rotationLoc, 1, GL_FALSE, Scene::getRemoteAttitude(cam).get());
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, slices * 2, stacks - 1);
 
     // レンダリング先を通常のフレームバッファに戻す
@@ -256,10 +257,6 @@ void CamRemote::recv()
 
     // 変換行列を復帰する
     remoteMatrix->store(body, 0, head[camCount]);
-
-    // カメラの姿勢を復帰する
-    queueRemoteAttitude(camL, body[camL]);
-    queueRemoteAttitude(camR, body[camR]);
 
     // 左フレームの保存先 (変換行列の最後)
     uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));

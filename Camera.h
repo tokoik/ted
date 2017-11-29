@@ -20,9 +20,6 @@
 #include <thread>
 #include <mutex>
 
-// キュー
-#include <queue>
-
 // カメラの数と識別子
 const int camCount(2), camL(0), camR(1);
 
@@ -121,15 +118,6 @@ protected:
   // 受信スレッド
   std::thread recvThread;
 
-  // リモートカメラの姿勢のタイミングをフレームに合わせて遅らせるためのキュー
-  std::queue<GgMatrix> fifo[camCount];
-
-  // キューのミューテックス
-  std::mutex fifoMutex[camCount];
-
-  // キューの先頭
-  GgMatrix attitude[camCount];
-
   // エンコードのパラメータ
   std::vector<int> param;
 
@@ -156,12 +144,6 @@ public:
     localMatrix = local;
     remoteMatrix = remote;
   }
-
-  // リモートの Oculus Rift のトラッキング情報を遅延させる
-  void queueRemoteAttitude(int eye, const GgMatrix &new_attitude);
-
-  // リモートの Oculus Rift のヘッドラッキングによる移動を得る
-  const GgMatrix &getRemoteAttitude(int eye);
 
   // 作業者通信スレッド起動
   void startWorker(unsigned short port, const char *address);

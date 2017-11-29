@@ -429,8 +429,6 @@ int main(int argc, const char *const *const argv)
 
   // シーングラフ
   Scene scene(defaults.scene, simple);
-  Scene target(defaults.target, simple);
-  Scene remote(defaults.remote, simple);
 
   // 背景描画用の矩形を作成する
   Rect rect(defaults.vertex_shader, defaults.fragment_shader);
@@ -461,6 +459,9 @@ int main(int argc, const char *const *const argv)
   // ウィンドウが開いている間くり返し描画する
   while (!window.shouldClose())
   {
+    // ローカルとリモートの変換行列を共有メモリから取り出す
+    Scene::setup();
+
     // 左カメラをロックして画像を転送する
     camera->transmit(eyeL, texture[eyeL], size[eyeL]);
 
@@ -505,7 +506,7 @@ int main(int argc, const char *const *const argv)
         localAttitude->set(localAttitudeIndex[eye], mo.transpose());
 
         // リモートのヘッドトラッキングの変換行列
-        const GgMatrix mr(ml * camera->getRemoteAttitude(eye));
+        const GgMatrix mr(ml * Scene::getRemoteAttitude(eye));
 
         // 背景を描く
         rect.draw(texture[eye], camera->isOperator() ? mr : ml, window.getSamples());
@@ -522,13 +523,6 @@ int main(int argc, const char *const *const argv)
 
         // 図形を描画する
         if (window.showScene) scene.draw(window.getMp(eye), mo * window.getMv(eye), window.getMm());
-
-        // ネットワークが有効の時
-        if (window.showTarget && camera->useNetwork())
-        {
-          // リモートの回転変換行列を使ってリモートの照準を描画する
-          remote.draw(window.getMp(eye), mr * window.getMv(eye));
-        }
 
         // 片目の処理を完了する
         window.commit(eye);
