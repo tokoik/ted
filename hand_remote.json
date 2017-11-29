@@ -1,5 +1,6 @@
 {
-  "model": "target.obj",
+  "remote_controller": 0,
+  "model": "remote.obj",
   "children": [
     {
       "position": [ 0, -0.3, -0.3 ],

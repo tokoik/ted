@@ -166,21 +166,31 @@ Scene *Scene::addChild(GgObj *obj)
   return addChild(new Scene(obj));
 }
 
-// シーンを描画する
-void Scene::draw(const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mm) const
+// ローカルとリモートの変換行列を共有メモリから取り出す
+void Scene::setup()
 {
   // ローカルの共有メモリから変換行列を取得する
-  localMatrix->load(localJointMatrix.data(), 0, localJointMatrix.size());
+  localMatrix->load(localJointMatrix.data(), 0, static_cast<unsigned int>(localJointMatrix.size()));
 
   // リモートの共有メモリから変換行列を取得する
-  remoteMatrix->load(remoteJointMatrix.data(), 0, remoteJointMatrix.size());
+  remoteMatrix->load(remoteJointMatrix.data(), 0, static_cast<unsigned int>(remoteJointMatrix.size()));
+}
 
-  // このパーツ以下のすべてのパーツを描画する
-  drawNode(mp, mv, mm);
+// リモートのカメラのトラッキング情報を遅延させて取り出す
+const GgMatrix &Scene::getRemoteAttitude(int cam)
+{
+  // 新しいトラッキングデータを追加する
+  fifo[cam].push(remoteJointMatrix[cam]);
+
+  // キューの長さが遅延させるフレーム数より長ければキューを進める
+  if (fifo[cam].size() > defaults.tracking_delay[cam] + 1) fifo[cam].pop();
+
+  // キューの先頭を返す
+  return fifo[cam].front();
 }
 
 // このパーツ以下のすべてのパーツを描画する
-void Scene::drawNode(const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mm) const
+void Scene::draw(const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mm) const
 {
   // モデル変換行列を累積する
   GgMatrix mw(mm * this->mm);
@@ -210,3 +220,6 @@ std::vector<GgMatrix> Scene::localJointMatrix, Scene::remoteJointMatrix;
 
 // モデル変換行列を制御するコントローラ
 LeapListener *Scene::controller(nullptr);
+
+// リモートカメラの姿勢のタイミングをフレームに合わせて遅らせるためのキュー
+std::queue<GgMatrix> Scene::fifo[remoteCamCount];

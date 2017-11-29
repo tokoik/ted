@@ -17,6 +17,12 @@ using namespace gg;
 // シーングラフは JSON で記述する
 #include "picojson.h"
 
+// キュー
+#include <queue>
+
+// リモートカメラの数
+const int remoteCamCount(2);
+
 class Scene
 {
   // 子供のパーツのリスト
@@ -40,8 +46,8 @@ class Scene
   // この骨格を制御する Leap Motion
   static LeapListener *controller;
 
-  // このパーツ以下のすべてのパーツを描画する
-  void drawNode(const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mm) const;
+  // リモートカメラの姿勢のタイミングをフレームに合わせて遅らせるためのキュー
+  static std::queue<GgMatrix> fifo[remoteCamCount];
 
 public:
 
@@ -71,6 +77,12 @@ public:
 
   // 子供にパーツに追加する
   Scene *addChild(GgObj *obj = nullptr);
+
+  // ローカルとリモートの変換行列を共有メモリから取り出す
+  static void setup();
+
+  // リモートのカメラのトラッキング情報を遅延させて取り出す
+  static const GgMatrix &getRemoteAttitude(int cam);
 
   // このパーツ以下のすべてのパーツを描画する
   void draw(

@@ -179,7 +179,7 @@ void LeapListener::onFrame(const Leap::Controller &controller)
   }
 
   // •ÏŠ·s—ñ‚ð‹¤—Lƒƒ‚ƒŠ‚ÉŠi”[‚·‚é
-  matrix->store(jointMatrix.data(), begin, jointMatrix.size());
+  matrix->store(jointMatrix.data(), begin, static_cast<unsigned int>(jointMatrix.size()));
 
 #if defined(VERBOSE)
   if (!frame.hands().isEmpty()) std::cerr << std::endl;
