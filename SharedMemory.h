@@ -46,7 +46,7 @@ public:
   void unlock() const;
 
   // 確保した共有メモリのアドレスを得る
-  const GgMatrix *get(unsigned int i = 0) const;
+  const GgMatrix *get() const;
 
   // 共有メモリの全要素数を得る
   unsigned int getSize() const;

@@ -499,18 +499,16 @@ int main(int argc, const char *const *const argv)
         // ローカルのヘッドトラッキングの変換行列
         const GgQuaternion qo(window.getQo(eye));
         const GgMatrix mo(qo.getMatrix());
+        const GgMatrix ml(defaults.camera_tracking ? mo : ggIdentity());
 
         // ローカルのヘッドトラッキング情報を共有メモリに保存する
-        localAttitude->set(localAttitudeIndex[eye], mo);
+        localAttitude->set(localAttitudeIndex[eye], mo.transpose());
 
         // リモートのヘッドトラッキングの変換行列
-        const GgMatrix mr(mo * camera->getRemoteAttitude(eye).transpose());
+        const GgMatrix mr(ml * camera->getRemoteAttitude(eye));
 
         // 背景を描く
-        rect.draw(texture[eye],
-          defaults.camera_tracking
-          ? (camera->isOperator() ? mr : mo)
-          : ggIdentity(), window.getSamples());
+        rect.draw(texture[eye], camera->isOperator() ? mr : ml, window.getSamples());
 
         // 図形と照準の描画設定
         glEnable(GL_DEPTH_TEST);
@@ -524,9 +522,6 @@ int main(int argc, const char *const *const argv)
 
         // 図形を描画する
         if (window.showScene) scene.draw(window.getMp(eye), mo * window.getMv(eye), window.getMm());
-
-        // ローカルの照準を描画する
-        if (window.showTarget) target.draw(window.getMp(eye), window.getMv(eye));
 
         // ネットワークが有効の時
         if (window.showTarget && camera->useNetwork())

@@ -15,10 +15,10 @@ class LeapListener
   // 変換行列のテーブル
   SharedMemory *const matrix;
 
-  // 変換テーブルの格納先の先頭
+  // 変換行列テーブルの格納先の先頭
   const unsigned int begin;
 
-  // 変換行列のインデックスのテーブル
+  // 変換行列のテーブルのコピー
   std::array<GgMatrix, (2 + 5 * 4) * 2> jointMatrix;
 
   // Leap Motion とのインタフェース

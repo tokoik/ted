@@ -35,8 +35,15 @@ Scene::~Scene()
 // モデル変換行列のテーブルを選択する
 void Scene::selectTable(SharedMemory *local, SharedMemory *remote)
 {
+  // ローカルのモデル変換行列
   Scene::localMatrix = local;
+  localJointMatrix.resize(local->getUsed(), ggIdentity());
+
+  // リモートのモデル変換行列のサイズはローカルと同じにしておく
   Scene::remoteMatrix = remote;
+  remoteJointMatrix.resize(local->getUsed());
+  for (auto &m : remoteJointMatrix) remoteMatrix->push(m = ggIdentity());
+
 }
 
 // モデル変換行列を制御するコントローラを選択する
@@ -109,7 +116,7 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
   {
     // 引数に指定されている変換行列の番号を取り出し
     const auto i(static_cast<unsigned int>(v_controller->second.get<double>()));
-    if (i < localMatrix->getSize()) me = localMatrix->get(i);
+    if (i < localMatrix->getSize()) me = localJointMatrix.data() + i;
   }
 
   // 遠隔コントローラーによる制御
@@ -118,7 +125,7 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
   {
     // 引数に指定されている変換行列の番号を取り出し
     const auto i(static_cast<unsigned int>(v_remote_controller->second.get<double>()));
-    if (i < remoteMatrix->getSize()) me = remoteMatrix->get(i);
+    if (i < remoteMatrix->getSize()) me = remoteJointMatrix.data() + i;
   }
 
   // パーツの図形データ
@@ -159,14 +166,17 @@ Scene *Scene::addChild(GgObj *obj)
   return addChild(new Scene(obj));
 }
 
-// このパーツ以下のすべてのパーツを描画する
+// シーンを描画する
 void Scene::draw(const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mm) const
 {
-  if (localMatrix->lock())
-  {
-    drawNode(mp, mv, mm);
-    localMatrix->unlock();
-  }
+  // ローカルの共有メモリから変換行列を取得する
+  localMatrix->load(localJointMatrix.data(), 0, localJointMatrix.size());
+
+  // リモートの共有メモリから変換行列を取得する
+  remoteMatrix->load(remoteJointMatrix.data(), 0, remoteJointMatrix.size());
+
+  // このパーツ以下のすべてのパーツを描画する
+  drawNode(mp, mv, mm);
 }
 
 // このパーツ以下のすべてのパーツを描画する
@@ -192,8 +202,11 @@ void Scene::drawNode(const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mm)
   for (const auto o : children) o->draw(mp, mv, mw);
 }
 
-// モデル変換行列のテーブル
+// 外部モデル変換行列のテーブル
 SharedMemory *Scene::localMatrix(nullptr), *Scene::remoteMatrix(nullptr);
+
+// 外部モデル変換行列のテーブルのコピー
+std::vector<GgMatrix> Scene::localJointMatrix, Scene::remoteJointMatrix;
 
 // モデル変換行列を制御するコントローラ
 LeapListener *Scene::controller(nullptr);
