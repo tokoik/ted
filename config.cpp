@@ -25,6 +25,7 @@ config defaults =
   1271,                         // int camera_texture_samples;
   true,                         // bool camera_texture_repeat;
   true,                         // bool camera_tracking;
+  true,                         // bool remote_stabilize;
   0.0,                          // double capture_width; (0 ならカメラから取得)
   0.0,                          // double capture_height; (0 ならカメラから取得)
   0.0,                          // double capture_fps; (0 ならカメラから取得)
@@ -169,6 +170,11 @@ bool config::load(const std::string &file)
   const auto &v_tracking(o.find("tracking"));
   if (v_tracking != o.end() && v_tracking->second.is<bool>())
     camera_tracking = v_tracking->second.get<bool>();
+
+  // 安定化処理
+  const auto &v_stabilize(o.find("stabilize"));
+  if (v_stabilize != o.end() && v_stabilize->second.is<bool>())
+    remote_stabilize = v_stabilize->second.get<bool>();
 
   // カメラの横の画素数
   const auto &v_capture_width(o.find("capture_width"));
@@ -369,6 +375,9 @@ bool config::save(const std::string &file) const
 
   // ヘッドトラッキング
   o.insert(std::make_pair("tracking", picojson::value(camera_tracking)));
+
+  // 安定化処理
+  o.insert(std::make_pair("stabilize", picojson::value(remote_stabilize)));
 
   // カメラの横の画素数
   o.insert(std::make_pair("capture_width", picojson::value(capture_width)));

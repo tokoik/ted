@@ -45,6 +45,7 @@ struct config
   int camera_texture_samples;
   bool camera_texture_repeat;
   bool camera_tracking;
+  bool remote_stabilize;
   double capture_width;
   double capture_height;
   double capture_fps;

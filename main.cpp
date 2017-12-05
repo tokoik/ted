@@ -508,7 +508,7 @@ int main(int argc, const char *const *const argv)
         const GgMatrix mr(ml * Scene::getRemoteAttitude(eye));
 
         // ”wŒi‚ğ•`‚­
-        rect.draw(texture[eye], camera->isOperator() ? mr : ml, window.getSamples());
+        rect.draw(texture[eye], camera->isOperator() && defaults.remote_stabilize ? mr : ml, window.getSamples());
 
         // }Œ`‚ÆÆ€‚Ì•`‰æİ’è
         glEnable(GL_DEPTH_TEST);
