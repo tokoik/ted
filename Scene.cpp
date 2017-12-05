@@ -27,9 +27,6 @@ Scene::~Scene()
 {
   // すべての子供のパーツを削除する
   for (const auto o : children) delete o;
-
-  // このパーツの形状データを削除する
-  delete obj;
 }
 
 // モデル変換行列のテーブルを選択する
@@ -132,8 +129,24 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
   const auto &v_model(o.find("model"));
   if (v_model != o.end() && v_model->second.is<std::string>())
   {
+    // パーツのファイル名を取り出す
     const auto &model(v_model->second.get<std::string>());
-    obj = new GgObj(model.c_str(), shader);
+
+    // パーツリストに登録されていれば
+    const auto &p(parts.find(model));
+    if (p != parts.end())
+    {
+      // すでに読み込んだ図形を使う
+      obj = p->second.get();
+    }
+    else
+    {
+      // ファイルから図形を読み込む
+      obj = new GgObj(model.c_str(), shader);
+
+      // パーツリストに登録する
+      parts.emplace(std::make_pair(model, std::unique_ptr<const GgObj>(obj)));
+    }
   }
 
   // シーングラフの入れ子レベルが設定値以下なら
@@ -141,11 +154,18 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
   {
     // シーングラフに下位ノードを接続する
     const auto &v_children(o.find("children"));
-    if (v_children != o.end() && v_children->second.is<picojson::array>())
+    if (v_children != o.end())
     {
-      for (const auto c : v_children->second.get<picojson::array>())
+      if (v_children->second.is<picojson::array>())
       {
-        if (!c.is<picojson::null>()) addChild(new Scene(c, shader, level));
+        for (const auto c : v_children->second.get<picojson::array>())
+        {
+          if (!c.is<picojson::null>()) addChild(new Scene(c, shader, level));
+        }
+      }
+      else if (v_children->second.is<std::string>())
+      {
+        addChild(new Scene(v_children->second, shader, level));
       }
     }
   }
@@ -211,6 +231,9 @@ void Scene::draw(const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mm) con
   // すべての子供のパーツを描画する
   for (const auto o : children) o->draw(mp, mv, mw);
 }
+
+// 読み込んだパーツを登録するパーツリスト
+std::map<const std::string, std::unique_ptr<const GgObj>> Scene::parts;
 
 // 外部モデル変換行列のテーブル
 SharedMemory *Scene::localMatrix(nullptr), *Scene::remoteMatrix(nullptr);
