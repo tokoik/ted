@@ -127,6 +127,12 @@ const GLfloat borderColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 // エンコード方法
 const char coder[] = ".jpg";
 
+// カメラの数と識別子
+const int camCount(2), camL(0), camR(1);
+
+// リモートカメラの数
+const int remoteCamCount(2);
+
 // デバッグモード
 #if defined(_DEBUG)
 const bool debug(true);

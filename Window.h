@@ -27,9 +27,6 @@
 #include <OVR_CAPI_GL.h>
 #include <Extras/OVR_Math.h>
 
-// Oculus Rift の目の数と識別子
-const ovrEyeType eyeCount(ovrEye_Count), eyeL(ovrEye_Left), eyeR(ovrEye_Right);
-
 //
 // ウィンドウ関連の処理を担当するクラス
 //
@@ -89,13 +86,13 @@ class Window
   //
 
   // ヘッドトラッキングによる回転
-  GgQuaternion qo[eyeCount];
+  GgQuaternion qo[camCount];
 
   // ヘッドトラッキングによる位置
-  GLfloat po[eyeCount][4];
+  GLfloat po[camCount][4];
 
   // ビュー変換
-  GgMatrix mv[eyeCount];
+  GgMatrix mv[camCount];
 
   //
   // 投影変換
@@ -111,14 +108,14 @@ class Window
   static GLfloat initialParallax;
 
   // 投影変換
-  GgMatrix mp[eyeCount];
+  GgMatrix mp[camCount];
 
   //
   // 背景画像
   //
 
   // スクリーンの幅と高さ
-  GLfloat screen[eyeCount][4];
+  GLfloat screen[camCount][4];
 
   // 焦点距離
   GLfloat focal;
@@ -143,7 +140,7 @@ class Window
   ovrHmdDesc hmdDesc;
 
   // Oculus Rift 表示用の FBO
-  GLuint oculusFbo[eyeCount];
+  GLuint oculusFbo[ovrEye_Count];
 
 #if OVR_PRODUCT_VERSION > 0
   // Oculus Rift にレンダリングするフレームの番号
@@ -153,16 +150,16 @@ class Window
   ovrLayerEyeFov layerData;
 
   // Oculus Rift 表示用の FBO のデプステクスチャ
-  GLuint oculusDepth[eyeCount];
+  GLuint oculusDepth[ovrEye_Count];
 
   // ミラー表示用の FBO のカラーテクスチャ
   ovrMirrorTexture mirrorTexture;
 #else
   // Oculus Rift のレンダリング情報
-  ovrEyeRenderDesc eyeRenderDesc[eyeCount];
+  ovrEyeRenderDesc eyeRenderDesc[ovrEye_Count];
 
   // Oculus Rift の視点情報
-  ovrPosef eyePose[eyeCount];
+  ovrPosef eyePose[ovrEye_Count];
 
   // Oculus Rift に転送する描画データ
   ovrLayer_Union layerData;

@@ -22,9 +22,6 @@ using namespace gg;
 #include <map>
 #include <queue>
 
-// リモートカメラの数
-const int remoteCamCount(2);
-
 class Scene
 {
   // 子供のパーツのリスト

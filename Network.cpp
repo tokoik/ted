@@ -36,7 +36,7 @@ int Network::getError() const
 {
   const int err(WSAGetLastError());
 
-#ifdef _DEBUG
+#if defined(_DEBUG)
   switch (err)
   {
   case WSAEACCES: std::cerr << "WSAEACCES\n"; break;
@@ -240,7 +240,7 @@ unsigned int Network::sendFrame(const void *buf, unsigned int len) const
     // ペイロードに 1 パケット分データをコピーする
     memcpy(packet.data, ptr, size);
 
-#ifdef _DEBUG
+#if defined(_DEBUG)
     // シーケンス番号・残りパケット数・データサイズ
     std::cerr << "seq:" << packet.head.sequence << ", cnt:" << packet.head.count << ", size:" << size << "\n";
 #endif
@@ -303,7 +303,7 @@ int Network::recvFrame(void *buf, unsigned int len)
     if (++count > limit)
     {
       // パケット数が多すぎる
-#ifdef _DEBUG
+#if defined(_DEBUG)
       std::cerr << "too many packets\n";
 #endif
       return -1;
@@ -316,13 +316,13 @@ int Network::recvFrame(void *buf, unsigned int len)
     if (size < 0)
     {
       // 短すぎるパケット
-#ifdef _DEBUG
+#if defined(_DEBUG)
       std::cerr << "too short\n";
 #endif
       return -1;
     }
 
-#ifdef _DEBUG
+#if defined(_DEBUG)
     // シーケンス番号・残りパケット数・データサイズ
     std::cerr << packet.head.sequence << ", " << packet.head.count << ", " << size << "\n";
 #endif
@@ -334,7 +334,7 @@ int Network::recvFrame(void *buf, unsigned int len)
     if (pos > len - size)
     {
       // オーバーフロー
-#ifdef _DEBUG
+#if defined(_DEBUG)
       std::cerr << "buffer overflow\n";
 #endif
       return -1;
@@ -355,7 +355,7 @@ int Network::recvFrame(void *buf, unsigned int len)
   if (count > total)
   {
     // 受信失敗
-#ifdef _DEBUG
+#if defined(_DEBUG)
     std::cerr << "broken packet\n";
 #endif
     return -1;

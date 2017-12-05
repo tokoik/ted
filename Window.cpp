@@ -3,6 +3,9 @@
 //
 #include "Window.h"
 
+// Oculus Rift の目の数と識別子
+const int eyeCount(ovrEye_Count);
+
 // Oculus Rift SDK ライブラリ (LibOVR) の組み込み
 #if defined(_WIN32)
 #  pragma comment(lib, "libOVR.lib")
@@ -413,8 +416,8 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
 
 #if OVR_PRODUCT_VERSION > 0
     // Oculus Rift の画面のアスペクト比を求める
-    aspect = static_cast<GLfloat>(layerData.Viewport[eyeL].Size.w)
-      / static_cast<GLfloat>(layerData.Viewport[eyeL].Size.h);
+    aspect = static_cast<GLfloat>(layerData.Viewport[ovrEye_Left].Size.w)
+      / static_cast<GLfloat>(layerData.Viewport[ovrEye_Left].Size.h);
 
     // ミラー表示用の FBO を作成する
     const ovrMirrorTextureDesc mirrorDesc =
@@ -443,8 +446,8 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
     ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
 #else
     // Oculus Rift の画面のアスペクト比を求める
-    aspect = static_cast<GLfloat>(layerData.EyeFov.Viewport[eyeL].Size.w)
-      / static_cast<GLfloat>(layerData.EyeFov.Viewport[eyeL].Size.h);
+    aspect = static_cast<GLfloat>(layerData.EyeFov.Viewport[ovrEye_Left].Size.w)
+      / static_cast<GLfloat>(layerData.EyeFov.Viewport[ovrEye_Left].Size.h);
 
     // ミラー表示用の FBO を作成する
     if (OVR_SUCCESS(ovr_CreateMirrorTextureGL(session, GL_SRGB8_ALPHA8, width, height, reinterpret_cast<ovrTexture **>(&mirrorTexture))))
@@ -458,9 +461,9 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
 
     // TimeWarp に使う変換行列の成分を取り出す
     auto &posTimewarpProjectionDesc(layerData.EyeFovDepth.ProjectionDesc);
-    posTimewarpProjectionDesc.Projection22 = (mp[eyeL].get()[4 * 2 + 2] + mp[eyeL].get()[4 * 3 + 2]) * 0.5f;
-    posTimewarpProjectionDesc.Projection23 = mp[eyeL].get()[4 * 2 + 3] * 0.5f;
-    posTimewarpProjectionDesc.Projection32 = mp[eyeL].get()[4 * 3 + 2];
+    posTimewarpProjectionDesc.Projection22 = (mp[ovrEye_Left].get()[4 * 2 + 2] + mp[ovrEye_Left].get()[4 * 3 + 2]) * 0.5f;
+    posTimewarpProjectionDesc.Projection23 = mp[ovrEye_Left].get()[4 * 2 + 3] * 0.5f;
+    posTimewarpProjectionDesc.Projection32 = mp[ovrEye_Left].get()[4 * 3 + 2];
 #endif
 
     // Oculus Rift のレンダリング用の FBO を作成する
@@ -608,8 +611,8 @@ bool Window::start()
     // HmdToEyeOffset などは実行時に変化するので毎フレーム ovr_GetRenderDesc() で ovrEyeRenderDesc を取得する
     const ovrEyeRenderDesc eyeRenderDesc[] =
     {
-      ovr_GetRenderDesc(session, eyeL, hmdDesc.DefaultEyeFov[0]),
-      ovr_GetRenderDesc(session, eyeR, hmdDesc.DefaultEyeFov[1])
+      ovr_GetRenderDesc(session, ovrEye_Left, hmdDesc.DefaultEyeFov[0]),
+      ovr_GetRenderDesc(session, ovrEye_Right, hmdDesc.DefaultEyeFov[1])
     };
 
     // Oculus Rift の左右の目のトラッキングの位置からの変位を求める
@@ -659,8 +662,10 @@ bool Window::start()
 //
 void Window::swapBuffers()
 {
+#if defined(_DEBUG)
   // エラーチェック
   ggError(__FILE__, __LINE__);
+#endif
 
   // Oculus Rift 使用時
   if (session)
@@ -1272,14 +1277,14 @@ void Window::updateProjectionMatrix()
     };
 
     // 左目の透視投影変換行列を求める
-    mp[eyeL].loadFrustum(fovL[0] * zf, fovL[1] * zf, fovL[2] * zf, fovL[3] * zf,
+    mp[ovrEye_Left].loadFrustum(fovL[0] * zf, fovL[1] * zf, fovL[2] * zf, fovL[3] * zf,
       defaults.display_near, defaults.display_far);
 
     // 左目のスクリーンのサイズと中心位置
-    screen[eyeL][0] = (fovL[1] - fovL[0]) * 0.5f;
-    screen[eyeL][1] = (fovL[3] - fovL[2]) * 0.5f;
-    screen[eyeL][2] = (fovL[1] + fovL[0]) * 0.5f;
-    screen[eyeL][3] = (fovL[3] + fovL[2]) * 0.5f;
+    screen[ovrEye_Left][0] = (fovL[1] - fovL[0]) * 0.5f;
+    screen[ovrEye_Left][1] = (fovL[3] - fovL[2]) * 0.5f;
+    screen[ovrEye_Left][2] = (fovL[1] + fovL[0]) * 0.5f;
+    screen[ovrEye_Left][3] = (fovL[3] + fovL[2]) * 0.5f;
 
     // Oculus Rift 以外の立体視表示の場合
     if (defaults.display_mode != MONO)
@@ -1294,14 +1299,14 @@ void Window::updateProjectionMatrix()
       };
 
       // 右の透視投影変換行列を求める
-      mp[eyeR].loadFrustum(fovR[0] * zf, fovR[1] * zf, fovR[2] * zf, fovR[3] * zf,
+      mp[ovrEye_Right].loadFrustum(fovR[0] * zf, fovR[1] * zf, fovR[2] * zf, fovR[3] * zf,
         defaults.display_near, defaults.display_far);
 
       // 右目のスクリーンのサイズと中心位置
-      screen[eyeR][0] = (fovR[1] - fovR[0]) * 0.5f;
-      screen[eyeR][1] = (fovR[3] - fovR[2]) * 0.5f;
-      screen[eyeR][2] = (fovR[1] + fovR[0]) * 0.5f;
-      screen[eyeR][3] = (fovR[3] + fovR[2]) * 0.5f;
+      screen[ovrEye_Right][0] = (fovR[1] - fovR[0]) * 0.5f;
+      screen[ovrEye_Right][1] = (fovR[3] - fovR[2]) * 0.5f;
+      screen[ovrEye_Right][2] = (fovR[1] + fovR[0]) * 0.5f;
+      screen[ovrEye_Right][3] = (fovR[3] + fovR[2]) * 0.5f;
     }
   }
 }
@@ -1382,7 +1387,7 @@ void Window::select(int eye)
   {
   case TOPANDBOTTOM:
 
-    if (eye == eyeL)
+    if (eye == ovrEye_Left)
     {
       // ディスプレイの上半分だけに描画する
       glViewport(0, height, width, height);
@@ -1399,7 +1404,7 @@ void Window::select(int eye)
 
   case SIDEBYSIDE:
 
-    if (eye == eyeL)
+    if (eye == ovrEye_Left)
     {
       // ディスプレイの左半分だけに描画する
       glViewport(0, 0, width, height);
@@ -1417,7 +1422,7 @@ void Window::select(int eye)
   case QUADBUFFER:
 
     // 左右のバッファに描画する
-    glDrawBuffer(eye == eyeL ? GL_BACK_LEFT : GL_BACK_RIGHT);
+    glDrawBuffer(eye == ovrEye_Left ? GL_BACK_LEFT : GL_BACK_RIGHT);
 
     // カラーバッファとデプスバッファを消去する
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1431,7 +1436,7 @@ void Window::select(int eye)
   qo[eye] = ggIdentityQuaternion();
 
   // 目をずらす代わりにシーンを動かす
-  mv[eye] = ggTranslate(eye == eyeL ? parallax : -parallax, 0.0f, 0.0f);
+  mv[eye] = ggTranslate(eye == ovrEye_Left ? parallax : -parallax, 0.0f, 0.0f);
 }
 
 //
