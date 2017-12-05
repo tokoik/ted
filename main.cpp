@@ -134,13 +134,13 @@ int main(int argc, const char *const *const argv)
   if (!window.get()) return EXIT_FAILURE;
 
   // 背景画像を保存するテクスチャ
-  GLuint texture[eyeCount];
+  GLuint texture[camCount];
 
   // 背景画像のデータ
-  const GLubyte *image[eyeCount] = { nullptr };
+  const GLubyte *image[camCount] = { nullptr };
 
   // 背景画像のサイズ
-  GLsizei size[eyeCount][2];
+  GLsizei size[camCount][2];
 
   // 背景画像を取得するカメラ
   std::shared_ptr<Camera> camera(nullptr);
@@ -174,7 +174,7 @@ int main(int argc, const char *const *const argv)
       // 操縦者側を起動する
       if (cam->open(defaults.port, defaults.address.c_str(), texture) < 0)
       {
-        NOTIFY("作業者側からデータが送られてきません。");
+        NOTIFY("作業者側のデータを受け取れません。");
         return EXIT_FAILURE;
       }
 
@@ -182,10 +182,10 @@ int main(int argc, const char *const *const argv)
       glGenTextures(2, texture);
 
       // 画像サイズを設定する
-      size[eyeL][0] = cam->getWidth(eyeL);
-      size[eyeL][1] = cam->getHeight(eyeL);
-      size[eyeR][0] = cam->getWidth(eyeR);
-      size[eyeR][1] = cam->getHeight(eyeR);
+      size[camL][0] = cam->getWidth(camL);
+      size[camL][1] = cam->getHeight(camL);
+      size[camR][0] = cam->getWidth(camR);
+      size[camR][1] = cam->getHeight(camR);
     }
   }
 
@@ -193,13 +193,13 @@ int main(int argc, const char *const *const argv)
   if (!camera)
   {
     // 左のテクスチャを作成する
-    glGenTextures(1, texture + eyeL);
+    glGenTextures(1, texture + camL);
 
     // 右のカメラに入力するなら
     if (defaults.camera_right >= 0 || !defaults.camera_right_movie.empty())
     {
       // 右のテクスチャを作成する
-      glGenTextures(1, texture + eyeR);
+      glGenTextures(1, texture + camR);
     }
     else
     {
@@ -223,10 +223,10 @@ int main(int argc, const char *const *const argv)
         if (cam->open(static_cast<OVR::Camprop>(defaults.ovrvision_property)))
         {
           // Ovrvision Pro の画像サイズを得る
-          size[eyeL][0] = cam->getWidth(eyeL);
-          size[eyeL][1] = cam->getHeight(eyeL);
-          size[eyeR][0] = cam->getWidth(eyeR);
-          size[eyeR][1] = cam->getHeight(eyeR);
+          size[camL][0] = cam->getWidth(camL);
+          size[camL][1] = cam->getHeight(camL);
+          size[camR][0] = cam->getWidth(camR);
+          size[camR][1] = cam->getHeight(camR);
         }
         else
         {
@@ -244,14 +244,14 @@ int main(int argc, const char *const *const argv)
         camera.reset(cam);
 
         // 左の画像が使用可能なら
-        if (cam->open(defaults.camera_left_image, eyeL))
+        if (cam->open(defaults.camera_left_image, camL))
         {
           // 左の画像を使用する
-          image[eyeL] = cam->getImage(eyeL);
+          image[camL] = cam->getImage(camL);
 
           // 左の画像のサイズを得る
-          size[eyeL][0] = cam->getWidth(eyeL);
-          size[eyeL][1] = cam->getHeight(eyeL);
+          size[camL][0] = cam->getWidth(camL);
+          size[camL][1] = cam->getHeight(camL);
         }
         else
         {
@@ -261,8 +261,8 @@ int main(int argc, const char *const *const argv)
         }
 
         // 右の画像サイズは左と同じにしておく
-        size[eyeR][0] = size[eyeL][0];
-        size[eyeR][1] = size[eyeL][1];
+        size[camR][0] = size[camL][0];
+        size[camR][1] = size[camL][1];
 
         // 立体視表示を行うとき
         if (defaults.display_mode != MONO)
@@ -271,14 +271,14 @@ int main(int argc, const char *const *const argv)
           if (!defaults.camera_right_image.empty())
           {
             // 右の画像が使用可能なら
-            if (cam->open(defaults.camera_right_image, eyeR))
+            if (cam->open(defaults.camera_right_image, camR))
             {
               // 右の画像を使用する
-              image[eyeR] = cam->getImage(eyeR);
+              image[camR] = cam->getImage(camR);
 
               // 右の画像のサイズを得る
-              size[eyeR][0] = cam->getWidth(eyeR);
-              size[eyeR][1] = cam->getHeight(eyeR);
+              size[camR][0] = cam->getWidth(camR);
+              size[camR][1] = cam->getHeight(camR);
             }
             else
             {
@@ -300,14 +300,14 @@ int main(int argc, const char *const *const argv)
 
       // 左カメラが使用可能なら
       if (defaults.camera_left >= 0
-        ? cam->open(defaults.camera_left, eyeL)
+        ? cam->open(defaults.camera_left, camL)
         : !defaults.camera_left_movie.empty()
-        ? cam->open(defaults.camera_left_movie, eyeL)
+        ? cam->open(defaults.camera_left_movie, camL)
         : false)
       {
         // 左カメラの画像サイズを得る
-        size[eyeL][0] = cam->getWidth(eyeL);
-        size[eyeL][1] = cam->getHeight(eyeL);
+        size[camL][0] = cam->getWidth(camL);
+        size[camL][1] = cam->getHeight(camL);
       }
       else
       {
@@ -316,35 +316,34 @@ int main(int argc, const char *const *const argv)
         return EXIT_FAILURE;
       }
 
-      // 立体視表示を行うとき
-      if (defaults.display_mode != MONO)
+      // 立体視表示を行うとき右カメラを使用するなら
+      if (defaults.display_mode != MONO && defaults.camera_right >= 0)
       {
-        // 右カメラを使用するなら
-        if (defaults.camera_right >= 0)
+        if (defaults.camera_right != defaults.camera_left
+          ? cam->open(defaults.camera_right, camR)
+          : !defaults.camera_right_movie.empty()
+          ? cam->open(defaults.camera_right_movie, camR)
+          : false)
         {
-          if (defaults.camera_right != defaults.camera_left
-            ? cam->open(defaults.camera_right, eyeR)
-            : !defaults.camera_right_movie.empty()
-            ? cam->open(defaults.camera_right_movie, eyeR)
-            : false)
-          {
-            // 右カメラの画像サイズを得る
-            size[eyeR][0] = cam->getWidth(eyeR);
-            size[eyeR][1] = cam->getHeight(eyeR);
-          }
-          else
-          {
-            // 右カメラが使えなかった
-            NOTIFY("右のカメラが使えません。");
-            return EXIT_FAILURE;
-          }
+          // 右カメラの画像サイズを得る
+          size[camR][0] = cam->getWidth(camR);
+          size[camR][1] = cam->getHeight(camR);
         }
         else
         {
-          // 右の画像サイズは左と同じにしておく
-          size[eyeR][0] = size[eyeL][0];
-          size[eyeR][1] = size[eyeL][1];
+          // 右カメラが使えなかった
+          NOTIFY("右のカメラが使えません。");
+          return EXIT_FAILURE;
         }
+      }
+      else
+      {
+        // 右のテクスチャは左のテクスチャと同じにする
+        texture[camR] = texture[camL];
+
+        // 右の画像サイズは左と同じにしておく
+        size[camR][0] = size[camL][0];
+        size[camR][1] = size[camL][1];
       }
     }
 
@@ -365,17 +364,17 @@ int main(int argc, const char *const *const argv)
   // テクスチャのアスペクト比
   const GLfloat texture_aspect[] =
   {
-    (GLfloat(size[eyeL][0]) / GLfloat(size[eyeL][1])),
-    (GLfloat(size[eyeR][0]) / GLfloat(size[eyeR][1]))
+    (GLfloat(size[camL][0]) / GLfloat(size[camL][1])),
+    (GLfloat(size[camR][0]) / GLfloat(size[camR][1]))
   };
 
   // テクスチャの境界の処理
   const GLenum border(defaults.camera_texture_repeat ? GL_REPEAT : GL_CLAMP_TO_BORDER);
 
   // 左の背景画像を保存するテクスチャを準備する
-  glBindTexture(GL_TEXTURE_2D, texture[eyeL]);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, size[eyeL][0], size[eyeL][1], 0,
-    GL_BGR, GL_UNSIGNED_BYTE, image[eyeL]);
+  glBindTexture(GL_TEXTURE_2D, texture[camL]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, size[camL][0], size[camL][1], 0,
+    GL_BGR, GL_UNSIGNED_BYTE, image[camL]);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, border);
@@ -383,12 +382,12 @@ int main(int argc, const char *const *const argv)
   glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
   // 右のテクスチャが左のテクスチャと異なるなら
-  if (texture[eyeR] != texture[eyeL])
+  if (texture[camR] != texture[camL])
   {
     // 右の背景画像を保存するテクスチャを準備する
-    glBindTexture(GL_TEXTURE_2D, texture[eyeR]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, size[eyeR][0], size[eyeR][1], 0,
-      GL_BGR, GL_UNSIGNED_BYTE, image[eyeR]);
+    glBindTexture(GL_TEXTURE_2D, texture[camR]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, size[camR][0], size[camR][1], 0,
+      GL_BGR, GL_UNSIGNED_BYTE, image[camR]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, border);
@@ -409,8 +408,8 @@ int main(int argc, const char *const *const argv)
   }
 
   // ローカルの姿勢の姿勢のインデックスを得る
-  int localAttitudeIndex[eyeCount];
-  for (int eye = 0; eye < eyeCount; ++eye) localAttitudeIndex[eye] = localAttitude->push(ggIdentity());
+  int localAttitudeIndex[camCount];
+  for (int eye = 0; eye < camCount; ++eye) localAttitudeIndex[eye] = localAttitude->push(ggIdentity());
 
   // Leap Motion の listener と controller を作る
   LeapListener listener(localAttitude.get());
@@ -463,13 +462,13 @@ int main(int argc, const char *const *const argv)
     Scene::setup();
 
     // 左カメラをロックして画像を転送する
-    camera->transmit(eyeL, texture[eyeL], size[eyeL]);
+    camera->transmit(camL, texture[camL], size[camL]);
 
     // 右のテクスチャが有効になっていれば
-    if (texture[eyeR] != texture[eyeL])
+    if (texture[camR] != texture[camL])
     {
       // 右カメラをロックして画像を転送する
-      camera->transmit(eyeR, texture[eyeR], size[eyeR]);
+      camera->transmit(camR, texture[camR], size[camR]);
     }
 
     // 描画開始
@@ -534,6 +533,6 @@ int main(int argc, const char *const *const argv)
   }
 
   // 背景画像用のテクスチャを削除する
-  glDeleteBuffers(1, &texture[eyeL]);
-  if (texture[eyeR] != texture[eyeL]) glDeleteBuffers(1, &texture[eyeR]);
+  glDeleteBuffers(1, &texture[camL]);
+  if (texture[camR] != texture[camL]) glDeleteBuffers(1, &texture[camR]);
 }

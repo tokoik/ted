@@ -3,9 +3,9 @@
 //
 #include "Camera.h"
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #  define CV_VERSION_STR CVAUX_STR(CV_MAJOR_VERSION) CVAUX_STR(CV_MINOR_VERSION) CVAUX_STR(CV_SUBMINOR_VERSION)
-#  ifdef _DEBUG
+#  if defined(_DEBUG)
 #    define CV_EXT_STR "d.lib"
 #  else
 #    define CV_EXT_STR ".lib"

@@ -20,9 +20,6 @@
 #include <thread>
 #include <mutex>
 
-// カメラの数と識別子
-const int camCount(2), camL(0), camR(1);
-
 // 作業用メモリのサイズ
 const int maxFrameSize(1024 * 1024);
 
