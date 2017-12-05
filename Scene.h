@@ -17,7 +17,9 @@ using namespace gg;
 // シーングラフは JSON で記述する
 #include "picojson.h"
 
-// キュー
+// 標準ライブラリ
+#include <memory>
+#include <map>
 #include <queue>
 
 // リモートカメラの数
@@ -30,6 +32,9 @@ class Scene
 
   // 描画するパーツ
   const GgObj *obj;
+
+  // 読み込んだパーツを登録するパーツリスト
+  static std::map<const std::string, std::unique_ptr<const GgObj>> parts;
 
   // このパーツのモデル変換行列
   GgMatrix mm;

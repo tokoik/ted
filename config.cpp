@@ -330,16 +330,6 @@ bool config::load(const std::string &file)
   if (v_scene != o.end())
     scene = v_scene->second;
 
-  // ローカルユーザの視線に連動するシーングラフ
-  const auto &v_target(o.find("target"));
-  if (v_target != o.end())
-    target = v_target->second;
-
-  // リモートユーザの視線に連動するシーングラフ
-  const auto &v_remote(o.find("remote"));
-  if (v_remote != o.end())
-    remote = v_remote->second;
-
   return true;
 }
 
@@ -472,12 +462,6 @@ bool config::save(const std::string &file) const
 
   // ワールド座標に固定するシーングラフ
   o.insert(std::make_pair("scene", scene));
-
-  // ローカルユーザの視線に連動するシーングラフ
-  o.insert(std::make_pair("target", target));
-
-  // リモートユーザの視線に連動するシーングラフ
-  o.insert(std::make_pair("remote", remote));
 
   // 設定内容をシリアライズして保存
   picojson::value v(o);
