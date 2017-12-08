@@ -53,7 +53,7 @@ public:
   virtual ~CamRemote();
 
   // カメラから入力する
-  int open(unsigned short port, const char *address, const GLuint *image);
+  int open(unsigned short port, const char *address);
 
   // カメラをロックして画像をテクスチャに転送する
   virtual bool transmit(int cam, GLuint texture, const GLsizei *size);
