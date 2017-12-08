@@ -133,9 +133,6 @@ int main(int argc, const char *const *const argv)
   // ウィンドウオブジェクトが生成されなければ終了する
   if (!window.get()) return EXIT_FAILURE;
 
-  // 背景画像を保存するテクスチャ
-  GLuint texture[camCount];
-
   // 背景画像のデータ
   const GLubyte *image[camCount] = { nullptr };
 
@@ -172,14 +169,11 @@ int main(int argc, const char *const *const argv)
       camera->selectTable(localAttitude.get(), remoteAttitude.get());
 
       // 操縦者側を起動する
-      if (cam->open(defaults.port, defaults.address.c_str(), texture) < 0)
+      if (cam->open(defaults.port, defaults.address.c_str()) < 0)
       {
         NOTIFY("作業者側のデータを受け取れません。");
         return EXIT_FAILURE;
       }
-
-      // 左右のテクスチャを作成する
-      glGenTextures(2, texture);
 
       // 画像サイズを設定する
       size[camL][0] = cam->getWidth(camL);
@@ -192,21 +186,6 @@ int main(int argc, const char *const *const argv)
   // ダミーカメラが設定されていなければ
   if (!camera)
   {
-    // 左のテクスチャを作成する
-    glGenTextures(1, texture + camL);
-
-    // 右のカメラに入力するなら
-    if (defaults.camera_right >= 0 || !defaults.camera_right_movie.empty())
-    {
-      // 右のテクスチャを作成する
-      glGenTextures(1, texture + camR);
-    }
-    else
-    {
-      // 右のテクスチャは左のテクスチャと同じにする
-      texture[camR] = texture[camL];
-    }
-
     // 左カメラを使わないとき
     if (defaults.camera_left < 0)
     {
@@ -338,16 +317,13 @@ int main(int argc, const char *const *const argv)
       }
       else
       {
-        // 右のテクスチャは左のテクスチャと同じにする
-        texture[camR] = texture[camL];
-
         // 右の画像サイズは左と同じにしておく
         size[camR][0] = size[camL][0];
         size[camR][1] = size[camL][1];
       }
     }
 
-    // カメラで参照する変換行列の票を選択する
+    // カメラで参照する変換行列の表を選択する
     camera->selectTable(localAttitude.get(), remoteAttitude.get());
 
     // 作業者として動作する場合
@@ -371,6 +347,12 @@ int main(int argc, const char *const *const argv)
   // テクスチャの境界の処理
   const GLenum border(defaults.camera_texture_repeat ? GL_REPEAT : GL_CLAMP_TO_BORDER);
 
+  // 背景画像を保存するテクスチャ
+  GLuint texture[camCount];
+
+  // 左のテクスチャを作成する
+  glGenTextures(1, texture + camL);
+
   // 左の背景画像を保存するテクスチャを準備する
   glBindTexture(GL_TEXTURE_2D, texture[camL]);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, size[camL][0], size[camL][1], 0,
@@ -381,9 +363,12 @@ int main(int argc, const char *const *const argv)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, border);
   glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
-  // 右のテクスチャが左のテクスチャと異なるなら
-  if (texture[camR] != texture[camL])
+  // 右のカメラに入力するなら
+  if (defaults.camera_right >= 0 || !defaults.camera_right_movie.empty() || defaults.role == OPERATOR)
   {
+    // 右のテクスチャを作成する
+    glGenTextures(1, texture + camR);
+
     // 右の背景画像を保存するテクスチャを準備する
     glBindTexture(GL_TEXTURE_2D, texture[camR]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, size[camR][0], size[camR][1], 0,
@@ -393,6 +378,11 @@ int main(int argc, const char *const *const argv)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, border);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, border);
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+  }
+  else
+  {
+    // 右のテクスチャは左のテクスチャと同じにする
+    texture[camR] = texture[camL];
   }
 
   // 通常のフレームバッファに戻す

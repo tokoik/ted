@@ -52,7 +52,7 @@ CamRemote::~CamRemote()
 }
 
 // 操縦者側の起動
-int CamRemote::open(unsigned short port, const char *address, const GLuint *texture)
+int CamRemote::open(unsigned short port, const char *address)
 {
   // 作業用のメモリを確保する（これは Camera のデストラクタで delete する）
   delete sendbuf, recvbuf;
