@@ -99,7 +99,10 @@ class Window
   //
 
   // 物体に対するズーム率
-  double zoom;
+  GLfloat zoom;
+
+  // ズーム率の変化量
+  int zoomChange;
 
   // 視差
   GLfloat parallax;
@@ -379,9 +382,6 @@ public:
 
   // 物体の表示
   bool showScene;
-
-  // 照準の表示
-  bool showTarget;
 
   // ミラー表示
   bool showMirror;

@@ -87,7 +87,7 @@ struct config
 extern config defaults;
 
 // ナビゲーションの速度調整
-const double zoomStep(0.01);                            // 物体のズーム率調整のステップ
+const GLfloat zoomStep(0.01f);                          // 物体のズーム率調整のステップ
 const GLfloat shiftStep(0.001f);                        // 背景テクスチャのシフト量調整のステップ
 const GLfloat focalStep(50.0f);                         // 背景テクスチャのスケール調整のステップ
 const GLfloat speedScale(0.005f);                       // フレームあたりの移動速度係数
