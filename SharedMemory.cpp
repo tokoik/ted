@@ -25,10 +25,8 @@ SharedMemory::SharedMemory(const LPCTSTR strMutexName, const LPCTSTR strShareNam
       return;
     }
 
-    CloseHandle(hShare);
+    CloseHandle(hMutex);
   }
-
-  CloseHandle(hMutex);
 }
 
 // デストラクタ
@@ -116,7 +114,7 @@ void SharedMemory::store(const void *src, unsigned int begin, unsigned int count
   const unsigned int last(begin + count);
   if (last > used) count -= last - used;
 
-  if (lock(), true)
+  if (lock())
   {
     std::copy(static_cast<const GgMatrix *>(src), static_cast<const GgMatrix *>(src) + count, pShare + begin);
     unlock();
