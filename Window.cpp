@@ -73,9 +73,9 @@ static int Compare(const ovrGraphicsLuid& lhs, const ovrGraphicsLuid& rhs)
 //
 Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, GLFWwindow *share)
   : window(nullptr), camera(nullptr), session(nullptr)
-  , showScene(true), showTarget(true), showMirror(true)
+  , showScene(true), showMirror(true)
   , oculusFbo{ 0, 0 }, mirrorFbo(0), mirrorTexture(nullptr)
-  , focalChange(0), circleChange{ 0, 0, 0, 0 }
+  , zoomChange(0), focalChange(0), circleChange{ 0, 0, 0, 0 }
   , key(GLFW_KEY_UNKNOWN), joy(-1)
 #if OVR_PRODUCT_VERSION > 0
   , frameIndex(0LL)
@@ -181,6 +181,12 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
       picojson::array &a(v_orientation->second.get<picojson::array>());
       for (int i = 0; i < 4; ++i) startOrientation[i] = static_cast<GLfloat>(a[i].get<double>());
     }
+
+    // 初期ズーム率
+    const auto &v_zoom(o.find("zoom"));
+    if (v_zoom != o.end() && v_zoom->second.is<double>())
+      zoomChange = static_cast<int>(v_zoom->second.get<double>());
+
     // 焦点距離の初期値
     const auto &v_focal(o.find("focal"));
     if (v_focal != o.end() && v_focal->second.is<double>())
@@ -499,6 +505,9 @@ Window::~Window()
     picojson::array a;
     for (int i = 0; i < 4; ++i) a.push_back(picojson::value(trackball.getQuaternion().get()[i]));
     o.insert(std::make_pair("orientation", picojson::value(a)));
+
+    // ズーム率
+    o.insert(std::make_pair("zoom", picojson::value(static_cast<double>(zoomChange))));
 
     // 焦点距離
     o.insert(std::make_pair("focal", picojson::value(static_cast<double>(focalChange))));
@@ -933,7 +942,8 @@ void Window::swapBuffers()
         if (btns[4])
         {
           // ズーム率を調整する
-          zoom += zoomStep * static_cast<GLfloat>(zoomButton);
+          zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
+            + static_cast<GLfloat>(zoomChange += zoomButton) * zoomStep;
 
           // 透視投影変換行列を更新する
           updateProjectionMatrix();
@@ -1134,8 +1144,9 @@ void Window::wheel(GLFWwindow *window, double x, double y)
   {
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
     {
-      // カメラのズーム率を調整する
-      instance->zoom += zoomStep * y;
+      // ズーム率を調整する
+      instance->zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
+        + static_cast<GLfloat>(instance->zoomChange += static_cast<int>(y)) * zoomStep;
 
       // 透視投影変換行列を更新する
       instance->updateProjectionMatrix();
@@ -1182,12 +1193,6 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
         instance->showScene = !instance->showScene;
         break;
 
-      case GLFW_KEY_T:
-
-        // ターゲットの表示を ON/OFF する
-        instance->showTarget = !instance->showTarget;
-        break;
-
       case GLFW_KEY_M:
 
         // ミラー表示を ON/OFF する
@@ -1231,17 +1236,18 @@ void Window::reset()
   trackball.reset();
   trackball.rotate(ggQuaternion(startOrientation));
 
-  // 物体に対するズーム率
-  if (defaults.display_zoom != 0.0) zoom = 1.0 / defaults.display_zoom;
+  // ズーム率
+  zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
+    + static_cast<GLfloat>(zoomChange) * zoomStep;
 
   // 焦点距離
-  focal = 1.0f;
+  focal = focalStep / (focalStep - static_cast<GLfloat>(focalChange));
 
   // 背景テクスチャの半径と中心位置
-  circle[0] = static_cast<GLfloat>(defaults.fisheye_fov_x);
-  circle[1] = static_cast<GLfloat>(defaults.fisheye_fov_y);
-  circle[2] = static_cast<GLfloat>(defaults.fisheye_center_x);
-  circle[3] = static_cast<GLfloat>(defaults.fisheye_center_y);
+  circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(circleChange[0]) * shiftStep;
+  circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(circleChange[1]) * shiftStep;
+  circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(circleChange[2]) * shiftStep;
+  circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(circleChange[3]) * shiftStep;
 
   // 視差
   parallax = defaults.display_mode != MONO ? initialParallax : 0.0f;
@@ -1258,7 +1264,7 @@ void Window::updateProjectionMatrix()
   if (!session)
   {
     // ズーム率
-    const auto zf(static_cast<GLfloat>(zoom) * defaults.display_near);
+    const auto zf(zoom * defaults.display_near);
 
     // スクリーンの高さと幅
     const auto screenHeight(defaults.display_center / defaults.display_distance);
@@ -1387,7 +1393,7 @@ void Window::select(int eye)
   {
   case TOPANDBOTTOM:
 
-    if (eye == ovrEye_Left)
+    if (eye == camL)
     {
       // ディスプレイの上半分だけに描画する
       glViewport(0, height, width, height);
@@ -1404,7 +1410,7 @@ void Window::select(int eye)
 
   case SIDEBYSIDE:
 
-    if (eye == ovrEye_Left)
+    if (eye == camL)
     {
       // ディスプレイの左半分だけに描画する
       glViewport(0, 0, width, height);
@@ -1422,7 +1428,7 @@ void Window::select(int eye)
   case QUADBUFFER:
 
     // 左右のバッファに描画する
-    glDrawBuffer(eye == ovrEye_Left ? GL_BACK_LEFT : GL_BACK_RIGHT);
+    glDrawBuffer(eye == camL ? GL_BACK_LEFT : GL_BACK_RIGHT);
 
     // カラーバッファとデプスバッファを消去する
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1436,7 +1442,7 @@ void Window::select(int eye)
   qo[eye] = ggIdentityQuaternion();
 
   // 目をずらす代わりにシーンを動かす
-  mv[eye] = ggTranslate(eye == ovrEye_Left ? parallax : -parallax, 0.0f, 0.0f);
+  mv[eye] = ggTranslate(eye == camL ? parallax : -parallax, 0.0f, 0.0f);
 }
 
 //
