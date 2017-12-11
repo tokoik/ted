@@ -17,7 +17,7 @@
 Camera::Camera()
 {
   // 作業用のメモリ領域
-  sendbuf = recvbuf = nullptr;
+  recvbuf = sendbuf = nullptr;
 
   // キャプチャされる画像のフォーマット
   format = GL_BGR;
@@ -40,8 +40,8 @@ Camera::Camera()
 Camera::~Camera()
 {
   // 作業用のメモリを開放する
-  delete[] sendbuf, recvbuf;
-  sendbuf = recvbuf = nullptr;
+  delete[] recvbuf, sendbuf;
+  recvbuf = sendbuf = nullptr;
 }
 
 // スレッドを停止する
@@ -65,11 +65,11 @@ void Camera::stop()
   // ネットワークスレッドを止める
   if (useNetwork())
   {
-    // 送信スレッドが終了するのを待つ
-    if (sendThread.joinable()) sendThread.join();
-
     // 受信スレッドが終了するのを待つ
     if (recvThread.joinable()) recvThread.join();
+
+    // 送信スレッドが終了するのを待つ
+    if (sendThread.joinable()) sendThread.join();
   }
 }
 
@@ -101,7 +101,37 @@ bool Camera::transmit(int cam, GLuint texture, const GLsizei *size)
   return false;
 }
 
-// データ送信
+// リモートの姿勢を受信する
+void Camera::recv()
+{
+  // スレッドが実行可の間
+  while (run[camL])
+  {
+    // 姿勢データを受信する
+    const int ret(network.recvData(recvbuf, maxFrameSize));
+
+    // サイズが 0 なら終了する
+    if (ret == 0) return;
+
+    // エラーがなければデータを読み込む
+    if (ret > 0 && network.checkRemote())
+    {
+      // ヘッダのフォーマット
+      unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
+
+      // 変換行列の保存先
+      GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
+
+      // 変換行列を復帰する
+      remoteMatrix->store(body, 0, head[camCount]);
+    }
+
+    // 他のスレッドがリソースにアクセスするために少し待つ
+    std::this_thread::sleep_for(std::chrono::milliseconds(10L));
+  }
+}
+
+// ローカルの映像と姿勢を送信する
 void Camera::send()
 {
   // カメラスレッドが実行可の間
@@ -163,51 +193,35 @@ void Camera::send()
     }
 
     // フレームを送信する
-    network.sendFrame(sendbuf, static_cast<unsigned int>(data - sendbuf));
+    network.sendData(sendbuf, static_cast<unsigned int>(data - sendbuf));
 
     // 他のスレッドがリソースにアクセスするために少し待つ
     std::this_thread::sleep_for(std::chrono::milliseconds(10L));
   }
-}
 
-// データ受信
-void Camera::recv()
-{
-  // スレッドが実行可の間
-  while (run[camL])
-  {
-    // 姿勢データを受信する
-    if (network.recvFrame(recvbuf, maxFrameSize) != SOCKET_ERROR)
-    {
-      // ヘッダのフォーマット
-      unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
-
-      // 変換行列の保存先
-      GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
-
-      // 変換行列を復帰する
-      remoteMatrix->store(body, 0, head[camCount]);
-    }
-
-    // 他のスレッドがリソースにアクセスするために少し待つ
-    std::this_thread::sleep_for(std::chrono::milliseconds(10L));
-  }
+  // ループを抜けるときに EOF を送信する
+  network.sendEof();
 }
 
 // 作業者通信スレッド起動
-void Camera::startWorker(unsigned short port, const char *address)
+int Camera::startWorker(unsigned short port, const char *address)
 {
-  // 作業者として初期化して
-  if (network.initialize(2, port, address)) return;
+  // すでに確保されている作業用メモリを破棄する
+  delete[] recvbuf, sendbuf;
+  recvbuf = sendbuf = nullptr;
 
-  // 作業用のメモリを確保する
-  delete[] sendbuf, recvbuf;
-  sendbuf = new uchar[maxFrameSize];
+  // 作業者として初期化する
+  const int ret(network.initialize(2, port, address));
+  if (ret > 0) return ret;
+
+  // 作業用のメモリを確保する（これは Camera のデストラクタで delete する）
   recvbuf = new uchar[maxFrameSize];
+  sendbuf = new uchar[maxFrameSize];
 
-  // 送信スレッドを開始する
+  // 通信スレッドを開始する
+  run[camL] = true;
+  recvThread = std::thread([this]() { recv(); });
   sendThread = std::thread([this]() { send(); });
 
-  // 受信スレッドを開始する
-  recvThread = std::thread([this]() { recv(); });
+  return 0;
 }

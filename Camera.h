@@ -20,6 +20,9 @@
 #include <thread>
 #include <mutex>
 
+// 受信リトライ回数
+const int receiveRetry(3);
+
 // 作業用メモリのサイズ
 const int maxFrameSize(1024 * 1024);
 
@@ -101,19 +104,19 @@ public:
 
 private:
 
-  // データ送信
-  void send();
-
-  // データ受信
+  // リモートの姿勢を受信する
   void recv();
+
+  // ローカルの映像と姿勢を送信する
+  void send();
 
 protected:
 
-  // 送信スレッド
-  std::thread sendThread;
-
   // 受信スレッド
   std::thread recvThread;
+
+  // 送信スレッド
+  std::thread sendThread;
 
   // エンコードのパラメータ
   std::vector<int> param;
@@ -121,11 +124,11 @@ protected:
   // エンコードした画像
   std::vector<uchar> encoded[camCount];
 
-  // データ送信用のメモリ
-  uchar *sendbuf;
-  
-  // データ受信用のメモリ
+  // 映像受信用のメモリ
   uchar *recvbuf;
+
+  // 映像送信用のメモリ
+  uchar *sendbuf;
 
   // 通信データ
   Network network;
@@ -143,7 +146,7 @@ public:
   }
 
   // 作業者通信スレッド起動
-  void startWorker(unsigned short port, const char *address);
+  int startWorker(unsigned short port, const char *address);
 
   // ネットワークを使っているかどうか
   bool useNetwork() const
@@ -154,12 +157,12 @@ public:
   // 作業者かどうか
   bool isWorker() const
   {
-    return useNetwork() && network.isSender();
+    return network.isWorker();
   }
 
   // 操縦者かかどうか
   bool isOperator() const
   {
-    return useNetwork() && !network.isSender();
+    return network.isOperator();
   }
 };

@@ -4,15 +4,18 @@
 // シーングラフ
 //
 
+// 各種設定
+#include "config.h"
+
 // 補助プログラム
 #include "gg.h"
 using namespace gg;
 
-// 共有メモリ
-#include "SharedMemory.h"
-
 // Leap Motion
 #include "LeapListener.h"
+
+// 共有メモリ
+#include "SharedMemory.h"
 
 // シーングラフは JSON で記述する
 #include "picojson.h"

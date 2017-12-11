@@ -7,19 +7,16 @@
 class Network
 {
   // ソケット
-  SOCKET sendSock, recvSock;
-  sockaddr_in sendAddr, recvAddr;
+  SOCKET recvSock, sendSock;
+  sockaddr_in recvAddr, sendAddr;
 
-  // true なら送信側
-  bool sender;
+  // 役割
+  enum Role { STANDALONE = 0, OPERATOR, WORKER } role;
 
 public:
 
   // コンストラクタ
   Network();
-
-  // コンストラクタ (role == 0 : STANDALONE, 1: OPERATOR, 2: WORKER)
-  Network(int role, unsigned short port, const char *address);
 
   // デストラクタ
   virtual ~Network();
@@ -27,8 +24,10 @@ public:
   // エラーコードの表示
   int getError() const;
 
-  // 初期化（アドレスを指定していなければ操縦者，していれば作業者）
-  int initialize(int role, unsigned short port, const char *address = nullptr);
+  // 初期化 (role == 0 : STANDALONE, 1: OPERATOR, 2: WORKER)
+  int initializeRecv(unsigned short port);
+  int initializeSend(unsigned short port, const char *address);
+  int initialize(int role, unsigned short port, const char *address);
 
   // 終了処理
   void finalize();
@@ -36,18 +35,30 @@ public:
   // 実行中なら真
   bool running() const;
 
-  // 送信側なら真
-  bool isSender() const;
+  // STANDALONE なら真
+  bool isStandalone() const;
 
-  // データ送信
-  int send(const void *buf, unsigned int len) const;
+  // OPERATOR なら真
+  bool isOperator() const;
 
-  // データ受信
-  int recv(void *buf, unsigned int len);
+  // WORKDER なら真
+  bool isWorker() const;
 
-  // 1 フレーム送信
-  unsigned int sendFrame(const void *buf, unsigned int len) const;
+  // リモートのアドレスのチェック
+  bool checkRemote() const;
+
+  // 1 パケット受信
+  int recvPacket(void *buf, unsigned int len);
+
+  // 1 パケット送信
+  int sendPacket(const void *buf, unsigned int len) const;
 
   // 1 フレーム受信
-  int recvFrame(void *buf, unsigned int len);
+  int recvData(void *buf, unsigned int len);
+
+  // 1 フレーム送信
+  unsigned int sendData(const void *buf, unsigned int len) const;
+
+  // EOF 送信
+  int sendEof() const;
 };
