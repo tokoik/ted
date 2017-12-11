@@ -1,11 +1,9 @@
 //
-// 産総研 3D ビューア
+// TelExistence Display System
 //
 
-// 標準ライブラリ
-#include <iostream>
-#include <typeinfo>
-#include <memory>
+// 各種設定
+#include "config.h"
 
 // ネットワーク関連の処理
 #include "Network.h"
@@ -20,14 +18,19 @@
 #include "CamImage.h"
 #include "CamRemote.h"
 
+// Leap Motion
+#include "LeapListener.h"
+
 // 矩形
 #include "Rect.h"
 
 // シーングラフ
 #include "Scene.h"
 
-// Leap Motion
-#include "LeapListener.h"
+// 標準ライブラリ
+#include <iostream>
+#include <typeinfo>
+#include <memory>
 
 // ウィンドウモード時のウィンドウサイズの初期値
 const int defaultWindowWidth(960);
@@ -35,9 +38,6 @@ const int defaultWindowHeight(540);
 
 // ウィンドウのタイトル
 const char windowTitle[] = "TED";
-
-// メッセージボックスのタイトル
-const LPCWSTR messageTitle = L"TED";
 
 // ファイルマッピングオブジェクト名
 const LPCWSTR localMutexName = L"TED_LOCAL_MUTEX";
@@ -94,7 +94,7 @@ int main(int argc, const char *const *const argv)
   int windowWidth, windowHeight;
 
   // フルスクリーン表示
-  if (defaults.display_mode != MONO && defaults.display_mode != OCULUS && !debug)
+  if (defaults.display_mode != MONO && defaults.display_mode != OCULUS && !DEBUG)
   {
     // 接続されているモニタの数を数える
     int mcount;

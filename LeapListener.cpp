@@ -102,7 +102,7 @@ void LeapListener::onFrame(const Leap::Controller &controller)
     // •ÏŠ·s—ñ‚ğ‹¤—Lƒƒ‚ƒŠ‚ÉŠi”[‚·‚é
     jointMatrix[0 + base] = mPalm;
 
-#if defined(_DEBUG)
+#if DEBUG
     std::cerr << "Hand: " << (base ? "Right" : "Left") << '\n';
     std::cerr << "Position: " << handPos.x << ", " << handPos.y << ", " << handPos.z << '\n';
     std::cerr << "Direction: " << direction.x << ", " << direction.y << ", " << direction.z << '\n';

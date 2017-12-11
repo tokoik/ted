@@ -1,9 +1,7 @@
-#include "config.h"
-#include "Scene.h"
-
 //
 // シーングラフ
 //
+#include "Scene.h"
 
 // コンストラクタ
 Scene::Scene(const GgObj *ob)

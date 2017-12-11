@@ -4,6 +4,15 @@
 // 各種設定
 //
 
+// デバッグモード
+#if !defined(DEBUG)
+#  if defined(_DEBUG)
+#    define DEBUG 1
+#  else
+#    define DEBUG 1
+#  endif
+#endif
+
 // 補助プログラム
 #include "gg.h"
 using namespace gg;
@@ -133,10 +142,3 @@ const int camCount(2), camL(0), camR(1);
 
 // リモートカメラの数
 const int remoteCamCount(2);
-
-// デバッグモード
-#if defined(_DEBUG)
-const bool debug(true);
-#else
-const bool debug(false);
-#endif

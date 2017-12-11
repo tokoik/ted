@@ -276,9 +276,8 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   // sRGB カラースペースを使う
   glEnable(GL_FRAMEBUFFER_SRGB);
 
-  // 表示確認用に背景色を付けておく
-  glClearColor(0.2f, 0.3f, 0.4f, 0.0f);
-  //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  // 背景色
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
   //
   // Oculus Rift の設定
@@ -290,7 +289,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
     // Oculus Rift の情報を取り出す
     hmdDesc = ovr_GetHmdDesc(session);
 
-#  if defined(_DEBUG)
+#  if DEBUG
     // Oculus Rift の情報を表示する
     std::cerr
       << "\nProduct name: " << hmdDesc.ProductName
@@ -671,7 +670,7 @@ bool Window::start()
 //
 void Window::swapBuffers()
 {
-#if defined(_DEBUG)
+#if DEBUG
   // エラーチェック
   ggError(__FILE__, __LINE__);
 #endif

@@ -4,9 +4,6 @@
 #include "CamRemote.h"
 #include "Scene.h"
 
-// リトライ回数
-const int retry(3);
-
 // コンストラクタ
 CamRemote::CamRemote(bool reshape)
   : reshape(reshape)
@@ -54,13 +51,17 @@ CamRemote::~CamRemote()
 // 操縦者側の起動
 int CamRemote::open(unsigned short port, const char *address)
 {
+  // すでに確保されている作業用メモリを破棄する
+  delete[] sendbuf, recvbuf;
+  sendbuf = recvbuf = nullptr;
+
+  // 操縦者として初期化する
+  const int ret(network.initialize(1, port, address));
+  if (ret != 0) return ret;
+
   // 作業用のメモリを確保する（これは Camera のデストラクタで delete する）
-  delete sendbuf, recvbuf;
   sendbuf = new uchar[maxFrameSize];
   recvbuf = new uchar[maxFrameSize];
-
-  // 操縦者として初期化して
-  network.initialize(1, port, address);
 
   // ヘッダのフォーマット
   unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
@@ -68,9 +69,9 @@ int CamRemote::open(unsigned short port, const char *address)
   // 1 フレーム受け取って
   for (int i = 0;;)
   {
-    const int ret(network.recvFrame(recvbuf, maxFrameSize));
-    if (ret > 0 && head[camL] > 0) break;
-    if (++i > retry) return ret;
+    const int ret(network.recvData(recvbuf, maxFrameSize));
+    if (ret > 0) break;
+    if (++i > receiveRetry) return ret;
   }
 
   // 変換行列の保存先
@@ -203,6 +204,104 @@ bool CamRemote::transmit(int cam, GLuint texture, const GLsizei *size)
   return false;
 }
 
+// リモートの映像と姿勢を受信する
+void CamRemote::recv()
+{
+  // スレッドが実行可の間
+  while (run[camL])
+  {
+    // 姿勢データと画像データを受信する
+    const int ret(network.recvData(recvbuf, maxFrameSize));
+
+    // サイズが 0 なら終了する
+    if (ret == 0) return;
+
+    // エラーがなければデータを読み込む
+    if (ret > 0 && network.checkRemote())
+    {
+      // ヘッダのフォーマット
+      unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
+
+      // 変換行列の保存先
+      GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
+
+      // 変換行列を復帰する
+      remoteMatrix->store(body, 0, head[camCount]);
+
+      // 左フレームの保存先 (変換行列の最後)
+      uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
+
+      // リモートから取得したフレームのサイズ
+      GLsizei rsize[camCount][2];
+
+      // 左フレームが送られてきていて左バッファが空のとき
+      if (head[camL] > 0 && !buffer[camL])
+      {
+        // 左フレームデータを vector に変換して
+        encoded[camL].assign(data, data + head[camL]);
+
+        // 左フレームをロックして
+        captureMutex[camL].lock();
+
+        // 左フレームをデコードして
+        remote[camL] = cv::imdecode(cv::Mat(encoded[camL]), 1);
+
+        // 左画像を更新し
+        buffer[camL] = remote[camL].data;
+
+        // 左フレームのサイズを求める
+        rsize[camL][0] = remote[camL].cols;
+        rsize[camL][1] = remote[camL].rows;
+
+        // 左フレームの転送が完了すればロックを解除する
+        captureMutex[camL].unlock();
+      }
+
+      // 右フレームが送られてきていて右バッファが空のとき
+      if (head[camR] > 0 && !buffer[camR])
+      {
+        // 左フレームが存在すれば
+        if (head[camL] > 0)
+        {
+          // 右フレームデータを vector に変換して
+          encoded[camR].assign(data + head[camL], data + head[camL] + head[camR]);
+
+          // 右フレームをロックして
+          captureMutex[camR].lock();
+
+          // 右フレームをデコードして
+          remote[camR] = cv::imdecode(cv::Mat(encoded[camR]), 1);
+
+          // 右画像を更新し
+          buffer[camR] = remote[camR].data;
+
+          // 右フレームのサイズを求める
+          rsize[camR][0] = remote[camR].cols;
+          rsize[camR][1] = remote[camR].rows;
+
+          // フレームの転送が完了すればロックを解除する
+          captureMutex[camR].unlock();
+        }
+        else
+        {
+          // 右フレームをロックして
+          captureMutex[camR].lock();
+
+          // 右画像は左画像と同じにする
+          buffer[camR] = remote[camL].data;
+
+          // 右フレームのサイズは左フレームと同じにする
+          rsize[camR][0] = rsize[camL][0];
+          rsize[camR][1] = rsize[camL][1];
+
+          // フレームの転送が完了すればロックを解除する
+          captureMutex[camR].unlock();
+        }
+      }
+    }
+  }
+}
+
 // ローカルの姿勢を送信する
 void CamRemote::send()
 {
@@ -228,105 +327,12 @@ void CamRemote::send()
     uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
 
     // フレームを送信する
-    network.sendFrame(sendbuf, static_cast<unsigned int>(data - sendbuf));
+    network.sendData(sendbuf, static_cast<unsigned int>(data - sendbuf));
 
     // 他のスレッドがリソースにアクセスするために少し待つ
     std::this_thread::sleep_for(std::chrono::milliseconds(10L));
   }
-}
 
-// リモートのフレームと姿勢を受信する
-void CamRemote::recv()
-{
-  // スレッドが実行可の間
-  while (run[camL])
-  {
-    // ヘッダのフォーマット
-    unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
-
-    // 1 フレーム受け取って
-    for (int i = 0;;)
-    {
-      const int ret(network.recvFrame(recvbuf, maxFrameSize));
-      if (ret > 0 && head[camL] > 0) break;
-      if (++i > retry) return;
-    }
-
-    // 変換行列の保存先
-    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
-
-    // 変換行列を復帰する
-    remoteMatrix->store(body, 0, head[camCount]);
-
-    // 左フレームの保存先 (変換行列の最後)
-    uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
-
-    // リモートから取得したフレームのサイズ
-    GLsizei rsize[camCount][2];
-
-    // 左フレームが送られてきていて左バッファが空のとき
-    if (head[camL] > 0 && !buffer[camL])
-    {
-      // 左フレームデータを vector に変換して
-      encoded[camL].assign(data, data + head[camL]);
-
-      // 左フレームをロックして
-      captureMutex[camL].lock();
-
-      // 左フレームをデコードして
-      remote[camL] = cv::imdecode(cv::Mat(encoded[camL]), 1);
-
-      // 左画像を更新し
-      buffer[camL] = remote[camL].data;
-
-      // 左フレームのサイズを求める
-      rsize[camL][0] = remote[camL].cols;
-      rsize[camL][1] = remote[camL].rows;
-
-      // 左フレームの転送が完了すればロックを解除する
-      captureMutex[camL].unlock();
-    }
-
-    // 右フレームが送られてきていて右バッファが空のとき
-    if (head[camR] > 0 && !buffer[camR])
-    {
-      // 左フレームが存在すれば
-      if (head[camL] > 0)
-      {
-        // 右フレームデータを vector に変換して
-        encoded[camR].assign(data + head[camL], data + head[camL] + head[camR]);
-
-        // 右フレームをロックして
-        captureMutex[camR].lock();
-
-        // 右フレームをデコードして
-        remote[camR] = cv::imdecode(cv::Mat(encoded[camR]), 1);
-
-        // 右画像を更新し
-        buffer[camR] = remote[camR].data;
-
-        // 右フレームのサイズを求める
-        rsize[camR][0] = remote[camR].cols;
-        rsize[camR][1] = remote[camR].rows;
-
-        // フレームの転送が完了すればロックを解除する
-        captureMutex[camR].unlock();
-      }
-      else
-      {
-        // 右フレームをロックして
-        captureMutex[camR].lock();
-
-        // 右画像は左画像と同じにする
-        buffer[camR] = remote[camL].data;
-
-        // 右フレームのサイズは左フレームと同じにする
-        rsize[camR][0] = rsize[camL][0];
-        rsize[camR][1] = rsize[camL][1];
-
-        // フレームの転送が完了すればロックを解除する
-        captureMutex[camR].unlock();
-      }
-    }
-  }
+  // ループを抜けるときに EOF を送信する
+  network.sendEof();
 }

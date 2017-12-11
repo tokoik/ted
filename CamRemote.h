@@ -38,7 +38,7 @@ class CamRemote
   // 背景画像のタイリングに使うシェーダの uniform 変数の場所
   GLint gapLoc, screenLoc, rotationLoc, imageLoc;
 
-  // リモートのフレームと姿勢を受信する
+  // リモートの映像と姿勢を受信する
   void recv();
 
   // ローカルの姿勢を送信する
