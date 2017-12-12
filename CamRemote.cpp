@@ -70,8 +70,9 @@ int CamRemote::open(unsigned short port, const char *address)
   for (int i = 0;;)
   {
     const int ret(network.recvData(recvbuf, maxFrameSize));
-    if (ret > 0) break;
+    if (ret > 0 && head[camL] > 0) break;
     if (++i > receiveRetry) return ret;
+    Sleep(1000);
   }
 
   // •ÏŠ·s—ñ‚Ì•Û‘¶æ

@@ -60,7 +60,7 @@ void CamCv::capture(int cam)
         if (isWorker())
         {
           // フレームを圧縮して保存し
-          cv::imencode(coder, image[cam], encoded[cam], param);
+          cv::imencode(encoderType, image[cam], encoded[cam], param);
         }
 
         // 次のフレームに進む

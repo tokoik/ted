@@ -69,9 +69,9 @@ void CamOv::capture()
         {
           // ÉtÉåÅ[ÉÄÇà≥èkÇµÇƒï€ë∂Ç∑ÇÈ
           cv::Mat frameL(size[camL][1], size[camL][0], CV_8UC4, bufferL);
-          cv::imencode(coder, frameL, encoded[camL], param);
+          cv::imencode(encoderType, frameL, encoded[camL], param);
           cv::Mat frameR(size[camR][1], size[camR][0], CV_8UC4, bufferR);
-          cv::imencode(coder, frameR, encoded[camR], param);
+          cv::imencode(encoderType, frameR, encoded[camR], param);
         }
       }
     }

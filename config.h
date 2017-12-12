@@ -135,7 +135,10 @@ const GgSimpleMaterial materialData =
 const GLfloat borderColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 // エンコード方法
-const char coder[] = ".jpg";
+const char encoderType[] = ".jpg";
+
+// 読み飛ばすパケットの最大数
+const int maxDropPackets(1000);
 
 // カメラの数と識別子
 const int camCount(2), camL(0), camR(1);
