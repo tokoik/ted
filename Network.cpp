@@ -234,21 +234,11 @@ int Network::sendPacket(const void *buf, unsigned int len) const
 // パケットのレイアウト
 struct Packet
 {
-  // ヘッダのレイアウト
-  struct Header
-  {
-    // シーケンス番号
-    unsigned short sequence;
-
-    // 残りのパケット数
-    unsigned short count;
-  };
-
-  // パケットヘッダ
-  Header head;
+  // 残りのパケット数
+  int count;
 
   // ペイロード
-  char data[maxSize - sizeof Packet::head];
+  char data[maxSize - sizeof Packet::count];
 };
 
 // 1 フレーム受信
@@ -263,24 +253,50 @@ int Network::recvData(void *buf, unsigned int len)
   // 受信すべきパケット数
   int total(-1);
 
-  // 受信したパケット数
-  int count(0);
+  // 受信したデータサイズ
+  int bytes;
 
-  // 最後のパケットを見つけるまで
-  do
+  // 全部のパケットを受信するまで
+  for (int count = 0, drop = 0;;)
   {
     // 1 パケット分データを受信する
-    const int ret(recvPacket(&packet, sizeof packet));
+    bytes = recvPacket(&packet, sizeof packet);
 
     // 長さ 0 のパケットを受け取ったら終わり
-    if (ret == 0) return 0;
+    if (bytes == 0) return 0;
 
     // 戻り値が負ならエラー
-    if (ret < 0)
+    if (bytes < 0)
     {
       // 受信失敗
-      if (ret == SOCKET_ERROR) getError();
-      return ret;
+      if (bytes == SOCKET_ERROR) getError();
+      return bytes;
+    }
+
+    // 先頭のパケットだったら
+    if (packet.count < 0)
+    {
+      // 受信したデータを捨てて最初からやり直す
+      count = 0;
+
+      // 先頭パケットが保持するパケット数を保存する
+      total = packet.count = -packet.count;
+    }
+
+    // total が負のままだったらまだ先頭パケットを受信していないので
+    if (total < 0)
+    {
+      // 破棄するパケット数をカウントして
+      if (++drop < maxDropPackets)
+      {
+        // 規定数に達していなければ破棄
+        continue;
+      }
+      else
+      {
+        // 規定数に達していればエラー
+        return -1;
+      }
     }
 
     // 受信したパケット数をチェック
@@ -294,7 +310,7 @@ int Network::recvData(void *buf, unsigned int len)
     }
 
     // ペイロードのサイズ
-    const int size(ret - sizeof packet.head);
+    const int size(bytes - sizeof packet.count);
 
     // ペイロードのサイズをチェック
     if (size < 0)
@@ -307,12 +323,12 @@ int Network::recvData(void *buf, unsigned int len)
     }
 
 #if DEBUG
-    // シーケンス番号・残りパケット数・データサイズ
-    std::cerr << "recvPacket seq:" << packet.head.sequence << ", cnt:" << packet.head.count << ", size:" << size << "\n";
+    // シーケンス番号・データサイズ
+    std::cerr << "recv seq:" << total - packet.count << ", size:" << size << "\n";
 #endif
 
     // 保存先の位置
-    const unsigned int pos(packet.head.sequence * sizeof packet.data);
+    const unsigned int pos((total - packet.count) * sizeof packet.data);
 
     // 保存先に収まるかどうかチェック
     if (pos > len - size)
@@ -330,22 +346,12 @@ int Network::recvData(void *buf, unsigned int len)
     // ペイロードを保存する
     memcpy(ptr, packet.data, size);
 
-    // 先頭パケットが保持するパケット数を保存する
-    if (packet.head.sequence == 0) total = packet.head.count;
-  } while (packet.head.count > 1);
-
-  // 先頭パケットを受信していないか受信したパケット数が多すぎれば失敗
-  if (count > total)
-  {
-    // 受信失敗
-#if DEBUG
-    std::cerr << "broken packet\n";
-#endif
-    return -1;
+    // 全部のパケットを受け取っていれば終わる
+    if (count >= total) break;
   }
 
   // 受け取ったパケット数
-  return count;
+  return total;
 }
 
 // 1 フレーム送信
@@ -354,17 +360,17 @@ unsigned int Network::sendData(const void *buf, unsigned int len) const
   // パケット
   Packet packet;
 
-  // シーケンス番号の初期値は 0
-  packet.head.sequence = 0;
-
   // 残りのパケット数はデータを送りきるのに必要なペイロードの数
-  packet.head.count = (len - 1) / static_cast<unsigned short>(sizeof packet.data) + 1;
+  int total((len - 1) / static_cast<unsigned short>(sizeof packet.data) + 1);
+
+  // 最初のパケットでは残りのパケット数の符号を反転する
+  packet.count = -total;
 
   // 送っていないパケットがある間
-  while (packet.head.count > 0)
+  for (int count = 0; total > 0; ++count)
   {
     // 送信するデータの先頭
-    const char *const ptr(static_cast<const char *>(buf) + packet.head.sequence * sizeof packet.data);
+    const char *const ptr(static_cast<const char *>(buf) + count * sizeof packet.data);
 
     // パケットサイズ
     const unsigned int size(len > sizeof packet.data ? sizeof packet.data : len);
@@ -373,12 +379,12 @@ unsigned int Network::sendData(const void *buf, unsigned int len) const
     memcpy(packet.data, ptr, size);
 
 #if DEBUG
-    // シーケンス番号・残りパケット数・データサイズ
-    std::cerr << "sendPacket seq:" << packet.head.sequence << ", cnt:" << packet.head.count << ", size:" << size << "\n";
+    // シーケンス番号・データサイズ
+    std::cerr << "send seq:" << count << ", size:" << size << "\n";
 #endif
 
     // 1 パケット分データを送信する
-    const int ret(sendPacket(&packet, size + sizeof packet.head));
+    const int ret(sendPacket(&packet, size + sizeof packet.count));
 
     // 送信したデータサイズを確かめる
     if (ret <= 0)
@@ -389,13 +395,10 @@ unsigned int Network::sendData(const void *buf, unsigned int len) const
     }
 
     // 残りのデータ量
-    len -= ret - sizeof packet.head;
-
-    // シーケンス番号を進める
-    ++packet.head.sequence;
+    len -= ret - sizeof packet.count;
 
     // 残りのパケット数を減らす
-    --packet.head.count;
+    packet.count = --total;
   }
 
   // 送り切れなかったデータ量
