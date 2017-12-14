@@ -137,43 +137,47 @@ void Camera::send()
   // カメラスレッドが実行可の間
   while (run[camL])
   {
-    // キャプチャデバイスをロックする
-    captureMutex[camL].lock();
-
-    // ヘッダのフォーマット
-    unsigned int *const head(reinterpret_cast<unsigned int *>(sendbuf));
-
-    // 左フレームのサイズを保存する
-    head[camL] = static_cast<unsigned int>(encoded[camL].size());
-
-    // 右フレームのサイズを 0 にしておく
-    head[camR] = 0;
-
-    // 変換行列の数を保存する
-    head[camCount] = localMatrix->getUsed();
-
-    // 変換行列の保存先
-    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
-
-    // 変換行列を保存する
-    localMatrix->load(body);
-
-    // 左フレームの保存先 (変換行列の最後)
-    uchar *data(reinterpret_cast<uchar *>(body + head[camCount]));
-
-    // 左フレームのデータをコピーする
-    memcpy(data, encoded[camL].data(), head[camL]);
-
-    // フレームの転送が完了すればロックを解除する
-    captureMutex[camL].unlock();
-
-    // 左フレームに画像があれば
-    if (head[camL] > 0)
+    // 左に新しいフレームが到着していれば
+    if (!encoded[camL].empty())
     {
+      // ヘッダのフォーマット
+      unsigned int *const head(reinterpret_cast<unsigned int *>(sendbuf));
+
+      // キャプチャデバイスをロックする
+      captureMutex[camL].lock();
+
+      // 左フレームのサイズを保存する
+      head[camL] = static_cast<unsigned int>(encoded[camL].size());
+
+      // 右フレームのサイズを 0 にしておく
+      head[camR] = 0;
+
+      // 変換行列の数を保存する
+      head[camCount] = localMatrix->getUsed();
+
+      // 変換行列の保存先
+      GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
+
+      // 変換行列を保存する
+      localMatrix->load(body);
+
+      // 左フレームの保存先 (変換行列の最後)
+      uchar *data(reinterpret_cast<uchar *>(body + head[camCount]));
+
+      // 左フレームのデータをコピーする
+      memcpy(data, encoded[camL].data(), head[camL]);
+
+      // 左フレームのデータを空にする
+      encoded[camL].clear();
+
+      // フレームの転送が完了すればロックを解除する
+      captureMutex[camL].unlock();
+
       // 右フレームの保存先 (左フレームの最後)
       data += head[camL];
 
-      if (run[camR])
+      // 右に新しいフレームが到着していれば
+      if (!encoded[camR].empty())
       {
         // キャプチャデバイスをロックする
         captureMutex[camR].lock();
@@ -184,16 +188,19 @@ void Camera::send()
         // 右フレームのデータを左フレームのデータの後ろにコピーする
         memcpy(data, encoded[camR].data(), head[camR]);
 
+        // 右フレームのデータを空にする
+        encoded[camR].clear();
+
         // フレームの転送が完了すればロックを解除する
         captureMutex[camR].unlock();
 
         // 右フレームの最後
         data += head[camR];
       }
-    }
 
-    // フレームを送信する
-    network.sendData(sendbuf, static_cast<unsigned int>(data - sendbuf));
+      // フレームを送信する
+      network.sendData(sendbuf, static_cast<unsigned int>(data - sendbuf));
+    }
 
     // 他のスレッドがリソースにアクセスするために少し待つ
     std::this_thread::sleep_for(std::chrono::milliseconds(10L));

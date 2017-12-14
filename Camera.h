@@ -20,9 +20,6 @@
 #include <thread>
 #include <mutex>
 
-// 受信リトライ回数
-const int receiveRetry(3);
-
 // 作業用メモリのサイズ
 const int maxFrameSize(1024 * 1024);
 

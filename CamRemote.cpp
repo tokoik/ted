@@ -70,9 +70,11 @@ int CamRemote::open(unsigned short port, const char *address)
   for (int i = 0;;)
   {
     const int ret(network.recvData(recvbuf, maxFrameSize));
+#if DEBUG
+    std::cerr << "CamRemote open:" << ret << ',' << head[camL] << ',' << head[camR] << '\n';
+#endif
     if (ret > 0 && head[camL] > 0) break;
     if (++i > receiveRetry) return ret;
-    Sleep(1000);
   }
 
   // 変換行列の保存先
@@ -214,6 +216,10 @@ void CamRemote::recv()
     // 姿勢データと画像データを受信する
     const int ret(network.recvData(recvbuf, maxFrameSize));
 
+#if DEBUG
+    std::cerr << "CamRemote recv:" << ret << '\n';
+#endif
+
     // サイズが 0 なら終了する
     if (ret == 0) return;
 
@@ -235,8 +241,8 @@ void CamRemote::recv()
       // リモートから取得したフレームのサイズ
       GLsizei rsize[camCount][2];
 
-      // 左フレームが送られてきていて左バッファが空のとき
-      if (head[camL] > 0 && !buffer[camL])
+      // 左バッファが空のとき左フレームが送られてきていれば
+      if (!buffer[camL] && head[camL] > 0)
       {
         // 左フレームデータを vector に変換して
         encoded[camL].assign(data, data + head[camL]);
@@ -258,11 +264,11 @@ void CamRemote::recv()
         captureMutex[camL].unlock();
       }
 
-      // 右フレームが送られてきていて右バッファが空のとき
-      if (head[camR] > 0 && !buffer[camR])
+      // 右バッファが空のとき
+      if (!buffer[camR])
       {
-        // 左フレームが存在すれば
-        if (head[camL] > 0)
+        // 右フレームが送られてきていれば
+        if (head[camR] > 0)
         {
           // 右フレームデータを vector に変換して
           encoded[camR].assign(data + head[camL], data + head[camL] + head[camR]);

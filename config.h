@@ -137,6 +137,9 @@ const GLfloat borderColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 // エンコード方法
 const char encoderType[] = ".jpg";
 
+// 受信リトライ回数
+const int receiveRetry(30);
+
 // 読み飛ばすパケットの最大数
 const int maxDropPackets(1000);
 
