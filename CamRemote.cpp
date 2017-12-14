@@ -210,6 +210,12 @@ bool CamRemote::transmit(int cam, GLuint texture, const GLsizei *size)
 // リモートの映像と姿勢を受信する
 void CamRemote::recv()
 {
+  // キャプチャ間隔
+  const double capture_interval(defaults.capture_fps > 0.0 ? 1.0 / defaults.capture_fps : 30.0);
+
+  // 直前のフレームの送信時刻
+  double last(glfwGetTime());
+
   // スレッドが実行可の間
   while (run[camL])
   {
@@ -306,12 +312,37 @@ void CamRemote::recv()
         }
       }
     }
+
+    // 現在時刻
+    const double now(glfwGetTime());
+
+    // 次のフレームの送信時刻までの残り時間
+    const double delay(last + capture_interval - now);
+
+#if DEBUG
+    std::cerr << "recv delay = " << delay << '\n';
+#endif
+    // 残り時間があれば
+    if (delay > 0.0)
+    {
+      // 次のフレームの送信時刻まで待つ
+      std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(delay)));
+    }
+
+    // 直前のフレームの送信時刻を更新する
+    last = now;
   }
 }
 
 // ローカルの姿勢を送信する
 void CamRemote::send()
 {
+  // キャプチャ間隔
+  const double capture_interval(defaults.capture_fps > 0.0 ? 1.0 / defaults.capture_fps : 30.0);
+
+  // 直前のフレームの送信時刻
+  double last(glfwGetTime());
+
   // カメラスレッドが実行可の間
   while (run[camL])
   {
@@ -336,8 +367,24 @@ void CamRemote::send()
     // フレームを送信する
     network.sendData(sendbuf, static_cast<unsigned int>(data - sendbuf));
 
-    // 他のスレッドがリソースにアクセスするために少し待つ
-    std::this_thread::sleep_for(std::chrono::milliseconds(10L));
+    // 現在時刻
+    const double now(glfwGetTime());
+
+    // 次のフレームの送信時刻までの残り時間
+    const double delay(last + capture_interval - now);
+
+#if DEBUG
+    std::cerr << "send delay = " << delay << '\n';
+#endif
+    // 残り時間があれば
+    if (delay > 0.0)
+    {
+      // 次のフレームの送信時刻まで待つ
+      std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(delay)));
+    }
+
+    // 直前のフレームの送信時刻を更新する
+    last = now;
   }
 
   // ループを抜けるときに EOF を送信する
