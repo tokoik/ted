@@ -104,6 +104,12 @@ bool Camera::transmit(int cam, GLuint texture, const GLsizei *size)
 // リモートの姿勢を受信する
 void Camera::recv()
 {
+  // キャプチャ間隔
+  const double capture_interval(defaults.capture_fps > 0.0 ? 1.0 / defaults.capture_fps : 30.0);
+
+  // 直前のフレームの受信時刻
+  double last(glfwGetTime());
+
   // スレッドが実行可の間
   while (run[camL])
   {
@@ -126,43 +132,65 @@ void Camera::recv()
       remoteMatrix->store(body, 0, head[camCount]);
     }
 
-    // 他のスレッドがリソースにアクセスするために少し待つ
-    std::this_thread::sleep_for(std::chrono::milliseconds(10L));
+    // 現在時刻
+    const double now(glfwGetTime());
+
+    // 次のフレームの送信時刻までの残り時間
+    const double delay(last + capture_interval - now);
+
+#if DEBUG
+    std::cerr << "recv delay = " << delay << '\n';
+#endif
+    // 残り時間があれば
+    if (delay > 0.0)
+    {
+      // 次のフレームの送信時刻まで待つ
+      std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(delay)));
+    }
+
+    // 直前のフレームの送信時刻を更新する
+    last = now;
   }
 }
 
 // ローカルの映像と姿勢を送信する
 void Camera::send()
 {
+  // キャプチャ間隔
+  const double capture_interval(defaults.capture_fps > 0.0 ? 1.0 / defaults.capture_fps : 30.0);
+
+  // 直前のフレームの送信時刻
+  double last(glfwGetTime());
+
   // カメラスレッドが実行可の間
   while (run[camL])
   {
+    // ヘッダのフォーマット
+    unsigned int *const head(reinterpret_cast<unsigned int *>(sendbuf));
+
+    // 左右フレームのサイズを 0 にしておく
+    head[camL] = head[camR] = 0;
+
+    // 変換行列の数を保存する
+    head[camCount] = localMatrix->getUsed();
+
+    // 変換行列の保存先
+    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
+
+    // 変換行列を保存する
+    localMatrix->load(body);
+
+    // 左フレームの保存先 (変換行列の最後)
+    uchar *data(reinterpret_cast<uchar *>(body + head[camCount]));
+
     // 左に新しいフレームが到着していれば
     if (!encoded[camL].empty())
     {
-      // ヘッダのフォーマット
-      unsigned int *const head(reinterpret_cast<unsigned int *>(sendbuf));
-
-      // キャプチャデバイスをロックする
+      // 左キャプチャデバイスをロックする
       captureMutex[camL].lock();
 
       // 左フレームのサイズを保存する
       head[camL] = static_cast<unsigned int>(encoded[camL].size());
-
-      // 右フレームのサイズを 0 にしておく
-      head[camR] = 0;
-
-      // 変換行列の数を保存する
-      head[camCount] = localMatrix->getUsed();
-
-      // 変換行列の保存先
-      GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
-
-      // 変換行列を保存する
-      localMatrix->load(body);
-
-      // 左フレームの保存先 (変換行列の最後)
-      uchar *data(reinterpret_cast<uchar *>(body + head[camCount]));
 
       // 左フレームのデータをコピーする
       memcpy(data, encoded[camL].data(), head[camL]);
@@ -170,16 +198,16 @@ void Camera::send()
       // 左フレームのデータを空にする
       encoded[camL].clear();
 
-      // フレームの転送が完了すればロックを解除する
+      // 左フレームの転送が完了すればロックを解除する
       captureMutex[camL].unlock();
 
       // 右フレームの保存先 (左フレームの最後)
       data += head[camL];
 
-      // 右に新しいフレームが到着していれば
-      if (!encoded[camR].empty())
+      // 右キャプチャデバイスが動作していれば
+      if (run[camR])
       {
-        // キャプチャデバイスをロックする
+        // 右キャプチャデバイスをロックする
         captureMutex[camR].lock();
 
         // 右フレームのサイズを保存する
@@ -202,8 +230,24 @@ void Camera::send()
       network.sendData(sendbuf, static_cast<unsigned int>(data - sendbuf));
     }
 
-    // 他のスレッドがリソースにアクセスするために少し待つ
-    std::this_thread::sleep_for(std::chrono::milliseconds(10L));
+    // 現在時刻
+    const double now(glfwGetTime());
+
+    // 次のフレームの送信時刻までの残り時間
+    const double delay(last + capture_interval - now);
+
+#if DEBUG
+    std::cerr << "send delay = " << delay << '\n';
+#endif
+    // 残り時間があれば
+    if (delay > 0.0)
+    {
+      // 次のフレームの送信時刻まで待つ
+      std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(delay)));
+    }
+
+    // 直前のフレームの送信時刻を更新する
+    last = now;
   }
 
   // ループを抜けるときに EOF を送信する
