@@ -81,7 +81,7 @@ void CamOv::capture()
       captureMutex[camL].unlock();
 
       // 他のスレッドがリソースにアクセスするために少し待ってから
-      std::this_thread::sleep_for(std::chrono::milliseconds(10L));
+      std::this_thread::sleep_for(std::chrono::milliseconds(minDelay));
 
       // またキャプチャデバイスをロックする
       captureMutex[camL].lock();

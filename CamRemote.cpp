@@ -310,7 +310,7 @@ void CamRemote::recv()
     }
 
     // 他のスレッドがリソースにアクセスするために少し待つ
-    std::this_thread::sleep_for(std::chrono::milliseconds(10LL));
+    std::this_thread::sleep_for(std::chrono::milliseconds(minDelay));
   }
 }
 
@@ -351,20 +351,20 @@ void CamRemote::send()
     const double now(glfwGetTime());
 
     // 次のフレームの送信時刻までの残り時間
-    const double delay(last + capture_interval - now);
+    const long long remain(static_cast<long long>(last + capture_interval - now));
 
 #if DEBUG
-    std::cerr << "send delay = " << delay << '\n';
+    std::cerr << "send remain = " << remain << '\n';
 #endif
-    // 残り時間があれば
-    if (delay > 0.0)
-    {
-      // 次のフレームの送信時刻まで待つ
-      std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(delay)));
-    }
 
     // 直前のフレームの送信時刻を更新する
     last = now;
+
+    // 残り時間分遅延させる
+    const long long delay(remain > minDelay ? remain : minDelay);
+
+    // 次のフレームの送信時刻まで待つ
+    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
   }
 
   // ループを抜けるときに EOF を送信する
