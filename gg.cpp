@@ -42,7 +42,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #if defined(_WIN32)
 #  if !defined(_DEBUG)
-//#    pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
+#    pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
 #  endif
 #  pragma comment(lib, "glfw3.lib")
 PFNGLACTIVEPROGRAMEXTPROC glActiveProgramEXT;

@@ -143,6 +143,9 @@ const int receiveRetry(30);
 // 読み飛ばすパケットの最大数
 const int maxDropPackets(1000);
 
+// フレーム送信の最小間隔
+const long long minDelay(10);
+
 // カメラの数と識別子
 const int camCount(2), camL(0), camR(1);
 
