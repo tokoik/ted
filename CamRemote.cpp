@@ -210,12 +210,6 @@ bool CamRemote::transmit(int cam, GLuint texture, const GLsizei *size)
 // リモートの映像と姿勢を受信する
 void CamRemote::recv()
 {
-  // キャプチャ間隔
-  const double capture_interval(defaults.capture_fps > 0.0 ? 1.0 / defaults.capture_fps : 30.0);
-
-  // 直前のフレームの送信時刻
-  double last(glfwGetTime());
-
   // スレッドが実行可の間
   while (run[camL])
   {
@@ -247,24 +241,28 @@ void CamRemote::recv()
       // リモートから取得したフレームのサイズ
       GLsizei rsize[camCount][2];
 
-      // 左バッファが空のとき左フレームが送られてきていれば
-      if (!buffer[camL] && head[camL] > 0)
+      // 左バッファが空のとき
+      if (!buffer[camL])
       {
-        // 左フレームデータを vector に変換して
-        encoded[camL].assign(data, data + head[camL]);
-
         // 左フレームをロックして
         captureMutex[camL].lock();
 
-        // 左フレームをデコードして
-        remote[camL] = cv::imdecode(cv::Mat(encoded[camL]), 1);
+        // 左フレームが送られてきていれば
+        if (head[camL] > 0)
+        {
+          // 左フレームデータを vector に変換して
+          encoded[camL].assign(data, data + head[camL]);
+
+          // 左フレームをデコードして保存する
+          remote[camL] = cv::imdecode(cv::Mat(encoded[camL]), 1);
+
+          // 左フレームのサイズを求める
+          rsize[camL][0] = remote[camL].cols;
+          rsize[camL][1] = remote[camL].rows;
+        }
 
         // 左画像を更新し
         buffer[camL] = remote[camL].data;
-
-        // 左フレームのサイズを求める
-        rsize[camL][0] = remote[camL].cols;
-        rsize[camL][1] = remote[camL].rows;
 
         // 左フレームの転送が完了すればロックを解除する
         captureMutex[camL].unlock();
@@ -273,64 +271,46 @@ void CamRemote::recv()
       // 右バッファが空のとき
       if (!buffer[camR])
       {
+        // 右フレームをロックして
+        captureMutex[camR].lock();
+
         // 右フレームが送られてきていれば
         if (head[camR] > 0)
         {
           // 右フレームデータを vector に変換して
           encoded[camR].assign(data + head[camL], data + head[camL] + head[camR]);
 
-          // 右フレームをロックして
-          captureMutex[camR].lock();
-
-          // 右フレームをデコードして
+          // 右フレームをデコードして保存する
           remote[camR] = cv::imdecode(cv::Mat(encoded[camR]), 1);
-
-          // 右画像を更新し
-          buffer[camR] = remote[camR].data;
 
           // 右フレームのサイズを求める
           rsize[camR][0] = remote[camR].cols;
           rsize[camR][1] = remote[camR].rows;
-
-          // フレームの転送が完了すればロックを解除する
-          captureMutex[camR].unlock();
         }
-        else
+
+        // 右フレームが保存されていなければ
+        if (remote[camR].empty())
         {
-          // 右フレームをロックして
-          captureMutex[camR].lock();
-
-          // 右画像は左画像と同じにする
-          buffer[camR] = remote[camL].data;
-
           // 右フレームのサイズは左フレームと同じにする
           rsize[camR][0] = rsize[camL][0];
           rsize[camR][1] = rsize[camL][1];
 
-          // フレームの転送が完了すればロックを解除する
-          captureMutex[camR].unlock();
+          // 右フレームは左フレームと同じにする
+          buffer[camR] = remote[camL].data;
         }
+        else
+        {
+          // 右フレームを更新する
+          buffer[camR] = remote[camR].data;
+        }
+
+        // フレームの転送が完了すればロックを解除する
+        captureMutex[camR].unlock();
       }
     }
 
-    // 現在時刻
-    const double now(glfwGetTime());
-
-    // 次のフレームの送信時刻までの残り時間
-    const double delay(last + capture_interval - now);
-
-#if DEBUG
-    std::cerr << "recv delay = " << delay << '\n';
-#endif
-    // 残り時間があれば
-    if (delay > 0.0)
-    {
-      // 次のフレームの送信時刻まで待つ
-      std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(delay)));
-    }
-
-    // 直前のフレームの送信時刻を更新する
-    last = now;
+    // 他のスレッドがリソースにアクセスするために少し待つ
+    std::this_thread::sleep_for(std::chrono::milliseconds(10LL));
   }
 }
 
@@ -338,7 +318,7 @@ void CamRemote::recv()
 void CamRemote::send()
 {
   // キャプチャ間隔
-  const double capture_interval(defaults.capture_fps > 0.0 ? 1.0 / defaults.capture_fps : 30.0);
+  const double capture_interval(defaults.capture_fps > 0.0 ? 1000.0 / defaults.capture_fps : 30.0);
 
   // 直前のフレームの送信時刻
   double last(glfwGetTime());
