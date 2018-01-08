@@ -94,7 +94,7 @@ int main(int argc, const char *const *const argv)
   int windowWidth, windowHeight;
 
   // フルスクリーン表示
-  if (defaults.display_mode != MONO && defaults.display_mode != OCULUS && !DEBUG)
+  if (defaults.display_fullscreen)
   {
     // 接続されているモニタの数を数える
     int mcount;

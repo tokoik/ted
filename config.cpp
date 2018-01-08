@@ -36,6 +36,7 @@ config defaults =
   OVR::OV_CAM5MP_FHD,           // int ovrvision_propaty; (※3)
   MONO,                         // StereoMode display_mode; (※1)
   1,                            // int display_secondary;
+  false,                        // bool display_fullscreen;
   0.5f,                         // GLfloat display_center;
   1.5f,                         // GLfloat display_distance;
   0.1f,                         // GLfloat display_near;
@@ -226,6 +227,11 @@ bool config::load(const std::string &file)
   if (v_use_secondary != o.end() && v_use_secondary->second.is<double>())
     display_secondary = static_cast<int>(v_use_secondary->second.get<double>());
 
+  // フルスクリーン表示
+  const auto &v_fullscreen(o.find("fullscreen"));
+  if (v_fullscreen != o.end() && v_fullscreen->second.is<bool>())
+    display_fullscreen = v_fullscreen->second.get<bool>();
+
   // ディスプレイの中心の高さ
   const auto &v_display_center(o.find("display_center"));
   if (v_display_center != o.end() && v_display_center->second.is<double>())
@@ -408,6 +414,9 @@ bool config::save(const std::string &file) const
 
   // セカンダリディスプレイの使用
   o.insert(std::make_pair("use_secondary", picojson::value(static_cast<double>(display_secondary))));
+
+  // フルスクリーン表示
+  o.insert(std::make_pair("fullscreen", picojson::value(display_fullscreen)));
 
   // ディスプレイの中心の高さ
   o.insert(std::make_pair("display_center", picojson::value(static_cast<double>(display_center))));
