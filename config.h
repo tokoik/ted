@@ -65,6 +65,7 @@ struct config
   int ovrvision_property;
   int display_mode;
   int display_secondary;
+  bool display_fullscreen;
   GLfloat display_center;
   GLfloat display_distance;
   GLfloat display_near;
