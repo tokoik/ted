@@ -511,7 +511,7 @@ int main(int argc, const char *const *const argv)
         simple.selectMaterial(material);
 
         // }Œ`‚ğ•`‰æ‚·‚é
-        if (window.showScene) scene.draw(window.getMp(eye), mo * window.getMv(eye), window.getMm());
+        if (window.showScene) scene.draw(window.getMp(eye), window.getMv(eye) * mo, window.getMm());
 
         // •Ğ–Ú‚Ìˆ—‚ğŠ®—¹‚·‚é
         window.commit(eye);
