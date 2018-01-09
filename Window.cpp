@@ -117,7 +117,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
       if (Compare(luid, GetDefaultAdapterLuid()))
       {
         // デフォルトのグラフィックスアダプタが使用されていない
-        throw TEXT("OpenGL ではデフォルトのグラフィックスアダプタ以外使用できません。");
+        NOTIFY("OpenGL ではデフォルトのグラフィックスアダプタ以外使用できません。");
       }
 #else
       // (LUID は OpenGL では使っていないらしい)
@@ -220,7 +220,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   ggInit();
 
   // Oculus Rift への表示ではスワップ間隔を待たない
-  glfwSwapInterval(0);
+  glfwSwapInterval(defaults.display_mode == OCULUS ? 0 : 1);
 
   // フルスクリーンモードでもマウスカーソルを表示する
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
