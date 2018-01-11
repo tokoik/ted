@@ -58,18 +58,6 @@ void LeapListener::onFrame(const Leap::Controller &controller)
 
   for (auto hand : frame.hands())
   {
-#if defined(VERBOSE)
-    // Get hand position
-    std::string handType(hand.isLeft() ? "Left hand" : "Right hand");
-    std::cerr << std::string(2, ' ') << handType << ", id: " << hand.id()
-      << ", palm position: " << hand.palmPosition() << std::endl;
-
-    // Calculate the hand's pitch, roll, and yaw angles
-    std::cerr << std::string(2, ' ') << "pitch: " << direction.pitch() * Leap::RAD_TO_DEG << " degrees, "
-      << "roll: " << normal.roll() * Leap::RAD_TO_DEG << " degrees, "
-      << "yaw: " << direction.yaw() * Leap::RAD_TO_DEG << " degrees" << std::endl;
-#endif
-
     // 左手なら 0, 右手なら 1
     const int base(hand.isLeft() ? 0 : 1);
 
@@ -82,6 +70,18 @@ void LeapListener::onFrame(const Leap::Controller &controller)
 
     // 手のひらの法線と方向に直交するベクトル
     const Leap::Vector tangent(direction.cross(normal));
+
+#if defined(VERBOSE)
+    // Get hand position
+    std::string handType(hand.isLeft() ? "Left hand" : "Right hand");
+    std::cerr << std::string(2, ' ') << handType << ", id: " << hand.id()
+      << ", palm position: " << hand.palmPosition() << std::endl;
+
+    // Calculate the hand's pitch, roll, and yaw angles
+    std::cerr << std::string(2, ' ') << "pitch: " << direction.pitch() * Leap::RAD_TO_DEG << " degrees, "
+      << "roll: " << normal.roll() * Leap::RAD_TO_DEG << " degrees, "
+      << "yaw: " << direction.yaw() * Leap::RAD_TO_DEG << " degrees" << std::endl;
+#endif
 
     // 手のひらの変換行列を作成する
     const GLfloat mPalm[] =
@@ -102,7 +102,7 @@ void LeapListener::onFrame(const Leap::Controller &controller)
     // 変換行列を共有メモリに格納する
     jointMatrix[0 + base] = mPalm;
 
-#if DEBUG
+#if defined(VERBOSE)
     std::cerr << "Hand: " << (base ? "Right" : "Left") << '\n';
     std::cerr << "Position: " << handPos.x << ", " << handPos.y << ", " << handPos.z << '\n';
     std::cerr << "Direction: " << direction.x << ", " << direction.y << ", " << direction.z << '\n';
@@ -163,7 +163,7 @@ void LeapListener::onFrame(const Leap::Controller &controller)
         const Leap::Bone bone(finger.bone(boneType));
 
 #if defined(VERBOSE)
-        std::cerr << jointId << std::string(6, ' ') << boneNames[boneType]
+        std::cerr << b << std::string(6, ' ') << boneNames[boneType]
           << " bone, start: " << bone.prevJoint()
           << ", end: " << bone.nextJoint()
           << ", direction: " << bone.direction() << std::endl;
