@@ -54,7 +54,6 @@ struct config
   int camera_texture_samples;
   bool camera_texture_repeat;
   bool camera_tracking;
-  bool remote_stabilize;
   double capture_width;
   double capture_height;
   double capture_fps;
@@ -66,6 +65,9 @@ struct config
   int display_mode;
   int display_secondary;
   bool display_fullscreen;
+  int display_width;
+  int display_height;
+  GLfloat display_aspect;
   GLfloat display_center;
   GLfloat display_distance;
   GLfloat display_near;
@@ -73,12 +75,13 @@ struct config
   GLfloat display_zoom;
   std::string vertex_shader;
   std::string fragment_shader;
+  int role;
   int port;
   std::string address;
-  int role;
-  unsigned int tracking_delay[2];
-  int remote_texture_quality;
+  bool remote_stabilize;
   bool remote_texture_reshape;
+  unsigned int remote_delay[2];
+  int remote_texture_quality;
   int remote_texture_samples;
   GLfloat remote_fov_x;
   GLfloat remote_fov_y;

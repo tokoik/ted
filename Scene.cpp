@@ -201,7 +201,7 @@ const GgMatrix &Scene::getRemoteAttitude(int cam)
   fifo[cam].push(remoteJointMatrix[cam]);
 
   // キューの長さが遅延させるフレーム数より長ければキューを進める
-  if (fifo[cam].size() > defaults.tracking_delay[cam] + 1) fifo[cam].pop();
+  if (fifo[cam].size() > defaults.remote_delay[cam] + 1) fifo[cam].pop();
 
   // キューの先頭を返す
   return fifo[cam].front();

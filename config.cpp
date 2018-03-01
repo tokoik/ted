@@ -25,7 +25,6 @@ config defaults =
   1271,                         // int camera_texture_samples;
   true,                         // bool camera_texture_repeat;
   true,                         // bool camera_tracking;
-  true,                         // bool remote_stabilize;
   0.0,                          // double capture_width; (0 ならカメラから取得)
   0.0,                          // double capture_height; (0 ならカメラから取得)
   0.0,                          // double capture_fps; (0 ならカメラから取得)
@@ -37,6 +36,9 @@ config defaults =
   MONO,                         // StereoMode display_mode; (※1)
   1,                            // int display_secondary;
   false,                        // bool display_fullscreen;
+  960,                          // int display_width;
+  540,                          // int display_height;
+  0.0f,                         // GLfloat display_aspect;
   0.5f,                         // GLfloat display_center;
   1.5f,                         // GLfloat display_distance;
   0.1f,                         // GLfloat display_near;
@@ -44,12 +46,13 @@ config defaults =
   1.0f,                         // GLfloat display_zoom;
   "fixed.vert",                 // std::string vertex_shader;
   "normal.frag",                // std::string fragment_shader;
+  STANDALONE,                   // int role (※4)
   0,                            // int port;
   "",                           // std::string address;
-  STANDALONE,                   // int role (※4)
-  { 0, 0 },                     // int tracking_delay_left, tracking_delay_right;
-  50,                           // int texture_quality;
+  true,                         // bool remote_stabilize;
   false,                        // bool texture_reshape;
+  { 0, 0 },                     // int remote_delay[2];
+  50,                           // int texture_quality;
   1271,                         // int texture_samples;
   1.0,                          // GLfloat remote_fov_x;
   1.0,                          // GLfloat remote_fov_y;
@@ -232,6 +235,21 @@ bool config::load(const std::string &file)
   if (v_fullscreen != o.end() && v_fullscreen->second.is<bool>())
     display_fullscreen = v_fullscreen->second.get<bool>();
 
+  // ディスプレイの横の画素数
+  const auto &v_display_width(o.find("display_width"));
+  if (v_display_width != o.end() && v_display_width->second.is<double>())
+	  display_width = static_cast<int>(v_display_width->second.get<double>());
+
+  // ディスプレイの縦の画素数
+  const auto &v_display_height(o.find("display_height"));
+  if (v_display_height != o.end() && v_display_height->second.is<double>())
+	  display_height = static_cast<int>(v_display_height->second.get<double>());
+
+  // ディスプレイの縦横比
+  const auto &v_display_aspect(o.find("display_aspect"));
+  if (v_display_aspect != o.end() && v_display_aspect->second.is<double>())
+	  display_aspect = static_cast<GLfloat>(v_display_aspect->second.get<double>());
+
   // ディスプレイの中心の高さ
   const auto &v_display_center(o.find("display_center"));
   if (v_display_center != o.end() && v_display_center->second.is<double>())
@@ -285,17 +303,17 @@ bool config::load(const std::string &file)
   // カメラのフレームに対してトラッキング情報を遅らせるフレームの数
   const auto &v_tracking_delay(o.find("tracking_delay"));
   if (v_tracking_delay != o.end())
-    tracking_delay[0] = tracking_delay[1] = static_cast<int>(v_tracking_delay->second.get<double>());
+    remote_delay[0] = remote_delay[1] = static_cast<int>(v_tracking_delay->second.get<double>());
 
   // 左カメラのフレームに対してトラッキング情報を遅らせるフレームの数
   const auto &v_tracking_delay_left(o.find("tracking_delay_left"));
   if (v_tracking_delay_left != o.end())
-    tracking_delay[0] = static_cast<int>(v_tracking_delay_left->second.get<double>());
+    remote_delay[0] = static_cast<int>(v_tracking_delay_left->second.get<double>());
 
   // 右カメラのフレームに対してトラッキング情報を遅らせるフレームの数
   const auto &v_tracking_delay_right(o.find("tracking_delay_right"));
   if (v_tracking_delay_right != o.end())
-    tracking_delay[1] = static_cast<int>(v_tracking_delay_right->second.get<double>());
+    remote_delay[1] = static_cast<int>(v_tracking_delay_right->second.get<double>());
 
   // 伝送画像の品質
   const auto &v_texture_quality(o.find("texture_quality"));
@@ -418,6 +436,15 @@ bool config::save(const std::string &file) const
   // フルスクリーン表示
   o.insert(std::make_pair("fullscreen", picojson::value(display_fullscreen)));
 
+  // ディスプレイの横の画素数
+  o.insert(std::make_pair("display_width", picojson::value(static_cast<double>(display_width))));
+
+  // ディスプレイの縦の画素数
+  o.insert(std::make_pair("display_height", picojson::value(static_cast<double>(display_height))));
+
+  // ディスプレイの縦横比
+  o.insert(std::make_pair("display_aspect", picojson::value(static_cast<double>(display_aspect))));
+
   // ディスプレイの中心の高さ
   o.insert(std::make_pair("display_center", picojson::value(static_cast<double>(display_center))));
 
@@ -449,10 +476,10 @@ bool config::save(const std::string &file) const
   o.insert(std::make_pair("role", picojson::value(static_cast<double>(role))));
 
   // 左カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  o.insert(std::make_pair("tracking_delay_left", picojson::value(static_cast<double>(tracking_delay[0]))));
+  o.insert(std::make_pair("tracking_delay_left", picojson::value(static_cast<double>(remote_delay[0]))));
 
   // 右カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  o.insert(std::make_pair("tracking_delay_right", picojson::value(static_cast<double>(tracking_delay[1]))));
+  o.insert(std::make_pair("tracking_delay_right", picojson::value(static_cast<double>(remote_delay[1]))));
 
   // 伝送画像の品質
   o.insert(std::make_pair("texture_quality", picojson::value(static_cast<double>(remote_texture_quality))));

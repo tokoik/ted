@@ -1028,7 +1028,9 @@ void Window::resize(GLFWwindow *window, int width, int height)
       else
       {
         // リサイズ後のディスプレイののアスペクト比を求める
-        instance->aspect = static_cast<GLfloat>(width) / static_cast<GLfloat>(height);
+        instance->aspect = defaults.display_aspect
+			? defaults.display_aspect
+			: static_cast<GLfloat>(width) / static_cast<GLfloat>(height);
 
         // リサイズ後のビューポートを設定する
         switch (defaults.display_mode)
