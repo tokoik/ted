@@ -85,14 +85,15 @@ CMake などは使っていません.
 * OpenGL 3.2 以降
 	+ GLFW 3.2.1 をプロジェクトに組み込んでいます.
 		- 「プロジェクトのプロパティ」の「構成プロパティ」の「C/C++」の「コード生成」の「ランタイムライブラリ」を, Release ビルドでは「マルチスレッド (/MT)」, Debug ビルドでは「マルチスレッド デバッグ (/MTd)」にしています.
-* Oculus Rift DK2 (0.8) または CV1 (1.20)
+* Oculus Rift DK2 (0.8) または CV1 (1.23)
 	+ ソースは両対応で, 使用する SDK のバージョンで自動判別しています.
 	+ OculusSDK の LibOVR フォルダが C:\LibOVR にあることを想定しています.
-		- OculusSDK には Debug ビルドのライブラリが含まれていないので, このプログラムを Debug ビルドする場合は, Samples.sln を使って LibOVR を Debug ビルドしてください. その際,「プロジェクトのプロパティ」の「構成プロパティ」の「C/C++」の「コード生成」の「ランタイムライブラリ」を「マルチスレッド デバッグ (/MTd)」にしておく必要があります.
+		- OpenCV で DLL を使っているので，OculusSDK\Samples\Projects の奥底にある Samples.sln を使って LibOVR プロジェクトの「プロジェクトのプロパティ」の「構成プロパティ」の「C/C++」の「コード生成」の「ランタイムライブラリ」を「マルチスレッド DLL (/MD)」にして LibOVR をビルドしておく必要があります.
+		- OculusSDK には Debug ビルドのライブラリが含まれていないので, このプログラムを Debug ビルドする場合は，上記と同様に Samples.sln を使って LibOVR プロジェクトを Debug ビルドしてください. その際,「プロジェクトのプロパティ」の「構成プロパティ」の「C/C++」の「コード生成」の「ランタイムライブラリ」を「マルチスレッド デバッグ DLL (/MDd)」にしておく必要があります.
 * Ovrvision Pro
 	+ SDK はプロジェクトに組み込んでいます.
 	+ Ovrvision Pro は OpenCL を使うので, これも組み込んでいます.
-	  - Optimus に対応した PC では Intel 版の OpenCL が使われてしまい, うまく動かないかもしれません. その場合は Intel 版の OpenCL を無効にするようレジストリをいじる必要があります.
+	  - VR Ready でも Optimus にも対応している PC では Intel 版の OpenCL が使われてしまい, うまく動かないかもしれません. その場合は Intel 版の OpenCL を無効にするようレジストリをいじる必要があります.
 * Leap Motion
 	+ LeapSDK 3.2 が C:\LeapSDK に置かれていることを想定しています.
 * OpenCV
