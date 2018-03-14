@@ -74,7 +74,7 @@
     <ProjectGuid>{92525727-B349-4D7C-AE12-EA18F30D2C41}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ted</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -158,7 +158,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)OpenGL\lib\$(Platform)\$(Configuration);$(ProjectDir)OvrvisionPro\$(Platform)\lib;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc14\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)OpenGL\lib\$(Platform)\$(Configuration);$(ProjectDir)OvrvisionPro\$(Platform)\lib;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc15\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -194,7 +194,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)OpenGL\lib\$(Platform)\$(Configuration);$(ProjectDir)OvrvisionPro\$(Platform)\lib;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc14\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)OpenGL\lib\$(Platform)\$(Configuration);$(ProjectDir)OvrvisionPro\$(Platform)\lib;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc15\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
