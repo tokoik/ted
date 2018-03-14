@@ -18,8 +18,14 @@ CamCv::~CamCv()
 // カメラから入力する
 bool CamCv::open(int device, int cam)
 {
-  // カメラを開いてキャプチャを開始する
-  return camera[cam].open(device) && start(cam);
+  // カメラの解像度を設定する
+  camera[cam].set(CV_CAP_PROP_FOURCC, CV_FOURCC('H', '2', '6', '4'));
+  if (defaults.capture_width > 0.0) camera[cam].set(CV_CAP_PROP_FRAME_WIDTH, defaults.capture_width);
+  if (defaults.capture_height > 0.0) camera[cam].set(CV_CAP_PROP_FRAME_HEIGHT, defaults.capture_height);
+  if (defaults.capture_fps > 0.0) camera[cam].set(CV_CAP_PROP_FPS, defaults.capture_fps);
+
+	// カメラを開いてキャプチャを開始する
+	return camera[cam].open(device) && start(cam);
 }
 
 // ファイル／ネットワークからキャプチャを開始する
@@ -98,11 +104,6 @@ void CamCv::capture(int cam)
 // キャプチャを開始する
 bool CamCv::start(int cam)
 {
-  // カメラの解像度を設定する
-  if (defaults.capture_width > 0.0) camera[cam].set(CV_CAP_PROP_FRAME_WIDTH, defaults.capture_width);
-  if (defaults.capture_height > 0.0) camera[cam].set(CV_CAP_PROP_FRAME_HEIGHT, defaults.capture_height);
-  if (defaults.capture_fps > 0.0) camera[cam].set(CV_CAP_PROP_FPS, defaults.capture_fps);
-
   // 左カメラから 1 フレームキャプチャする
   if (camera[cam].grab())
   {
