@@ -6,8 +6,6 @@ using namespace gg;
 
 #include "SharedMemory.h"
 
-#include <OVR_Version.h>
-
 #undef VERBOSE
 
 const std::string fingerNames[] = { "Thumb", "Index", "Middle", "Ring", "Pinky" };
@@ -86,17 +84,10 @@ void LeapListener::onFrame(const Leap::Controller &controller)
     // 手のひらの変換行列を作成する
     const GLfloat mPalm[] =
     {
-#if OVR_PRODUCT_VERSION > 0
       -tangent.x, -tangent.z, -tangent.y, 0.0f,
       -direction.x, -direction.z, -direction.y, 0.0f,
       -normal.x, -normal.z, -normal.y, 0.0f,
       -handPos.x, -handPos.z, -handPos.y, 1.0f
-#else
-      tangent.x, tangent.z, -tangent.y, 0.0f,
-      direction.x, direction.z, -direction.y, 0.0f,
-      normal.x, normal.z, -normal.y, 0.0f,
-      handPos.x, handPos.z, -handPos.y, 1.0f
-#endif
     };
 
     // 変換行列を共有メモリに格納する
@@ -130,17 +121,10 @@ void LeapListener::onFrame(const Leap::Controller &controller)
     // 変換行列を作成する
     const GLfloat mWrist[] =
     {
-#if OVR_PRODUCT_VERSION > 0
       -armTangent.x, -armTangent.z, -armTangent.y, 0.0f,
       -armNormal.x, -armNormal.z, -armNormal.y, 0.0f,
       -armDirection.x, -armDirection.z, -armDirection.y, 0.0f,
       -wristPosition.x, -wristPosition.z, -wristPosition.y, 1.0f
-#else
-      armTangent.x, armTangent.z, -armTangent.y, 0.0f,
-      armNormal.x, armNormal.z, -armNormal.y, 0.0f,
-      armDirection.x, armDirection.z, -armDirection.y, 0.0f,
-      wristPosition.x, wristPosition.z, -wristPosition.y, 1.0f
-#endif
     };
 
     // 手首の変換行列を共有メモリに格納する
@@ -182,17 +166,10 @@ void LeapListener::onFrame(const Leap::Controller &controller)
         // 変換行列を作成する
         const GLfloat mFinger[] =
         {
-#if OVR_PRODUCT_VERSION > 0
           -boneTangent.x, -boneTangent.z, -boneTangent.y, 0.0f,
           -boneNormal.x, -boneNormal.z, -boneNormal.y, 0.0f,
           -boneDirection.x, -boneDirection.z, -boneDirection.y, 0.0f,
           -bonePosition.x, -bonePosition.z, -bonePosition.y, 1.0f
-#else
-          boneTangent.x, boneTangent.z, -boneTangent.y, 0.0f,
-          boneNormal.x, boneNormal.z, -boneNormal.y, 0.0f,
-          boneDirection.x, boneDirection.z, -boneDirection.y, 0.0f,
-          bonePosition.x, bonePosition.z, -bonePosition.y, 1.0f
-#endif
         };
 
         // 変換行列を共有メモリに格納する
