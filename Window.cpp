@@ -610,9 +610,6 @@ bool Window::start()
     // アプリケーションが終了を要求しているときはウィンドウのクローズフラグを立てる
     if (sessionStatus.ShouldQuit) glfwSetWindowShouldClose(window, GL_TRUE);
 
-    // Oculus Rift に表示されていないときは戻る
-    if (!sessionStatus.IsVisible) return false;
-
     // 現在の状態をトラッキングの原点にする
     if (sessionStatus.ShouldRecenter) ovr_RecenterTrackingOrigin(session);
 
@@ -631,7 +628,7 @@ bool Window::start()
     };
 
     // 視点の姿勢情報を取得する
-    ovr_GetEyePoses(session, ++frameIndex, ovrTrue, hmdToEyePose, layerData.RenderPose, &layerData.SensorSampleTime);
+    ovr_GetEyePoses(session, frameIndex, ovrTrue, hmdToEyePose, layerData.RenderPose, &layerData.SensorSampleTime);
 
     // Oculus Rift の両目の頭の位置からの変位を求める
     mv[0] = ggTranslate(-hmdToEyePose[0].Position.x, -hmdToEyePose[0].Position.y, -hmdToEyePose[0].Position.z);
@@ -681,7 +678,7 @@ void Window::swapBuffers()
 #if OVR_PRODUCT_VERSION > 0
     // 描画データを Oculus Rift に転送する
     const auto *const layers(&layerData.Header);
-    if (OVR_FAILURE(ovr_SubmitFrame(session, frameIndex, nullptr, &layers, 1)))
+    if (OVR_FAILURE(ovr_SubmitFrame(session, frameIndex++, nullptr, &layers, 1)))
 #else
     // Oculus Rift 上の描画位置と拡大率を求める
     ovrViewScaleDesc viewScaleDesc;

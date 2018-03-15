@@ -18,12 +18,6 @@ CamCv::~CamCv()
 // カメラから入力する
 bool CamCv::open(int device, int cam)
 {
-  // カメラの解像度を設定する
-  camera[cam].set(CV_CAP_PROP_FOURCC, CV_FOURCC('H', '2', '6', '4'));
-  if (defaults.capture_width > 0.0) camera[cam].set(CV_CAP_PROP_FRAME_WIDTH, defaults.capture_width);
-  if (defaults.capture_height > 0.0) camera[cam].set(CV_CAP_PROP_FRAME_HEIGHT, defaults.capture_height);
-  if (defaults.capture_fps > 0.0) camera[cam].set(CV_CAP_PROP_FPS, defaults.capture_fps);
-
 	// カメラを開いてキャプチャを開始する
 	return camera[cam].open(device) && start(cam);
 }
@@ -104,6 +98,12 @@ void CamCv::capture(int cam)
 // キャプチャを開始する
 bool CamCv::start(int cam)
 {
+  // カメラのコーデック・解像度・フレームレートを設定する
+  camera[cam].set(CV_CAP_PROP_FOURCC, CV_FOURCC('H', '2', '6', '4'));
+  if (defaults.capture_width > 0.0) camera[cam].set(CV_CAP_PROP_FRAME_WIDTH, defaults.capture_width);
+  if (defaults.capture_height > 0.0) camera[cam].set(CV_CAP_PROP_FRAME_HEIGHT, defaults.capture_height);
+  if (defaults.capture_fps > 0.0) camera[cam].set(CV_CAP_PROP_FPS, defaults.capture_fps);
+
   // 左カメラから 1 フレームキャプチャする
   if (camera[cam].grab())
   {
@@ -116,6 +116,10 @@ bool CamCv::start(int cam)
     // キャプチャした画像のサイズを取得する
     size[cam][0] = static_cast<GLsizei>(camera[cam].get(CV_CAP_PROP_FRAME_WIDTH));
     size[cam][1] = static_cast<GLsizei>(camera[cam].get(CV_CAP_PROP_FRAME_HEIGHT));
+
+#if defined(DEBUG)
+    std::cerr << "Camera:" << cam << ", width:" << size[cam][0] << ", height:" << size[cam][1] << "\n";
+#endif
 
     // キャプチャ用のメモリを確保する
     image[cam].create(size[cam][0], size[cam][1], CV_8UC3);
