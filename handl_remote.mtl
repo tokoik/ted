@@ -1,5 +1,5 @@
-newmtl handr
-Kd 0.243137 0.435294 1
+newmtl handl_remote
+Kd 1  0.243137 0.435294
 Ke 0 0 0
 Ka 1 1 1
 Ks 0 0 0
