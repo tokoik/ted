@@ -91,6 +91,12 @@ class Window
   // ヘッドトラッキングによる位置
   GLfloat po[camCount][4];
 
+  // カメラ方向の補正値
+  GgQuaternion qr[camCount];
+
+  // カメラ方向の補正ステップ
+  static GgQuaternion qrStep[2];
+
   // ビュー変換
   GgMatrix mv[camCount];
 
@@ -325,6 +331,14 @@ public:
   }
 
   //
+  // カメラの方向の補正値を得る
+  //
+  const GgQuaternion &getQr(int eye) const
+  {
+	  return qr[eye];
+  }
+
+  //
   // Oculus Rift のヘッドラッキングによる回転の変換行列を得る
   //
   GgMatrix getMo(int eye) const;
@@ -385,7 +399,7 @@ public:
     return aspect;
   }
 
-  // 物体の表示
+  // シーン表示
   bool showScene;
 
   // ミラー表示

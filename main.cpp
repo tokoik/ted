@@ -457,7 +457,7 @@ int main(int argc, const char *const *const argv)
 
         // ローカルのヘッドトラッキングの変換行列
         const GgMatrix mo(window.getMo(eye));
-        const GgMatrix ml(defaults.camera_tracking ? mo : ggIdentity());
+        const GgMatrix ml(defaults.camera_tracking ? mo : window.getQr(eye).getMatrix());
 
         // リモートのヘッドトラッキングの変換行列
         const GgMatrix mr(ml * Scene::getRemoteAttitude(eye));

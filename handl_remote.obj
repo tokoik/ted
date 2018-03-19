@@ -4,8 +4,8 @@
 #	LightWave3D OBJ Export v2.3
 #
 ####
-o handl.obj
-mtllib handl.mtl
+o handl_remote.obj
+mtllib handl_remote.mtl
 g default
 v -0.445 -0.055 0.075
 v -0.23 -0.43 0.075
@@ -790,8 +790,8 @@ vn 0 0 -1
 vn 0 0 -1
 vn 0 0 -1
 vn 0 0 -1
-g handl
-usemtl handl
+g handl_remote
+usemtl handl_remote
 s 1
 f 1/41/1 2/41/2 4/41/3
 f 2/41/4 3/41/5 4/41/6

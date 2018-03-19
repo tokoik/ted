@@ -72,6 +72,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   , showScene(true), showMirror(true)
   , oculusFbo{ 0, 0 }, mirrorFbo(0), mirrorTexture(nullptr)
   , zoomChange(0), focalChange(0), circleChange{ 0, 0, 0, 0 }
+  , qr{ ggIdentityQuaternion(), ggIdentityQuaternion() }
   , key(GLFW_KEY_UNKNOWN), joy(-1)
 #if OVR_PRODUCT_VERSION > 0
   , frameIndex(0LL)
@@ -84,6 +85,10 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   // 最初のインスタンスで一度だけ実行
   if (firstTime)
   {
+    // カメラ方向の調整ステップを求める
+    qrStep[0].loadRotate(0.0f, 1.0f, 0.0f, 0.001f);
+    qrStep[1].loadRotate(1.0f, 0.0f, 0.0f, 0.001f);
+
     // Oculus Rift に表示するとき
     if (defaults.display_mode == OCULUS)
     {
@@ -200,6 +205,19 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
     const auto &v_parallax(o.find("parallax"));
     if (v_parallax != o.end() && v_parallax->second.is<double>())
       initialParallax = static_cast<GLfloat>(v_parallax->second.get<double>());
+
+    // カメラ方向の補正値
+    const auto &v_parallax_offset(o.find("parallax_offset"));
+    if (v_parallax_offset != o.end() && v_parallax_offset->second.is<picojson::array>())
+    {
+      picojson::array &a(v_parallax_offset->second.get<picojson::array>());
+      for (int eye = 0; eye < eyeCount; ++eye)
+      {
+        GLfloat q[4];
+        for (int i = 0; i < 4; ++i) q[i] = static_cast<GLfloat>(a[eye * 4 + i].get<double>());
+        qr[eye] = GgQuaternion(q);
+      }
+    }
   }
 
   // 設定を初期化する
@@ -515,6 +533,12 @@ Window::~Window()
     // 視差
     o.insert(std::make_pair("parallax", picojson::value(defaults.display_mode != MONO ? parallax : initialParallax)));
 
+    // カメラ方向の補正値
+    picojson::array q;
+    for (int eye = 0; eye < eyeCount; ++eye)
+      for (int i = 0; i < 4; ++i) q.push_back(picojson::value(static_cast<double>(qr[eye].get()[i])));
+    o.insert(std::make_pair("parallax_offset", picojson::value(q)));
+
     // 設定内容をシリアライズして保存
     picojson::value v(o);
     attitude << v.serialize(true);
@@ -767,6 +791,9 @@ void Window::swapBuffers()
   // コントロールキーの状態
   const auto ctrlKey(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL));
 
+  // オルタネートキーの状態
+  const auto altKey(glfwGetKey(window, GLFW_KEY_LEFT_ALT) || glfwGetKey(window, GLFW_KEY_RIGHT_ALT));
+
   // 右矢印キー操作
   if (glfwGetKey(window, GLFW_KEY_RIGHT))
   {
@@ -779,6 +806,11 @@ void Window::swapBuffers()
     {
       // 背景を右にずらす
       circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(++circleChange[2]) * shiftStep;
+    }
+    else if (altKey)
+    {
+      // 背景を右に回転する
+      qr[camR] *= qrStep[0];
     }
     else if (defaults.display_mode != MONO)
     {
@@ -801,6 +833,11 @@ void Window::swapBuffers()
       // 背景を左にずらす
       circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(--circleChange[2]) * shiftStep;
     }
+    else if (altKey)
+    {
+      // 背景を左に回転する
+      qr[camR] *= qrStep[0].conjugate();
+    }
     else if (defaults.display_mode != MONO)
     {
       // 視差を縮小する
@@ -822,6 +859,11 @@ void Window::swapBuffers()
       // 背景を上にずらす
       circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(++circleChange[3]) * shiftStep;
     }
+    else if (altKey)
+    {
+      // 背景を上に回転する
+      qr[camR] *= qrStep[1].conjugate();
+    }
     else
     {
       // 焦点距離を延ばす
@@ -841,6 +883,11 @@ void Window::swapBuffers()
     {
       // 背景を下にずらす
       circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(--circleChange[3]) * shiftStep;
+    }
+    else if (altKey)
+    {
+      // 背景を下に回転する
+      qr[camR] *= qrStep[1];
     }
     else
     {
@@ -926,28 +973,48 @@ void Window::swapBuffers()
     }
 
     // B, X ボタンの状態
-    const auto zoomButton(btns[1] - btns[2]);
-
-    // Y, A ボタンの状態
-    const auto parallaxButton(btns[3] - btns[0]);
+    const auto parallaxButton(btns[1] - btns[2]);
 
     // B, X ボタンに変化があれば
     if (parallaxButton)
     {
-      // 視差を調整する
-      parallax += parallaxStep * static_cast<GLfloat>(parallaxButton);
-      updateProjectionMatrix();
+      // LB ボタンを同時に押していれば
+      if (btns[4])
+      {
+        // 背景を左右に回転する
+        qr[camR] *= parallaxButton > 0 ? qrStep[0] : qrStep[0].conjugate();
+      }
+      else
+      {
+        // 視差を調整する
+        parallax += parallaxStep * static_cast<GLfloat>(parallaxButton);
+
+        // 透視投影変換行列を更新する
+        updateProjectionMatrix();
+      }
     }
+
+    // Y, A ボタンの状態
+    const auto zoomButton(btns[3] - btns[0]);
 
     // Y, A ボタンに変化があれば
     if (zoomButton)
     {
-      // ズーム率を調整する
-      zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
-        + static_cast<GLfloat>(zoomChange += zoomButton) * zoomStep;
+      // LB ボタンを同時に押していれば
+      if (btns[4])
+      {
+        // 背景を上下に回転する
+        qr[camR] *= zoomButton > 0 ? qrStep[1].conjugate() : qrStep[1];
+      }
+      else
+      {
+        // ズーム率を調整する
+        zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
+          + static_cast<GLfloat>(zoomChange += zoomButton) * zoomStep;
 
-      // 透視投影変換行列を更新する
-      updateProjectionMatrix();
+        // 透視投影変換行列を更新する
+        updateProjectionMatrix();
+      }
     }
 
     // 十字キーの左右ボタンの状態
@@ -1469,7 +1536,7 @@ void Window::commit(int eye)
 GgMatrix Window::getMo(int eye) const
 {
   // 四元数から変換行列を求める
-  GgMatrix mo(qo[eye].getMatrix());
+  GgMatrix mo((qr[eye] * qo[eye]).getMatrix());
 
   // 平行移動を反映する
 
@@ -1485,3 +1552,6 @@ GLfloat Window::startOrientation[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 // 視差の初期値 (単位 m)
 GLfloat Window::initialParallax(0.032f);
+
+// カメラ方向の調整ステップ
+GgQuaternion Window::qrStep[2];
