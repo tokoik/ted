@@ -3,8 +3,9 @@
 // Leap Motion
 #include "Leap.h"
 
-// 共有メモリ
-#include "SharedMemory.h"
+// 補助プログラム
+#include "gg.h"
+using namespace gg;
 
 // 標準ライブラリ
 #include <array>
@@ -12,9 +13,6 @@
 class LeapListener
   : public Leap::Listener
 {
-  // 変換行列のテーブル
-  SharedMemory *const matrix;
-
   // 変換行列テーブルの格納先の先頭
   const unsigned int begin;
 
@@ -40,7 +38,7 @@ class LeapListener
 public:
 
   // コンストラクタ
-  LeapListener(SharedMemory *matrix);
+  LeapListener();
 
   // デストラクタ
   virtual ~LeapListener();

@@ -3,6 +3,9 @@
 //
 #include "Scene.h"
 
+// 共有メモリ
+#include "SharedMemory.h"
+
 // コンストラクタ
 Scene::Scene(const GgObj *ob)
   : obj(obj)
@@ -27,25 +30,15 @@ Scene::~Scene()
   for (const auto o : children) delete o;
 }
 
-// モデル変換行列のテーブルを選択する
-void Scene::selectTable(SharedMemory *local, SharedMemory *remote)
+// 変換行列を初期化する
+void Scene::initialize()
 {
-  // ローカルのモデル変換行列
-  Scene::localMatrix = local;
-  localJointMatrix.resize(local->getUsed(), ggIdentity());
+  // ローカルのモデル変換行列のサイズを確保する
+  localJointMatrix.resize(localAttitude->getUsed(), ggIdentity());
 
   // リモートのモデル変換行列のサイズはローカルと同じにしておく
-  Scene::remoteMatrix = remote;
-  remoteJointMatrix.resize(local->getUsed());
-  for (auto &m : remoteJointMatrix) remoteMatrix->push(m = ggIdentity());
-
-}
-
-// モデル変換行列を制御するコントローラを選択する
-void Scene::selectController(LeapListener *controller)
-{
-  // コントローラを登録する
-  Scene::controller = controller;
+  remoteJointMatrix.resize(localAttitude->getUsed());
+  for (auto &m : remoteJointMatrix) remoteAttitude->push(m = ggIdentity());
 }
 
 // シーングラフを読み込む
@@ -111,7 +104,7 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
   {
     // 引数に指定されている変換行列の番号を取り出し
     const auto i(static_cast<unsigned int>(v_controller->second.get<double>()));
-    if (i < localMatrix->getSize()) me = localJointMatrix.data() + i;
+    if (i < localAttitude->getSize()) me = localJointMatrix.data() + i;
   }
 
   // 遠隔コントローラーによる制御
@@ -120,7 +113,7 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
   {
     // 引数に指定されている変換行列の番号を取り出し
     const auto i(static_cast<unsigned int>(v_remote_controller->second.get<double>()));
-    if (i < remoteMatrix->getSize()) me = remoteJointMatrix.data() + i;
+    if (i < remoteAttitude->getSize()) me = remoteJointMatrix.data() + i;
   }
 
   // パーツの図形データ
@@ -188,10 +181,10 @@ Scene *Scene::addChild(GgObj *obj)
 void Scene::setup()
 {
   // ローカルの共有メモリから変換行列を取得する
-  localMatrix->load(localJointMatrix.data(), 0, static_cast<unsigned int>(localJointMatrix.size()));
+  localAttitude->load(localJointMatrix.data(), 0, static_cast<unsigned int>(localJointMatrix.size()));
 
   // リモートの共有メモリから変換行列を取得する
-  remoteMatrix->load(remoteJointMatrix.data(), 0, static_cast<unsigned int>(remoteJointMatrix.size()));
+  remoteAttitude->load(remoteJointMatrix.data(), 0, static_cast<unsigned int>(remoteJointMatrix.size()));
 }
 
 // リモートのカメラのトラッキング情報を遅延させて取り出す
@@ -208,39 +201,33 @@ const GgMatrix &Scene::getRemoteAttitude(int cam)
 }
 
 // このパーツ以下のすべてのパーツを描画する
-void Scene::draw(const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mm) const
+void Scene::draw(const GgMatrix &mp, const GgMatrix &mv) const
 {
-  // モデル変換行列を累積する
-  GgMatrix mw(mm * this->mm);
+  // このノードのモデル変換行列を累積する
+  GgMatrix mw(mv * this->mm);
+
+  // このノードが参照する共有メモリ上の変換行列を累積する
+  if (me) mw *= *me;
 
   // このパーツが存在するとき
   if (obj)
   {
-    // それが参照する共有メモリ上の変換行列を累積して
-    if (me) mw *= *me;
-
     // シェーダが設定されていれば変換行列を設定し
-    if (obj->getShader()) obj->getShader()->loadMatrix(mp, mv * mw);
+    if (obj->getShader()) obj->getShader()->loadMatrix(mp, mw);
 
     // このパーツを描画する
     obj->draw();
   }
 
   // すべての子供のパーツを描画する
-  for (const auto o : children) o->draw(mp, mv, mw);
+  for (const auto o : children) o->draw(mp, mw);
 }
 
 // 読み込んだパーツを登録するパーツリスト
 std::map<const std::string, std::unique_ptr<const GgObj>> Scene::parts;
 
-// 外部モデル変換行列のテーブル
-SharedMemory *Scene::localMatrix(nullptr), *Scene::remoteMatrix(nullptr);
-
 // 外部モデル変換行列のテーブルのコピー
 std::vector<GgMatrix> Scene::localJointMatrix, Scene::remoteJointMatrix;
-
-// モデル変換行列を制御するコントローラ
-LeapListener *Scene::controller(nullptr);
 
 // リモートカメラの姿勢のタイミングをフレームに合わせて遅らせるためのキュー
 std::queue<GgMatrix> Scene::fifo[remoteCamCount];

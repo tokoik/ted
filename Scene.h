@@ -14,16 +14,13 @@ using namespace gg;
 // Leap Motion
 #include "LeapListener.h"
 
-// 共有メモリ
-#include "SharedMemory.h"
-
 // シーングラフは JSON で記述する
 #include "picojson.h"
 
 // 標準ライブラリ
-#include <memory>
 #include <map>
 #include <queue>
+#include <memory>
 
 class Scene
 {
@@ -42,14 +39,8 @@ class Scene
   // このパーツが参照する外部モデル変換行列
   const GgMatrix *me;
 
-  // 外部モデル変換行列のテーブル
-  static SharedMemory *localMatrix, *remoteMatrix;
-
   // リモートの外部モデル変換行列のテーブルのコピー
   static std::vector<GgMatrix> localJointMatrix, remoteJointMatrix;
-
-  // この骨格を制御する Leap Motion
-  static LeapListener *controller;
 
   // リモートカメラの姿勢のタイミングをフレームに合わせて遅らせるためのキュー
   static std::queue<GgMatrix> fifo[remoteCamCount];
@@ -68,11 +59,8 @@ public:
   // デストラクタ
   virtual ~Scene();
 
-  // モデル変換行列のテーブルを選択する
-  static void selectTable(SharedMemory *local, SharedMemory *remote);
-
-  // モデル変換行列を制御するコントローラを選択する
-  static void selectController(LeapListener *controller);
+  // 変換行列を初期化する
+  static void initialize();
 
   // シーングラフを読み込む
   Scene *load(const picojson::value &v, const GgSimpleShader *shader, int level);
@@ -90,8 +78,5 @@ public:
   static const GgMatrix &getRemoteAttitude(int cam);
 
   // このパーツ以下のすべてのパーツを描画する
-  void draw(
-    const GgMatrix &mp = ggIdentity(),
-    const GgMatrix &mv = ggIdentity(),
-    const GgMatrix &mm = ggIdentity()) const;
+  void draw(const GgMatrix &mp, const GgMatrix &mv) const;
 };
