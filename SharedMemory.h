@@ -8,6 +8,9 @@
 #include "gg.h"
 using namespace gg;
 
+// 標準ライブラリ
+#include <memory>
+
 // Win32 API
 #include <Windows.h>
 
@@ -35,6 +38,9 @@ public:
 
   // デストラクタ
   virtual ~SharedMemory();
+
+  // 共有メモリの確保と初期化
+  static bool initialize(unsigned int local_size, unsigned int remote_size, unsigned int count);
 
   // ミューテックスオブジェクトを獲得する（獲得できるまで待つ）
   bool lock() const;
@@ -66,3 +72,9 @@ public:
   // 共有メモリの内容をメモリに取り出す
   void load(void *dst, unsigned int begin = 0, unsigned int count = 0) const;
 };
+
+// 共有メモリ上に置く操縦者の変換行列
+extern std::unique_ptr<SharedMemory> localAttitude;
+
+// 共有メモリ上に置く作業者の変換行列
+extern std::unique_ptr<SharedMemory> remoteAttitude;

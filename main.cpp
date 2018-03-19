@@ -21,16 +21,18 @@
 // Leap Motion
 #include "LeapListener.h"
 
+// シーングラフ
+#include "Scene.h"
+
 // 矩形
 #include "Rect.h"
 
-// シーングラフ
-#include "Scene.h"
+// 共有メモリ
+#include "SharedMemory.h"
 
 // 標準ライブラリ
 #include <iostream>
 #include <typeinfo>
-#include <memory>
 
 // ウィンドウモード時のウィンドウサイズの初期値
 const int defaultWindowWidth(960);
@@ -38,12 +40,6 @@ const int defaultWindowHeight(540);
 
 // ウィンドウのタイトル
 const char windowTitle[] = "TED";
-
-// ファイルマッピングオブジェクト名
-const LPCWSTR localMutexName = L"TED_LOCAL_MUTEX";
-const LPCWSTR localShareName = L"TED_LOCAL_SHARE";
-const LPCWSTR remoteMutexName = L"TED_REMOTE_MUTEX";
-const LPCWSTR remoteShareName = L"TED_REMOTE_SHARE";
 
 //
 // メインプログラム
@@ -56,25 +52,11 @@ int main(int argc, const char *const *const argv)
   // 設定ファイルを読み込む (見つからなかったら作る)
   if (!defaults.load(config_file)) defaults.save(config_file);
 
-  // ローカルの変換行列を保持する共有メモリを確保する
-  std::unique_ptr<SharedMemory> localAttitude(new SharedMemory(localMutexName, localShareName, defaults.local_share_size));
-
-  // ローカルの変換行列を保持する共有メモリが確保できたかチェックする
-  if (!localAttitude->get())
+  // 共有メモリを確保する
+  if (!SharedMemory::initialize(defaults.local_share_size, defaults.remote_share_size, camCount + 1))
   {
-    // 共有メモリが確保できなかった
-    NOTIFY("ローカルの変換行列を保持する共有メモリが確保できませんでした。");
-    return EXIT_FAILURE;
-  }
-
-  // リモートの変換行列を保持する共有メモリを確保する
-  std::unique_ptr<SharedMemory> remoteAttitude(new SharedMemory(remoteMutexName, remoteShareName, defaults.remote_share_size));
-
-  // リモートの変換行列を保持する共有メモリが確保できたかチェックする
-  if (!remoteAttitude->get())
-  {
-    // 共有メモリが確保できなかった
-    NOTIFY("リモートの変換行列を保持する共有メモリが確保できませんでした。");
+    // 共有メモリの確保に失敗した
+    NOTIFY("変換行列を保持する共有メモリが確保できませんでした。");
     return EXIT_FAILURE;
   }
 
@@ -164,9 +146,6 @@ int main(int argc, const char *const *const argv)
 
       // 生成したカメラを記録しておく
       camera.reset(cam);
-
-      // カメラで参照する変換行列の票を選択する
-      camera->selectTable(localAttitude.get(), remoteAttitude.get());
 
       // 操縦者側を起動する
       if (cam->open(defaults.port, defaults.address.c_str()) < 0)
@@ -323,9 +302,6 @@ int main(int argc, const char *const *const argv)
       }
     }
 
-    // カメラで参照する変換行列の表を選択する
-    camera->selectTable(localAttitude.get(), remoteAttitude.get());
-
     // 作業者として動作する場合
     if (defaults.role == WORKER && defaults.port > 0 && !defaults.address.empty())
     {
@@ -397,12 +373,8 @@ int main(int argc, const char *const *const argv)
     return EXIT_FAILURE;
   }
 
-  // ローカルの姿勢の姿勢のインデックスを得る
-  int localAttitudeIndex[camCount];
-  for (int eye = 0; eye < camCount; ++eye) localAttitudeIndex[eye] = localAttitude->push(ggIdentity());
-
   // Leap Motion の listener と controller を作る
-  LeapListener listener(localAttitude.get());
+  LeapListener listener;
 
   // Leap Motion の listener が controller からイベントを受け取るようにする
   Leap::Controller controller;
@@ -410,11 +382,8 @@ int main(int argc, const char *const *const argv)
   controller.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
   controller.setPolicy(Leap::Controller::POLICY_ALLOW_PAUSE_RESUME);
 
-  // シーンの変換行列を Leap Motion で制御できるようにする
-  Scene::selectController(&listener);
-
-  // シーンで参照する変換行列の表を選択する
-  Scene::selectTable(localAttitude.get(), remoteAttitude.get());
+  // シーンの変換行列を初期化する
+  Scene::initialize();
 
   // シーングラフ
   Scene scene(defaults.scene, simple);
@@ -443,7 +412,7 @@ int main(int argc, const char *const *const argv)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // 描画回数
-  const int drawCount(defaults.display_mode == MONO ? 1 : 2);
+  const int drawCount(defaults.display_mode == MONO ? 1 : camCount);
 
   // ウィンドウが開いている間くり返し描画する
   while (!window.shouldClose())
@@ -487,12 +456,8 @@ int main(int argc, const char *const *const argv)
         rect.setCircle(window.getCircle());
 
         // ローカルのヘッドトラッキングの変換行列
-        const GgQuaternion qo(window.getQo(eye));
-        const GgMatrix mo(qo.getMatrix());
+        const GgMatrix mo(window.getMo(eye));
         const GgMatrix ml(defaults.camera_tracking ? mo : ggIdentity());
-
-        // ローカルのヘッドトラッキング情報を共有メモリに保存する
-        localAttitude->set(localAttitudeIndex[eye], mo.transpose());
 
         // リモートのヘッドトラッキングの変換行列
         const GgMatrix mr(ml * Scene::getRemoteAttitude(eye));
@@ -511,7 +476,7 @@ int main(int argc, const char *const *const argv)
         simple.selectMaterial(material);
 
         // 図形を描画する
-        if (window.showScene) scene.draw(window.getMp(eye), window.getMv(eye) * mo, window.getMm());
+        if (window.showScene) scene.draw(window.getMp(eye), window.getMv(eye) * mo);
 
         // 片目の処理を完了する
         window.commit(eye);

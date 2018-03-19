@@ -3,6 +3,10 @@
 //
 #include "Camera.h"
 
+// 共有メモリ
+#include "SharedMemory.h"
+
+// OpenCV のライブラリのリンク
 #if defined(_WIN32)
 #  define CV_VERSION_STR CVAUX_STR(CV_MAJOR_VERSION) CVAUX_STR(CV_MINOR_VERSION) CVAUX_STR(CV_SUBMINOR_VERSION)
 #  if defined(_DEBUG)
@@ -123,7 +127,7 @@ void Camera::recv()
       GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
 
       // 変換行列を復帰する
-      remoteMatrix->store(body, 0, head[camCount]);
+      remoteAttitude->store(body, 0, head[camCount]);
     }
 
     // 他のスレッドがリソースにアクセスするために少し待つ
@@ -150,13 +154,13 @@ void Camera::send()
     head[camL] = head[camR] = 0;
 
     // 変換行列の数を保存する
-    head[camCount] = localMatrix->getUsed();
+    head[camCount] = localAttitude->getUsed();
 
     // 変換行列の保存先
     GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
 
     // 変換行列を保存する
-    localMatrix->load(body);
+    localAttitude->load(body);
 
     // 左フレームの保存先 (変換行列の最後)
     uchar *data(reinterpret_cast<uchar *>(body + head[camCount]));

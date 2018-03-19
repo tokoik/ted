@@ -317,12 +317,17 @@ public:
   }
 
   //
-  // Oculus Rift のヘッドラッキングによる回転を得る
+  // Oculus Rift のヘッドラッキングによる回転の四元数を得る
   //
   const GgQuaternion &getQo(int eye) const
   {
     return qo[eye];
   }
+
+  //
+  // Oculus Rift のヘッドラッキングによる回転の変換行列を得る
+  //
+  GgMatrix getMo(int eye) const;
 
   //
   // プロジェクション変換行列を得る

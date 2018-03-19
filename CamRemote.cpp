@@ -4,6 +4,9 @@
 #include "CamRemote.h"
 #include "Scene.h"
 
+// 共有メモリ
+#include "SharedMemory.h"
+
 // コンストラクタ
 CamRemote::CamRemote(bool reshape)
   : reshape(reshape)
@@ -81,7 +84,7 @@ int CamRemote::open(unsigned short port, const char *address)
   GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
 
   // 変換行列を復帰する
-  remoteMatrix->store(body, 0, head[camCount]);
+  remoteAttitude->store(body, 0, head[camCount]);
 
   // 左フレームの保存先 (変換行列の最後)
   uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
@@ -233,7 +236,7 @@ void CamRemote::recv()
       GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
 
       // 変換行列を復帰する
-      remoteMatrix->store(body, 0, head[camCount]);
+      remoteAttitude->store(body, 0, head[camCount]);
 
       // 左フレームの保存先 (変換行列の最後)
       uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
@@ -333,13 +336,13 @@ void CamRemote::send()
     head[camL] = head[camR] = 0;
 
     // 変換行列の数を保存する
-    head[camCount] = localMatrix->getUsed();
+    head[camCount] = localAttitude->getUsed();
 
     // 変換行列の保存先
     GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
 
     // 変換行列を保存する
-    localMatrix->load(body);
+    localAttitude->load(body);
 
     // 左フレームの保存先 (変換行列の最後)
     uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));

@@ -1,16 +1,26 @@
+//
+// Leap Motion 関連の処理
+//
 #include "LeapListener.h"
+
+// デバッグメッセージの出力
+#undef VERBOSE
+
+// Leap Motion のライブラリファイル
 #pragma comment (lib, "Leap.lib")
 
+// 補助プログラム
 #include "gg.h"
 using namespace gg;
 
+// 共有メモリ
 #include "SharedMemory.h"
 
-#undef VERBOSE
-
+// 指の名前
 const std::string fingerNames[] = { "Thumb", "Index", "Middle", "Ring", "Pinky" };
 const std::string boneNames[] = { "Metacarpal", "Proximal", "Middle", "Distal" };
 
+// 長さのスケール
 const GLfloat scale(0.01f);
 
 void LeapListener::onInit(const Leap::Controller &controller)
@@ -179,7 +189,7 @@ void LeapListener::onFrame(const Leap::Controller &controller)
   }
 
   // 変換行列を共有メモリに格納する
-  matrix->store(jointMatrix.data(), begin, static_cast<unsigned int>(jointMatrix.size()));
+  localAttitude->store(jointMatrix.data(), begin, static_cast<unsigned int>(jointMatrix.size()));
 
 #if defined(VERBOSE)
   if (!frame.hands().isEmpty()) std::cerr << std::endl;
@@ -276,11 +286,10 @@ void LeapListener::onLogMessage(const Leap::Controller &controller,
 }
 
 // コンストラクタ
-LeapListener::LeapListener(SharedMemory *matrix)
-  : matrix(matrix)
-  , begin(matrix->getUsed())
+LeapListener::LeapListener()
+  : begin(localAttitude->getUsed())
 {
-  for (auto &m : jointMatrix) matrix->push(m = ggIdentity());
+  for (auto &m : jointMatrix) localAttitude->push(m = ggIdentity());
 }
 
 // デストラクタ

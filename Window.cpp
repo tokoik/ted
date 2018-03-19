@@ -3,6 +3,9 @@
 //
 #include "Window.h"
 
+// 共有メモリ
+#include "SharedMemory.h"
+
 // Oculus Rift の目の数と識別子
 const int eyeCount(ovrEye_Count);
 
@@ -20,13 +23,6 @@ const int eyeCount(ovrEye_Count);
 
 // ジョイスティック番号の最大値
 const int maxJoystick(4);
-
-// Mac と Linux ではジョイスティックの右側のスティックの番号が一つずれる？
-#if defined(_WIN32)
-const int axesOffset(0);
-#else
-const int axesOffset(1);
-#endif
 
 #if OVR_PRODUCT_VERSION > 0
 // GetDefaultAdapterLuid のため
@@ -256,13 +252,13 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
       int axesCount;
       const auto *const axes(glfwGetJoystickAxes(joy, &axesCount));
 
-      if (axesCount > 3 + axesOffset)
+      if (axesCount > 3)
       {
         // 起動直後のスティックの位置を基準にする
         origin[0] = axes[0];
         origin[1] = axes[1];
-        origin[2] = axes[2 + axesOffset];
-        origin[3] = axes[3 + axesOffset];
+        origin[2] = axes[2];
+        origin[3] = axes[3];
       }
 
       break;
@@ -599,6 +595,9 @@ bool Window::start()
   // モデル変換行列を設定する
   mm = ggTranslate(ox, oy, -oz) * trackball.getMatrix();
 
+  // モデル変換行列を共有メモリに保存する
+  localAttitude->set(camCount, mm);
+
   // Oculus Rift 使用時
   if (session)
   {
@@ -891,109 +890,109 @@ void Window::swapBuffers()
   // ジョイスティックが有効なら
   if (joy >= 0)
   {
-    // スティック
-    int axesCount;
-    const auto *const axes(glfwGetJoystickAxes(joy, &axesCount));
-
-    if (axesCount > 3 + axesOffset)
-    {
-      // スティックの速度係数
-      const auto axesSpeedFactor(axesSpeedScale * speedFactor);
-
-      // 物体を上下左右に移動する
-      ox += (axes[0] - origin[0]) * axesSpeedFactor;
-      oy -= (axes[1] - origin[1]) * axesSpeedFactor;
-
-      // 物体を左右に回転する
-      trackball.rotate(ggRotateQuaternion(0.0f, 1.0f, 0.0f, (axes[2 + axesOffset] - origin[2]) * axesSpeedFactor));
-
-      // 物体を上下に回転する
-      trackball.rotate(ggRotateQuaternion(1.0f, 0.0f, 0.0f, (axes[3 + axesOffset] - origin[3]) * axesSpeedFactor));
-    }
-
     // ボタン
     int btnsCount;
     const auto *const btns(glfwGetJoystickButtons(joy, &btnsCount));
 
-    if (btnsCount > 15)
+    // スティック
+    int axesCount;
+    const auto *const axes(glfwGetJoystickAxes(joy, &axesCount));
+
+    // スティックの速度係数
+    const auto axesSpeedFactor(axesSpeedScale * speedFactor);
+
+    if (axesCount > 3)
     {
-      // 2, 3 ボタンの状態
-      const auto zoomButton(btns[1] - btns[2]);
+      // 物体を左右に移動する
+      ox += (axes[0] - origin[0]) * axesSpeedFactor;
 
-      // 1, 4 ボタンの状態
-      const auto parallaxButton(btns[3] - btns[0]);
-
-      // 1, 4 ボタンに変化があれば
-      if (parallaxButton)
-      {
-        // 視差を調整する
-        parallax += parallaxStep * static_cast<GLfloat>(parallaxButton);
-        updateProjectionMatrix();
-      }
-
-      // 2, 3 ボタンに変化があれば
-      if (zoomButton)
-      {
-        // 5 ボタンを同時に押していれば
-        if (btns[4])
-        {
-          // ズーム率を調整する
-          zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
-            + static_cast<GLfloat>(zoomChange += zoomButton) * zoomStep;
-
-          // 透視投影変換行列を更新する
-          updateProjectionMatrix();
-        }
-        else
-        {
-          // 物体を前後に移動する
-          oz += btnsScale * static_cast<GLfloat>(zoomButton);
-        }
-      }
-
-      // 12, 15 ボタンの状態
-      const auto textureXButton(btns[14] - btns[12]);
-
-      // 12, 15 ボタンに変化があれば
-      if (textureXButton)
-      {
-        // 5 ボタンを同時に押していれば
-        if (btns[4])
-        {
-          // 背景に対する横方向の画角を調整する
-          circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(circleChange[0] += textureXButton) * shiftStep;
-        }
-        else
-        {
-          // 背景の横位置を調整する
-          circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(circleChange[2] += textureXButton) * shiftStep;
-        }
-      }
-
-      // 13, 14 ボタンの状態
-      const auto textureYButton(btns[11] - btns[12]);
-
-      // 13, 14 ボタンに変化があれば
-      if (textureYButton)
-      {
-        if (btns[4])
-        {
-          // 背景に対する縦方向の画角を調整する
-          circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(circleChange[1] += textureXButton) * shiftStep;
-        }
-        else
-        {
-          // 背景の縦位置を調整する
-          circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(circleChange[3] += textureYButton) * shiftStep;
-        }
-      }
-
-      // 設定をリセットする
+      // RB ボタンを同時に押していれば
       if (btns[5])
       {
-        reset();
-        updateProjectionMatrix();
+        // 物体を前後に移動する
+        oz += (axes[1] - origin[1]) * axesSpeedFactor;
       }
+      else
+      {
+        // 物体を上下に移動する
+        oy += (axes[1] - origin[1]) * axesSpeedFactor;
+      }
+
+      // 物体を左右に回転する
+      trackball.rotate(ggRotateQuaternion(0.0f, 1.0f, 0.0f, (axes[2] - origin[2]) * axesSpeedFactor));
+
+      // 物体を上下に回転する
+      trackball.rotate(ggRotateQuaternion(1.0f, 0.0f, 0.0f, (axes[3] - origin[3]) * axesSpeedFactor));
+    }
+
+    // B, X ボタンの状態
+    const auto zoomButton(btns[1] - btns[2]);
+
+    // Y, A ボタンの状態
+    const auto parallaxButton(btns[3] - btns[0]);
+
+    // B, X ボタンに変化があれば
+    if (parallaxButton)
+    {
+      // 視差を調整する
+      parallax += parallaxStep * static_cast<GLfloat>(parallaxButton);
+      updateProjectionMatrix();
+    }
+
+    // Y, A ボタンに変化があれば
+    if (zoomButton)
+    {
+      // ズーム率を調整する
+      zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
+        + static_cast<GLfloat>(zoomChange += zoomButton) * zoomStep;
+
+      // 透視投影変換行列を更新する
+      updateProjectionMatrix();
+    }
+
+    // 十字キーの左右ボタンの状態
+    const auto textureXButton(btns[11] - btns[13]);
+
+    // 十字キーの左右ボタンに変化があれば
+    if (textureXButton)
+    {
+      // RB ボタンを同時に押していれば
+      if (btns[5])
+      {
+        // 背景に対する横方向の画角を調整する
+        circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(circleChange[0] += textureXButton) * shiftStep;
+      }
+      else
+      {
+        // 背景の横位置を調整する
+        circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(circleChange[2] += textureXButton) * shiftStep;
+      }
+    }
+
+    // 十字キーの上下ボタンの状態
+    const auto textureYButton(btns[10] - btns[12]);
+
+    // 十字キーの上下ボタンに変化があれば
+    if (textureYButton)
+    {
+      // RB ボタンを同時に押していれば
+      if (btns[5])
+      {
+        // 背景に対する縦方向の画角を調整する
+        circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(circleChange[1] += textureXButton) * shiftStep;
+      }
+      else
+      {
+        // 背景の縦位置を調整する
+        circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(circleChange[3] += textureYButton) * shiftStep;
+      }
+    }
+
+    // 設定をリセットする
+    if (btns[7])
+    {
+      reset();
+      updateProjectionMatrix();
     }
   }
 }
@@ -1462,6 +1461,22 @@ void Window::commit(int eye)
     ovr_CommitTextureSwapChain(session, layerData.ColorTexture[eye]);
   }
 #endif
+}
+
+//
+// Oculus Rift のヘッドラッキングによる回転の変換行列を得る
+//
+GgMatrix Window::getMo(int eye) const
+{
+  // 四元数から変換行列を求める
+  GgMatrix mo(qo[eye].getMatrix());
+
+  // 平行移動を反映する
+
+  // ローカルのヘッドトラッキング情報を共有メモリに保存する
+  localAttitude->set(eye, mo.transpose());
+
+  return mo;
 }
 
 // 物体の初期位置と姿勢

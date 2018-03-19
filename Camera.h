@@ -10,9 +10,6 @@
 // ネットワーク関連の処理
 #include "Network.h"
 
-// 共有メモリ
-#include "SharedMemory.h"
-
 // OpenCV
 #include <opencv2/highgui/highgui.hpp>
 
@@ -130,17 +127,7 @@ protected:
   // 通信データ
   Network network;
 
-  // 変換行列のテーブル
-  SharedMemory *localMatrix, *remoteMatrix;
-
 public:
-
-  // モデル変換行列のテーブルを選択する
-  void selectTable(SharedMemory *local, SharedMemory *remote)
-  {
-    localMatrix = local;
-    remoteMatrix = remote;
-  }
 
   // 作業者通信スレッド起動
   int startWorker(unsigned short port, const char *address);

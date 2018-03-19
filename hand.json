@@ -4,18 +4,15 @@
   "children": [
     {
       "position": [ 0, -0.3, -0.3 ],
+      "controller": 2,
       "children": [
         {
-          "controller": 2,
+          "controller": 3,
           "model": "handr.obj"
         },
         {
-          "controller": 3,
-          "model": "handl.obj"
-        },
-        {
           "controller": 4,
-          "model": "finger.obj"
+          "model": "handl.obj"
         },
         {
           "controller": 5,
@@ -179,6 +176,10 @@
         },
         {
           "controller": 45,
+          "model": "finger.obj"
+        },
+        {
+          "controller": 46,
           "model": "finger.obj"
         }
       ]
