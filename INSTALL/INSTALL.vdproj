@@ -261,6 +261,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_7D7C7BE8BB3A4A58B4CFEE6EBABFDD0D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_7DCF8EB71E3D40769320F4C9A07CB68C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -292,6 +298,12 @@
         "Entry"
         {
         "MsmKey" = "8:_88506DCEAE964609AB3B5627C1E0F26C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_894648040E78432AAB1911C06FFF79CC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -387,6 +399,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_B1EDBF57C4104CBDBE8942D2EBFD843B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B2410B4EC6F5492B899FF9515F4BBBF2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -466,6 +484,18 @@
         "Entry"
         {
         "MsmKey" = "8:_D3FE522E9A88426C829CB3B638971691"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D536B0A0BF094B2B8363E9DFDF34C425"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D8E8935F795A4B8AA169C1249D26866F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1432,6 +1462,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7D7C7BE8BB3A4A58B4CFEE6EBABFDD0D"
+            {
+            "SourcePath" = "8:..\\handr_remote.obj"
+            "TargetName" = "8:handr_remote.obj"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7DCF8EB71E3D40769320F4C9A07CB68C"
             {
             "SourcePath" = "8:..\\fixed.json"
@@ -1536,6 +1586,26 @@
             {
             "SourcePath" = "8:..\\bunny.obj"
             "TargetName" = "8:bunny.obj"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_894648040E78432AAB1911C06FFF79CC"
+            {
+            "SourcePath" = "8:..\\handl_remote.mtl"
+            "TargetName" = "8:handl_remote.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1852,6 +1922,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B1EDBF57C4104CBDBE8942D2EBFD843B"
+            {
+            "SourcePath" = "8:..\\handl_remote.obj"
+            "TargetName" = "8:handl_remote.obj"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B2410B4EC6F5492B899FF9515F4BBBF2"
             {
             "SourcePath" = "8:..\\r-lower-arm.mtl"
@@ -2116,6 +2206,46 @@
             {
             "SourcePath" = "8:..\\x64\\Release\\ted.exe"
             "TargetName" = "8:ted.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D536B0A0BF094B2B8363E9DFDF34C425"
+            {
+            "SourcePath" = "8:..\\hand_remote.json"
+            "TargetName" = "8:hand_remote.json"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D8E8935F795A4B8AA169C1249D26866F"
+            {
+            "SourcePath" = "8:..\\handr_remote.mtl"
+            "TargetName" = "8:handr_remote.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
