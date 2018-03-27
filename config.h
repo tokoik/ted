@@ -89,8 +89,6 @@ struct config
   int remote_share_size;
   int max_level;
   picojson::value scene;
-  picojson::value target;
-  picojson::value remote;
   static bool read(const std::string &file, picojson::value &v);
   bool load(const std::string &file);
   bool save(const std::string &file) const;
