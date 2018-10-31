@@ -9,9 +9,6 @@
 #include <fstream>
 
 // Ovrvision Pro
-#if defined(APIENTRY)
-#  undef APIENTRY
-#endif
 #include "ovrvision_pro.h"
 
 config defaults =

@@ -16,7 +16,6 @@
 #  define GLFW_EXPOSE_NATIVE_WIN32
 #  define GLFW_EXPOSE_NATIVE_WGL
 #  include <GLFW/glfw3native.h>
-#  undef APIENTRY
 #  define OVR_OS_WIN32
 #  define NOTIFY(msg) MessageBox(NULL, TEXT(msg), TEXT("TED"), MB_ICONERROR | MB_OK)
 #else

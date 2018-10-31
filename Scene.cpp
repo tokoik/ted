@@ -7,7 +7,7 @@
 #include "SharedMemory.h"
 
 // コンストラクタ
-Scene::Scene(const GgObj *ob)
+Scene::Scene(const GgSimpleObj *ob)
   : obj(obj)
 {
 }
@@ -133,10 +133,10 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
     else
     {
       // ファイルから図形を読み込む
-      obj = new GgObj(model.c_str(), shader);
+      obj = new GgSimpleObj(model.c_str(), shader);
 
       // パーツリストに登録する
-      parts.emplace(std::make_pair(model, std::unique_ptr<const GgObj>(obj)));
+      parts.emplace(std::make_pair(model, std::unique_ptr<const GgSimpleObj>(obj)));
     }
   }
 
@@ -172,7 +172,7 @@ Scene *Scene::addChild(Scene *scene)
 }
 
 // 子供にパーツに追加する
-Scene *Scene::addChild(GgObj *obj)
+Scene *Scene::addChild(GgSimpleObj *obj)
 {
   return addChild(new Scene(obj));
 }
@@ -212,6 +212,10 @@ void Scene::draw(const GgMatrix &mp, const GgMatrix &mv) const
   // このパーツが存在するとき
   if (obj)
   {
+    printf("%f,%f,%f,%f\n", mw.get(0), mw.get(1), mw.get(2), mw.get(3));
+    printf("%f,%f,%f,%f\n", mw.get(4), mw.get(5), mw.get(6), mw.get(7));
+    printf("%f,%f,%f,%f\n", mw.get(8), mw.get(9), mw.get(10), mw.get(11));
+    printf("%f,%f,%f,%f\n\n", mw.get(12), mw.get(13), mw.get(14), mw.get(15));
     // シェーダが設定されていれば変換行列を設定し
     if (obj->getShader()) obj->getShader()->loadMatrix(mp, mw);
 
@@ -224,7 +228,7 @@ void Scene::draw(const GgMatrix &mp, const GgMatrix &mv) const
 }
 
 // 読み込んだパーツを登録するパーツリスト
-std::map<const std::string, std::unique_ptr<const GgObj>> Scene::parts;
+std::map<const std::string, std::unique_ptr<const GgSimpleObj>> Scene::parts;
 
 // 外部モデル変換行列のテーブルのコピー
 std::vector<GgMatrix> Scene::localJointMatrix, Scene::remoteJointMatrix;

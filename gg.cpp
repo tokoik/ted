@@ -30,6 +30,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <cmath>
 #include <cfloat>
 #include <cstdlib>
+#include <cstddef>
+#include <stdexcept>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -37,14 +39,33 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <memory>
 #include <map>
 
-// Alias OBJ ファイルからテクスチャ座標も読み込むなら 1
+//! \cond INCLUDE_OPENGL_FUNCTIONS
+
+//! \def Alias OBJ ファイルからテクスチャ座標も読み込むなら 1
 #define READ_TEXTURE_COORDINATE_FROM_OBJ 0
 
+// Windows のとき
 #if defined(_WIN32)
-#  if !defined(_DEBUG)
+// プラットフォームを調べる
+#  if defined(_WIN64)
+#    define GLFW3_PLATFORM "x64"
+#  else
+#    define GLFW3_PLATFORM "Win32"
+#  endif
+// コンフィギュレーションを調べる
+#  if defined(_DEBUG)
+#    define GLFW3_CONFIGURATION "Debug"
+#  else
+#    define GLFW3_CONFIGURATION "Release"
+// Visual Studio のリリースビルドではコンソールを出さない
 #    pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
 #  endif
-#  pragma comment(lib, "glfw3.lib")
+// リンクするライブラリ
+#  pragma comment(lib, "lib\\" GLFW3_PLATFORM "\\" GLFW3_CONFIGURATION "\\glfw3.lib")
+#endif
+
+// OpenGL 3.2 の API のエントリポイント
+#if !defined(GL3_PROTOTYPES)
 PFNGLACTIVEPROGRAMEXTPROC glActiveProgramEXT;
 PFNGLACTIVESHADERPROGRAMPROC glActiveShaderProgram;
 PFNGLACTIVETEXTUREPROC glActiveTexture;
@@ -1282,21 +1303,21 @@ PFNGLWEIGHTPATHSNVPROC glWeightPathsNV;
 PFNGLWINDOWRECTANGLESEXTPROC glWindowRectanglesEXT;
 #endif
 
-// 使用している GPU のバッファアライメント
+//! \endcond
+
+//! 使用している GPU のバッファアライメント
 GLint gg::ggBufferAlignment(0);
 
 /*
-** ゲームグラフィックス特論の都合にもとづく初期化を行う
-**
-**   Windows で OpenGL 1.2 以降の API を有効化する
+** ゲームグラフィックス特論の都合にもとづく初期化
 */
 void gg::ggInit()
 {
   // すでにこの関数が実行されていたら以降の処理を行わない
   if (ggBufferAlignment) return;
 
-#if defined(_WIN32)
-  // OpenGL 1.2 以降の API を有効化する
+  // macOS 以外で OpenGL 3.2 以降の API を取得する
+#if !defined(GL3_PROTOTYPES)
   glActiveProgramEXT = PFNGLACTIVEPROGRAMEXTPROC(glfwGetProcAddress("glActiveProgramEXT"));
   glActiveShaderProgram = PFNGLACTIVESHADERPROGRAMPROC(glfwGetProcAddress("glActiveShaderProgram"));
   glActiveTexture = PFNGLACTIVETEXTUREPROC(glfwGetProcAddress("glActiveTexture"));
@@ -2545,7 +2566,7 @@ void gg::ggInit()
 **
 **   msg エラー発生時に標準エラー出力に出力する文字列. nullptr なら何も出力しない
 */
-void gg::ggError(const char *name, unsigned int line)
+void gg::_ggError(const char *name, unsigned int line)
 {
   const GLenum error(glGetError());
 
@@ -2589,7 +2610,7 @@ void gg::ggError(const char *name, unsigned int line)
 **
 **   msg エラー発生時に標準エラー出力に出力する文字列. nullptr なら何も出力しない
 */
-void gg::ggFBOError(const char *name, unsigned int line)
+void gg::_ggFBOError(const char *name, unsigned int line)
 {
   const GLenum status(glCheckFramebufferStatus(GL_FRAMEBUFFER));
 
@@ -2631,23 +2652,19 @@ void gg::ggFBOError(const char *name, unsigned int line)
 **
 **   name ファイル名
 **   buffer 画像データ
-**   sx 画像の幅
-**   sy 画像の高さ
+**   width 画像の横の画素数
+**   height 画像の縦の画素数
 **   depth 画像の 1 画素のバイト数
-**   戻り値 保存に成功したら true
+**   戻り値 保存に成功すれば true, 失敗すれば false
 */
 bool gg::ggSaveTga(const char *name, const void *buffer,
-  unsigned int sx, unsigned int sy, unsigned int depth)
+  unsigned int width, unsigned int height, unsigned int depth)
 {
   // ファイルを開く
   std::ofstream file(name, std::ios::binary);
 
   // ファイルが開けなかったら戻る
-  if (!file)
-  {
-    std::cerr << "Error: Can't open file: " << name << std::endl;
-    return false;
-  }
+  if (!file) return false;
 
   // 画像のヘッダ
   const unsigned char type(depth == 0 ? 0 : depth < 3 ? 3 : 2);
@@ -2662,10 +2679,10 @@ bool gg::ggSaveTga(const char *name, const void *buffer,
     0,          // Number of a color map entry bits per pixel
     0, 0,       // Horizontal image position
     0, 0,       // Vertical image position
-    static_cast<unsigned char>(sx & 0xff),
-    static_cast<unsigned char>(sx >> 8),
-    static_cast<unsigned char>(sy & 0xff),
-    static_cast<unsigned char>(sy >> 8),
+    static_cast<unsigned char>(width & 0xff),
+    static_cast<unsigned char>(width >> 8),
+    static_cast<unsigned char>(height & 0xff),
+    static_cast<unsigned char>(height >> 8),
     static_cast<unsigned char>(depth * 8),
     alpha       // Image descriptor
   };
@@ -2676,13 +2693,12 @@ bool gg::ggSaveTga(const char *name, const void *buffer,
   // ヘッダの書き込みに失敗したら戻る
   if (file.bad())
   {
-    std::cerr << "Error: Can't write file header: " << name << std::endl;
     file.close();
     return false;
   }
 
   // データを書き込む
-  unsigned int size(sx * sy * depth);
+  unsigned int size(width * height * depth);
   if (type == 2)
   {
     // フルカラー
@@ -2709,7 +2725,6 @@ bool gg::ggSaveTga(const char *name, const void *buffer,
   // データの書き込みに失敗したら戻る
   if (file.bad())
   {
-    std::cerr << "Error: Can't write image data: " << name << std::endl;
     file.close();
     return false;
   }
@@ -2723,7 +2738,7 @@ bool gg::ggSaveTga(const char *name, const void *buffer,
 ** カラーバッファの内容を TGA ファイルに保存する
 **
 **   name 保存するファイル名
-**   戻り値 保存に成功したら true
+**   戻り値 保存に成功すれば true, 失敗すれば false
 */
 bool gg::ggSaveColor(const char *name)
 {
@@ -2749,7 +2764,7 @@ bool gg::ggSaveColor(const char *name)
 ** デプスバッファの内容を TGA ファイルに保存する
 **
 **   name 保存するファイル名
-**   戻り値 保存に成功したら true
+**   戻り値 保存に成功すれば true, 失敗すれば false
 */
 bool gg::ggSaveDepth(const char *name)
 {
@@ -2775,22 +2790,19 @@ bool gg::ggSaveDepth(const char *name)
 ** TGA ファイル (8/16/24/32bit) を読み込む
 **
 **   name 読み込むファイル名
-**   width 読み込んだファイルの幅
-**   height 読み込んだファイルの高さ
-**   format 読み込んだファイルのフォーマット
-**   戻り値 読み込んだ画像データのポインタ (要 delete, 読み込めなければ nullptr)
+**   pWidth 読み込んだファイルの横の画素数の格納先のポインタ (nullptr なら格納しない)
+**   pHeight 読み込んだファイルの縦の画素数の格納先のポインタ (nullptr なら格納しない)
+**   pFormat 読み込んだファイルのフォーマットの格納先のポインタ (nullptr なら格納しない)
+**   image 読み込んだ画像を格納する vector
+**   戻り値 読み込みに成功すれば true, 失敗すれば false
 */
-GLubyte *gg::ggLoadTga(const char *name, GLsizei *width, GLsizei *height, GLenum *format)
+bool gg::ggReadImage(const char *name, std::vector<GLubyte> &image, GLsizei *pWidth, GLsizei *pHeight, GLenum *pFormat)
 {
   // ファイルを開く
   std::ifstream file(name, std::ios::binary);
 
   // ファイルが開けなかったら戻る
-  if (!file)
-  {
-    std::cerr << "Error: Can't open file: " << name << std::endl;
-    return nullptr;
-  }
+  if (!file) return false;
 
   // ヘッダを読み込む
   unsigned char header[18];
@@ -2799,9 +2811,8 @@ GLubyte *gg::ggLoadTga(const char *name, GLsizei *width, GLsizei *height, GLenum
   // ヘッダの読み込みに失敗したら戻る
   if (file.bad())
   {
-    std::cerr << "Error: Can't read file header: " << name << std::endl;
     file.close();
-    return nullptr;
+    return false;
   }
 
   // 深度
@@ -2809,42 +2820,33 @@ GLubyte *gg::ggLoadTga(const char *name, GLsizei *width, GLsizei *height, GLenum
   switch (depth)
   {
   case 1:
-    *format = GL_RED;
+    *pFormat = GL_RED;
     break;
   case 2:
-    *format = GL_RG;
+    *pFormat = GL_RG;
     break;
   case 3:
-    *format = GL_BGR;
+    *pFormat = GL_BGR;
     break;
   case 4:
-    *format = GL_BGRA;
+    *pFormat = GL_BGRA;
     break;
   default:
     // 取り扱えないフォーマットだったら戻る
-    std::cerr << "Error: Unusable format: " << depth << std::endl;
     file.close();
-    return nullptr;
+    return false;
   }
 
-  // 幅と高さ
-  *width = header[13] << 8 | header[12];
-  *height = header[15] << 8 | header[14];
+  // 画像の縦横の画素数
+  *pWidth = header[13] << 8 | header[12];
+  *pHeight = header[15] << 8 | header[14];
 
   // データサイズ
-  const int size(*width * *height * depth);
-  if (size < 2) return nullptr;
+  const int size(*pWidth * *pHeight * depth);
+  if (size < 2) return false;
 
   // 読み込みに使うメモリを確保する
-  GLubyte *const buffer(new(std::nothrow) GLubyte[size]);
-
-  // メモリが確保できなければ戻る
-  if (buffer == nullptr)
-  {
-    std::cerr << "Error: Too large file: " << name << std::endl;
-    file.close();
-    return nullptr;
-  }
+  image.resize(size);
 
   // データを読み込む
   if (header[2] & 8)
@@ -2863,7 +2865,7 @@ GLubyte *gg::ggLoadTga(const char *name, GLsizei *width, GLsizei *height, GLenum
         file.read(temp, depth);
         for (int i = 0; i < count; ++i)
         {
-          for (int j = 0; j < depth;) buffer[p++] = temp[j++];
+          for (int j = 0; j < depth;) image[p++] = temp[j++];
         }
       }
       else
@@ -2871,7 +2873,7 @@ GLubyte *gg::ggLoadTga(const char *name, GLsizei *width, GLsizei *height, GLenum
         // raw packet
         const int count((c + 1) * depth);
         if (p + count > size) break;
-        file.read(reinterpret_cast<char *>(buffer + p), count);
+        file.read(reinterpret_cast<char *>(&image[p]), count);
         p += count;
       }
     }
@@ -2879,31 +2881,35 @@ GLubyte *gg::ggLoadTga(const char *name, GLsizei *width, GLsizei *height, GLenum
   else
   {
     // 非圧縮
-    file.read(reinterpret_cast<char *>(buffer), size);
+    file.read(reinterpret_cast<char *>(image.data()), size);
   }
 
-  // 読み込みに失敗していたら警告を出す
-  if (file.bad()) std::cerr << "Waring: Can't read image data: " << name << std::endl;
+  // 読み込みに失敗したら戻る
+  if (file.bad())
+  {
+    file.close();
+    return false;
+  }
 
   // ファイルを閉じる
   file.close();
-
-  // 画像を読み込んだメモリを返す
-  return buffer;
+  return true;
 }
 
 /*
 ** テクスチャメモリを確保して画像を読み込む
 **
-**   width 画像の幅
-**   height 画像の高さ
-**   internal テクスチャの内部フォーマット
+**   image 画像データ, nullptr ならメモリの確保だけを行う
+**   width 画像の横の画素数
+**   height 画像の縦の画素数
 **   format 画像データのフォーマット
-**   image 画像データ
-**   戻り値 テクスチャオブジェクト名
+**   type 画像のデータ型
+**   internal テクスチャの内部フォーマット
+**   wrap テクスチャのラッピングモード, デフォルトは GL_CLAMP_TO_EDGE
+**   戻り値 テクスチャ名
 */
-GLuint gg::ggLoadTexture(GLsizei width, GLsizei height, GLenum internal,
-  GLenum format, const GLvoid *image)
+GLuint gg::ggLoadTexture(const GLvoid *image, GLsizei width, GLsizei height,
+  GLenum format, GLenum type, GLenum internal, GLenum wrap)
 {
   // テクスチャオブジェクト
   GLuint tex;
@@ -2914,15 +2920,15 @@ GLuint gg::ggLoadTexture(GLsizei width, GLsizei height, GLenum internal,
   glPixelStorei(GL_UNPACK_ALIGNMENT, (format == GL_BGRA || format == GL_RGBA) ? 4 : 1);
 
   // テクスチャを割り当てる
-  glTexImage2D(GL_TEXTURE_2D, 0, internal, width, height, 0, format, GL_UNSIGNED_BYTE, image);
+  glTexImage2D(GL_TEXTURE_2D, 0, internal, width, height, 0, format, type, image);
 
   // バイリニア（ミップマップなし），エッジでクランプ
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 
-  // テクスチャオブジェクト名を返す
+  // テクスチャ名を返す
   return tex;
 }
 
@@ -2930,11 +2936,17 @@ GLuint gg::ggLoadTexture(GLsizei width, GLsizei height, GLenum internal,
 ** TGA ファイルをテクスチャメモリに読み込む
 **
 **   name TGA ファイル名
-**   internal テクスチャの内部フォーマット
-**   戻り値 テクスチャオブジェクト名
+**   pWidth 読みだした画像ファイルの横の画素数の格納先のポインタ (nullptr なら格納しない)
+++   pHeight 読みだした画像ファイルの縦の画素数の格納先のポインタ (nullptr なら格納しない)
+**   internal テクスチャの内部フォーマット， 0 なら外部フォーマットに合わせる.
+**   wrap テクスチャのラッピングモード, デフォルトは GL_CLAMP_TO_EDGE
+**   戻り値 テクスチャ名
 */
-GLuint gg::ggLoadImage(const char *name, GLenum internal)
+GLuint gg::ggLoadImage(const char *name, GLsizei *pWidth, GLsizei *pHeight, GLenum internal, GLenum wrap)
 {
+  // 画像データ
+  std::vector<GLubyte> image;
+
   // 画像サイズ
   GLsizei width, height;
 
@@ -2942,10 +2954,10 @@ GLuint gg::ggLoadImage(const char *name, GLenum internal)
   GLenum format;
 
   // 画像を読み込む
-  const std::unique_ptr<const GLubyte> image(ggLoadTga(name, &width, &height, &format));
+  ggReadImage(name, image, &width, &height, &format);
 
   // 画像が読み込めなかったら戻る
-  if (image == nullptr) return 0;
+  if (image.empty()) return 0;
 
   // internal == 0 なら内部フォーマットを読み込んだファイルに合わせる
   if (internal == 0)
@@ -2965,89 +2977,86 @@ GLuint gg::ggLoadImage(const char *name, GLenum internal)
   }
 
   // テクスチャメモリに読み込む
-  const GLuint tex(ggLoadTexture(width, height, internal, format, image.get()));
+  const GLuint tex(ggLoadTexture(image.data(), width, height, format, GL_UNSIGNED_BYTE, internal, wrap));
 
-  // テクスチャオブジェクト名を返す
+  // 画像サイズを返す
+  if (pWidth) *pWidth = width;
+  if (pHeight) *pHeight = height;
+
+  // テクスチャ名を返す
   return tex;
 }
 
 /*
-** TGA 画像ファイルの高さマップ読み込んでテクスチャメモリに法線マップを作成する
+** グレースケール画像 (8bit) から法線マップのデータを作成する
 **
-**   name TGA ファイル名
-**   nz 作成した法線の z 成分の割合
+**   width 高さマップのグレースケール画像 hmap の横の画素数
+**   height 高さマップのグレースケール画像のデータ hmap の縦の画素数
+**   stride データの間隔
+**   hmap グレースケール画像のデータ
+**   nz 法線の z 成分の割合
 **   internal テクスチャの内部フォーマット
-**   戻り値 テクスチャオブジェクト名
+**   nmap 法線マップを格納する vector
 */
-GLuint gg::ggLoadHeight(const char *name, float nz, GLenum internal)
+void gg::ggCreateNormalMap(const GLubyte *hmap, GLsizei width, GLsizei height, GLenum format, GLfloat nz,
+  GLenum internal, std::vector<GgVector> &nmap)
 {
-  // 画像サイズ
-  GLsizei width, height;
+  // メモリサイズ
+  const GLsizei size(width * height);
 
-  // 画像フォーマット
-  GLenum format;
-
-  // 高さマップの画像を読み込む
-  const GLubyte *const hmap(ggLoadTga(name, &width, &height, &format));
-
-  // 画像が読み込めなかったら戻る
-  if (hmap == nullptr) return 0;
+  // 法線マップのメモリを確保する
+  nmap.resize(size);
 
   // 画素のバイト数
-  int bytes;
+  GLint stride;
   switch (format)
   {
   case GL_RED:
-    bytes = 1;
+    stride = 1;
     break;
   case GL_RG:
-    bytes = 2;
+    stride = 2;
     break;
   case GL_BGR:
-    bytes = 3;
+    stride = 3;
     break;
   case GL_BGRA:
-    bytes = 4;
+    stride = 4;
     break;
   default:
-    bytes = 1;
+    stride = 1;
     break;
   }
 
-  // メモリサイズ
-  const GLsizei maxsize(width * height);
-
-  // 法線マップのメモリを確保する
-  std::vector<GgVector> nmap(maxsize);
-
   // 法線マップの作成
-  for (GLsizei i = 0; i < maxsize; ++i)
+  for (GLsizei i = 0; i < size; ++i)
   {
     const int x(i % width);
     const int y(i - x);
-    const int o(i * bytes);
-    const int u((y + (x + 1) % width) * bytes);
-    const int v(((y + width) % maxsize + x) * bytes);
+    const int u0((y + (x - 1 + width) % width) * stride);
+    const int u1((y + (x + 1) % width) * stride);
+    const int v0(((y - width + size) % size + x) * stride);
+    const int v1(((y + width) % size + x) * stride);
 
     // 隣接する画素との値の差を法線の成分に用いる
-    nmap[i][0] = static_cast<GLfloat>(hmap[u] - hmap[o]);
-    nmap[i][1] = static_cast<GLfloat>(hmap[v] - hmap[o]);
+    nmap[i][0] = static_cast<GLfloat>(hmap[u1] - hmap[u0]);
+    nmap[i][1] = static_cast<GLfloat>(hmap[v1] - hmap[v0]);
     nmap[i][2] = nz;
-    nmap[i][3] = hmap[o];
+    nmap[i][3] = hmap[i * stride];
 
     // 法線ベクトルを正規化する
     ggNormalize3(nmap[i].data());
   }
 
-  // 内部フォーマットが浮動小数点テクスチャでなければ [0,1] に変換する
+  // 内部フォーマットが浮動小数点テクスチャでなければ [0,1] に正規化する
   if (
-    internal != GL_RGB16F  &&
+    internal != GL_RGB16F &&
     internal != GL_RGBA16F &&
-    internal != GL_RGB32F  &&
+    internal != GL_RGB32F &&
     internal != GL_RGBA32F
     )
   {
-    for (GLsizei i = 0; i < maxsize; ++i)
+    for (GLsizei i = 0; i < size; ++i)
     {
       nmap[i][0] = nmap[i][0] * 0.5f + 0.5f;
       nmap[i][1] = nmap[i][1] * 0.5f + 0.5f;
@@ -3055,26 +3064,120 @@ GLuint gg::ggLoadHeight(const char *name, float nz, GLenum internal)
       nmap[i][3] *= 0.0039215686f; // == 1/255
     }
   }
+}
 
-  // テクスチャオブジェクト
-  GLuint tex;
-  glGenTextures(1, &tex);
-  glBindTexture(GL_TEXTURE_2D, tex);
+/*
+** TGA 画像ファイルの高さマップ読み込んでテクスチャメモリに法線マップを作成する
+**
+**   name TGA ファイル名
+**   nz 作成した法線の z 成分の割合
+**   pWidth 読み込んだ画像の横の画素数の格納先のポインタ (nullptr なら格納しない)
+**   pHeight 読み込んだ画像の縦の画素数の格納先のポインタ (nullptr なら格納しない)
+**   internal テクスチャの内部フォーマット
+**   戻り値 テクスチャ名
+*/
+GLuint gg::ggLoadHeight(const char *name, float nz, GLsizei *pWidth, GLsizei *pHeight, GLenum internal)
+{
+  // 画像データ
+  std::vector<GLubyte> hmap;
 
-  // nmap が GLfloat なので 4 バイト境界に設定する
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+  // 画像サイズ
+  GLsizei width, height;
 
-  // テクスチャを割り当てる
-  glTexImage2D(GL_TEXTURE_2D, 0, internal, width, height, 0, GL_RGBA, GL_FLOAT, nmap.data());
+  // 画像フォーマット
+  GLenum format;
 
-  // バイリニア（ミップマップなし），エッジでクランプ
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  // 高さマップの画像を読み込む
+  ggReadImage(name, hmap, &width, &height, &format);
 
-  // テクスチャオブジェクト名を返す
-  return tex;
+  // 画像が読み込めなかったら戻る
+  if (hmap.empty()) return 0;
+
+  // 法線マップ
+  std::vector<GgVector> nmap;
+
+  // 法線マップを作成する
+  ggCreateNormalMap(hmap.data(), width, height, format, nz, internal, nmap);
+
+  // 画像サイズを返す
+  if (pWidth) *pWidth = width;
+  if (pHeight) *pHeight = height;
+
+  // テクスチャを作成して返す
+  return ggLoadTexture(nmap.data(), width, height, GL_RGBA, GL_FLOAT, internal, GL_REPEAT);
+}
+
+/*
+** テクスチャを作成してファイルからデータを読み込む
+**
+**   name 読み込むファイル名
+**   internal glTexImage2D() に指定するテクスチャの内部フォーマット. 0 なら外部フォーマットに合わせる
+**   戻り値 テクスチャの作成に成功すれば true, 失敗すれば false
+*/
+void gg::GgColorTexture::load(const char *name, GLenum internal, GLenum wrap)
+{
+  // 画像データ
+  std::vector<GLubyte> image;
+
+  // 画像サイズ
+  GLsizei width, height;
+
+  // 画像フォーマット
+  GLenum format;
+
+  // 画像を読み込む
+  ggReadImage(name, image, &width, &height, &format);
+
+  // internal == 0 なら内部フォーマットを読み込んだファイルに合わせる
+  if (internal == 0)
+  {
+    switch (format)
+    {
+    case GL_BGR:
+      internal = GL_RGB;
+      break;
+    case GL_BGRA:
+      internal = GL_RGBA;
+      break;
+    default:
+      internal = format;
+      break;
+    }
+  }
+
+  // テクスチャを作成する
+  texture.reset(new GgTexture(image.data(), width, height, format, GL_UNSIGNED_BYTE, internal, wrap));
+}
+
+/*
+** ファイルからデータを読み込んで法線マップのテクスチャを作成する
+**
+**   name 画像ファイル名
+**   width テクスチャとして用いる画像データの横幅
+**   height テクスチャとして用いる画像データの高さ
+**   format テクスチャとして用いる画像データのフォーマット (GL_RED, GL_RG, GL_RGB, GL_RGBA)
+**   nz 法線マップの z 成分の値
+**   internal テクスチャの内部フォーマット
+*/
+void gg::GgNormalTexture::load(const char *name, float nz, GLenum internal)
+{
+  // 高さマップ
+  std::vector<GLubyte> hmap;
+
+  // 画像サイズ
+  GLsizei width, height;
+
+  // 画像フォーマット
+  GLenum format;
+
+  // 高さマップの画像を読み込む
+  ggReadImage(name, hmap, &width, &height, &format);
+
+  // 法線マップ
+  std::vector<GgVector> nmap;
+
+  // 法線マップを作成する
+  ggCreateNormalMap(hmap.data(), width, height, format, nz, internal, nmap);
 }
 
 // \cond
@@ -3084,10 +3187,10 @@ GLuint gg::ggLoadHeight(const char *name, float nz, GLenum internal)
 namespace gg
 {
   // GLfloat 型の 2 要素のベクトル
-  typedef std::array<GLfloat, 2> vec2;
+  using  vec2 = std::array<GLfloat, 2>;
 
   // GLfloat 型の 3 要素のベクトル
-  typedef std::array<GLfloat, 3> vec3;
+  using vec3 = std::array<GLfloat, 3>;
 
   // 三角形データ
   struct fidx
@@ -3110,7 +3213,7 @@ namespace gg
   };
 
   // デフォルトの材質
-  constexpr GgSimpleMaterial defaultMaterial =
+  constexpr GgSimpleShader::Material defaultMaterial =
   {
     { 0.1f, 0.1f, 0.1f, 1.0f },
     { 0.6f, 0.6f, 0.6f, 0.0f },
@@ -3130,13 +3233,15 @@ namespace gg
   */
   static bool ggLoadMtl(const std::string &mtlpath,
     std::map<std::string, GLuint> &mtl,
-    std::vector<GgSimpleMaterial> &material)
+    std::vector<GgSimpleShader::Material> &material)
   {
     // MTL ファイルが無ければ戻る
     std::ifstream mtlfile(mtlpath.c_str(), std::ios::binary);
     if (!mtlfile)
     {
+#if defined(DEBUG)
       std::cerr << "Warning: Can't open MTL file: " << mtlpath << std::endl;
+#endif
       return false;
     }
 
@@ -3186,7 +3291,7 @@ namespace gg
           material.emplace_back(defaultMaterial);
         }
 
-#if defined(_DEBUG)
+#if defined(DEBUG)
         std::cerr << "newmtl: " << mtlname << std::endl;
 #endif
       }
@@ -3231,7 +3336,9 @@ namespace gg
     // MTL ファイルの読み込みに失敗したら戻る
     if (mtlfile.bad())
     {
+#if defined(DEBUG)
       std::cerr << "Warning: Can't read MTL file: " << mtlpath << std::endl;
+#endif
       mtlfile.close();
       return false;
     }
@@ -3253,7 +3360,7 @@ namespace gg
   **   face 三角形のデータ
   */
   static bool ggParseObj(const char *name, std::vector<fgrp> &group,
-    std::vector<GgSimpleMaterial> &material,
+    std::vector<GgSimpleShader::Material> &material,
     std::vector<vec3> &pos, std::vector<vec3> &norm, std::vector<vec2> &tex,
     std::vector<fidx> &face,
     bool normalize)
@@ -3269,12 +3376,14 @@ namespace gg
     // 読み込みに失敗したら戻る
     if (!file)
     {
+#if defined(DEBUG)
       std::cerr << "Error: Can't open OBJ file: " << path << std::endl;
+#endif
       return false;
     }
 
     // ポリゴングループの最初の三角形番号
-    GLuint startgroup(static_cast<GLuint>(group.size()));
+    GLsizei startgroup(static_cast<GLsizei>(group.size()));
 
     // スムーズシェーディングのスイッチ
     bool smooth(false);
@@ -3406,7 +3515,7 @@ namespace gg
       else if (op == "usemtl")
       {
         // 次のポリゴングループの最初の三角形番号
-        const GLuint nextgroup(static_cast<GLuint>(face.size()));
+        const GLsizei nextgroup(static_cast<GLsizei>(face.size()));
 
         // ポリゴングループに三角形が存在すれば
         if (nextgroup > startgroup)
@@ -3424,12 +3533,14 @@ namespace gg
         // 材質の存在チェック
         if (mtl.find(mtlname) == mtl.end())
         {
+#if defined(DEBUG)
           std::cerr << "Warning: Undefined material: " << mtlname << std::endl;
+#endif
 
           // デフォルトの材質を割り当てておく
           mtlname = defaultMaterialName;
         }
-#if defined(_DEBUG)
+#if defined(DEBUG)
         else std::cerr << "usemtl: " << mtlname << std::endl;
 #endif
       }
@@ -3448,7 +3559,9 @@ namespace gg
     // OBJ ファイルの読み込みに失敗したら戻る
     if (file.bad())
     {
+#if defined(DEBUG)
       std::cerr << "Error: Can't read OBJ file: " << path << std::endl;
+#endif
       file.close();
       return false;
     }
@@ -3457,11 +3570,11 @@ namespace gg
     file.close();
 
     // 最後のポリゴングループの次の三角形番号
-    const GLuint nextgroup(static_cast<GLuint>(face.size()));
+    const GLsizei nextgroup(static_cast<GLsizei>(face.size()));
     if (nextgroup > startgroup)
     {
       // 最後のポリゴングループの三角形数と材質を記録する
-      group.emplace_back(nextgroup, mtl[mtlname]);
+      group.emplace_back(nextgroup, static_cast<GLuint>(mtl[mtlname]));
     }
 
     // スムーズシェーディングしない三角形の頂点を追加する
@@ -3576,7 +3689,7 @@ namespace gg
       }
     }
 
-#if defined(_DEBUG)
+#if defined(DEBUG)
     std::cerr
       << "[" << name << "]\n(Parsed) Group: " << group.size() << ", Material: " << mtl.size()
       << ", Pos: " << pos.size() << ", Norm: " << norm.size() << ", Tex: " << tex.size()
@@ -3599,9 +3712,9 @@ namespace gg
 **   normalize true ならサイズを正規化する
 **   戻り値 読み込みに成功したら true
 */
-bool gg::ggLoadObj(const char *name,
+bool gg::ggLoadSimpleObj(const char *name,
   std::vector< std::array<GLuint, 3> > &group,
-  std::vector<GgSimpleMaterial> &material,
+  std::vector<GgSimpleShader::Material> &material,
   std::vector<GgVertex> &vert,
   bool normalize)
 {
@@ -3667,7 +3780,7 @@ bool gg::ggLoadObj(const char *name,
     startgroup = g.nextgroup;
   }
 
-#if defined(_DEBUG)
+#if defined(DEBUG)
   std::cerr
     << "(Stored) Group: " << group.size() << ", Material: " << material.size()
     << ", Vertex: " << vert.size() << "\n";
@@ -3688,9 +3801,9 @@ bool gg::ggLoadObj(const char *name,
 **   normalize true ならサイズを正規化する
 **   戻り値 読み込みに成功したら true
 */
-bool gg::ggLoadObj(const char *name,
+bool gg::ggLoadSimpleObj(const char *name,
   std::vector< std::array<GLuint, 3> > &group,
-  std::vector<GgSimpleMaterial> &material,
+  std::vector<GgSimpleShader::Material> &material,
   std::vector<GgVertex> &vert,
   std::vector<GLuint> &face,
   bool normalize)
@@ -3769,7 +3882,7 @@ bool gg::ggLoadObj(const char *name,
     startgroup = g.nextgroup;
   }
 
-#if defined(_DEBUG)
+#if defined(DEBUG)
   std::cerr
     << "(Stored) Group: " << group.size() << ", Material: " << material.size()
     << ", Vertex: " << vert.size() << ", Face: " << face.size() << "\n";
@@ -3787,7 +3900,9 @@ static GLboolean printShaderInfoLog(GLuint shader, const char *str)
   // コンパイル結果を取得する
   GLint status;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+#if defined(DEBUG)
   if (status == GL_FALSE) std::cerr << "Compile Error in " << str << std::endl;
+#endif
 
   // シェーダのコンパイル時のログの長さを取得する
   GLsizei bufSize;
@@ -3799,7 +3914,9 @@ static GLboolean printShaderInfoLog(GLuint shader, const char *str)
     std::vector<GLchar> infoLog(bufSize);
     GLsizei length;
     glGetShaderInfoLog(shader, bufSize, &length, &infoLog[0]);
+#if defined(DEBUG)
     std::cerr << &infoLog[0] << std::endl;
+#endif
   }
 
   // コンパイル結果を返す
@@ -3814,7 +3931,9 @@ static GLboolean printProgramInfoLog(GLuint program)
   // リンク結果を取得する
   GLint status;
   glGetProgramiv(program, GL_LINK_STATUS, &status);
+#if defined(DEBUG)
   if (status == GL_FALSE) std::cerr << "Link Error." << std::endl;
+#endif
 
   // シェーダのリンク時のログの長さを取得する
   GLsizei bufSize;
@@ -3826,7 +3945,9 @@ static GLboolean printProgramInfoLog(GLuint program)
     std::vector<GLchar> infoLog(bufSize);
     GLsizei length;
     glGetProgramInfoLog(program, bufSize, &length, &infoLog[0]);
+#if defined(DEBUG)
     std::cerr << &infoLog[0] << std::endl;
+#endif
   }
 
   // リンク結果を返す
@@ -3844,7 +3965,7 @@ static GLboolean printProgramInfoLog(GLuint program)
 **   vtext バーテックスシェーダのコンパイル時のメッセージに追加する文字列
 **   ftext フラグメントシェーダのコンパイル時のメッセージに追加する文字列
 **   gtext ジオメトリシェーダのコンパイル時のメッセージに追加する文字列
-**   戻り値 シェーダプログラムのプログラム名 (作成できなければ 0)
+**   戻り値 プログラムオブジェクトのプログラム名 (作成できなければ 0)
 */
 GLuint gg::ggCreateShader(const char *vsrc, const char *fsrc, const char *gsrc,
   GLint nvarying, const char *const varyings[],
@@ -3914,11 +4035,56 @@ GLuint gg::ggCreateShader(const char *vsrc, const char *fsrc, const char *gsrc,
 }
 
 /*
-** シェーダのソースファイルを読み込んだメモリを返す
+** コンピュートシェーダのソースプログラムの文字列を読み込んでプログラムオブジェクトを作成する
+**
+**   csrc コンピュートシェーダのソースプログラムの文字列
+**   戻り値 プログラムオブジェクトのプログラム名 (作成できなければ 0)
+*/
+GLuint gg::ggCreateComputeShader(const char *csrc, const char *ctext)
+{
+  // シェーダプログラムの作成
+  const GLuint program(glCreateProgram());
+
+  if (program > 0)
+  {
+    if (csrc)
+    {
+      // コンピュートシェーダのシェーダオブジェクトを作成する
+      const GLuint compShader(glCreateShader(GL_COMPUTE_SHADER));
+      glShaderSource(compShader, 1, &csrc, nullptr);
+      glCompileShader(compShader);
+
+      // コンピュートシェーダのシェーダオブジェクトをプログラムオブジェクトに組み込む
+      if (printShaderInfoLog(compShader, ctext))
+        glAttachShader(program, compShader);
+      glDeleteShader(compShader);
+    }
+
+    // シェーダプログラムをリンクする
+    glLinkProgram(program);
+
+    // プログラムオブジェクトが作成できなければ 0 を返す
+    if (printProgramInfoLog(program) == GL_FALSE)
+    {
+      glDeleteProgram(program);
+      return 0;
+    }
+  }
+
+  // プログラムオブジェクトを返す
+  return program;
+}
+
+/*
+** シェーダのソースファイルを読み込んだ vector を返す
+**
+**   name ソースファイル名
+**   src 読み込んだソースファイルの文字列
+**   戻り値 読み込みの成功すれば true, 失敗したら false
 */
 static bool readShaderSource(const char *name, std::vector<GLchar> &src)
 {
-  // ファイル名が nullptr ならそのまま戻る
+// ファイル名が nullptr ならそのまま戻る
   if (name == nullptr) return true;
 
   // ソースファイルを開く
@@ -3926,7 +4092,9 @@ static bool readShaderSource(const char *name, std::vector<GLchar> &src)
   if (!file)
   {
     // ファイルが開けなければエラーで戻る
+#if defined(DEBUG)
     std::cerr << "Error: Can't open source file: " << name << std::endl;
+#endif
     return false;
   }
 
@@ -3944,7 +4112,9 @@ static bool readShaderSource(const char *name, std::vector<GLchar> &src)
   // ファイルがうまく読み込めなければ戻る
   if (file.bad())
   {
+#if defined(DEBUG)
     std::cerr << "Error: Could not read souce file: " << name << std::endl;
+#endif
     file.close();
     return false;
   }
@@ -3957,11 +4127,11 @@ static bool readShaderSource(const char *name, std::vector<GLchar> &src)
 /*
 ** シェーダのソースファイルを読み込んでプログラムオブジェクトを作成する
 **
-**    vert バーテックスシェーダのソースファイル名
-**    frag フラグメントシェーダのソースファイル名 (nullptr なら不使用)
-**    geom ジオメトリシェーダのソースファイル名 (nullptr なら不使用)
-**    nvarying フィードバックする varying 変数の数 (0 なら不使用)
-**    varyings フィードバックする varying 変数のリスト (nullptr なら不使用)
+**   vert バーテックスシェーダのソースファイル名
+**   frag フラグメントシェーダのソースファイル名 (nullptr なら不使用)
+**   geom ジオメトリシェーダのソースファイル名 (nullptr なら不使用)
+**   nvarying フィードバックする varying 変数の数 (0 なら不使用)
+**   varyings フィードバックする varying 変数のリスト (nullptr なら不使用)
 **   戻り値 シェーダプログラムのプログラム名 (作成できなければ 0)
 */
 GLuint gg::ggLoadShader(const char *vert, const char *frag, const char *geom,
@@ -3973,6 +4143,26 @@ GLuint gg::ggLoadShader(const char *vert, const char *frag, const char *geom,
   {
     // プログラムオブジェクトを作成する
     return ggCreateShader(vsrc.data(), fsrc.data(), gsrc.data(), nvarying, varyings, vert, frag, geom);
+  }
+
+  // プログラムオブジェクト作成失敗
+  return 0;
+}
+
+/*
+** コンピュートシェーダのソースファイルを読み込んでプログラムオブジェクトを作成する
+**
+**   comp コンピュートシェーダのソースファイル名
+**   戻り値 プログラムオブジェクトのプログラム名 (作成できなければ 0)
+*/
+GLuint gg::ggLoadComputeShader(const char *comp)
+{
+  // シェーダのソースファイルを読み込む
+  std::vector<GLchar> csrc;
+  if (readShaderSource(comp, csrc))
+  {
+    // プログラムオブジェクトを作成する
+    return ggCreateComputeShader(csrc.data(), comp);
   }
 
   // プログラムオブジェクト作成失敗
@@ -4047,7 +4237,7 @@ gg::GgMatrix &gg::GgMatrix::loadTranslate(GLfloat x, GLfloat y, GLfloat z, GLflo
   array[ 0] = array[ 5] = array[10] = array[15] = w;
   array[ 1] = array[ 2] = array[ 3] = array[ 4] =
   array[ 6] = array[ 7] = array[ 8] = array[ 9] =
-  array[11] = 0.0f;
+  array[ 11] = 0.0f;
 
   return *this;
 }
@@ -4125,7 +4315,7 @@ gg::GgMatrix &gg::GgMatrix::loadRotate(GLfloat x, GLfloat y, GLfloat z, GLfloat 
 
   if (d > 0.0f)
   {
-    const GLfloat l(x / d),  m(y / d),  n(z / d);
+    const GLfloat l(x / d), m(y / d), n(z / d);
     const GLfloat l2(l * l), m2(m * m), n2(n * n);
     const GLfloat lm(l * m), mn(m * n), nl(n * l);
     const GLfloat c(cos(a)), c1(1.0f - c);
@@ -4403,7 +4593,7 @@ gg::GgMatrix &gg::GgMatrix::loadPerspective(GLfloat fovy, GLfloat aspect,
   if (dz != 0.0f)
   {
     array[ 5] = 1.0f / tan(fovy * 0.5f);
-    array[ 0] = array[ 5] / aspect;
+    array[ 0] = array[5] / aspect;
     array[10] = -(zFar + zNear) / dz;
     array[11] = -1.0f;
     array[14] = -2.0f * zFar * zNear / dz;
@@ -4606,9 +4796,9 @@ gg::GgQuaternion &gg::GgQuaternion::loadNormalize(const GLfloat *a)
 gg::GgQuaternion &gg::GgQuaternion::loadConjugate(const GLfloat *a)
 {
   // w 要素を反転する
-  quaternion[0] =  a[0];
-  quaternion[1] =  a[1];
-  quaternion[2] =  a[2];
+  quaternion[0] = a[0];
+  quaternion[1] = a[1];
+  quaternion[2] = a[2];
   quaternion[3] = -a[3];
 
   return *this;
@@ -4662,8 +4852,8 @@ void gg::GgTrackball::reset()
 void gg::GgTrackball::region(float w, float h)
 {
   // マウスポインタ位置のウィンドウ内の相対的位置への換算用
-  sx = 1.0f / w;
-  sy = 1.0f / h;
+  scale[0] = 1.0f / w;
+  scale[1] = 1.0f / h;
 }
 
 /*
@@ -4672,14 +4862,14 @@ void gg::GgTrackball::region(float w, float h)
 **   マウスボタンを押したときに実行する
 **   (x, y) 現在のマウス位置
 */
-void gg::GgTrackball::start(float x, float y)
+void gg::GgTrackball::begin(float x, float y)
 {
   // ドラッグ開始
   drag = true;
 
   // ドラッグ開始点を記録する
-  cx = x;
-  cy = y;
+  start[0] = x;
+  start[1] = y;
 }
 
 /*
@@ -4693,16 +4883,15 @@ void gg::GgTrackball::motion(float x, float y)
   if (drag)
   {
     // マウスポインタの位置のドラッグ開始位置からの変位
-    const float dx((x - cx) * sx);
-    const float dy((y - cy) * sy);
+    const float d[] = { (x - start[0]) * scale[0], (y - start[1]) * scale[1] };
 
     // マウスポインタの位置のドラッグ開始位置からの距離
-    const float a(sqrt(dx * dx + dy * dy));
+    const float a(sqrt(d[0] * d[0] + d[1] * d[1]));
 
     if (a != 0.0)
     {
       // 現在の回転の四元数に作った四元数を掛けて合成する
-      tq = ggRotateQuaternion(dy, dx, 0.0f, a * 6.283185f) * cq;
+      tq = ggRotateQuaternion(d[1], d[0], 0.0f, a * 6.283185f) * cq;
 
       // 合成した四元数から回転の変換行列を求める
       tq.getMatrix(rt);
@@ -4737,7 +4926,7 @@ void gg::GgTrackball::rotate(const GgQuaternion &q)
 **   マウスボタンを離したときに実行する
 **   (x, y) 現在のマウス位置
 */
-void gg::GgTrackball::stop(float x, float y)
+void gg::GgTrackball::end(float x, float y)
 {
   // ドラッグ終了点における回転を求める
   motion(x, y);
@@ -4789,14 +4978,14 @@ void gg::GgElements::draw(GLint first, GLsizei count) const
 /*
 ** 点群を立方体状に生成する
 */
-gg::GgPoints *gg::ggPointsCube(GLuint nv, GLfloat length, GLfloat cx, GLfloat cy, GLfloat cz)
+gg::GgPoints *gg::ggPointsCube(GLsizei count, GLfloat length, GLfloat cx, GLfloat cy, GLfloat cz)
 {
   // メモリを確保する
   std::vector<GgVector> pos;
-  pos.reserve(nv);
+  pos.reserve(count);
 
   // 点を生成する
-  for (GLuint v = 0; v < nv; ++v)
+  for (GLsizei v = 0; v < count; ++v)
   {
     const GgVector p =
     {
@@ -4819,15 +5008,15 @@ gg::GgPoints *gg::ggPointsCube(GLuint nv, GLfloat length, GLfloat cx, GLfloat cy
 /*
 ** 点群を球状に生成する
 */
-gg::GgPoints *gg::ggPointsSphere(GLuint nv, GLfloat radius,
+gg::GgPoints *gg::ggPointsSphere(GLsizei count, GLfloat radius,
   GLfloat cx, GLfloat cy, GLfloat cz)
 {
   // メモリを確保する
   std::vector<GgVector> pos;
-  pos.reserve(nv);
+  pos.reserve(count);
 
   // 点を生成する
-  for (GLuint v = 0; v < nv; ++v)
+  for (GLsizei v = 0; v < count; ++v)
   {
     const float r(radius * static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
     const float t(6.2831853f * static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) + 1.0f));
@@ -4836,13 +5025,13 @@ gg::GgPoints *gg::ggPointsSphere(GLuint nv, GLfloat radius,
     const float ct(cos(t));
     const float st(sin(t));
 
-    const GgVector p = { r * sp * ct + cx, r * sp * st + cy, r * cp + cz };
+    const GgVector p = { r * sp * ct + cx, r * sp * st + cy, r * cp + cz, 1.0f };
 
     pos.emplace_back(p);
   }
 
   // 点データの GgPoints オブジェクトを作成する
-  GgPoints *const points(new GgPoints(pos.data(), static_cast<GLuint>(pos.size()), GL_POINTS));
+  GgPoints *const points(new GgPoints(pos.data(), static_cast<GLsizei>(pos.size()), GL_POINTS));
 
   // GgPoints オブジェクトを返す
   return points;
@@ -4866,7 +5055,7 @@ gg::GgTriangles *gg::ggRectangle(GLfloat width, GLfloat height)
   }
 
   // 矩形の GgTrianges オブジェクトを作成する
-  return new GgTriangles(vert.data(), static_cast<GLint>(vert.size()), GL_TRIANGLE_STRIP);
+  return new GgTriangles(vert.data(), static_cast<GLsizei>(vert.size()), GL_TRIANGLE_STRIP);
 }
 
 /*
@@ -4892,7 +5081,7 @@ gg::GgTriangles *gg::ggEllipse(GLfloat width, GLfloat height, GLuint slices)
   }
 
   // GgTriangles オブジェクトを作成する
-  return new GgTriangles(vert.data(), static_cast<GLuint>(vert.size()), GL_TRIANGLE_FAN);
+  return new GgTriangles(vert.data(), static_cast<GLsizei>(vert.size()), GL_TRIANGLE_FAN);
 }
 
 /*
@@ -4901,14 +5090,14 @@ gg::GgTriangles *gg::ggEllipse(GLfloat width, GLfloat height, GLuint slices)
 gg::GgTriangles *gg::ggArraysObj(const char *name, bool normalize)
 {
   std::vector< std::array<GLuint, 3> > group;
-  std::vector<GgSimpleMaterial> material;
+  std::vector<GgSimpleShader::Material> material;
   std::vector<GgVertex> vert;
 
   // ファイルを読み込む
-  if (!ggLoadObj(name, group, material, vert, normalize)) return 0;
+  if (!ggLoadSimpleObj(name, group, material, vert, normalize)) return 0;
 
   // GgTriangles オブジェクトを作成する
-  return new GgTriangles(vert.data(), static_cast<GLuint>(vert.size()), GL_TRIANGLES);
+  return new GgTriangles(vert.data(), static_cast<GLsizei>(vert.size()), GL_TRIANGLES);
 }
 
 /*
@@ -4917,16 +5106,16 @@ gg::GgTriangles *gg::ggArraysObj(const char *name, bool normalize)
 gg::GgElements *gg::ggElementsObj(const char *name, bool normalize)
 {
   std::vector< std::array<GLuint, 3> > group;
-  std::vector<GgSimpleMaterial> material;
+  std::vector<GgSimpleShader::Material> material;
   std::vector<GgVertex> vert;
   std::vector<GLuint> face;
 
   // ファイルを読み込む
-  if (!ggLoadObj(name, group, material, vert, face, normalize)) return 0;
+  if (!ggLoadSimpleObj(name, group, material, vert, face, normalize)) return 0;
 
   // GgElements オブジェクトを作成する
-  return new GgElements(vert.data(), static_cast<GLuint>(vert.size()),
-    face.data(), static_cast<GLuint>(face.size()), GL_TRIANGLES);
+  return new GgElements(vert.data(), static_cast<GLsizei>(vert.size()),
+    face.data(), static_cast<GLsizei>(face.size()), GL_TRIANGLES);
 }
 
 /*
@@ -5021,8 +5210,8 @@ gg::GgElements *gg::ggElementsMesh(GLuint slices, GLuint stacks, const GLfloat (
   }
 
   // GgElements オブジェクトを作成する
-  return new GgElements(vert.data(), static_cast<GLuint>(vert.size()),
-    face.data(), static_cast<GLuint>(face.size()), GL_TRIANGLES);
+  return new GgElements(vert.data(), static_cast<GLsizei>(vert.size()),
+    face.data(), static_cast<GLsizei>(face.size()), GL_TRIANGLES);
 }
 
 /*
@@ -5066,234 +5255,6 @@ gg::GgElements *gg::ggElementsSphere(GLfloat radius, int slices, int stacks)
 }
 
 /*
-** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：環境光に対する反射係数を設定する
-**
-**   r 環境光に対する反射係数の赤成分
-**   g 環境光に対する反射係数の緑成分
-**   b 環境光に対する反射係数の青成分
-**   a 環境光に対する反射係数の不透明度, デフォルトは 1
-**   first 値を設定する材質データの最初の番号, デフォルトは 0
-**   count 値を設定する材質データの数, デフォルトは 1
-*/
-void gg::GgSimpleMaterialBuffer::loadMaterialAmbient(GLfloat r, GLfloat g, GLfloat b, GLfloat a,
-  GLuint first, GLuint count) const
-{
-  // データを格納するバッファオブジェクトの先頭のポインタ
-  char *const start(static_cast<char *>(map(first, count)));
-  for (GLuint i = 0; i < count; ++i)
-  {
-    // バッファオブジェクトの i 番目のブロックのポインタ
-    GgSimpleMaterial *material(reinterpret_cast<GgSimpleMaterial *>(start + getSize(i)));
-    material->ambient[0] = r;
-    material->ambient[1] = g;
-    material->ambient[2] = b;
-    material->ambient[3] = a;
-  }
-  unmap();
-}
-
-/*
-** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：環境光に対する反射係数を設定する
-**
-**   ambient 環境光に対する反射係数を格納した GLfloat 型の 4 要素の配列
-**   first 値を設定する材質データの最初の番号, デフォルトは 0
-**   count 値を設定する材質データの数, デフォルトは 1
-*/
-void gg::GgSimpleMaterialBuffer::loadMaterialAmbient(const GLfloat *ambient,
-  GLuint first, GLuint count) const
-{
-  // 0 を (GgSimpleMaterial *) にキャストして得たバッファオブジェクト上のポインタ
-  const GgSimpleMaterial *const pointer(static_cast<GgSimpleMaterial *>(0));
-
-  // バッファオブジェクト上の first 番目の要素の ambient 要素のバイトオフセット
-  const GLsizeiptr offset(reinterpret_cast<GLintptr>(pointer[first].ambient.data()));
-
-  // ambient 要素の要素数
-  const size_t size(pointer->ambient.size());
-
-  bind();
-  for (GLuint i = 0; i < count; ++i)
-  {
-    // i 番目のブロックの ambient 要素に値を設定する
-    glBufferSubData(getTarget(), offset + getSize(i), sizeof pointer->ambient, ambient + i * size);
-  }
-}
-
-/*
-** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：拡散反射係数を設定する
-**
-**   r 拡散反射係数の赤成分
-**   g 拡散反射係数の緑成分
-**   b 拡散反射係数の青成分
-**   a 拡散反射係数の不透明度, デフォルトは 1
-**   first 値を設定する材質データの最初の番号, デフォルトは 0
-**   count 値を設定する材質データの数, デフォルトは 1
-*/
-void gg::GgSimpleMaterialBuffer::loadMaterialDiffuse(GLfloat r, GLfloat g, GLfloat b, GLfloat a,
-  GLuint first, GLuint count) const
-{
-  // データを格納するバッファオブジェクトの先頭のポインタ
-  char *const start(static_cast<char *>(map(first, count)));
-  for (GLuint i = 0; i < count; ++i)
-  {
-    // バッファオブジェクトの i 番目のブロックのポインタ
-    GgSimpleMaterial *material(reinterpret_cast<GgSimpleMaterial *>(start + getSize(i)));
-    material->diffuse[0] = r;
-    material->diffuse[1] = g;
-    material->diffuse[2] = b;
-    material->diffuse[3] = a;
-  }
-  unmap();
-}
-
-/*
-** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：拡散反射係数を設定する
-**
-**   diffuse 拡散反射係数を格納した GLfloat 型の 4 要素の配列
-**   first 値を設定する材質データの最初の番号, デフォルトは 0
-**   count 値を設定する材質データの数, デフォルトは 1
-*/
-void gg::GgSimpleMaterialBuffer::loadMaterialDiffuse(const GLfloat *diffuse,
-  GLuint first, GLuint count) const
-{
-  // 0 を (GgSimpleMaterial *) にキャストして得たバッファオブジェクト上のポインタ
-  const GgSimpleMaterial *const pointer(static_cast<GgSimpleMaterial *>(0));
-
-  // バッファオブジェクト上の first 番目の要素の diffuse 要素のバイトオフセット
-  const GLsizeiptr offset(reinterpret_cast<GLintptr>(pointer[first].diffuse.data()));
-
-  // diffuse 要素の要素数
-  const size_t size(pointer->diffuse.size());
-
-  bind();
-  for (GLuint i = 0; i < count; ++i)
-  {
-    // i 番目のブロックの diffuse 要素に値を設定する
-    glBufferSubData(getTarget(), offset + getSize(i), sizeof pointer->diffuse, diffuse + i * size);
-  }
-}
-
-/*
-** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：鏡面反射係数を設定する
-**
-**   r 鏡面反射係数の赤成分
-**   g 鏡面反射係数の緑成分
-**   b 鏡面反射係数の青成分
-**   a 鏡面反射係数の不透明度, デフォルトは 1
-**   first 値を設定する材質データの最初の番号, デフォルトは 0
-**   count 値を設定する材質データの数, デフォルトは 1
-*/
-void gg::GgSimpleMaterialBuffer::loadMaterialSpecular(GLfloat r, GLfloat g, GLfloat b, GLfloat a,
-  GLuint first, GLuint count) const
-{
-  // データを格納するバッファオブジェクトの先頭のポインタ
-  char *const start(static_cast<char *>(map(first, count)));
-  for (GLuint i = 0; i < count; ++i)
-  {
-    // バッファオブジェクトの i 番目のブロックのポインタ
-    GgSimpleMaterial *material(reinterpret_cast<GgSimpleMaterial *>(start + getSize(i)));
-    material->specular[0] = r;
-    material->specular[1] = g;
-    material->specular[2] = b;
-    material->specular[3] = a;
-  }
-  unmap();
-}
-
-/*
-** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：鏡面反射係数を設定する
-**
-**   specular 鏡面反射係数を格納した GLfloat 型の 4 要素の配列
-**   first 値を設定する材質データの最初の番号, デフォルトは 0
-**   count 値を設定する材質データの数, デフォルトは 1
-*/
-void gg::GgSimpleMaterialBuffer::loadMaterialSpecular(const GLfloat *specular,
-  GLuint first, GLuint count) const
-{
-  // 0 を (GgSimpleMaterial *) にキャストして得たバッファオブジェクト上のポインタ
-  const GgSimpleMaterial *const pointer(static_cast<GgSimpleMaterial *>(0));
-
-  // バッファオブジェクト上の first 番目の要素の specular 要素のバイトオフセット
-  const GLsizeiptr offset(reinterpret_cast<GLintptr>(pointer[first].specular.data()));
-
-  // specular 要素の要素数
-  const size_t size(pointer->specular.size());
-
-  bind();
-  for (GLuint i = 0; i < count; ++i)
-  {
-    // i 番目のブロックの specular 要素に値を設定する
-    glBufferSubData(getTarget(), offset + getSize(i), sizeof pointer->specular, specular + i * size);
-  }
-}
-
-/*
-** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：輝き係数を設定する
-**
-**   shininess 輝き係数
-**   first 値を設定する材質データの最初の番号, デフォルトは 0
-**   count 値を設定する材質データの数, デフォルトは 1
-*/
-void gg::GgSimpleMaterialBuffer::loadMaterialShininess(GLfloat shininess,
-  GLuint first, GLuint count) const
-{
-  // データを格納するバッファオブジェクトの先頭のポインタ
-  char *const start(static_cast<char *>(map(first, count)));
-  for (GLuint i = 0; i < count; ++i)
-  {
-    // バッファオブジェクトの i 番目のブロックのポインタ
-    GgSimpleMaterial *material(reinterpret_cast<GgSimpleMaterial *>(start + getSize(i)));
-    material->shininess = shininess;
-  }
-  unmap();
-}
-
-/*
-** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：輝き係数を設定する
-**
-**   shininess 輝き係数
-**   first 値を設定する材質データの最初の番号, デフォルトは 0
-**   count 値を設定する材質データの数, デフォルトは 1
-*/
-void gg::GgSimpleMaterialBuffer::loadMaterialShininess(const GLfloat *shininess,
-  GLuint first, GLuint count) const
-{
-  // データを格納するバッファオブジェクトの先頭のポインタ
-  char *const start(static_cast<char *>(map(first, count)));
-  for (GLuint i = 0; i < count; ++i)
-  {
-    // バッファオブジェクトの i 番目のブロックのポインタ
-    GgSimpleMaterial *material(reinterpret_cast<GgSimpleMaterial *>(start + getSize(i)));
-    material->shininess = shininess[i];
-  }
-  unmap();
-}
-
-/*
-** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：材質を設定する
-**
-**   material 光源の特性の gg::GgSimpleShader::GgSimpleMaterial 構造体のポインタ
-**   first 値を設定する光源データの最初の番号, デフォルトは 0
-**   count 値を設定する光源データの数, デフォルトは 1
-*/
-void gg::GgSimpleMaterialBuffer::loadMaterial(const GgSimpleMaterial *material,
-  GLuint first, GLuint count) const
-{
-  // 0 を (GgSimpleMaterial *) にキャストして得たバッファオブジェクト上のポインタ
-  const GgSimpleMaterial *const pointer(static_cast<GgSimpleMaterial *>(0));
-
-  // バッファオブジェクト上の first 番目の要素の specular 要素のバイトオフセット
-  const GLsizeiptr offset(reinterpret_cast<GLintptr>(pointer + first));
-
-  bind();
-  for (GLuint i = 0; i < count; ++i)
-  {
-    // i 番目のブロックに値を設定する
-    glBufferSubData(getTarget(), offset + getSize(i), sizeof *material, material + i);
-  }
-}
-
-/*
 ** 三角形に単純な陰影付けを行うシェーダが参照する光源データ：光源の強度の環境光成分を設定する
 **
 **   r 光源の強度の環境光成分の赤成分
@@ -5303,48 +5264,23 @@ void gg::GgSimpleMaterialBuffer::loadMaterial(const GgSimpleMaterial *material,
 **   first 値を設定する光源データの最初の番号, デフォルトは 0
 **   count 値を設定する光源データの数, デフォルトは 1
 */
-void gg::GgSimpleLightBuffer::loadLightAmbient(GLfloat r, GLfloat g, GLfloat b, GLfloat a,
-  GLuint first, GLuint count) const
+void gg::GgSimpleShader::LightBuffer::loadLightAmbient(GLfloat r, GLfloat g, GLfloat b, GLfloat a,
+  GLint first, GLsizei count) const
 {
   // データを格納するバッファオブジェクトの先頭のポインタ
   char *const start(static_cast<char *>(map(first, count)));
-  for (GLuint i = 0; i < count; ++i)
+  for (GLsizei i = 0; i < count; ++i)
   {
     // バッファオブジェクトの i 番目のブロックのポインタ
-    GgSimpleLight *light(reinterpret_cast<GgSimpleLight *>(start + getSize(i)));
+    Light *const light(reinterpret_cast<Light *>(start + getStride() * i));
+
+    // 光源の環境光成分を設定する
     light->ambient[0] = r;
     light->ambient[1] = g;
     light->ambient[2] = b;
     light->ambient[3] = a;
   }
   unmap();
-}
-
-/*
-** 三角形に単純な陰影付けを行うシェーダが参照する光源データ：光源の強度の環境光成分を設定する
-**
-**   ambient 光源の強度の環境光成分を格納した GLfloat 型の 4 要素の配列
-**   first 値を設定する光源データの最初の番号, デフォルトは 0
-**   count 値を設定する光源データの数, デフォルトは 1
-*/
-void gg::GgSimpleLightBuffer::loadLightAmbient(const GLfloat *ambient,
-  GLuint first, GLuint count) const
-{
-  // 0 を (GgSimpleLight *) にキャストして得たバッファオブジェクト上のポインタ
-  const GgSimpleLight *const pointer(static_cast<GgSimpleLight *>(0));
-
-  // バッファオブジェクト上の first 番目の要素の ambient 要素のバイトオフセット
-  const GLsizeiptr offset(reinterpret_cast<GLintptr>(pointer[first].ambient.data()));
-
-  // ambient 要素の要素数
-  const size_t size(pointer->ambient.size());
-
-  bind();
-  for (GLuint i = 0; i < count; ++i)
-  {
-    // i 番目のブロックの ambient 要素に値を設定する
-    glBufferSubData(getTarget(), offset + getSize(i), sizeof pointer->ambient, ambient + i * size);
-  }
 }
 
 /*
@@ -5357,48 +5293,23 @@ void gg::GgSimpleLightBuffer::loadLightAmbient(const GLfloat *ambient,
 **   first 値を設定する光源データの最初の番号, デフォルトは 0
 **   count 値を設定する光源データの数, デフォルトは 1
 */
-void gg::GgSimpleLightBuffer::loadLightDiffuse(GLfloat r, GLfloat g, GLfloat b, GLfloat a,
-  GLuint first, GLuint count) const
+void gg::GgSimpleShader::LightBuffer::loadLightDiffuse(GLfloat r, GLfloat g, GLfloat b, GLfloat a,
+  GLint first, GLsizei count) const
 {
   // データを格納するバッファオブジェクトの先頭のポインタ
   char *const start(static_cast<char *>(map(first, count)));
-  for (GLuint i = 0; i < count; ++i)
+  for (GLsizei i = 0; i < count; ++i)
   {
     // バッファオブジェクトの i 番目のブロックのポインタ
-    GgSimpleLight *light(reinterpret_cast<GgSimpleLight *>(start + getSize(i)));
+    Light *const light(reinterpret_cast<Light *>(start + getStride() * i));
+
+    // 光源の拡散反射光成分を設定する
     light->diffuse[0] = r;
     light->diffuse[1] = g;
     light->diffuse[2] = b;
     light->diffuse[3] = a;
   }
   unmap();
-}
-
-/*
-** 三角形に単純な陰影付けを行うシェーダが参照する光源データ：光源の強度の拡散反射光成分を設定する
-**
-**   diffuse 光源の強度の拡散反射光成分を格納した GLfloat 型の 4 要素の配列
-**   first 値を設定する光源データの最初の番号, デフォルトは 0
-**   count 値を設定する光源データの数, デフォルトは 1
-*/
-void gg::GgSimpleLightBuffer::loadLightDiffuse(const GLfloat *diffuse,
-  GLuint first, GLuint count) const
-{
-  // 0 を (GgSimpleLight *) にキャストして得たバッファオブジェクト上のポインタ
-  const GgSimpleLight *const pointer(static_cast<GgSimpleLight *>(0));
-
-  // バッファオブジェクト上の first 番目の要素の diffuse 要素のバイトオフセット
-  const GLsizeiptr offset(reinterpret_cast<GLintptr>(pointer[first].diffuse.data()));
-
-  // diffuse 要素の要素数
-  const size_t size(pointer->diffuse.size());
-
-  bind();
-  for (GLuint i = 0; i < count; ++i)
-  {
-    // i 番目のブロックの ambient 要素に値を設定する
-    glBufferSubData(getTarget(), offset + getSize(i), sizeof pointer->diffuse, diffuse + i * size);
-  }
 }
 
 /*
@@ -5411,15 +5322,17 @@ void gg::GgSimpleLightBuffer::loadLightDiffuse(const GLfloat *diffuse,
 **   first 値を設定する光源データの最初の番号, デフォルトは 0
 **   count 値を設定する光源データの数, デフォルトは 1
 */
-void gg::GgSimpleLightBuffer::loadLightSpecular(GLfloat r, GLfloat g, GLfloat b, GLfloat a,
-  GLuint first, GLuint count) const
+void gg::GgSimpleShader::LightBuffer::loadLightSpecular(GLfloat r, GLfloat g, GLfloat b, GLfloat a,
+  GLint first, GLsizei count) const
 {
   // データを格納するバッファオブジェクトの先頭のポインタ
   char *const start(static_cast<char *>(map(first, count)));
-  for (GLuint i = 0; i < count; ++i)
+  for (GLsizei i = 0; i < count; ++i)
   {
     // バッファオブジェクトの i 番目のブロックのポインタ
-    GgSimpleLight *light(reinterpret_cast<GgSimpleLight *>(start + getSize(i)));
+    Light *const light(reinterpret_cast<Light *>(start + getStride() * i));
+
+    // 光源の鏡面反射光成分を設定する
     light->specular[0] = r;
     light->specular[1] = g;
     light->specular[2] = b;
@@ -5429,48 +5342,23 @@ void gg::GgSimpleLightBuffer::loadLightSpecular(GLfloat r, GLfloat g, GLfloat b,
 }
 
 /*
-** 三角形に単純な陰影付けを行うシェーダが参照する光源データ：光源の強度の鏡面反射光成分を設定する
-**
-**   specular 光源の強度の鏡面反射光成分を格納した GLfloat 型の 4 要素の配列
-**   first 値を設定する光源データの最初の番号, デフォルトは 0
-**   count 値を設定する光源データの数, デフォルトは 1
-*/
-void gg::GgSimpleLightBuffer::loadLightSpecular(const GLfloat *specular,
-  GLuint first, GLuint count) const
-{
-  // 0 を (GgSimpleLight *) にキャストして得たバッファオブジェクト上のポインタ
-  const GgSimpleLight *const pointer(static_cast<GgSimpleLight *>(0));
-
-  // バッファオブジェクト上の first 番目の要素の specular 要素のバイトオフセット
-  const GLsizeiptr offset(reinterpret_cast<GLintptr>(pointer[first].specular.data()));
-
-  // specular 要素の要素数
-  const size_t size(pointer->specular.size());
-
-  bind();
-  for (GLuint i = 0; i < count; ++i)
-  {
-    // i 番目のブロックの ambient 要素に値を設定する
-    glBufferSubData(getTarget(), offset + getSize(i), sizeof pointer->specular, specular + i * size);
-  }
-}
-
-/*
 ** 三角形に単純な陰影付けを行うシェーダが参照する光源データ：光源の色を設定するが位置は変更しない
 **
-**   material 光源の特性の gg::GgSimpleShader::GgSimpleLight 構造体
+**   material 光源の特性の GgSimpleShader::Light 構造体
 **   first 値を設定する光源データの最初の番号, デフォルトは 0
 **   count 値を設定する光源データの数, デフォルトは 1
 */
-void gg::GgSimpleLightBuffer::loadLightMaterial(const GgSimpleLight &material,
-  GLuint first, GLuint count) const
+void gg::GgSimpleShader::LightBuffer::loadLightMaterial(const Light &material,
+  GLint first, GLsizei count) const
 {
   // データを格納するバッファオブジェクトの先頭のポインタ
   char *const start(static_cast<char *>(map(first, count)));
-  for (GLuint i = 0; i < count; ++i)
+  for (GLsizei i = 0; i < count; ++i)
   {
     // バッファオブジェクトの i 番目のブロックのポインタ
-    GgSimpleLight *light(reinterpret_cast<GgSimpleLight *>(start + getSize(i)));
+    Light *const light(reinterpret_cast<Light *>(start + getStride() * i));
+
+    // 光源の色を設定する
     light->ambient = material.ambient;
     light->diffuse = material.diffuse;
     light->specular = material.specular;
@@ -5488,15 +5376,17 @@ void gg::GgSimpleLightBuffer::loadLightMaterial(const GgSimpleLight &material,
 **   first 値を設定する光源データの最初の番号, デフォルトは 0
 **   count 値を設定する光源データの数, デフォルトは 1
 */
-void gg::GgSimpleLightBuffer::loadLightPosition(GLfloat x, GLfloat y, GLfloat z, GLfloat w,
-  GLuint first, GLuint count) const
+void gg::GgSimpleShader::LightBuffer::loadLightPosition(GLfloat x, GLfloat y, GLfloat z, GLfloat w,
+  GLint first, GLsizei count) const
 {
   // データを格納するバッファオブジェクトの先頭のポインタ
   char *const start(static_cast<char *>(map(first, count)));
-  for (GLuint i = 0; i < count; ++i)
+  for (GLsizei i = 0; i < count; ++i)
   {
     // バッファオブジェクトの i 番目のブロックのポインタ
-    GgSimpleLight *light(reinterpret_cast<GgSimpleLight *>(start + getSize(i)));
+    Light *const light(reinterpret_cast<Light *>(start + getStride() * i));
+
+    // 光源の位置を設定する
     light->position[0] = x;
     light->position[1] = y;
     light->position[2] = z;
@@ -5508,52 +5398,222 @@ void gg::GgSimpleLightBuffer::loadLightPosition(GLfloat x, GLfloat y, GLfloat z,
 /*
 ** 三角形に単純な陰影付けを行うシェーダが参照する光源データ：光源の位置を設定する
 **
-**   position 光源の位置の同次座標を格納した GLfloat 型の 4 要素の配列
+**   position 光源の位置
 **   first 値を設定する光源データの最初の番号, デフォルトは 0
 **   count 値を設定する光源データの数, デフォルトは 1
 */
-void gg::GgSimpleLightBuffer::loadLightPosition(const GLfloat *position,
-  GLuint first, GLuint count) const
+void gg::GgSimpleShader::LightBuffer::loadLightPosition(const GgVector &position,
+  GLint first, GLsizei count) const
 {
-  // 0 を (GgSimpleLight *) にキャストして得たバッファオブジェクト上のポインタ
-  const GgSimpleLight *const pointer(static_cast<GgSimpleLight *>(0));
-
-  // バッファオブジェクト上の first 番目の要素の position 要素のバイトオフセット
-  const GLsizeiptr offset(reinterpret_cast<GLintptr>(pointer[first].position.data()));
-
-  // position 要素の要素数
-  const size_t size(pointer->position.size());
-
-  bind();
-  for (GLuint i = 0; i < count; ++i)
+  // データを格納するバッファオブジェクトの先頭のポインタ
+  char *const start(static_cast<char *>(map(first, count)));
+  for (GLsizei i = 0; i < count; ++i)
   {
-    // i 番目のブロックの ambient 要素に値を設定する
-    glBufferSubData(getTarget(), offset + getSize(i), sizeof pointer->position, position + i * size);
+    // バッファオブジェクトの i 番目のブロックのポインタ
+    Light *const light(reinterpret_cast<Light *>(start + getStride() * i));
+
+    // 光源の位置を設定する
+    light->position = position;
+  }
+  unmap();
+}
+
+/*
+** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：環境光に対する反射係数を設定する
+**
+**   r 環境光に対する反射係数の赤成分
+**   g 環境光に対する反射係数の緑成分
+**   b 環境光に対する反射係数の青成分
+**   a 環境光に対する反射係数の不透明度, デフォルトは 1
+**   first 値を設定する材質データの最初の番号, デフォルトは 0
+**   count 値を設定する材質データの数, デフォルトは 1
+*/
+void gg::GgSimpleShader::MaterialBuffer::loadMaterialAmbient(GLfloat r, GLfloat g, GLfloat b, GLfloat a,
+  GLint first, GLsizei count) const
+{
+  // データを格納するバッファオブジェクトの先頭のポインタ
+  char *const start(static_cast<char *>(map(first, count)));
+  for (GLsizei i = 0; i < count; ++i)
+  {
+    // バッファオブジェクトの i 番目のブロックのポインタ
+    Material *const material(reinterpret_cast<Material *>(start + getStride() * i));
+
+    // 環境光に対する反射係数を設定する
+    material->ambient[0] = r;
+    material->ambient[1] = g;
+    material->ambient[2] = b;
+    material->ambient[3] = a;
+  }
+  unmap();
+}
+
+/*
+** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：拡散反射係数を設定する
+**
+**   r 拡散反射係数の赤成分
+**   g 拡散反射係数の緑成分
+**   b 拡散反射係数の青成分
+**   a 拡散反射係数の不透明度, デフォルトは 1
+**   first 値を設定する材質データの最初の番号, デフォルトは 0
+**   count 値を設定する材質データの数, デフォルトは 1
+*/
+void gg::GgSimpleShader::MaterialBuffer::loadMaterialDiffuse(GLfloat r, GLfloat g, GLfloat b, GLfloat a,
+  GLint first, GLsizei count) const
+{
+  // データを格納するバッファオブジェクトの先頭のポインタ
+  char *const start(static_cast<char *>(map(first, count)));
+  for (GLsizei i = 0; i < count; ++i)
+  {
+    // バッファオブジェクトの i 番目のブロックのポインタ
+    Material *const material(reinterpret_cast<Material *>(start + getStride() * i));
+
+    // 拡散反射係数を設定する
+    material->diffuse[0] = r;
+    material->diffuse[1] = g;
+    material->diffuse[2] = b;
+    material->diffuse[3] = a;
+  }
+  unmap();
+}
+
+/*
+** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：環境光に対する反射係数と拡散反射係数を設定する
+**
+**   r 環境光に対する反射係数と拡散反射係数の赤成分
+**   g 環境光に対する反射係数と拡散反射係数の緑成分
+**   b 環境光に対する反射係数と拡散反射係数の青成分
+**   a 環境光に対する反射係数と拡散反射係数の不透明度, デフォルトは 1
+**   first 値を設定する材質データの最初の番号, デフォルトは 0
+**   count 値を設定する材質データの数, デフォルトは 1
+*/
+void gg::GgSimpleShader::MaterialBuffer::loadMaterialAmbientAndDiffuse(GLfloat r, GLfloat g, GLfloat b, GLfloat a,
+  GLint first, GLsizei count) const
+{
+  // データを格納するバッファオブジェクトの先頭のポインタ
+  char *const start(static_cast<char *>(map(first, count)));
+  for (GLsizei i = 0; i < count; ++i)
+  {
+    // バッファオブジェクトの i 番目のブロックのポインタ
+    Material *const material(reinterpret_cast<Material *>(start + getStride() * i));
+
+    // 環境光に対する反射係数と拡散反射係数を設定する
+    material->ambient[0] = material->diffuse[0] = r;
+    material->ambient[1] = material->diffuse[1] = g;
+    material->ambient[2] = material->diffuse[2] = b;
+    material->ambient[3] = material->diffuse[3] = a;
+  }
+  unmap();
+}
+
+/*
+** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：環境光に対する反射係数と拡散反射係数を設定する
+**
+**   color 環境光に対する反射係数と拡散反射係数を格納した GLfloat 型の 4 要素の配列
+**   first 値を設定する材質データの最初の番号, デフォルトは 0
+**   count 値を設定する材質データの数, デフォルトは 1
+*/
+void gg::GgSimpleShader::MaterialBuffer::loadMaterialAmbientAndDiffuse(const GLfloat *color,
+  GLint first, GLsizei count) const
+{
+  // ambient 要素のバイトオフセット
+  constexpr GLint ambientOffset(offsetof(Material, ambient));
+
+  // ambient 要素のバイト数
+  constexpr size_t ambientSize(sizeof (Material::diffuse));
+
+  // diffuse 要素のバイトオフセット
+  constexpr GLint diffuseOffset(offsetof(Material, diffuse));
+
+  // diffuse 要素のバイト数
+  constexpr size_t diffuseSize(sizeof (Material::diffuse));
+
+  // 元のデータの先頭
+  const char *source(reinterpret_cast<const char *>(color));
+
+  // first 番目のブロックから count 個の ambient 要素と diffuse 要素に値を設定する
+  bind();
+  for (GLsizei i = 0; i < count; ++i)
+  {
+    // 格納先
+    const GLsizeiptr destination(getStride() * (first + i));
+
+    // first + i 番目のブロックの ambient 要素に値を設定する
+    glBufferSubData(getTarget(), destination + ambientOffset, ambientSize, source + i * ambientSize);
+
+    // first + i 番目のブロックの diffuse 要素に値を設定する
+    glBufferSubData(getTarget(), destination + diffuseOffset, diffuseSize, source + i * diffuseSize);
   }
 }
 
 /*
-** 三角形に単純な陰影付けを行うシェーダが参照する光源データ：光源の色と位置を設定する
+** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：鏡面反射係数を設定する
 **
-**   light 光源の特性の gg::GgSimpleShader::GgSimpleLight 構造体のポインタ
-**   first 値を設定する光源データの最初の番号, デフォルトは 0
-**   count 値を設定する光源データの数, デフォルトは 1
+**   r 鏡面反射係数の赤成分
+**   g 鏡面反射係数の緑成分
+**   b 鏡面反射係数の青成分
+**   a 鏡面反射係数の不透明度, デフォルトは 1
+**   first 値を設定する材質データの最初の番号, デフォルトは 0
+**   count 値を設定する材質データの数, デフォルトは 1
 */
-void gg::GgSimpleLightBuffer::loadLight(const GgSimpleLight *light,
-  GLuint first, GLuint count) const
+void gg::GgSimpleShader::MaterialBuffer::loadMaterialSpecular(GLfloat r, GLfloat g, GLfloat b, GLfloat a,
+  GLint first, GLsizei count) const
 {
-  // 0 を (GgSimpleLight *) にキャストして得たバッファオブジェクト上のポインタ
-  const GgSimpleLight *const pointer(static_cast<GgSimpleLight *>(0));
-
-  // バッファオブジェクト上の first 番目の要素の position 要素のバイトオフセット
-  const GLsizeiptr offset(reinterpret_cast<GLintptr>(pointer + first));
-
-  bind();
-  for (GLuint i = 0; i < count; ++i)
+  // データを格納するバッファオブジェクトの先頭のポインタ
+  char *const start(static_cast<char *>(map(first, count)));
+  for (GLsizei i = 0; i < count; ++i)
   {
-    // i 番目のブロックに値を設定する
-    glBufferSubData(getTarget(), offset + getSize(i), sizeof *light, light + i);
+    // バッファオブジェクトの i 番目のブロックのポインタ
+    Material *const material(reinterpret_cast<Material *>(start + getStride() * i));
+
+    // 鏡面反射係数を設定する
+    material->specular[0] = r;
+    material->specular[1] = g;
+    material->specular[2] = b;
+    material->specular[3] = a;
   }
+  unmap();
+}
+
+/*
+** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：輝き係数を設定する
+**
+**   shininess 輝き係数
+**   first 値を設定する材質データの最初の番号, デフォルトは 0
+**   count 値を設定する材質データの数, デフォルトは 1
+*/
+void gg::GgSimpleShader::MaterialBuffer::loadMaterialShininess(GLfloat shininess,
+  GLint first, GLsizei count) const
+{
+  // データを格納するバッファオブジェクトの先頭のポインタ
+  char *const start(static_cast<char *>(map(first, count)));
+  for (GLsizei i = 0; i < count; ++i)
+  {
+    // バッファオブジェクトの i 番目のブロックのポインタ
+    Material *const material(reinterpret_cast<Material *>(start + getStride() * i));
+    material->shininess = shininess;
+  }
+  unmap();
+}
+
+/*
+** 三角形に単純な陰影付けを行うシェーダが参照する材質データ：輝き係数を設定する
+**
+**   shininess 輝き係数
+**   first 値を設定する材質データの最初の番号, デフォルトは 0
+**   count 値を設定する材質データの数, デフォルトは 1
+*/
+void gg::GgSimpleShader::MaterialBuffer::loadMaterialShininess(const GLfloat *shininess,
+  GLint first, GLsizei count) const
+{
+  // データを格納するバッファオブジェクトの先頭のポインタ
+  char *const start(static_cast<char *>(map(first, count)));
+  for (GLsizei i = 0; i < count; ++i)
+  {
+    // バッファオブジェクトの i 番目のブロックのポインタ
+    Material *const material(reinterpret_cast<Material *>(start + getStride() * i));
+    material->shininess = shininess[i];
+  }
+  unmap();
 }
 
 /*
@@ -5573,7 +5633,7 @@ gg::GgSimpleShader::GgSimpleShader(const char *vert, const char *frag,
 /*
 ** Wavefront OBJ 形式のデータ：コンストラクタ
 */
-gg::GgObj::GgObj(const char *name, const GgSimpleShader *shader, bool normalize)
+gg::GgSimpleObj::GgSimpleObj(const char *name, const GgSimpleShader *shader, bool normalize)
 {
   // メンバの初期値
   this->data = nullptr;
@@ -5581,35 +5641,35 @@ gg::GgObj::GgObj(const char *name, const GgSimpleShader *shader, bool normalize)
   this->shader = shader;
 
   // 作業用のメモリ
-  std::vector<GgSimpleMaterial> mat;
+  std::vector<GgSimpleShader::Material> mat;
   std::vector<GgVertex> vert;
   std::vector<GLuint> face;
 
   // ファイルを読み込む
-  if (ggLoadObj(name, group, mat, vert, face, normalize))
+  if (ggLoadSimpleObj(name, group, mat, vert, face, normalize))
   {
     // 頂点バッファオブジェクトを作成する
-    data = new GgElements(vert.data(), static_cast<GLuint>(vert.size()),
-      face.data(), static_cast<GLuint>(face.size()), GL_TRIANGLES);
+    data = new GgElements(vert.data(), static_cast<GLsizei>(vert.size()),
+      face.data(), static_cast<GLsizei>(face.size()), GL_TRIANGLES);
 
     // 材質データを設定する
-    material = new GgSimpleMaterialBuffer(mat.data(), static_cast<GLuint>(mat.size()));
+    material = new GgSimpleShader::MaterialBuffer(mat.data(), static_cast<GLsizei>(mat.size()));
   }
 }
 
 /*
 ** Wavefront OBJ 形式のデータ：図形の描画
 */
-void gg::GgObj::draw(GLuint first, GLsizei count) const
+void gg::GgSimpleObj::draw(GLint first, GLsizei count) const
 {
   // 保持しているグループの数
-  const GLuint ng(static_cast<GLuint>(group.size()));
+  const GLsizei ng(static_cast<GLsizei>(group.size()));
 
   // 描画する最後のグループの次
-  GLuint last(count <= 0 ? ng : first + count);
+  GLsizei last(count <= static_cast<GLsizei>(0) ? ng : first + count);
   if (last > ng) last = ng;
 
-  for (GLuint g = first; g < last; ++g)
+  for (GLsizei g = first; g < last; ++g)
   {
     // 材質を設定する
     if (shader) shader->selectMaterial(material, group[g][2]);

@@ -14,11 +14,7 @@ const int eyeCount(ovrEye_Count);
 #  pragma comment(lib, "libOVR.lib")
 #endif
 
-// 設定ファイルは JSON で読み書きする
-#include "picojson.h"
-
 // 標準ライブラリ
-#include <iostream>
 #include <fstream>
 
 // ジョイスティック番号の最大値
@@ -26,16 +22,16 @@ const int maxJoystick(4);
 
 #if OVR_PRODUCT_VERSION > 0
 // GetDefaultAdapterLuid のため
-#if defined(_WIN32)
-#include <dxgi.h>
-#  pragma comment(lib, "dxgi.lib")
-#endif
+#  if defined(_WIN32)
+#    include <dxgi.h>
+#    pragma comment(lib, "dxgi.lib")
+#  endif
 
 static ovrGraphicsLuid GetDefaultAdapterLuid()
 {
   ovrGraphicsLuid luid = ovrGraphicsLuid();
 
-#if defined(_WIN32)
+#  if defined(_WIN32)
   IDXGIFactory* factory = nullptr;
 
   if (SUCCEEDED(CreateDXGIFactory(IID_PPV_ARGS(&factory))))
@@ -53,7 +49,7 @@ static ovrGraphicsLuid GetDefaultAdapterLuid()
 
     factory->Release();
   }
-#endif
+#  endif
 
   return luid;
 }
@@ -303,7 +299,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
     // Oculus Rift の情報を取り出す
     hmdDesc = ovr_GetHmdDesc(session);
 
-#  if DEBUG
+#  if defined(DEBUG)
     // Oculus Rift の情報を表示する
     std::cerr
       << "\nProduct name: " << hmdDesc.ProductName
@@ -690,9 +686,9 @@ bool Window::start()
 //
 void Window::swapBuffers()
 {
-#if DEBUG
+#if defined(DEBUG)
   // エラーチェック
-  ggError(__FILE__, __LINE__);
+  ggError();
 #endif
 
   // Oculus Rift 使用時
@@ -1174,12 +1170,12 @@ void Window::mouse(GLFWwindow *window, int button, int action, int mods)
       if (action)
       {
         // トラックボール処理開始
-        instance->trackball.start(float(x), float(y));
+        instance->trackball.begin(float(x), float(y));
       }
       else
       {
         // トラックボール処理終了
-        instance->trackball.stop(float(x), float(y));
+        instance->trackball.end(float(x), float(y));
       }
       break;
 

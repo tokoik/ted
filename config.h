@@ -4,24 +4,12 @@
 // 各種設定
 //
 
-// デバッグモード
-#if !defined(DEBUG)
-#  if defined(_DEBUG)
-#    define DEBUG 1
-#  else
-#    define DEBUG 0
-#  endif
-#endif
-
 // 補助プログラム
 #include "gg.h"
 using namespace gg;
 
 // JSON
 #include "picojson.h"
-
-// 標準ライブラリ
-#include <string>
 
 // 立体視の設定
 enum StereoMode
@@ -116,7 +104,7 @@ const GLfloat parallaxStep(0.001f);
 const int backBufferMultisample(0);
 
 // 光源
-const GgSimpleLight lightData =
+const GgSimpleShader::Light lightData =
 {
   { 0.2f, 0.2f, 0.2f, 0.4f },                           // 環境光成分
   { 1.0f, 1.0f, 1.0f, 0.0f },                           // 拡散反射光成分
@@ -125,7 +113,7 @@ const GgSimpleLight lightData =
 };
 
 // 材質
-const GgSimpleMaterial materialData =
+const GgSimpleShader::Material materialData =
 {
   { 0.8f, 0.8f, 0.8f, 1.0f },                           // 環境光の反射係数
   { 0.8f, 0.8f, 0.8f, 1.0f },                           // 拡散反射係数

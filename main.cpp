@@ -2,37 +2,26 @@
 // TelExistence Display System
 //
 
-// 各種設定
-#include "config.h"
+// ウィンドウ関連の処理
+#include "Window.h"
 
 // ネットワーク関連の処理
 #include "Network.h"
 
-// ウィンドウ関連の処理
-#include "Window.h"
+// 共有メモリ
+#include "SharedMemory.h"
 
 // カメラ関連の処理
-#include "Camera.h"
 #include "CamCv.h"
 #include "CamOv.h"
 #include "CamImage.h"
 #include "CamRemote.h"
-
-// Leap Motion
-#include "LeapListener.h"
 
 // シーングラフ
 #include "Scene.h"
 
 // 矩形
 #include "Rect.h"
-
-// 共有メモリ
-#include "SharedMemory.h"
-
-// 標準ライブラリ
-#include <iostream>
-#include <typeinfo>
 
 // ウィンドウモード時のウィンドウサイズの初期値
 const int defaultWindowWidth(960);
@@ -400,10 +389,10 @@ int main(int argc, const char *const *const argv)
   }
 
   // 光源
-  const GgSimpleLightBuffer light(lightData);
+  const GgSimpleShader::LightBuffer light(lightData);
 
   // 材質
-  const GgSimpleMaterialBuffer material(materialData);
+  const GgSimpleShader::MaterialBuffer material(materialData);
 
   // カリング
   glCullFace(GL_BACK);
@@ -476,6 +465,7 @@ int main(int argc, const char *const *const argv)
         simple.selectMaterial(material);
 
         // 図形を描画する
+        printf("%d\n", eye);
         if (window.showScene) scene.draw(window.getMp(eye), window.getMv(eye) * mo);
 
         // 片目の処理を完了する

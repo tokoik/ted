@@ -1,10 +1,16 @@
+//
+// ネットワーク関連の処理
+//
 #include "Network.h"
-#include "Window.h"
+
+// Winsock 2 
 #if defined(_WIN32)
 #  include <ws2tcpip.h>
 #  pragma comment(lib, "ws2_32.lib")
 #endif
-#include <iostream>
+
+// ウィンドウ関連の処理
+#include "Window.h"
 
 // 最大データサイズ
 const unsigned int maxSize(65507);
@@ -29,7 +35,7 @@ int Network::getError() const
 {
   const int err(WSAGetLastError());
 
-#if DEBUG
+#if defined(DEBUG)
   switch (err)
   {
   case WSAEACCES: std::cerr << "WSAEACCES\n"; break;
@@ -201,7 +207,7 @@ bool Network::isWorker() const
 // リモートのアドレス
 bool Network::checkRemote() const
 {
-#if DEBUG
+#if defined(DEBUG)
   std::cerr << '['
     << static_cast<int>(recvAddr.sin_addr.S_un.S_un_b.s_b1) << '.'
     << static_cast<int>(recvAddr.sin_addr.S_un.S_un_b.s_b2) << '.'
@@ -303,7 +309,7 @@ int Network::recvData(void *buf, unsigned int len)
     if (++count > limit)
     {
       // パケット数が多すぎる
-#if DEBUG
+#if defined(DEBUG)
       std::cerr << "too many packets\n";
 #endif
       return -1;
@@ -316,13 +322,13 @@ int Network::recvData(void *buf, unsigned int len)
     if (size < 0)
     {
       // 短すぎるパケット
-#if DEBUG
+#if defined(DEBUG)
       std::cerr << "too short\n";
 #endif
       return -1;
     }
 
-#if DEBUG
+#if defined(DEBUG)
     // シーケンス番号・データサイズ
     std::cerr << "recv seq:" << total - packet.count << ", size:" << size << "\n";
 #endif
@@ -334,7 +340,7 @@ int Network::recvData(void *buf, unsigned int len)
     if (pos > len - size)
     {
       // オーバーフロー
-#if DEBUG
+#if defined(DEBUG)
       std::cerr << "buffer overflow\n";
 #endif
       return -1;
@@ -378,7 +384,7 @@ unsigned int Network::sendData(const void *buf, unsigned int len) const
     // ペイロードに 1 パケット分データをコピーする
     memcpy(packet.data, ptr, size);
 
-#if DEBUG
+#if defined(DEBUG)
     // シーケンス番号・データサイズ
     std::cerr << "send seq:" << count << ", size:" << size << "\n";
 #endif

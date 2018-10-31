@@ -3,18 +3,14 @@
 //
 #include "LeapListener.h"
 
+// 共有メモリ
+#include "SharedMemory.h"
+
 // デバッグメッセージの出力
 #undef VERBOSE
 
 // Leap Motion のライブラリファイル
 #pragma comment (lib, "Leap.lib")
-
-// 補助プログラム
-#include "gg.h"
-using namespace gg;
-
-// 共有メモリ
-#include "SharedMemory.h"
 
 // 指の名前
 const std::string fingerNames[] = { "Thumb", "Index", "Middle", "Ring", "Pinky" };

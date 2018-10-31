@@ -7,20 +7,11 @@
 // 各種設定
 #include "config.h"
 
-// 補助プログラム
-#include "gg.h"
-using namespace gg;
-
 // Leap Motion
 #include "LeapListener.h"
 
-// シーングラフは JSON で記述する
-#include "picojson.h"
-
 // 標準ライブラリ
-#include <map>
 #include <queue>
-#include <memory>
 
 class Scene
 {
@@ -28,10 +19,10 @@ class Scene
   std::vector<Scene *> children;
 
   // 描画するパーツ
-  const GgObj *obj;
+  const GgSimpleObj *obj;
 
   // 読み込んだパーツを登録するパーツリスト
-  static std::map<const std::string, std::unique_ptr<const GgObj>> parts;
+  static std::map<const std::string, std::unique_ptr<const GgSimpleObj>> parts;
 
   // このパーツのモデル変換行列
   GgMatrix mm;
@@ -48,7 +39,7 @@ class Scene
 public:
 
   // コンストラクタ
-  Scene(const GgObj *obj = nullptr);
+  Scene(const GgSimpleObj *obj = nullptr);
 
   // シーングラフからシーンのオブジェクトを作成するコンストラクタ
   Scene(const picojson::value &v, const GgSimpleShader *shader, int level = 0);
@@ -69,7 +60,7 @@ public:
   Scene *addChild(Scene *scene);
 
   // 子供にパーツに追加する
-  Scene *addChild(GgObj *obj = nullptr);
+  Scene *addChild(GgSimpleObj *obj = nullptr);
 
   // ローカルとリモートの変換行列を共有メモリから取り出す
   static void setup();

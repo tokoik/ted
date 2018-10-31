@@ -8,9 +8,6 @@
 #include "gg.h"
 using namespace gg;
 
-// •W€ƒ‰ƒCƒuƒ‰ƒŠ
-#include <memory>
-
 // Win32 API
 #include <Windows.h>
 

@@ -1,5 +1,9 @@
 #pragma once
 
+//
+// ネットワーク関連の処理
+//
+
 #if defined(_WIN32)
 #  include <winsock2.h>
 #endif

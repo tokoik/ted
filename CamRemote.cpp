@@ -2,6 +2,8 @@
 // リモートカメラからキャプチャ
 //
 #include "CamRemote.h"
+
+// シーングラフ
 #include "Scene.h"
 
 // 共有メモリ
@@ -73,7 +75,7 @@ int CamRemote::open(unsigned short port, const char *address)
   for (int i = 0;;)
   {
     const int ret(network.recvData(recvbuf, maxFrameSize));
-#if DEBUG
+#if defined(DEBUG)
     std::cerr << "CamRemote open:" << ret << ',' << head[camL] << ',' << head[camR] << '\n';
 #endif
     if (ret > 0 && head[camL] > 0) break;
@@ -219,7 +221,7 @@ void CamRemote::recv()
     // 姿勢データと画像データを受信する
     const int ret(network.recvData(recvbuf, maxFrameSize));
 
-#if DEBUG
+#if defined(DEBUG)
     std::cerr << "CamRemote recv:" << ret << '\n';
 #endif
 
@@ -356,7 +358,7 @@ void CamRemote::send()
     // 次のフレームの送信時刻までの残り時間
     const long long remain(static_cast<long long>(last + capture_interval - now));
 
-#if DEBUG
+#if defined(DEBUG)
     std::cerr << "send remain = " << remain << '\n';
 #endif
 

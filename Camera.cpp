@@ -220,7 +220,7 @@ void Camera::send()
       // 次のフレームの送信時刻までの残り時間
       const long long remain(static_cast<long long>(last + capture_interval - now));
 
-#if DEBUG
+#if defined(DEBUG)
       std::cerr << "send remain = " << remain << '\n';
 #endif
 

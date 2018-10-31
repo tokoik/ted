@@ -33,6 +33,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_0E6E94EE05AF442DB4F26BBAEE549ACC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0F2586949BE749DBB873F57F9D84A1B9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_1053E66A86BA4AD9A3885648C0ADAFA2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -45,13 +57,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_1AB2258C41EE4A54B5FC2B81F7E57E64"
+        "MsmKey" = "8:_17725BCDF59C424B953EAAEB805EF482"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_1C467814C3804D6182DEABC2480A8916"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1E410F2D7AFD412FBF12C63F3D9856CC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -105,6 +123,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2EEEB9DA053A405B99BF2EAAA836FFFE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_2FFEEEF4E0934E15AC464C9D763093D1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -117,7 +141,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_35373971493F440F99FBAAB0F417E35F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_39F9EFAD880849C8B7EF5BB80DD8DB00"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3A0C655F917243D9BE0955251E72F747"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -159,12 +195,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5BF084DA53DF4BAEBF4164E1D3E4EC49"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_5F9B38CA17B64B29BF5122C39D6D8C03"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -172,6 +202,18 @@
         "Entry"
         {
         "MsmKey" = "8:_60FE5632F3B34D3DAE5C38C09FF5FC0B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6132BEA107344D4AA9F076050B8B4BD6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_676E1ED8FC7945E69ED709ABF93E6FE1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -207,6 +249,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_710F0ECB24A54F41826463251F7BF192"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_7213BE40F13B4227BEE4D85C8A512326"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -214,18 +262,6 @@
         "Entry"
         {
         "MsmKey" = "8:_7416E8A13C2E415F8464EEB5362F38A2"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_754604B5909C4C5194EF8C4151986D57"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_7560A81F9DD04065A3A645296D0A22EA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -291,6 +327,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_83C4A4C17E3E42F58A426672C2598FA4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_83C696F3052D4950A04623B7F6FFE3F1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -339,25 +381,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9335C7F89D794956BFAEF33B255E7AF9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_93EB2A7F857241B09BE3200701B1C5E2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_9A6D6E501DB84ADB8F65953496A5173A"
+        "MsmKey" = "8:_9407D8F6DDEB4358A4905EDB5693331D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_9A917EA5B331482184F1B6469F76B90C"
+        "MsmKey" = "8:_9A6D6E501DB84ADB8F65953496A5173A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -387,7 +423,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_AAD95DEFAEEC4B649FAF7306E3FBD4DD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_AD21B0B870904288A0C6E76BB6812C7C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_AD33E4629A194D1BBF296BEC36732931"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -417,6 +465,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_B7D2422CACE540FDB7C1B4195FBF0812"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B85C7705243C443993ED4DD9F29381F8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -430,12 +484,6 @@
         "Entry"
         {
         "MsmKey" = "8:_B8B9767264A24D96A31B2AAA41556C40"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_BAD86CBE318A4CCF989214A60A50D2D6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -459,7 +507,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_BFE6BB183D4A428C9362570A57C6461E"
+        "MsmKey" = "8:_BF69C0AFAECC4F2F8F4B8945AEF602E3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -513,13 +561,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E62839AE18F146A09CBCE9B301CCB360"
+        "MsmKey" = "8:_E6882EDBC73342BDBDC8D989CE59DD94"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_E6882EDBC73342BDBDC8D989CE59DD94"
+        "MsmKey" = "8:_EDE4869E81774E208D224D405AA399C4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -543,13 +591,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F63001F1F0EB4077AE92CE70075D96A3"
+        "MsmKey" = "8:_F63ECDF2F9EC4A9FA3EFB7A393851A75"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_F63ECDF2F9EC4A9FA3EFB7A393851A75"
+        "MsmKey" = "8:_FAC37AB1564C43168F38847B873B3A44"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -702,6 +750,46 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0E6E94EE05AF442DB4F26BBAEE549ACC"
+            {
+            "SourcePath" = "8:..\\bin\\x64\\nppicc64_91.dll"
+            "TargetName" = "8:nppicc64_91.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0F2586949BE749DBB873F57F9D84A1B9"
+            {
+            "SourcePath" = "8:..\\bin\\x64\\cufft64_91.dll"
+            "TargetName" = "8:cufft64_91.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1053E66A86BA4AD9A3885648C0ADAFA2"
             {
             "SourcePath" = "8:..\\l-upper-arm.mtl"
@@ -742,10 +830,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1AB2258C41EE4A54B5FC2B81F7E57E64"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_17725BCDF59C424B953EAAEB805EF482"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc14\\bin\\npps64_80.dll"
-            "TargetName" = "8:npps64_80.dll"
+            "SourcePath" = "8:..\\bin\\x64\\OpenCL.dll"
+            "TargetName" = "8:OpenCL.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -766,6 +854,26 @@
             {
             "SourcePath" = "8:..\\handl.mtl"
             "TargetName" = "8:handl.mtl"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1E410F2D7AFD412FBF12C63F3D9856CC"
+            {
+            "SourcePath" = "8:..\\bin\\x64\\nppist64_91.dll"
+            "TargetName" = "8:nppist64_91.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -942,6 +1050,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2EEEB9DA053A405B99BF2EAAA836FFFE"
+            {
+            "SourcePath" = "8:..\\bin\\x64\\nppial64_91.dll"
+            "TargetName" = "8:nppial64_91.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2FFEEEF4E0934E15AC464C9D763093D1"
             {
             "SourcePath" = "8:..\\telexistence.json"
@@ -982,10 +1110,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_35373971493F440F99FBAAB0F417E35F"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_world341.dll"
+            "TargetName" = "8:opencv_world341.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_39F9EFAD880849C8B7EF5BB80DD8DB00"
             {
             "SourcePath" = "8:..\\hand.json"
             "TargetName" = "8:hand.json"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3A0C655F917243D9BE0955251E72F747"
+            {
+            "SourcePath" = "8:..\\bin\\x64\\cudart64_91.dll"
+            "TargetName" = "8:cudart64_91.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1122,26 +1290,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5BF084DA53DF4BAEBF4164E1D3E4EC49"
-            {
-            "SourcePath" = "8:..\\OvrvisionPro\\x64\\bin\\ovrvision.dll"
-            "TargetName" = "8:ovrvision.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5F9B38CA17B64B29BF5122C39D6D8C03"
             {
             "SourcePath" = "8:..\\r-hinge.obj"
@@ -1166,6 +1314,46 @@
             {
             "SourcePath" = "8:..\\l-hand.obj"
             "TargetName" = "8:l-hand.obj"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6132BEA107344D4AA9F076050B8B4BD6"
+            {
+            "SourcePath" = "8:..\\bin\\x64\\nppim64_91.dll"
+            "TargetName" = "8:nppim64_91.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_676E1ED8FC7945E69ED709ABF93E6FE1"
+            {
+            "SourcePath" = "8:C:\\librealsense2\\bin\\x64\\Release\\realsense2.dll"
+            "TargetName" = "8:realsense2.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1282,6 +1470,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_710F0ECB24A54F41826463251F7BF192"
+            {
+            "SourcePath" = "8:..\\bin\\x64\\Release\\ovrvision.dll"
+            "TargetName" = "8:ovrvision.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7213BE40F13B4227BEE4D85C8A512326"
             {
             "SourcePath" = "8:..\\config.pdf"
@@ -1306,46 +1514,6 @@
             {
             "SourcePath" = "8:..\\scenegraph.pdf"
             "TargetName" = "8:scenegraph.pdf"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_754604B5909C4C5194EF8C4151986D57"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc14\\bin\\cufft64_80.dll"
-            "TargetName" = "8:cufft64_80.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7560A81F9DD04065A3A645296D0A22EA"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc14\\bin\\nppc64_80.dll"
-            "TargetName" = "8:nppc64_80.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1562,6 +1730,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_83C4A4C17E3E42F58A426672C2598FA4"
+            {
+            "SourcePath" = "8:..\\bin\\x64\\nppitc64_91.dll"
+            "TargetName" = "8:nppitc64_91.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_83C696F3052D4950A04623B7F6FFE3F1"
             {
             "SourcePath" = "8:..\\mesh.vert"
@@ -1722,26 +1910,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9335C7F89D794956BFAEF33B255E7AF9"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc14\\bin\\cudart64_80.dll"
-            "TargetName" = "8:cudart64_80.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_93EB2A7F857241B09BE3200701B1C5E2"
             {
             "SourcePath" = "8:..\\panorama.vert"
@@ -1762,10 +1930,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A6D6E501DB84ADB8F65953496A5173A"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9407D8F6DDEB4358A4905EDB5693331D"
             {
-            "SourcePath" = "8:..\\fisheye_right.jpg"
-            "TargetName" = "8:fisheye_right.jpg"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_ffmpeg341_64.dll"
+            "TargetName" = "8:opencv_ffmpeg341_64.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1782,10 +1950,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A917EA5B331482184F1B6469F76B90C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A6D6E501DB84ADB8F65953496A5173A"
             {
-            "SourcePath" = "8:C:\\LeapSDK\\lib\\x64\\Leap.dll"
-            "TargetName" = "8:Leap.dll"
+            "SourcePath" = "8:..\\fisheye_right.jpg"
+            "TargetName" = "8:fisheye_right.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1882,10 +2050,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AAD95DEFAEEC4B649FAF7306E3FBD4DD"
+            {
+            "SourcePath" = "8:..\\bin\\x64\\nppif64_91.dll"
+            "TargetName" = "8:nppif64_91.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AD21B0B870904288A0C6E76BB6812C7C"
             {
             "SourcePath" = "8:..\\handr.mtl"
             "TargetName" = "8:handr.mtl"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AD33E4629A194D1BBF296BEC36732931"
+            {
+            "SourcePath" = "8:..\\bin\\x64\\cublas64_91.dll"
+            "TargetName" = "8:cublas64_91.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1982,6 +2190,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B7D2422CACE540FDB7C1B4195FBF0812"
+            {
+            "SourcePath" = "8:..\\bin\\x64\\nppc64_91.dll"
+            "TargetName" = "8:nppc64_91.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B85C7705243C443993ED4DD9F29381F8"
             {
             "SourcePath" = "8:..\\theta.vert"
@@ -2026,26 +2254,6 @@
             {
             "SourcePath" = "8:..\\l-lower-arm.mtl"
             "TargetName" = "8:l-lower-arm.mtl"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BAD86CBE318A4CCF989214A60A50D2D6"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc14\\bin\\opencv_ffmpeg320_64.dll"
-            "TargetName" = "8:opencv_ffmpeg320_64.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2122,10 +2330,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BFE6BB183D4A428C9362570A57C6461E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BF69C0AFAECC4F2F8F4B8945AEF602E3"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc14\\bin\\nppi64_80.dll"
-            "TargetName" = "8:nppi64_80.dll"
+            "SourcePath" = "8:..\\bin\\x64\\nppidei64_91.dll"
+            "TargetName" = "8:nppidei64_91.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2302,10 +2510,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E62839AE18F146A09CBCE9B301CCB360"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E6882EDBC73342BDBDC8D989CE59DD94"
             {
-            "SourcePath" = "8:..\\OvrvisionPro\\x64\\bin\\OpenCL.dll"
-            "TargetName" = "8:OpenCL.dll"
+            "SourcePath" = "8:..\\rectangle.vert"
+            "TargetName" = "8:rectangle.vert"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2322,10 +2530,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E6882EDBC73342BDBDC8D989CE59DD94"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EDE4869E81774E208D224D405AA399C4"
             {
-            "SourcePath" = "8:..\\rectangle.vert"
-            "TargetName" = "8:rectangle.vert"
+            "SourcePath" = "8:..\\bin\\x64\\npps64_91.dll"
+            "TargetName" = "8:npps64_91.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2402,10 +2610,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F63001F1F0EB4077AE92CE70075D96A3"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F63ECDF2F9EC4A9FA3EFB7A393851A75"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc14\\bin\\opencv_world320.dll"
-            "TargetName" = "8:opencv_world320.dll"
+            "SourcePath" = "8:..\\normal.frag"
+            "TargetName" = "8:normal.frag"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2422,10 +2630,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F63ECDF2F9EC4A9FA3EFB7A393851A75"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FAC37AB1564C43168F38847B873B3A44"
             {
-            "SourcePath" = "8:..\\normal.frag"
-            "TargetName" = "8:normal.frag"
+            "SourcePath" = "8:..\\bin\\x64\\nppig64_91.dll"
+            "TargetName" = "8:nppig64_91.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"

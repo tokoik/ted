@@ -1,8 +1,7 @@
-#include "Rect.h"
-
 //
 // 矩形
 //
+#include "Rect.h"
 
 // コンストラクタ
 Rect::Rect(const std::string &vert, const std::string &frag)

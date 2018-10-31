@@ -7,9 +7,6 @@
 #include "gg.h"
 using namespace gg;
 
-// •W€ƒ‰ƒCƒuƒ‰ƒŠ
-#include <array>
-
 class LeapListener
   : public Leap::Listener
 {
