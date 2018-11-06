@@ -2388,13 +2388,20 @@ namespace gg
       return array[i];
     }
 
-		//! \brief 変換行列の要素にアクセスする.
-		//!   \return 変換行列を格納した GLfloat 型の 16 要素の配列変数 の i 番目の要素の参照.
-		GLfloat &operator[](std::size_t i)
-		{
-				return array[i];
-		}
-	};
+    //! \brief 変換行列の要素にアクセスする.
+    //!   \return 変換行列を格納した GLfloat 型の 16 要素の配列変数 の i 番目の要素の参照.
+    const GLfloat &operator[](std::size_t i) const
+    {
+      return array[i];
+    }
+
+    //! \brief 変換行列の要素にアクセスする.
+    //!   \return 変換行列を格納した GLfloat 型の 16 要素の配列変数 の i 番目の要素の参照.
+    GLfloat &operator[](std::size_t i)
+    {
+      return array[i];
+    }
+  };
 
   //! \brief 単位行列を返す.
   //!   \return 単位行列
@@ -4054,7 +4061,7 @@ namespace gg
     const GLsizei count;
 
     // バッファオブジェクト
-    GLuint buffer;
+    const GLuint buffer;
 
     // コピーコンストラクタを封じる
     GgBuffer<T>(const GgBuffer<T> &o) {}
@@ -4082,9 +4089,9 @@ namespace gg
       : target(target)
       , stride(stride)
       , count(count)
+      , buffer([] { GLuint buffer; glGenBuffers(1, &buffer); return buffer; } ())
     {
       // バッファオブジェクトのメモリを確保してデータを転送する
-      glGenBuffers(1, &buffer);
       glBindBuffer(target, buffer);
       glBufferData(target, getStride() * count, data, usage);
     }
@@ -4463,10 +4470,16 @@ namespace gg
   class GgShape
   {
     // 頂点配列オブジェクト
-    GLuint vao;
+    const GLuint vao;
 
     // 基本図形の種類
     GLenum mode;
+
+    // コピーコンストラクタを封じる
+    GgShape(const GgShape &o) : vao(o.vao), mode(o.mode) {}
+
+    // 代入演算子を封じる
+    GgShape &operator=(const GgShape &o) {}
 
   public:
 
@@ -4480,29 +4493,10 @@ namespace gg
     //! \brief コンストラクタ.
     //!   \param mode 基本図形の種類.
     GgShape(GLenum mode = 0)
-    {
-      this->mode = mode;
-
-      glGenVertexArrays(1, &vao);
-      glBindVertexArray(vao);
-    }
-
-    //! \brief コピーコンストラクタ.
-    GgShape(const GgShape &o)
-      : vao(o.vao), mode(o.mode)
+      : vao([] { GLuint vao; glGenVertexArrays(1, &vao); return vao; } ())
+      , mode(mode)
     {
       glBindVertexArray(vao);
-    }
-
-    // 代入演算子
-    GgShape &operator=(const GgShape &o)
-    {
-      if (this != &o)
-      {
-        vao = o.vao;
-        mode = o.mode;
-      }
-      return *this;
     }
 
     //! \brief 頂点配列オブジェクト名を取り出す.

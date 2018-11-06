@@ -212,10 +212,6 @@ void Scene::draw(const GgMatrix &mp, const GgMatrix &mv) const
   // このパーツが存在するとき
   if (obj)
   {
-    printf("%f,%f,%f,%f\n", mw.get(0), mw.get(1), mw.get(2), mw.get(3));
-    printf("%f,%f,%f,%f\n", mw.get(4), mw.get(5), mw.get(6), mw.get(7));
-    printf("%f,%f,%f,%f\n", mw.get(8), mw.get(9), mw.get(10), mw.get(11));
-    printf("%f,%f,%f,%f\n\n", mw.get(12), mw.get(13), mw.get(14), mw.get(15));
     // シェーダが設定されていれば変換行列を設定し
     if (obj->getShader()) obj->getShader()->loadMatrix(mp, mw);
 
