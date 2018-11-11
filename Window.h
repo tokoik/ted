@@ -80,6 +80,9 @@ class Window
   // モデル変換行列
   GgMatrix mm;
 
+  // ヘッドトラッキングの変換行列
+  GgMatrix mo[camCount];
+
   //
   // ビュー変換
   //
@@ -88,7 +91,7 @@ class Window
   GgQuaternion qo[camCount];
 
   // ヘッドトラッキングによる位置
-  GLfloat po[camCount][4];
+  GgVector po[camCount];
 
   // カメラ方向の補正値
   GgQuaternion qr[camCount];
@@ -186,16 +189,6 @@ class Window
   //
   void updateProjectionMatrix();
 
-  //
-  // コピーコンストラクタ (コピー禁止)
-  //
-  Window(const Window &w);
-
-  //
-  // 代入 (代入禁止)
-  //
-  Window &operator=(const Window &w);
-
 public:
 
   //
@@ -204,6 +197,16 @@ public:
   Window(int width = 640, int height = 480, const char *title = "GLFW Window"
     , GLFWmonitor *monitor = nullptr, GLFWwindow *share = nullptr
   );
+
+  //
+  // コピーコンストラクタを封じる
+  //
+  Window(const Window &w) = delete;
+
+  //
+  // 代入を封じる
+  //
+  Window &operator=(const Window &w) = delete;
 
   //
   // デストラクタ
@@ -316,7 +319,7 @@ public:
   //
   // Oculus Rift のヘッドラッキングによる移動を得る
   //
-  const GLfloat *getPo(int eye) const
+  const GgVector &getPo(int eye) const
   {
     return po[eye];
   }
@@ -330,17 +333,12 @@ public:
   }
 
   //
-  // カメラの方向の補正値を得る
-  //
-  const GgQuaternion &getQr(int eye) const
-  {
-	  return qr[eye];
-  }
-
-  //
   // Oculus Rift のヘッドラッキングによる回転の変換行列を得る
   //
-  GgMatrix getMo(int eye) const;
+  const GgMatrix &getMo(int eye) const
+  {
+    return mo[eye];
+  }
 
   //
   // プロジェクション変換行列を得る

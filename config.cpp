@@ -235,17 +235,17 @@ bool config::load(const std::string &file)
   // ディスプレイの横の画素数
   const auto &v_display_width(o.find("display_width"));
   if (v_display_width != o.end() && v_display_width->second.is<double>())
-	  display_width = static_cast<int>(v_display_width->second.get<double>());
+    display_width = static_cast<int>(v_display_width->second.get<double>());
 
   // ディスプレイの縦の画素数
   const auto &v_display_height(o.find("display_height"));
   if (v_display_height != o.end() && v_display_height->second.is<double>())
-	  display_height = static_cast<int>(v_display_height->second.get<double>());
+    display_height = static_cast<int>(v_display_height->second.get<double>());
 
   // ディスプレイの縦横比
   const auto &v_display_aspect(o.find("display_aspect"));
   if (v_display_aspect != o.end() && v_display_aspect->second.is<double>())
-	  display_aspect = static_cast<GLfloat>(v_display_aspect->second.get<double>());
+    display_aspect = static_cast<GLfloat>(v_display_aspect->second.get<double>());
 
   // ディスプレイの中心の高さ
   const auto &v_display_center(o.find("display_center"));

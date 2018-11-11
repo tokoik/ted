@@ -18,8 +18,8 @@ CamCv::~CamCv()
 // カメラから入力する
 bool CamCv::open(int device, int cam)
 {
-	// カメラを開いてキャプチャを開始する
-	return camera[cam].open(device) && start(cam);
+  // カメラを開いてキャプチャを開始する
+  return camera[cam].open(device) && start(cam);
 }
 
 // ファイル／ネットワークからキャプチャを開始する

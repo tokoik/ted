@@ -36,9 +36,6 @@ public:
   // デストラクタ
   virtual ~SharedMemory();
 
-  // 共有メモリの確保と初期化
-  static bool initialize(unsigned int local_size, unsigned int remote_size, unsigned int count);
-
   // ミューテックスオブジェクトを獲得する（獲得できるまで待つ）
   bool lock() const;
 
@@ -50,6 +47,9 @@ public:
 
   // 確保した共有メモリのアドレスを得る
   const GgMatrix *get() const;
+
+  // 確保した共有メモリの要素を得る
+  const GgMatrix &get(int i) const;
 
   // 共有メモリの全要素数を得る
   unsigned int getSize() const;
@@ -64,14 +64,8 @@ public:
   unsigned int push(const GgMatrix &m);
 
   // メモリの内容を共有メモリに保存する
-  void store(const void *src, unsigned int begin, unsigned int count) const;
+  void store(const GgMatrix *src, unsigned int count) const;
 
   // 共有メモリの内容をメモリに取り出す
-  void load(void *dst, unsigned int begin = 0, unsigned int count = 0) const;
+  void load(GgMatrix *dst, unsigned int count) const;
 };
-
-// 共有メモリ上に置く操縦者の変換行列
-extern std::unique_ptr<SharedMemory> localAttitude;
-
-// 共有メモリ上に置く作業者の変換行列
-extern std::unique_ptr<SharedMemory> remoteAttitude;

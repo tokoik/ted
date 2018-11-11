@@ -13,12 +13,12 @@
 // OpenCV
 #include <opencv2/highgui/highgui.hpp>
 
-// キャプチャを非同期で行う
+// 標準ライブラリ
 #include <thread>
 #include <mutex>
 
 // 作業用メモリのサイズ
-const int maxFrameSize(1024 * 1024);
+constexpr int maxFrameSize(1024 * 1024);
 
 //
 // カメラ関連の処理を担当するクラス

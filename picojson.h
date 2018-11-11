@@ -478,15 +478,15 @@ inline std::string value::to_str() const {
     return u_.boolean_ ? "true" : "false";
 #ifdef PICOJSON_USE_INT64
   case int64_type: {
-    char buf[sizeof("-9223372036854775808")];
-    SNPRINTF(buf, sizeof(buf), "%" PRId64, u_.int64_);
+    char buf[sizeof ("-9223372036854775808")];
+    SNPRINTF(buf, sizeof (buf), "%" PRId64, u_.int64_);
     return buf;
   }
 #endif
   case number_type: {
     char buf[256];
     double tmp;
-    SNPRINTF(buf, sizeof(buf), fabs(u_.number_) < (1ULL << 53) && modf(u_.number_, &tmp) == 0 ? "%.f" : "%.17g", u_.number_);
+    SNPRINTF(buf, sizeof (buf), fabs(u_.number_) < (1ULL << 53) && modf(u_.number_, &tmp) == 0 ? "%.f" : "%.17g", u_.number_);
 #if PICOJSON_USE_LOCALE
     char *decimal_point = localeconv()->decimal_point;
     if (strcmp(decimal_point, ".") != 0) {
@@ -539,7 +539,7 @@ template <typename Iter> struct serialize_str_char {
     default:
       if (static_cast<unsigned char>(c) < 0x20 || c == 0x7f) {
         char buf[7];
-        SNPRINTF(buf, sizeof(buf), "\\u%04x", c & 0xff);
+        SNPRINTF(buf, sizeof (buf), "\\u%04x", c & 0xff);
         copy(buf, buf + 6, oi);
       } else {
         *oi++ = c;
@@ -1073,7 +1073,7 @@ template <typename Context, typename Iter> inline Iter _parse(Context &ctx, cons
   input<Iter> in(first, last);
   if (!_parse(ctx, in) && err != NULL) {
     char buf[64];
-    SNPRINTF(buf, sizeof(buf), "syntax error at line %d near: ", in.line());
+    SNPRINTF(buf, sizeof (buf), "syntax error at line %d near: ", in.line());
     *err = buf;
     while (1) {
       int ch = in.getc();

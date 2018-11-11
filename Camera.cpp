@@ -3,8 +3,8 @@
 //
 #include "Camera.h"
 
-// 共有メモリ
-#include "SharedMemory.h"
+// シーングラフ
+#include "Scene.h"
 
 // OpenCV のライブラリのリンク
 #if defined(_WIN32)
@@ -123,11 +123,11 @@ void Camera::recv()
       // ヘッダのフォーマット
       unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
 
-      // 変換行列の保存先
-      GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
+      // 受信した変換行列の格納場所
+      GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));
 
-      // 変換行列を復帰する
-      remoteAttitude->store(body, 0, head[camCount]);
+      // 変換行列を共有メモリに格納する
+      remoteAttitude->store(body, head[camCount]);
     }
 
     // 他のスレッドがリソースにアクセスするために少し待つ
@@ -156,11 +156,11 @@ void Camera::send()
     // 変換行列の数を保存する
     head[camCount] = localAttitude->getUsed();
 
-    // 変換行列の保存先
-    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
+    // 送信する変換行列の格納場所
+    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));
 
-    // 変換行列を保存する
-    localAttitude->load(body);
+    // 変換行列を共有メモリから取り出す
+    localAttitude->load(body, head[camCount]);
 
     // 左フレームの保存先 (変換行列の最後)
     uchar *data(reinterpret_cast<uchar *>(body + head[camCount]));

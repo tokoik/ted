@@ -114,7 +114,7 @@ bool CamOv::open(OVR::Camprop ovrvision_property)
 
     // スレッドを起動する
     run[camL] = run[camR] = true;
-    captureThread[camL] = std::thread([this](){ capture(); });
+    captureThread[camL] = std::thread([this]() { capture(); });
 
     return true;
   }

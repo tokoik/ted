@@ -86,25 +86,25 @@ struct config
 extern config defaults;
 
 // ナビゲーションの速度調整
-const GLfloat zoomStep(0.01f);                          // 物体のズーム率調整のステップ
-const GLfloat shiftStep(0.001f);                        // 背景テクスチャのシフト量調整のステップ
-const GLfloat focalStep(50.0f);                         // 背景テクスチャのスケール調整のステップ
-const GLfloat speedScale(0.005f);                       // フレームあたりの移動速度係数
-const GLfloat angleScale(-0.05f);                       // フレームあたりの回転速度係数
-const GLfloat wheelXStep(0.005f);                       // マウスホイールの X 方向の係数
-const GLfloat wheelYStep(0.005f);                       // マウスホイールの Y 方向の係数
-const GLfloat axesSpeedScale(0.01f);                    // ゲームパッドのスティックの速度の係数
-const GLfloat axesAngleScale(0.01f);                    // ゲームパッドのスティックの角速度の係数
-const GLfloat btnsScale(0.02f);                         // ゲームパッドのボタンの係数
+constexpr GLfloat zoomStep(0.01f);                          // 物体のズーム率調整のステップ
+constexpr GLfloat shiftStep(0.001f);                        // 背景テクスチャのシフト量調整のステップ
+constexpr GLfloat focalStep(50.0f);                         // 背景テクスチャのスケール調整のステップ
+constexpr GLfloat speedScale(0.005f);                       // フレームあたりの移動速度係数
+constexpr GLfloat angleScale(-0.05f);                       // フレームあたりの回転速度係数
+constexpr GLfloat wheelXStep(0.005f);                       // マウスホイールの X 方向の係数
+constexpr GLfloat wheelYStep(0.005f);                       // マウスホイールの Y 方向の係数
+constexpr GLfloat axesSpeedScale(0.01f);                    // ゲームパッドのスティックの速度の係数
+constexpr GLfloat axesAngleScale(0.01f);                    // ゲームパッドのスティックの角速度の係数
+constexpr GLfloat btnsScale(0.02f);                         // ゲームパッドのボタンの係数
 
 // 視差の変更ステップ (単位 m)
-const GLfloat parallaxStep(0.001f);
+constexpr GLfloat parallaxStep(0.001f);
 
 // マルチサンプリングのサンプル数 (Oculus Rift)
-const int backBufferMultisample(0);
+constexpr int backBufferMultisample(0);
 
 // 光源
-const GgSimpleShader::Light lightData =
+constexpr GgSimpleShader::Light lightData =
 {
   { 0.2f, 0.2f, 0.2f, 0.4f },                           // 環境光成分
   { 1.0f, 1.0f, 1.0f, 0.0f },                           // 拡散反射光成分
@@ -113,7 +113,7 @@ const GgSimpleShader::Light lightData =
 };
 
 // 材質
-const GgSimpleShader::Material materialData =
+constexpr GgSimpleShader::Material materialData =
 {
   { 0.8f, 0.8f, 0.8f, 1.0f },                           // 環境光の反射係数
   { 0.8f, 0.8f, 0.8f, 1.0f },                           // 拡散反射係数
@@ -122,22 +122,25 @@ const GgSimpleShader::Material materialData =
 };
 
 // テクスチャの境界色
-const GLfloat borderColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+constexpr GLfloat borderColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 // エンコード方法
-const char encoderType[] = ".jpg";
+constexpr char encoderType[] = ".jpg";
 
 // 受信リトライ回数
-const int receiveRetry(30);
+constexpr int receiveRetry(30);
 
 // 読み飛ばすパケットの最大数
-const int maxDropPackets(1000);
+constexpr int maxDropPackets(1000);
 
 // フレーム送信の最小間隔
-const long long minDelay(10);
+constexpr long long minDelay(10);
 
 // カメラの数と識別子
-const int camCount(2), camL(0), camR(1);
+constexpr int camCount(2), camL(0), camR(1);
 
 // リモートカメラの数
-const int remoteCamCount(2);
+constexpr int remoteCamCount(2);
+
+// ヘッダの長さ
+constexpr int headLength(camCount + 1);

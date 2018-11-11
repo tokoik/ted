@@ -7,11 +7,20 @@
 // 各種設定
 #include "config.h"
 
-// Leap Motion
+// Leap Motion 関連の処理
 #include "LeapListener.h"
+
+// 共有メモリ
+#include "SharedMemory.h"
 
 // 標準ライブラリ
 #include <queue>
+
+// 共有メモリ上に置く操縦者の変換行列
+extern std::unique_ptr<SharedMemory> localAttitude;
+
+// 共有メモリ上に置く作業者の変換行列
+extern std::unique_ptr<SharedMemory> remoteAttitude;
 
 class Scene
 {
@@ -31,10 +40,13 @@ class Scene
   const GgMatrix *me;
 
   // リモートの外部モデル変換行列のテーブルのコピー
-  static std::vector<GgMatrix> localJointMatrix, remoteJointMatrix;
+  static std::vector<GgMatrix> localMatrixTable, remoteMatrixTable;
 
   // リモートカメラの姿勢のタイミングをフレームに合わせて遅らせるためのキュー
   static std::queue<GgMatrix> fifo[remoteCamCount];
+
+  // Leap Motion
+  static std::unique_ptr<LeapListener> listener;
 
 public:
 
@@ -43,15 +55,15 @@ public:
 
   // シーングラフからシーンのオブジェクトを作成するコンストラクタ
   Scene(const picojson::value &v, const GgSimpleShader *shader, int level = 0);
-  
+
   // シーングラフからシーンのオブジェクトを作成するコンストラクタ
   Scene(const picojson::value &v, const GgSimpleShader &shader, int level = 0);
 
   // デストラクタ
   virtual ~Scene();
 
-  // 変換行列を初期化する
-  static void initialize();
+  // 共有メモリを確保して初期化する
+  static bool initialize(unsigned int local_size, unsigned int remote_size);
 
   // シーングラフを読み込む
   Scene *load(const picojson::value &v, const GgSimpleShader *shader, int level);
@@ -62,8 +74,11 @@ public:
   // 子供にパーツに追加する
   Scene *addChild(GgSimpleObj *obj = nullptr);
 
-  // ローカルとリモートの変換行列を共有メモリから取り出す
-  static void setup();
+  // ローカルとリモートの変換行列を設定する
+  static void setup(const GgMatrix &m);
+
+  // ローカルの変換行列のテーブルに保存する
+  static void setLocalAttitude(int cam, const GgMatrix &m);
 
   // リモートのカメラのトラッキング情報を遅延させて取り出す
   static const GgMatrix &getRemoteAttitude(int cam);

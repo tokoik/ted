@@ -3,8 +3,8 @@
 //
 #include "Window.h"
 
-// 共有メモリ
-#include "SharedMemory.h"
+// シーングラフ
+#include "Scene.h"
 
 // Oculus Rift の目の数と識別子
 const int eyeCount(ovrEye_Count);
@@ -43,7 +43,7 @@ static ovrGraphicsLuid GetDefaultAdapterLuid()
       DXGI_ADAPTER_DESC desc;
 
       adapter->GetDesc(&desc);
-      memcpy(&luid, &desc.AdapterLuid, sizeof(luid));
+      memcpy(&luid, &desc.AdapterLuid, sizeof (luid));
       adapter->Release();
     }
 
@@ -56,7 +56,7 @@ static ovrGraphicsLuid GetDefaultAdapterLuid()
 
 static int Compare(const ovrGraphicsLuid& lhs, const ovrGraphicsLuid& rhs)
 {
-  return memcmp(&lhs, &rhs, sizeof(ovrGraphicsLuid));
+  return memcmp(&lhs, &rhs, sizeof (ovrGraphicsLuid));
 }
 #endif
 
@@ -68,7 +68,6 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   , showScene(true), showMirror(true)
   , oculusFbo{ 0, 0 }, mirrorFbo(0), mirrorTexture(nullptr)
   , zoomChange(0), focalChange(0), circleChange{ 0, 0, 0, 0 }
-  , qr{ ggIdentityQuaternion(), ggIdentityQuaternion() }
   , key(GLFW_KEY_UNKNOWN), joy(-1)
 #if OVR_PRODUCT_VERSION > 0
   , frameIndex(0LL)
@@ -150,6 +149,12 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   //
   // 初期設定
   //
+
+  // ヘッドトラッキングの変換行列を初期化する
+  for (auto &m : mo) m = ggIdentity();
+
+  // カメラの補正値を初期化する
+  for (auto &q : qr) q = ggIdentityQuaternion();
 
   // 初期設定を読み込む
   std::ifstream attitude("attitude.json");
@@ -612,12 +617,6 @@ Window::~Window()
 //
 bool Window::start()
 {
-  // モデル変換行列を設定する
-  mm = ggTranslate(ox, oy, -oz) * trackball.getMatrix();
-
-  // モデル変換行列を共有メモリに保存する
-  localAttitude->set(camCount, mm);
-
   // Oculus Rift 使用時
   if (session)
   {
@@ -652,6 +651,7 @@ bool Window::start()
     // Oculus Rift の両目の頭の位置からの変位を求める
     mv[0] = ggTranslate(-hmdToEyePose[0].Position.x, -hmdToEyePose[0].Position.y, -hmdToEyePose[0].Position.z);
     mv[1] = ggTranslate(-hmdToEyePose[1].Position.x, -hmdToEyePose[1].Position.y, -hmdToEyePose[1].Position.z);
+
 #else
     // フレームのタイミング計測開始
     const auto ftiming(ovr_GetPredictedDisplayTime(session, 0));
@@ -674,7 +674,171 @@ bool Window::start()
 #endif
   }
 
+  // モデル変換行列を設定する
+  mm = ggTranslate(ox, oy, -oz) * trackball.getMatrix();
+
+  // モデル変換行列を共有メモリに保存する
+  Scene::setup(mm);
+
   return true;
+}
+
+//
+// 図形を見せる目を選択する
+//
+// ・視点ごとに呼び出す
+//
+void Window::select(int eye)
+{
+  // Oculus Rift に表示する
+  if (session)
+  {
+#if OVR_PRODUCT_VERSION > 0
+    // Oculus Rift にレンダリングする FBO に切り替える
+    if (layerData.ColorTexture[eye])
+    {
+      // FBO のカラーバッファに使う現在のテクスチャのインデックスを取得する
+      int curIndex;
+      ovr_GetTextureSwapChainCurrentIndex(session, layerData.ColorTexture[eye], &curIndex);
+
+      // FBO のカラーバッファに使うテクスチャを取得する
+      GLuint curTexId;
+      ovr_GetTextureSwapChainBufferGL(session, layerData.ColorTexture[eye], curIndex, &curTexId);
+
+      // FBO を設定する
+      glBindFramebuffer(GL_FRAMEBUFFER, oculusFbo[eye]);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, curTexId, 0);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, oculusDepth[eye], 0);
+
+      // ビューポートを設定する
+      const auto &vp(layerData.Viewport[eye]);
+      glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
+    }
+
+    // Oculus Rift の片目の位置と回転を取得する
+    const auto &o(layerData.RenderPose[eye].Orientation);
+    const auto &p(layerData.RenderPose[eye].Position);
+#else
+    // レンダーターゲットに描画する前にレンダーターゲットのインデックスをインクリメントする
+    auto *const colorTexture(layerData.EyeFov.ColorTexture[eye]);
+    colorTexture->CurrentIndex = (colorTexture->CurrentIndex + 1) % colorTexture->TextureCount;
+    auto *const depthTexture(layerData.EyeFovDepth.DepthTexture[eye]);
+    depthTexture->CurrentIndex = (depthTexture->CurrentIndex + 1) % depthTexture->TextureCount;
+
+    // レンダーターゲットを切り替える
+    glBindFramebuffer(GL_FRAMEBUFFER, oculusFbo[eye]);
+    const auto &ctex(reinterpret_cast<ovrGLTexture *>(&colorTexture->Textures[colorTexture->CurrentIndex]));
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ctex->OGL.TexId, 0);
+    const auto &dtex(reinterpret_cast<ovrGLTexture *>(&depthTexture->Textures[depthTexture->CurrentIndex]));
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, dtex->OGL.TexId, 0);
+
+    // ビューポートを設定する
+    const auto &vp(layerData.EyeFov.Viewport[eye]);
+    glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
+
+    // Oculus Rift の片目の位置と回転を取得する
+    const auto &p(eyePose[eye].Position);
+    const auto &o(eyePose[eye].Orientation);
+#endif
+
+    // Oculus Rift の片目の位置を保存する
+    po[eye][0] = p.x;
+    po[eye][1] = p.y;
+    po[eye][2] = p.z;
+    po[eye][3] = 1.0f;
+
+    // Oculus Rift の片目の回転を保存する
+    qo[eye] = GgQuaternion(o.x, o.y, o.z, -o.w);
+
+    // 四元数から変換行列を求める
+    mo[eye] = (qr[eye] * qo[eye]).getMatrix();
+
+    // ヘッドトラッキングの変換行列を共有メモリに保存する
+    Scene::setLocalAttitude(eye, mo[eye].transpose());
+
+    // ヘッドトラッキングしないときは補正値だけにする
+    if (!defaults.camera_tracking) mo[eye] = qr[eye].getMatrix();
+
+    // カラーバッファとデプスバッファを消去する
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Oculus Rift に対する処理はここで終了
+    return;
+  }
+
+  // Oculus Rift 以外に表示する
+  switch (defaults.display_mode)
+  {
+  case TOPANDBOTTOM:
+
+    if (eye == camL)
+    {
+      // ディスプレイの上半分だけに描画する
+      glViewport(0, height, width, height);
+
+      // カラーバッファとデプスバッファを消去する
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+    else
+    {
+      // ディスプレイの下半分だけに描画する
+      glViewport(0, 0, width, height);
+    }
+    break;
+
+  case SIDEBYSIDE:
+
+    if (eye == camL)
+    {
+      // ディスプレイの左半分だけに描画する
+      glViewport(0, 0, width, height);
+
+      // カラーバッファとデプスバッファを消去する
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+    else
+    {
+      // ディスプレイの右半分だけに描画する
+      glViewport(width, 0, width, height);
+    }
+    break;
+
+  case QUADBUFFER:
+
+    // 左右のバッファに描画する
+    glDrawBuffer(eye == camL ? GL_BACK_LEFT : GL_BACK_RIGHT);
+
+    // カラーバッファとデプスバッファを消去する
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    break;
+
+  default:
+    break;
+  }
+
+  // 目をずらす代わりにシーンを動かす
+  mv[eye] = ggTranslate(eye == camL ? parallax : -parallax, 0.0f, 0.0f);
+}
+
+//
+// 図形の描画を完了する
+//
+void Window::commit(int eye)
+{
+#if OVR_PRODUCT_VERSION > 0
+  if (session)
+  {
+    // GL_COLOR_ATTACHMENT0 に割り当てられたテクスチャが wglDXUnlockObjectsNV() によって
+    // アンロックされるために次のフレームの処理において無効な GL_COLOR_ATTACHMENT0 が
+    // FBO に結合されるのを避ける
+    glBindFramebuffer(GL_FRAMEBUFFER, oculusFbo[eye]);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+
+    // 保留中の変更を layerData.ColorTexture[eye] に反映しインデックスを更新する
+    ovr_CommitTextureSwapChain(session, layerData.ColorTexture[eye]);
+  }
+#endif
 }
 
 //
@@ -1088,8 +1252,8 @@ void Window::resize(GLFWwindow *window, int width, int height)
       {
         // リサイズ後のディスプレイののアスペクト比を求める
         instance->aspect = defaults.display_aspect
-			? defaults.display_aspect
-			: static_cast<GLfloat>(width) / static_cast<GLfloat>(height);
+          ? defaults.display_aspect
+          : static_cast<GLfloat>(width) / static_cast<GLfloat>(height);
 
         // リサイズ後のビューポートを設定する
         switch (defaults.display_mode)
@@ -1262,7 +1426,7 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
       case GLFW_KEY_BACKSPACE:
       case GLFW_KEY_DELETE:
         break;
- 
+
       case GLFW_KEY_UP:
         break;
 
@@ -1375,171 +1539,6 @@ void Window::updateProjectionMatrix()
       screen[ovrEye_Right][3] = (fovR[3] + fovR[2]) * 0.5f;
     }
   }
-}
-
-//
-// 図形を見せる目を選択する
-//
-void Window::select(int eye)
-{
-  // Oculus Rift 使用時
-  if (session)
-  {
-#if OVR_PRODUCT_VERSION > 0
-    // Oculus Rift にレンダリングする FBO に切り替える
-    if (layerData.ColorTexture[eye])
-    {
-      // FBO のカラーバッファに使う現在のテクスチャのインデックスを取得する
-      int curIndex;
-      ovr_GetTextureSwapChainCurrentIndex(session, layerData.ColorTexture[eye], &curIndex);
-
-      // FBO のカラーバッファに使うテクスチャを取得する
-      GLuint curTexId;
-      ovr_GetTextureSwapChainBufferGL(session, layerData.ColorTexture[eye], curIndex, &curTexId);
-
-      // FBO を設定する
-      glBindFramebuffer(GL_FRAMEBUFFER, oculusFbo[eye]);
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, curTexId, 0);
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, oculusDepth[eye], 0);
-
-      // ビューポートを設定する
-      const auto &vp(layerData.Viewport[eye]);
-      glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
-    }
-
-    // Oculus Rift の片目の位置と回転を取得する
-    const auto &o(layerData.RenderPose[eye].Orientation);
-    const auto &p(layerData.RenderPose[eye].Position);
-#else
-    // レンダーターゲットに描画する前にレンダーターゲットのインデックスをインクリメントする
-    auto *const colorTexture(layerData.EyeFov.ColorTexture[eye]);
-    colorTexture->CurrentIndex = (colorTexture->CurrentIndex + 1) % colorTexture->TextureCount;
-    auto *const depthTexture(layerData.EyeFovDepth.DepthTexture[eye]);
-    depthTexture->CurrentIndex = (depthTexture->CurrentIndex + 1) % depthTexture->TextureCount;
-
-    // レンダーターゲットを切り替える
-    glBindFramebuffer(GL_FRAMEBUFFER, oculusFbo[eye]);
-    const auto &ctex(reinterpret_cast<ovrGLTexture *>(&colorTexture->Textures[colorTexture->CurrentIndex]));
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ctex->OGL.TexId, 0);
-    const auto &dtex(reinterpret_cast<ovrGLTexture *>(&depthTexture->Textures[depthTexture->CurrentIndex]));
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, dtex->OGL.TexId, 0);
-
-    // ビューポートを設定する
-    const auto &vp(layerData.EyeFov.Viewport[eye]);
-    glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
-
-    // Oculus Rift の片目の位置と回転を取得する
-    const auto &p(eyePose[eye].Position);
-    const auto &o(eyePose[eye].Orientation);
-#endif
-
-    // Oculus Rift の片目の位置を保存する
-    po[eye][0] = p.x;
-    po[eye][1] = p.y;
-    po[eye][2] = p.z;
-    po[eye][3] = 1.0f;
-
-    // Oculus Rift の片目の回転を保存する
-    qo[eye] = GgQuaternion(o.x, o.y, o.z, -o.w);
-
-    // カラーバッファとデプスバッファを消去する
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    return;
-  }
-
-  // Oculus Rift 以外に表示するとき
-  switch (defaults.display_mode)
-  {
-  case TOPANDBOTTOM:
-
-    if (eye == camL)
-    {
-      // ディスプレイの上半分だけに描画する
-      glViewport(0, height, width, height);
-
-      // カラーバッファとデプスバッファを消去する
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-    else
-    {
-      // ディスプレイの下半分だけに描画する
-      glViewport(0, 0, width, height);
-    }
-    break;
-
-  case SIDEBYSIDE:
-
-    if (eye == camL)
-    {
-      // ディスプレイの左半分だけに描画する
-      glViewport(0, 0, width, height);
-
-      // カラーバッファとデプスバッファを消去する
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-    else
-    {
-      // ディスプレイの右半分だけに描画する
-      glViewport(width, 0, width, height);
-    }
-    break;
-
-  case QUADBUFFER:
-
-    // 左右のバッファに描画する
-    glDrawBuffer(eye == camL ? GL_BACK_LEFT : GL_BACK_RIGHT);
-
-    // カラーバッファとデプスバッファを消去する
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    break;
-
-  default:
-    break;
-  }
-
-  // ヘッドトラッキングによる視線の回転を行わない
-  qo[eye] = ggIdentityQuaternion();
-
-  // 目をずらす代わりにシーンを動かす
-  mv[eye] = ggTranslate(eye == camL ? parallax : -parallax, 0.0f, 0.0f);
-}
-
-//
-// 図形の描画を完了する
-//
-void Window::commit(int eye)
-{
-#if OVR_PRODUCT_VERSION > 0
-  if (session)
-  {
-    // GL_COLOR_ATTACHMENT0 に割り当てられたテクスチャが wglDXUnlockObjectsNV() によって
-    // アンロックされるために次のフレームの処理において無効な GL_COLOR_ATTACHMENT0 が
-    // FBO に結合されるのを避ける
-    glBindFramebuffer(GL_FRAMEBUFFER, oculusFbo[eye]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
-
-    // 保留中の変更を layerData.ColorTexture[eye] に反映しインデックスを更新する
-    ovr_CommitTextureSwapChain(session, layerData.ColorTexture[eye]);
-  }
-#endif
-}
-
-//
-// Oculus Rift のヘッドラッキングによる回転の変換行列を得る
-//
-GgMatrix Window::getMo(int eye) const
-{
-  // 四元数から変換行列を求める
-  GgMatrix mo((qr[eye] * qo[eye]).getMatrix());
-
-  // 平行移動を反映する
-
-  // ローカルのヘッドトラッキング情報を共有メモリに保存する
-  localAttitude->set(eye, mo.transpose());
-
-  return mo;
 }
 
 // 物体の初期位置と姿勢

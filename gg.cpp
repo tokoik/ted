@@ -4034,47 +4034,6 @@ GLuint gg::ggCreateShader(const char *vsrc, const char *fsrc, const char *gsrc,
 }
 
 /*
-** コンピュートシェーダのソースプログラムの文字列を読み込んでプログラムオブジェクトを作成する
-**
-**   csrc コンピュートシェーダのソースプログラムの文字列
-**   戻り値 プログラムオブジェクトのプログラム名 (作成できなければ 0)
-*/
-GLuint gg::ggCreateComputeShader(const char *csrc, const char *ctext)
-{
-  // シェーダプログラムの作成
-  const GLuint program(glCreateProgram());
-
-  if (program > 0)
-  {
-    if (csrc)
-    {
-      // コンピュートシェーダのシェーダオブジェクトを作成する
-      const GLuint compShader(glCreateShader(GL_COMPUTE_SHADER));
-      glShaderSource(compShader, 1, &csrc, nullptr);
-      glCompileShader(compShader);
-
-      // コンピュートシェーダのシェーダオブジェクトをプログラムオブジェクトに組み込む
-      if (printShaderInfoLog(compShader, ctext))
-        glAttachShader(program, compShader);
-      glDeleteShader(compShader);
-    }
-
-    // シェーダプログラムをリンクする
-    glLinkProgram(program);
-
-    // プログラムオブジェクトが作成できなければ 0 を返す
-    if (printProgramInfoLog(program) == GL_FALSE)
-    {
-      glDeleteProgram(program);
-      return 0;
-    }
-  }
-
-  // プログラムオブジェクトを返す
-  return program;
-}
-
-/*
 ** シェーダのソースファイルを読み込んだ vector を返す
 **
 **   name ソースファイル名
@@ -4148,6 +4107,48 @@ GLuint gg::ggLoadShader(const char *vert, const char *frag, const char *geom,
   return 0;
 }
 
+#if !defined(__APPLE__)
+/*
+** コンピュートシェーダのソースプログラムの文字列を読み込んでプログラムオブジェクトを作成する
+**
+**   csrc コンピュートシェーダのソースプログラムの文字列
+**   戻り値 プログラムオブジェクトのプログラム名 (作成できなければ 0)
+*/
+GLuint gg::ggCreateComputeShader(const char *csrc, const char *ctext)
+{
+  // シェーダプログラムの作成
+  const GLuint program(glCreateProgram());
+
+  if (program > 0)
+  {
+    if (csrc)
+    {
+      // コンピュートシェーダのシェーダオブジェクトを作成する
+      const GLuint compShader(glCreateShader(GL_COMPUTE_SHADER));
+      glShaderSource(compShader, 1, &csrc, nullptr);
+      glCompileShader(compShader);
+
+      // コンピュートシェーダのシェーダオブジェクトをプログラムオブジェクトに組み込む
+      if (printShaderInfoLog(compShader, ctext))
+        glAttachShader(program, compShader);
+      glDeleteShader(compShader);
+    }
+
+    // シェーダプログラムをリンクする
+    glLinkProgram(program);
+
+    // プログラムオブジェクトが作成できなければ 0 を返す
+    if (printProgramInfoLog(program) == GL_FALSE)
+    {
+      glDeleteProgram(program);
+      return 0;
+    }
+  }
+
+  // プログラムオブジェクトを返す
+  return program;
+}
+
 /*
 ** コンピュートシェーダのソースファイルを読み込んでプログラムオブジェクトを作成する
 **
@@ -4167,6 +4168,7 @@ GLuint gg::ggLoadComputeShader(const char *comp)
   // プログラムオブジェクト作成失敗
   return 0;
 }
+#endif
 
 /*
 ** 3 要素の長さ

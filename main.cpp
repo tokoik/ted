@@ -8,9 +8,6 @@
 // ネットワーク関連の処理
 #include "Network.h"
 
-// 共有メモリ
-#include "SharedMemory.h"
-
 // カメラ関連の処理
 #include "CamCv.h"
 #include "CamOv.h"
@@ -40,14 +37,6 @@ int main(int argc, const char *const *const argv)
 
   // 設定ファイルを読み込む (見つからなかったら作る)
   if (!defaults.load(config_file)) defaults.save(config_file);
-
-  // 共有メモリを確保する
-  if (!SharedMemory::initialize(defaults.local_share_size, defaults.remote_share_size, camCount + 1))
-  {
-    // 共有メモリの確保に失敗した
-    NOTIFY("変換行列を保持する共有メモリが確保できませんでした。");
-    return EXIT_FAILURE;
-  }
 
   // GLFW を初期化する
   if (glfwInit() == GL_FALSE)
@@ -362,17 +351,13 @@ int main(int argc, const char *const *const argv)
     return EXIT_FAILURE;
   }
 
-  // Leap Motion の listener と controller を作る
-  LeapListener listener;
-
-  // Leap Motion の listener が controller からイベントを受け取るようにする
-  Leap::Controller controller;
-  controller.addListener(listener);
-  controller.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
-  controller.setPolicy(Leap::Controller::POLICY_ALLOW_PAUSE_RESUME);
-
-  // シーンの変換行列を初期化する
-  Scene::initialize();
+  // 共有メモリを確保する
+  if (!Scene::initialize(defaults.local_share_size, defaults.remote_share_size))
+  {
+    // 共有メモリの確保に失敗した
+    NOTIFY("変換行列を保持する共有メモリが確保できませんでした。");
+    return EXIT_FAILURE;
+  }
 
   // シーングラフ
   Scene scene(defaults.scene, simple);
@@ -406,9 +391,6 @@ int main(int argc, const char *const *const argv)
   // ウィンドウが開いている間くり返し描画する
   while (!window.shouldClose())
   {
-    // ローカルとリモートの変換行列を共有メモリから取り出す
-    Scene::setup();
-
     // 左カメラをロックして画像を転送する
     camera->transmit(camL, texture[camL], size[camL]);
 
@@ -422,6 +404,7 @@ int main(int argc, const char *const *const argv)
     // 描画開始
     if (window.start())
     {
+      // すべての目について
       for (int eye = 0; eye < drawCount; ++eye)
       {
         // 図形を見せる目を選択する
@@ -446,13 +429,12 @@ int main(int argc, const char *const *const argv)
 
         // ローカルのヘッドトラッキングの変換行列
         const GgMatrix mo(window.getMo(eye));
-        const GgMatrix ml(defaults.camera_tracking ? mo : window.getQr(eye).getMatrix());
 
         // リモートのヘッドトラッキングの変換行列
-        const GgMatrix mr(ml * Scene::getRemoteAttitude(eye));
+        const GgMatrix mr(mo * Scene::getRemoteAttitude(eye));
 
         // 背景を描く
-        rect.draw(texture[eye], camera->isOperator() && defaults.remote_stabilize ? mr : ml, window.getSamples());
+        rect.draw(texture[eye], defaults.remote_stabilize ? mr : mo, window.getSamples());
 
         // 図形と照準の描画設定
         glEnable(GL_DEPTH_TEST);

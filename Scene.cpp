@@ -3,8 +3,17 @@
 //
 #include "Scene.h"
 
-// 共有メモリ
-#include "SharedMemory.h"
+// ファイルマッピングオブジェクト名
+constexpr LPCWSTR localMutexName = L"TED_LOCAL_MUTEX";
+constexpr LPCWSTR localShareName = L"TED_LOCAL_SHARE";
+constexpr LPCWSTR remoteMutexName = L"TED_REMOTE_MUTEX";
+constexpr LPCWSTR remoteShareName = L"TED_REMOTE_SHARE";
+
+// 共有メモリ上に置く操縦者の変換行列
+std::unique_ptr<SharedMemory> localAttitude(nullptr);
+
+// 共有メモリ上に置く作業者の変換行列
+std::unique_ptr<SharedMemory> remoteAttitude(nullptr);
 
 // コンストラクタ
 Scene::Scene(const GgSimpleObj *ob)
@@ -30,15 +39,36 @@ Scene::~Scene()
   for (const auto o : children) delete o;
 }
 
-// 変換行列を初期化する
-void Scene::initialize()
+// 共有メモリを確保して初期化する
+bool Scene::initialize(unsigned int local_size, unsigned int remote_size)
 {
+  // ローカルの変換行列を保持する共有メモリを確保する
+  localAttitude.reset(new SharedMemory(localMutexName, localShareName, local_size));
+
+  // ローカルの変換行列を保持する共有メモリが確保できたかチェックする
+  if (!localAttitude->get()) return false;
+
+  // リモートの変換行列を保持する共有メモリを確保する
+  remoteAttitude.reset(new SharedMemory(remoteMutexName, remoteShareName, remote_size));
+
+  // リモートの変換行列を保持する共有メモリが確保できたかチェックする
+  if (!remoteAttitude->get()) return false;
+
+  // Leap Motion の listener と controller を作る
+  listener.reset(new LeapListener);
+
+  // 変換行列を "Leap Motion の関節の数" + "視点の数" + "モデル変換行列の数" だけ確保する
+  for (int i = 0; i < jointCount + camCount + 1; ++i) localAttitude->push(ggIdentity());
+
   // ローカルのモデル変換行列のサイズを確保する
-  localJointMatrix.resize(localAttitude->getUsed(), ggIdentity());
+  localMatrixTable.resize(localAttitude->getUsed(), ggIdentity());
 
   // リモートのモデル変換行列のサイズはローカルと同じにしておく
-  remoteJointMatrix.resize(localAttitude->getUsed());
-  for (auto &m : remoteJointMatrix) remoteAttitude->push(m = ggIdentity());
+  remoteMatrixTable.resize(localAttitude->getUsed());
+  for (auto &m : remoteMatrixTable) remoteAttitude->push(m = ggIdentity());
+
+  // 共有メモリの確保に成功した
+  return true;
 }
 
 // シーングラフを読み込む
@@ -104,7 +134,7 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
   {
     // 引数に指定されている変換行列の番号を取り出し
     const auto i(static_cast<unsigned int>(v_controller->second.get<double>()));
-    if (i < localAttitude->getSize()) me = localJointMatrix.data() + i;
+    if (i >= 0 && i < localMatrixTable.size()) me = localMatrixTable.data() + i;
   }
 
   // 遠隔コントローラーによる制御
@@ -113,7 +143,7 @@ Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int l
   {
     // 引数に指定されている変換行列の番号を取り出し
     const auto i(static_cast<unsigned int>(v_remote_controller->second.get<double>()));
-    if (i < remoteAttitude->getSize()) me = remoteJointMatrix.data() + i;
+    if (i >= 0 && i < remoteMatrixTable.size()) me = remoteMatrixTable.data() + i;
   }
 
   // パーツの図形データ
@@ -177,21 +207,34 @@ Scene *Scene::addChild(GgSimpleObj *obj)
   return addChild(new Scene(obj));
 }
 
-// ローカルとリモートの変換行列を共有メモリから取り出す
-void Scene::setup()
+// ローカルとリモートの変換行列を設定する
+void Scene::setup(const GgMatrix &m)
 {
-  // ローカルの共有メモリから変換行列を取得する
-  localAttitude->load(localJointMatrix.data(), 0, static_cast<unsigned int>(localJointMatrix.size()));
+  // モデル変換行列を変換行列のテーブルに保存する
+  localMatrixTable[camCount] = m;
+
+  // ローカルの変換行列に Leap Motion の関節の変換行列を取得する
+  listener->getHandPose(localMatrixTable.data() + camCount + 1);
+
+  // ローカルの変換行列を共有メモリに保存する
+  localAttitude->store(localMatrixTable.data(), static_cast<unsigned int>(localMatrixTable.size()));
 
   // リモートの共有メモリから変換行列を取得する
-  remoteAttitude->load(remoteJointMatrix.data(), 0, static_cast<unsigned int>(remoteJointMatrix.size()));
+  remoteAttitude->load(remoteMatrixTable.data(), static_cast<unsigned int>(remoteMatrixTable.size()));
+}
+
+// ローカルの変換行列のテーブルに保存する
+void Scene::setLocalAttitude(int cam, const GgMatrix &m)
+{
+  localMatrixTable[cam] = m;
+  localAttitude->set(cam, m);
 }
 
 // リモートのカメラのトラッキング情報を遅延させて取り出す
 const GgMatrix &Scene::getRemoteAttitude(int cam)
 {
   // 新しいトラッキングデータを追加する
-  fifo[cam].push(remoteJointMatrix[cam]);
+  fifo[cam].push(remoteMatrixTable[cam]);
 
   // キューの長さが遅延させるフレーム数より長ければキューを進める
   if (fifo[cam].size() > defaults.remote_delay[cam] + 1) fifo[cam].pop();
@@ -227,7 +270,10 @@ void Scene::draw(const GgMatrix &mp, const GgMatrix &mv) const
 std::map<const std::string, std::unique_ptr<const GgSimpleObj>> Scene::parts;
 
 // 外部モデル変換行列のテーブルのコピー
-std::vector<GgMatrix> Scene::localJointMatrix, Scene::remoteJointMatrix;
+std::vector<GgMatrix> Scene::localMatrixTable, Scene::remoteMatrixTable;
 
 // リモートカメラの姿勢のタイミングをフレームに合わせて遅らせるためのキュー
 std::queue<GgMatrix> Scene::fifo[remoteCamCount];
+
+// Leap Motion
+std::unique_ptr<LeapListener> Scene::listener;

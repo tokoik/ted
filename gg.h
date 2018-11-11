@@ -1468,6 +1468,7 @@ namespace gg
   extern GLuint ggLoadShader(const char *vert, const char *frag = nullptr, const char *geom = nullptr,
     GLint nvarying = 0, const char *const varyings[] = nullptr);
 
+#if !defined(__APPLE__)
   /*!
   ** \brief コンピュートシェーダのソースプログラムの文字列を読み込んでプログラムオブジェクトを作成する.
   **
@@ -1484,6 +1485,7 @@ namespace gg
   **   \returnプログラムオブジェクトのプログラム名 (作成できなければ 0).
   */
   extern GLuint ggLoadComputeShader(const char *comp);
+#endif
 
   /*!
   ** \brief 3 要素の長さ.
@@ -1547,7 +1549,7 @@ namespace gg
   */
   inline GLfloat ggLength4(const GgVector &a)
   {
-    ggLength4(a.data());
+    return ggLength4(a.data());
   }
 
   /*!

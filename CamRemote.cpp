@@ -82,11 +82,11 @@ int CamRemote::open(unsigned short port, const char *address)
     if (++i > receiveRetry) return ret;
   }
 
-  // 変換行列の保存先
-  GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
+  // 受信した変換行列の格納場所
+  GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));
 
-  // 変換行列を復帰する
-  remoteAttitude->store(body, 0, head[camCount]);
+  // 変換行列を共有メモリに格納する
+  remoteAttitude->store(body, head[camCount]);
 
   // 左フレームの保存先 (変換行列の最後)
   uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
@@ -234,11 +234,11 @@ void CamRemote::recv()
       // ヘッダのフォーマット
       unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
 
-      // 変換行列の保存先
-      GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
+      // 受信した変換行列の格納場所
+      GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));
 
-      // 変換行列を復帰する
-      remoteAttitude->store(body, 0, head[camCount]);
+      // 変換行列を共有メモリに格納する
+      remoteAttitude->store(body, head[camCount]);
 
       // 左フレームの保存先 (変換行列の最後)
       uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
@@ -340,11 +340,11 @@ void CamRemote::send()
     // 変換行列の数を保存する
     head[camCount] = localAttitude->getUsed();
 
-    // 変換行列の保存先
-    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + camCount + 1));
+    // 送信する変換行列の格納場所
+    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));
 
-    // 変換行列を保存する
-    localAttitude->load(body);
+    // 変換行列を共有メモリから取り出す
+    localAttitude->load(body, head[camCount]);
 
     // 左フレームの保存先 (変換行列の最後)
     uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
