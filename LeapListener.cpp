@@ -9,6 +9,9 @@
 // 標準ライブラリ
 #include <iostream>
 
+// 冗長なメッセージ
+#undef VERBOSE
+
 // 長さのスケール
 const GLfloat scale(0.01f);
 
@@ -35,7 +38,7 @@ void LeapListener::closeConnectionHandle(LEAP_CONNECTION* connectionHandle)
 void LeapListener::handleConnectionEvent(const LEAP_CONNECTION_EVENT *connection_event)
 {
   IsConnected = true;
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Leap: Connection established.\n";
 #endif
 }
@@ -44,7 +47,7 @@ void LeapListener::handleConnectionEvent(const LEAP_CONNECTION_EVENT *connection
 void LeapListener::handleConnectionLostEvent(const LEAP_CONNECTION_LOST_EVENT *connection_lost_event)
 {
   IsConnected = false;
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Leap: Connection lost.\n";
 #endif
 }
@@ -61,7 +64,7 @@ void LeapListener::handleDeviceEvent(const LEAP_DEVICE_EVENT *device_event)
   eLeapRS result(LeapOpenDevice(device_event->device, &deviceHandle));
   if (result != eLeapRS_Success)
   {
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
     std::cerr << "Leap: Could not open device " << ResultString(result) << ".\n";
 #endif
     return;
@@ -86,7 +89,7 @@ void LeapListener::handleDeviceEvent(const LEAP_DEVICE_EVENT *device_event)
     result = LeapGetDeviceInfo(deviceHandle, &deviceProperties);
     if (result != eLeapRS_Success)
     {
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
       std::cerr << "Leap: Failed to get device info " << ResultString(result) << ".\n";
 #endif
       delete[] deviceProperties.serial;
@@ -97,7 +100,7 @@ void LeapListener::handleDeviceEvent(const LEAP_DEVICE_EVENT *device_event)
 
   setDevice(&deviceProperties);
 
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Leap: Found device " << deviceProperties.serial << ".\n";
 #endif
 
@@ -110,7 +113,7 @@ void LeapListener::handleDeviceEvent(const LEAP_DEVICE_EVENT *device_event)
 /** Called by serviceMessageLoop() when a device lost event is returned by LeapPollConnection(). */
 void LeapListener::handleDeviceLostEvent(const LEAP_DEVICE_EVENT *device_event)
 {
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Leap: Device lost.\n";
 #endif
 }
@@ -165,7 +168,7 @@ void LeapListener::handleTrackingEvent(const LEAP_TRACKING_EVENT *tracking_event
 {
   setFrame(tracking_event); //support polling tracking data from different thread
 
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
   std::cerr
     << "Leap: tracking frame "
     << tracking_event->info.frame_id
@@ -194,7 +197,7 @@ void LeapListener::handleTrackingEvent(const LEAP_TRACKING_EVENT *tracking_event
 /** Called by serviceMessageLoop() when a log event is returned by LeapPollConnection(). */
 void LeapListener::handleLogEvent(const LEAP_LOG_EVENT *log_event)
 {
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Leap: Log: severity = ";
   switch (log_event->severity) {
   case eLeapLogSeverity_Critical:
@@ -220,7 +223,7 @@ void LeapListener::handleLogEvent(const LEAP_LOG_EVENT *log_event)
 /** Called by serviceMessageLoop() when a log event is returned by LeapPollConnection(). */
 void LeapListener::handleLogEvents(const LEAP_LOG_EVENTS *log_events)
 {
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Leap: Log:\n";
   for (int i = 0; i < static_cast<int>(log_events->nEvents); i++)
   {
@@ -252,7 +255,7 @@ void LeapListener::handleLogEvents(const LEAP_LOG_EVENTS *log_events)
 /** Called by serviceMessageLoop() when a policy event is returned by LeapPollConnection(). */
 void LeapListener::handlePolicyEvent(const LEAP_POLICY_EVENT *policy_event)
 {
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Leap: policy " << policy_event->current_policy << ".\n";
 #endif
 }
@@ -260,7 +263,7 @@ void LeapListener::handlePolicyEvent(const LEAP_POLICY_EVENT *policy_event)
 /** Called by serviceMessageLoop() when a config change event is returned by LeapPollConnection(). */
 void LeapListener::handleConfigChangeEvent(const LEAP_CONFIG_CHANGE_EVENT *config_change_event)
 {
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
   std::cerr
     << "Leap: config change: requset ID " << config_change_event->requestID
     << ", status" << config_change_event->status
@@ -271,7 +274,7 @@ void LeapListener::handleConfigChangeEvent(const LEAP_CONFIG_CHANGE_EVENT *confi
 /** Called by serviceMessageLoop() when a config response event is returned by LeapPollConnection(). */
 void LeapListener::handleConfigResponseEvent(const LEAP_CONFIG_RESPONSE_EVENT *config_response_event)
 {
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
   std::cerr
     << "Leap: config response: requset ID " << config_response_event->requestID
     << ".\n";
@@ -281,7 +284,7 @@ void LeapListener::handleConfigResponseEvent(const LEAP_CONFIG_RESPONSE_EVENT *c
 /** Called by serviceMessageLoop() when a point mapping change event is returned by LeapPollConnection(). */
 void LeapListener::handleImageEvent(const LEAP_IMAGE_EVENT *image_event)
 {
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
   std::cerr
     << "Leap: Image "
     << image_event->info.frame_id
@@ -303,7 +306,7 @@ void LeapListener::handleImageEvent(const LEAP_IMAGE_EVENT *image_event)
 /** Called by serviceMessageLoop() when a point mapping change event is returned by LeapPollConnection(). */
 void LeapListener::handlePointMappingChangeEvent(const LEAP_POINT_MAPPING_CHANGE_EVENT *point_mapping_change_event)
 {
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Leap: mapping change.\n";
 #endif
 }
@@ -311,7 +314,7 @@ void LeapListener::handlePointMappingChangeEvent(const LEAP_POINT_MAPPING_CHANGE
 /** Called by serviceMessageLoop() when a point mapping change event is returned by LeapPollConnection(). */
 void LeapListener::handleHeadPoseEvent(const LEAP_HEAD_POSE_EVENT *head_pose_event)
 {
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
   std::cerr
     << "Leap: head pose: position ("
     << head_pose_event->head_position.x
@@ -430,7 +433,7 @@ void LeapListener::serviceMessageLoop()
     const eLeapRS result(LeapPollConnection(connectionHandle, timeout, &msg));
     if (result != eLeapRS_Success)
     {
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
       std::cerr << "LeapC PollConnection call was " << ResultString(result) << ".\n";
 #endif
       continue;
@@ -725,6 +728,7 @@ volatile bool LeapListener::_isRunning(false);
 LEAP_CONNECTION LeapListener::connectionHandle(nullptr);
 std::unique_ptr<LEAP_TRACKING_EVENT> LeapListener::lastFrame(nullptr);
 std::unique_ptr<LEAP_DEVICE_INFO> LeapListener::lastDevice(nullptr);
+LEAP_CLOCK_REBASER LeapListener::clockSynchronizer;
 
 // スレッド
 std::thread LeapListener::pollingThread;
