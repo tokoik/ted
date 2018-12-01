@@ -213,6 +213,25 @@ void Scene::setup(const GgMatrix &m)
   // モデル変換行列を変換行列のテーブルに保存する
   localMatrixTable[camCount] = m;
 
+#if defined(LEAP_INTERPORATE_FRAME)
+  // Leap Motion と CPU の同期をとる
+  listener->synchronize();
+#else
+  // ローカルの変換行列に Leap Motion の関節の変換行列を取得する
+  listener->getHandPose(localMatrixTable.data() + camCount + 1);
+
+  // ローカルの変換行列を共有メモリに保存する
+  localAttitude->store(localMatrixTable.data(), static_cast<unsigned int>(localMatrixTable.size()));
+
+  // リモートの共有メモリから変換行列を取得する
+  remoteAttitude->load(remoteMatrixTable.data(), static_cast<unsigned int>(remoteMatrixTable.size()));
+#endif
+}
+
+#if defined(LEAP_INTERPORATE_FRAME)
+// ローカルとリモートの変換行列を更新する
+void Scene::update()
+{
   // ローカルの変換行列に Leap Motion の関節の変換行列を取得する
   listener->getHandPose(localMatrixTable.data() + camCount + 1);
 
@@ -222,6 +241,7 @@ void Scene::setup(const GgMatrix &m)
   // リモートの共有メモリから変換行列を取得する
   remoteAttitude->load(remoteMatrixTable.data(), static_cast<unsigned int>(remoteMatrixTable.size()));
 }
+#endif
 
 // ローカルの変換行列のテーブルに保存する
 void Scene::setLocalAttitude(int cam, const GgMatrix &m)

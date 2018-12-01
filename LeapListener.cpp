@@ -9,11 +9,11 @@
 // 標準ライブラリ
 #include <iostream>
 
-// 冗長なメッセージ
+// 冗長なデバッグメッセージ
 #undef VERBOSE
 
 // 長さのスケール
-const GLfloat scale(0.01f);
+constexpr GLfloat scale(0.01f);
 
 //
 // The following code contains code modified from Leap Motion SDK sample code.
@@ -27,15 +27,113 @@ const GLfloat scale(0.01f);
 * between Leap Motion and you, your company or other organization.             *
 \******************************************************************************/
 
-/** Close the connection and let message thread function end. */
-void LeapListener::closeConnectionHandle(LEAP_CONNECTION* connectionHandle)
+
+/* Leap Motion status */
+static bool IsConnected(false);
+static volatile bool _isRunning(false);
+static LEAP_CONNECTION connectionHandle(nullptr);
+static std::unique_ptr<LEAP_TRACKING_EVENT> lastFrame(nullptr);
+static std::unique_ptr<LEAP_DEVICE_INFO> lastDevice(nullptr);
+static int32_t lastDrawnFrameId(0);
+static volatile int32_t newestFrameId(0);
+#if defined(LEAP_INTERPORATE_FRAME)
+static LEAP_CLOCK_REBASER clockSynchronizer;
+#endif
+
+/* Thread */
+static std::thread pollingThread;
+static std::mutex dataLock;
+
+/**
+ * Translates eLeapRS result codes into a human-readable string.
+ */
+static const char *ResultString(eLeapRS r)
 {
-  LeapDestroyConnection(*connectionHandle);
-  _isRunning = false;
+  switch (r)
+  {
+  case eLeapRS_Success:                  return "eLeapRS_Success";
+  case eLeapRS_UnknownError:             return "eLeapRS_UnknownError";
+  case eLeapRS_InvalidArgument:          return "eLeapRS_InvalidArgument";
+  case eLeapRS_InsufficientResources:    return "eLeapRS_InsufficientResources";
+  case eLeapRS_InsufficientBuffer:       return "eLeapRS_InsufficientBuffer";
+  case eLeapRS_Timeout:                  return "eLeapRS_Timeout";
+  case eLeapRS_NotConnected:             return "eLeapRS_NotConnected";
+  case eLeapRS_HandshakeIncomplete:      return "eLeapRS_HandshakeIncomplete";
+  case eLeapRS_BufferSizeOverflow:       return "eLeapRS_BufferSizeOverflow";
+  case eLeapRS_ProtocolError:            return "eLeapRS_ProtocolError";
+  case eLeapRS_InvalidClientID:          return "eLeapRS_InvalidClientID";
+  case eLeapRS_UnexpectedClosed:         return "eLeapRS_UnexpectedClosed";
+  case eLeapRS_UnknownImageFrameRequest: return "eLeapRS_UnknownImageFrameRequest";
+  case eLeapRS_UnknownTrackingFrameID:   return "eLeapRS_UnknownTrackingFrameID";
+  case eLeapRS_RoutineIsNotSeer:         return "eLeapRS_RoutineIsNotSeer";
+  case eLeapRS_TimestampTooEarly:        return "eLeapRS_TimestampTooEarly";
+  case eLeapRS_ConcurrentPoll:           return "eLeapRS_ConcurrentPoll";
+  case eLeapRS_NotAvailable:             return "eLeapRS_NotAvailable";
+  case eLeapRS_NotStreaming:             return "eLeapRS_NotStreaming";
+  case eLeapRS_CannotOpenDevice:         return "eLeapRS_CannotOpenDevice";
+  default:                               return "unknown result type.";
+  }
+}
+
+/**
+ * Caches the newest frame by copying the tracking event struct returned by
+ * LeapC.
+ */
+static void setFrame(const LEAP_TRACKING_EVENT *frame)
+{
+  std::lock_guard<std::mutex> lock(dataLock);
+  if (!lastFrame.get()) lastFrame.reset(new LEAP_TRACKING_EVENT);
+  *lastFrame = *frame;
+}
+
+/**
+ * Returns a pointer to the cached tracking frame.
+ */
+static const LEAP_TRACKING_EVENT *getFrame()
+{
+  LEAP_TRACKING_EVENT *currentFrame;
+
+  std::lock_guard<std::mutex> lock(dataLock);
+  currentFrame = lastFrame.get();
+
+  return currentFrame;
+}
+
+/**
+ * Caches the last device found by copying the device info struct returned by
+ * LeapC.
+ */
+static void setDevice(const LEAP_DEVICE_INFO *deviceProps)
+{
+  std::lock_guard<std::mutex> lock(dataLock);
+  if (lastDevice)
+  {
+    delete[] lastDevice->serial;
+  }
+  else
+  {
+    lastDevice.reset(new LEAP_DEVICE_INFO);
+  }
+  *lastDevice = *deviceProps;
+  lastDevice->serial = new char[deviceProps->serial_length];
+  memcpy(lastDevice->serial, deviceProps->serial, deviceProps->serial_length);
+}
+
+/**
+ * Returns a pointer to the cached device info.
+ */
+static LEAP_DEVICE_INFO *getDeviceProperties()
+{
+  LEAP_DEVICE_INFO *currentDevice;
+
+  std::lock_guard<std::mutex> lock(dataLock);
+  currentDevice = lastDevice.get();
+
+  return currentDevice;
 }
 
 /** Called by serviceMessageLoop() when a connection event is returned by LeapPollConnection(). */
-void LeapListener::handleConnectionEvent(const LEAP_CONNECTION_EVENT *connection_event)
+static void handleConnectionEvent(const LEAP_CONNECTION_EVENT *connection_event)
 {
   IsConnected = true;
 #if defined(DEBUG) && defined(VERBOSE)
@@ -44,7 +142,7 @@ void LeapListener::handleConnectionEvent(const LEAP_CONNECTION_EVENT *connection
 }
 
 /** Called by serviceMessageLoop() when a connection lost event is returned by LeapPollConnection(). */
-void LeapListener::handleConnectionLostEvent(const LEAP_CONNECTION_LOST_EVENT *connection_lost_event)
+static void handleConnectionLostEvent(const LEAP_CONNECTION_LOST_EVENT *connection_lost_event)
 {
   IsConnected = false;
 #if defined(DEBUG) && defined(VERBOSE)
@@ -56,7 +154,7 @@ void LeapListener::handleConnectionLostEvent(const LEAP_CONNECTION_LOST_EVENT *c
  * Called by serviceMessageLoop() when a device event is returned by LeapPollConnection()
  * Demonstrates how to access device properties.
  */
-void LeapListener::handleDeviceEvent(const LEAP_DEVICE_EVENT *device_event)
+static void handleDeviceEvent(const LEAP_DEVICE_EVENT *device_event)
 {
   LEAP_DEVICE deviceHandle;
 
@@ -111,7 +209,7 @@ void LeapListener::handleDeviceEvent(const LEAP_DEVICE_EVENT *device_event)
 }
 
 /** Called by serviceMessageLoop() when a device lost event is returned by LeapPollConnection(). */
-void LeapListener::handleDeviceLostEvent(const LEAP_DEVICE_EVENT *device_event)
+static void handleDeviceLostEvent(const LEAP_DEVICE_EVENT *device_event)
 {
 #if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Leap: Device lost.\n";
@@ -119,7 +217,7 @@ void LeapListener::handleDeviceLostEvent(const LEAP_DEVICE_EVENT *device_event)
 }
 
 /** Called by serviceMessageLoop() when a device failure event is returned by LeapPollConnection(). */
-void LeapListener::handleDeviceFailureEvent(const LEAP_DEVICE_FAILURE_EVENT *device_failure_event)
+static void handleDeviceFailureEvent(const LEAP_DEVICE_FAILURE_EVENT *device_failure_event)
 {
 #if defined(DEBUG)
   std::cerr << "Leap: Device failure: ";
@@ -164,9 +262,10 @@ void LeapListener::handleDeviceFailureEvent(const LEAP_DEVICE_FAILURE_EVENT *dev
 }
 
 /** Called by serviceMessageLoop() when a tracking event is returned by LeapPollConnection(). */
-void LeapListener::handleTrackingEvent(const LEAP_TRACKING_EVENT *tracking_event)
+static void handleTrackingEvent(const LEAP_TRACKING_EVENT *tracking_event)
 {
   setFrame(tracking_event); //support polling tracking data from different thread
+  newestFrameId = static_cast<int32_t>(tracking_event->tracking_frame_id);
 
 #if defined(DEBUG) && defined(VERBOSE)
   std::cerr
@@ -195,7 +294,7 @@ void LeapListener::handleTrackingEvent(const LEAP_TRACKING_EVENT *tracking_event
 }
 
 /** Called by serviceMessageLoop() when a log event is returned by LeapPollConnection(). */
-void LeapListener::handleLogEvent(const LEAP_LOG_EVENT *log_event)
+static void handleLogEvent(const LEAP_LOG_EVENT *log_event)
 {
 #if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Leap: Log: severity = ";
@@ -221,7 +320,7 @@ void LeapListener::handleLogEvent(const LEAP_LOG_EVENT *log_event)
 }
 
 /** Called by serviceMessageLoop() when a log event is returned by LeapPollConnection(). */
-void LeapListener::handleLogEvents(const LEAP_LOG_EVENTS *log_events)
+static void handleLogEvents(const LEAP_LOG_EVENTS *log_events)
 {
 #if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Leap: Log:\n";
@@ -253,7 +352,7 @@ void LeapListener::handleLogEvents(const LEAP_LOG_EVENTS *log_events)
 }
 
 /** Called by serviceMessageLoop() when a policy event is returned by LeapPollConnection(). */
-void LeapListener::handlePolicyEvent(const LEAP_POLICY_EVENT *policy_event)
+static void handlePolicyEvent(const LEAP_POLICY_EVENT *policy_event)
 {
 #if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Leap: policy " << policy_event->current_policy << ".\n";
@@ -261,7 +360,7 @@ void LeapListener::handlePolicyEvent(const LEAP_POLICY_EVENT *policy_event)
 }
 
 /** Called by serviceMessageLoop() when a config change event is returned by LeapPollConnection(). */
-void LeapListener::handleConfigChangeEvent(const LEAP_CONFIG_CHANGE_EVENT *config_change_event)
+static void handleConfigChangeEvent(const LEAP_CONFIG_CHANGE_EVENT *config_change_event)
 {
 #if defined(DEBUG) && defined(VERBOSE)
   std::cerr
@@ -272,7 +371,7 @@ void LeapListener::handleConfigChangeEvent(const LEAP_CONFIG_CHANGE_EVENT *confi
 }
 
 /** Called by serviceMessageLoop() when a config response event is returned by LeapPollConnection(). */
-void LeapListener::handleConfigResponseEvent(const LEAP_CONFIG_RESPONSE_EVENT *config_response_event)
+static void handleConfigResponseEvent(const LEAP_CONFIG_RESPONSE_EVENT *config_response_event)
 {
 #if defined(DEBUG) && defined(VERBOSE)
   std::cerr
@@ -282,7 +381,7 @@ void LeapListener::handleConfigResponseEvent(const LEAP_CONFIG_RESPONSE_EVENT *c
 }
 
 /** Called by serviceMessageLoop() when a point mapping change event is returned by LeapPollConnection(). */
-void LeapListener::handleImageEvent(const LEAP_IMAGE_EVENT *image_event)
+static void handleImageEvent(const LEAP_IMAGE_EVENT *image_event)
 {
 #if defined(DEBUG) && defined(VERBOSE)
   std::cerr
@@ -304,7 +403,7 @@ void LeapListener::handleImageEvent(const LEAP_IMAGE_EVENT *image_event)
 }
 
 /** Called by serviceMessageLoop() when a point mapping change event is returned by LeapPollConnection(). */
-void LeapListener::handlePointMappingChangeEvent(const LEAP_POINT_MAPPING_CHANGE_EVENT *point_mapping_change_event)
+static void handlePointMappingChangeEvent(const LEAP_POINT_MAPPING_CHANGE_EVENT *point_mapping_change_event)
 {
 #if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Leap: mapping change.\n";
@@ -312,7 +411,7 @@ void LeapListener::handlePointMappingChangeEvent(const LEAP_POINT_MAPPING_CHANGE
 }
 
 /** Called by serviceMessageLoop() when a point mapping change event is returned by LeapPollConnection(). */
-void LeapListener::handleHeadPoseEvent(const LEAP_HEAD_POSE_EVENT *head_pose_event)
+static void handleHeadPoseEvent(const LEAP_HEAD_POSE_EVENT *head_pose_event)
 {
 #if defined(DEBUG) && defined(VERBOSE)
   std::cerr
@@ -335,97 +434,12 @@ void LeapListener::handleHeadPoseEvent(const LEAP_HEAD_POSE_EVENT *head_pose_eve
 }
 
 /**
- * Creates the connection handle and opens a connection to the Leap Motion
- * service. On success, creates a thread to service the LeapC message pump.
- */
-const LEAP_CONNECTION *LeapListener::openConnection()
-{
-  // serviceMessageLoop() が既に起動していたら何もしない
-  if (_isRunning) return &connectionHandle;
-
-  // connectionHandle が得られていなかったら connectionHandle を作成して
-  if (connectionHandle || LeapCreateConnection(NULL, &connectionHandle) == eLeapRS_Success)
-  {
-    // connectionHandle に接続して
-    const eLeapRS result(LeapOpenConnection(connectionHandle));
-
-    // 接続できたら
-    if (result == eLeapRS_Success)
-    {
-      // serviceMessageLoopLeap() のループが回るようにして
-      _isRunning = true;
-
-      // serviceMssageLoop() を別スレッドで起動し
-      pollingThread = std::thread(serviceMessageLoop);
-    }
-  }
-
-  // ハンドルを返す
-  return &connectionHandle;
-}
-
-void LeapListener::closeConnection()
-{
-  // serviceMessageLoop() が動いていなかったら何もしない
-  if (!_isRunning) return;
-
-  // serviceMessageLoop() を止めて
-  _isRunning = false;
-
-  // Leap Motion との接続を閉じて
-  LeapCloseConnection(connectionHandle);
-
-  // 少し待ってから
-  std::this_thread::sleep_for(std::chrono::milliseconds(250));
-
-  // スレッドが停止するのを待つ
-  if (pollingThread.joinable()) pollingThread.join();
-}
-
-void LeapListener::destroyConnection()
-{
-  closeConnection();
-  LeapDestroyConnection(connectionHandle);
-}
-
-/**
- * Translates eLeapRS result codes into a human-readable string.
- */
-const char* LeapListener::ResultString(eLeapRS r)
-{
-  switch (r)
-  {
-  case eLeapRS_Success:                  return "eLeapRS_Success";
-  case eLeapRS_UnknownError:             return "eLeapRS_UnknownError";
-  case eLeapRS_InvalidArgument:          return "eLeapRS_InvalidArgument";
-  case eLeapRS_InsufficientResources:    return "eLeapRS_InsufficientResources";
-  case eLeapRS_InsufficientBuffer:       return "eLeapRS_InsufficientBuffer";
-  case eLeapRS_Timeout:                  return "eLeapRS_Timeout";
-  case eLeapRS_NotConnected:             return "eLeapRS_NotConnected";
-  case eLeapRS_HandshakeIncomplete:      return "eLeapRS_HandshakeIncomplete";
-  case eLeapRS_BufferSizeOverflow:       return "eLeapRS_BufferSizeOverflow";
-  case eLeapRS_ProtocolError:            return "eLeapRS_ProtocolError";
-  case eLeapRS_InvalidClientID:          return "eLeapRS_InvalidClientID";
-  case eLeapRS_UnexpectedClosed:         return "eLeapRS_UnexpectedClosed";
-  case eLeapRS_UnknownImageFrameRequest: return "eLeapRS_UnknownImageFrameRequest";
-  case eLeapRS_UnknownTrackingFrameID:   return "eLeapRS_UnknownTrackingFrameID";
-  case eLeapRS_RoutineIsNotSeer:         return "eLeapRS_RoutineIsNotSeer";
-  case eLeapRS_TimestampTooEarly:        return "eLeapRS_TimestampTooEarly";
-  case eLeapRS_ConcurrentPoll:           return "eLeapRS_ConcurrentPoll";
-  case eLeapRS_NotAvailable:             return "eLeapRS_NotAvailable";
-  case eLeapRS_NotStreaming:             return "eLeapRS_NotStreaming";
-  case eLeapRS_CannotOpenDevice:         return "eLeapRS_CannotOpenDevice";
-  default:                               return "unknown result type.";
-  }
-}
-
-/**
  * Services the LeapC message pump by calling LeapPollConnection().
  * The average polling time is determined by the framerate of the Leap Motion service.
  */
-void LeapListener::serviceMessageLoop()
+static void serviceMessageLoop()
 {
-  while (_isRunning)
+  do
   {
     constexpr unsigned int timeout(1000);
     LEAP_CONNECTION_MESSAGE msg;
@@ -433,7 +447,7 @@ void LeapListener::serviceMessageLoop()
     const eLeapRS result(LeapPollConnection(connectionHandle, timeout, &msg));
     if (result != eLeapRS_Success)
     {
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
       std::cerr << "LeapC PollConnection call was " << ResultString(result) << ".\n";
 #endif
       continue;
@@ -497,72 +511,19 @@ void LeapListener::serviceMessageLoop()
       break;
     }
   }
-
-#if !defined(_MSC_VER)
-  return NULL;
-#endif
+  while (_isRunning);
 }
 
-/**
- * Caches the newest frame by copying the tracking event struct returned by
- * LeapC.
- */
-void LeapListener::setFrame(const LEAP_TRACKING_EVENT *frame)
+/** Close the connection and let message thread function end. */
+static void closeConnectionHandle(LEAP_CONNECTION *connectionHandle)
 {
-  std::lock_guard<std::mutex> lock(dataLock);
-  if (!lastFrame.get()) lastFrame.reset(new LEAP_TRACKING_EVENT);
-  *lastFrame = *frame;
-}
-
-/**
- * Returns a pointer to the cached tracking frame.
- */
-const LEAP_TRACKING_EVENT *LeapListener::getFrame()
-{
-  LEAP_TRACKING_EVENT *currentFrame;
-
-  std::lock_guard<std::mutex> lock(dataLock);
-  currentFrame = lastFrame.get();
-
-  return currentFrame;
-}
-
-/**
- * Caches the last device found by copying the device info struct returned by
- * LeapC.
- */
-void LeapListener::setDevice(const LEAP_DEVICE_INFO *deviceProps)
-{
-  std::lock_guard<std::mutex> lock(dataLock);
-  if (lastDevice)
-  {
-    delete[] lastDevice->serial;
-  }
-  else {
-    lastDevice.reset(new LEAP_DEVICE_INFO);
-  }
-  *lastDevice = *deviceProps;
-  lastDevice->serial = new char[deviceProps->serial_length];
-  memcpy(lastDevice->serial, deviceProps->serial, deviceProps->serial_length);
-}
-
-/**
- * Returns a pointer to the cached device info.
- */
-LEAP_DEVICE_INFO* LeapListener::getDeviceProperties()
-{
-  LEAP_DEVICE_INFO *currentDevice;
-
-  std::lock_guard<std::mutex> lock(dataLock);
-  currentDevice = lastDevice.get();
-
-  return currentDevice;
+  LeapDestroyConnection(*connectionHandle);
+  _isRunning = false;
 }
 
 // コンストラクタ
 LeapListener::LeapListener()
 {
-  // Leap Motion と接続する
   openConnection();
 }
 
@@ -573,17 +534,151 @@ LeapListener::~LeapListener()
   destroyConnection();
 }
 
+/**
+ * Creates the connection handle and opens a connection to the Leap Motion
+ * service. On success, creates a thread to service the LeapC message pump.
+ */
+const LEAP_CONNECTION *LeapListener::openConnection()
+{
+  // serviceMessageLoop() が既に起動していたら何もしない
+  if (_isRunning) return &connectionHandle;
+
+  // connectionHandle が得られていなかったら connectionHandle を作成して
+  if (connectionHandle || LeapCreateConnection(NULL, &connectionHandle) == eLeapRS_Success)
+  {
+    // connectionHandle に接続して
+    const eLeapRS result(LeapOpenConnection(connectionHandle));
+
+    // 接続できたら
+    if (result == eLeapRS_Success)
+    {
+      // servceMessageLoop() でポーリングして接続完了を待ち
+      do
+      {
+        serviceMessageLoop();
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+      }
+      while (!IsConnected);
+
+      // serviceMessageLoopLeap() のループが回るようにして
+      _isRunning = true;
+
+      // serviceMessage() を別スレッドでループさせる
+      pollingThread = std::thread(serviceMessageLoop);
+
+      // HMD 用に最適化する
+      LeapSetPolicyFlags(connectionHandle, eLeapPolicyFlag_OptimizeHMD, 0);
+
+#if defined(LEAP_INTERPORATE_FRAME)
+      // クロックシンセサイザを生成する
+      LeapCreateClockRebaser(&clockSynchronizer);
+#endif
+    }
+  }
+
+  // ハンドルを返す
+  return &connectionHandle;
+}
+
+void LeapListener::closeConnection()
+{
+  // serviceMessageLoop() が動いていなかったら何もしない
+  if (!_isRunning) return;
+
+  // serviceMessageLoop() を止めて
+  _isRunning = false;
+
+  // Leap Motion との接続を閉じて
+  LeapCloseConnection(connectionHandle);
+
+  // 少し待ってから
+  std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
+  // スレッドが停止するのを待つ
+  if (pollingThread.joinable()) pollingThread.join();
+}
+
+void LeapListener::destroyConnection()
+{
+  closeConnection();
+  LeapDestroyConnection(connectionHandle);
+}
+
+#if defined(LEAP_INTERPORATE_FRAME)
+// Leap Motion と CPU の同期をとる
+void LeapListener::synchronize()
+{
+  // アプリケーションの現在時刻を求める (マイクロ秒)
+  const clock_t cpuTime(static_cast<clock_t>(0.000001 * clock() / CLOCKS_PER_SEC));
+
+  // Leap Motion の時刻を同期する
+  LeapUpdateRebase(clockSynchronizer, cpuTime, LeapGetNow());
+}
+
+static int64_t targetFrameTime = 0;
+static uint64_t targetFrameSize = 0;
+#endif
+
 // 関節の変換行列のテーブルに値を取得する
 void LeapListener::getHandPose(GgMatrix *matrix) const
 {
+#if defined(LEAP_INTERPORATE_FRAME)
+  // アプリケーションの現在時刻を求める (マイクロ秒)
+  const clock_t cpuTime(static_cast<clock_t>(0.000001 * clock() / CLOCKS_PER_SEC));
+
+  //Translate application time to Leap time
+  LeapRebaseClock(clockSynchronizer, cpuTime, &targetFrameTime);
+
+  // 結果
+  eLeapRS result;
+
+  //Get the buffer size needed to hold the tracking data
+  result = LeapGetFrameSize(connectionHandle, targetFrameTime, &targetFrameSize);
+  if (result != eLeapRS_Success)
+  {
+#if defined(DEBUG)
+    std::cerr << "LeapGetFrameSize() result was " << ResultString(result) << ".\n";
+#endif
+    return;
+  }
+
+  //Allocate enough memory
+  const std::unique_ptr<LEAP_TRACKING_EVENT> frame(reinterpret_cast<LEAP_TRACKING_EVENT *>(new char[targetFrameSize]));
+
+  //Get the frame
+  result = LeapInterpolateFrame(connectionHandle, targetFrameTime, frame.get(), targetFrameSize);
+  if (result != eLeapRS_Success)
+  {
+#if defined(DEBUG)
+    std::cerr << "LeapInterpolateFrame() result was " << ResultString(result) << ".\n";
+#endif
+    return;
+  }
+
+#  if defined(DEBUG)
+  std::cerr
+    << "Frame "
+    << static_cast<long long int>(frame->tracking_frame_id)
+    << " with "
+    << frame->nHands
+    << " hands with delay of "
+    << static_cast<long long int>(LeapGetNow()) - frame->info.timestamp
+    << " microseconds.\n";
+#  endif
+#else
+  // フレームが更新されていなかったら何もしない
+  if (lastDrawnFrameId >= newestFrameId) return;
+  lastDrawnFrameId = newestFrameId;
+
   // 保存されているフレームを取り出す
   const LEAP_TRACKING_EVENT *frame(getFrame());
   if (!frame) return;
-#if defined(DEBUG)
+#  if defined(DEBUG)
   std::cerr << "Frame id: " << frame->info.frame_id
     << ", timestamp: " << frame->info.timestamp
     << ", hands: " << frame->nHands
     << "\n";
+#  endif
 #endif
 
   // 全ての腕について
@@ -594,6 +689,10 @@ void LeapListener::getHandPose(GgMatrix *matrix) const
 
     // 左手なら 0, 右手なら 1
     const int base(hand.type == eLeapHandType_Left ? 0 : 1);
+
+#if defined(DEBUG)
+    std::cerr << "Hand id: " << hand.id << ", " << base << "\n";
+#endif
 
     // 手のひらの位置
     const GLfloat handPos[]
@@ -721,15 +820,3 @@ void LeapListener::getHandPose(GgMatrix *matrix) const
 void LeapListener::getHeadPose(GgMatrix *matrixmatrix) const
 {
 }
-
-// Leap Motion の状態
-bool LeapListener::IsConnected(false);
-volatile bool LeapListener::_isRunning(false);
-LEAP_CONNECTION LeapListener::connectionHandle(nullptr);
-std::unique_ptr<LEAP_TRACKING_EVENT> LeapListener::lastFrame(nullptr);
-std::unique_ptr<LEAP_DEVICE_INFO> LeapListener::lastDevice(nullptr);
-LEAP_CLOCK_REBASER LeapListener::clockSynchronizer;
-
-// スレッド
-std::thread LeapListener::pollingThread;
-std::mutex LeapListener::dataLock;

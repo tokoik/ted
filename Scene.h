@@ -77,6 +77,11 @@ public:
   // ローカルとリモートの変換行列を設定する
   static void setup(const GgMatrix &m);
 
+#if defined(LEAP_INTERPORATE_FRAME)
+  // ローカルとリモートの変換行列を更新する
+  static void update();
+#endif
+
   // ローカルの変換行列のテーブルに保存する
   static void setLocalAttitude(int cam, const GgMatrix &m);
 

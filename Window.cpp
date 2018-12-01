@@ -1222,6 +1222,11 @@ void Window::swapBuffers()
       updateProjectionMatrix();
     }
   }
+
+#if defined(LEAP_INTERPORATE_FRAME)
+  // Leap Motion ‚Ì•ÏŠ·s—ñ‚ğXV‚·‚é
+  Scene::update();
+#endif
 }
 
 //
