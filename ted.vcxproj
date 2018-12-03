@@ -144,7 +144,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\lib\$(Platform)\$(Configuration);C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\OpenCV\x86\vc15\lib;C:\LeapSDK\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\lib\$(Platform)\$(Configuration);C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x86\vc15\lib;C:\LeapSDK\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -158,7 +158,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\lib\$(Platform)\$(Configuration);C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\OpenCV\x64\vc15\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\lib\$(Platform)\$(Configuration);C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc15\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -176,7 +176,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\lib\$(Platform)\$(Configuration);C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\OpenCV\x86\vc15\lib;C:\LeapSDK\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\lib\$(Platform)\$(Configuration);C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x86\vc15\lib;C:\LeapSDK\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -194,7 +194,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\lib\$(Platform)\$(Configuration);C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\OpenCV\x64\vc15\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\lib\$(Platform)\$(Configuration);C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc15\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
