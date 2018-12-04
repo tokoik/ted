@@ -85,6 +85,13 @@ struct config
 // デフォルト値
 extern config defaults;
 
+// ウィンドウのタイトル
+constexpr char windowTitle[] = "TED";
+
+// ウィンドウモード時のウィンドウサイズの初期値
+constexpr int defaultWindowWidth(960);
+constexpr int defaultWindowHeight(540);
+
 // ナビゲーションの速度調整
 constexpr GLfloat zoomStep(0.01f);                          // 物体のズーム率調整のステップ
 constexpr GLfloat shiftStep(0.001f);                        // 背景テクスチャのシフト量調整のステップ

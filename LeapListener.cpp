@@ -136,7 +136,7 @@ static LEAP_DEVICE_INFO *getDeviceProperties()
 static void handleConnectionEvent(const LEAP_CONNECTION_EVENT *connection_event)
 {
   IsConnected = true;
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
   std::cerr << "Leap: Connection established.\n";
 #endif
 }
@@ -145,7 +145,7 @@ static void handleConnectionEvent(const LEAP_CONNECTION_EVENT *connection_event)
 static void handleConnectionLostEvent(const LEAP_CONNECTION_LOST_EVENT *connection_lost_event)
 {
   IsConnected = false;
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
   std::cerr << "Leap: Connection lost.\n";
 #endif
 }
@@ -162,7 +162,7 @@ static void handleDeviceEvent(const LEAP_DEVICE_EVENT *device_event)
   eLeapRS result(LeapOpenDevice(device_event->device, &deviceHandle));
   if (result != eLeapRS_Success)
   {
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
     std::cerr << "Leap: Could not open device " << ResultString(result) << ".\n";
 #endif
     return;
@@ -187,7 +187,7 @@ static void handleDeviceEvent(const LEAP_DEVICE_EVENT *device_event)
     result = LeapGetDeviceInfo(deviceHandle, &deviceProperties);
     if (result != eLeapRS_Success)
     {
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
       std::cerr << "Leap: Failed to get device info " << ResultString(result) << ".\n";
 #endif
       delete[] deviceProperties.serial;
@@ -198,7 +198,7 @@ static void handleDeviceEvent(const LEAP_DEVICE_EVENT *device_event)
 
   setDevice(&deviceProperties);
 
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
   std::cerr << "Leap: Found device " << deviceProperties.serial << ".\n";
 #endif
 
@@ -211,7 +211,7 @@ static void handleDeviceEvent(const LEAP_DEVICE_EVENT *device_event)
 /** Called by serviceMessageLoop() when a device lost event is returned by LeapPollConnection(). */
 static void handleDeviceLostEvent(const LEAP_DEVICE_EVENT *device_event)
 {
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
   std::cerr << "Leap: Device lost.\n";
 #endif
 }
@@ -296,7 +296,7 @@ static void handleTrackingEvent(const LEAP_TRACKING_EVENT *tracking_event)
 /** Called by serviceMessageLoop() when a log event is returned by LeapPollConnection(). */
 static void handleLogEvent(const LEAP_LOG_EVENT *log_event)
 {
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
   std::cerr << "Leap: Log: severity = ";
   switch (log_event->severity) {
   case eLeapLogSeverity_Critical:
@@ -322,7 +322,7 @@ static void handleLogEvent(const LEAP_LOG_EVENT *log_event)
 /** Called by serviceMessageLoop() when a log event is returned by LeapPollConnection(). */
 static void handleLogEvents(const LEAP_LOG_EVENTS *log_events)
 {
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
   std::cerr << "Leap: Log:\n";
   for (int i = 0; i < static_cast<int>(log_events->nEvents); i++)
   {
@@ -354,7 +354,7 @@ static void handleLogEvents(const LEAP_LOG_EVENTS *log_events)
 /** Called by serviceMessageLoop() when a policy event is returned by LeapPollConnection(). */
 static void handlePolicyEvent(const LEAP_POLICY_EVENT *policy_event)
 {
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
   std::cerr << "Leap: policy " << policy_event->current_policy << ".\n";
 #endif
 }
@@ -362,7 +362,7 @@ static void handlePolicyEvent(const LEAP_POLICY_EVENT *policy_event)
 /** Called by serviceMessageLoop() when a config change event is returned by LeapPollConnection(). */
 static void handleConfigChangeEvent(const LEAP_CONFIG_CHANGE_EVENT *config_change_event)
 {
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
   std::cerr
     << "Leap: config change: requset ID " << config_change_event->requestID
     << ", status" << config_change_event->status
@@ -373,7 +373,7 @@ static void handleConfigChangeEvent(const LEAP_CONFIG_CHANGE_EVENT *config_chang
 /** Called by serviceMessageLoop() when a config response event is returned by LeapPollConnection(). */
 static void handleConfigResponseEvent(const LEAP_CONFIG_RESPONSE_EVENT *config_response_event)
 {
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
   std::cerr
     << "Leap: config response: requset ID " << config_response_event->requestID
     << ".\n";
@@ -383,7 +383,7 @@ static void handleConfigResponseEvent(const LEAP_CONFIG_RESPONSE_EVENT *config_r
 /** Called by serviceMessageLoop() when a point mapping change event is returned by LeapPollConnection(). */
 static void handleImageEvent(const LEAP_IMAGE_EVENT *image_event)
 {
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
   std::cerr
     << "Leap: Image "
     << image_event->info.frame_id
@@ -405,7 +405,7 @@ static void handleImageEvent(const LEAP_IMAGE_EVENT *image_event)
 /** Called by serviceMessageLoop() when a point mapping change event is returned by LeapPollConnection(). */
 static void handlePointMappingChangeEvent(const LEAP_POINT_MAPPING_CHANGE_EVENT *point_mapping_change_event)
 {
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
   std::cerr << "Leap: mapping change.\n";
 #endif
 }
@@ -413,7 +413,7 @@ static void handlePointMappingChangeEvent(const LEAP_POINT_MAPPING_CHANGE_EVENT 
 /** Called by serviceMessageLoop() when a point mapping change event is returned by LeapPollConnection(). */
 static void handleHeadPoseEvent(const LEAP_HEAD_POSE_EVENT *head_pose_event)
 {
-#if defined(DEBUG) && defined(VERBOSE)
+#if defined(DEBUG)
   std::cerr
     << "Leap: head pose: position ("
     << head_pose_event->head_position.x
@@ -506,7 +506,7 @@ static void serviceMessageLoop()
     default:
       // discard unknown message types
 #if defined(DEBUG)
-      std::cerr << "Unhandled message type " << msg.type << ".\n";
+      std::cerr << "Leap: Unhandled message type " << msg.type << ".\n";
 #endif
       break;
     }
@@ -673,7 +673,7 @@ void LeapListener::getHandPose(GgMatrix *matrix) const
   // 保存されているフレームを取り出す
   const LEAP_TRACKING_EVENT *frame(getFrame());
   if (!frame) return;
-#  if defined(DEBUG)
+#  if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Frame id: " << frame->info.frame_id
     << ", timestamp: " << frame->info.timestamp
     << ", hands: " << frame->nHands
@@ -690,7 +690,7 @@ void LeapListener::getHandPose(GgMatrix *matrix) const
     // 左手なら 0, 右手なら 1
     const int base(hand.type == eLeapHandType_Left ? 0 : 1);
 
-#if defined(DEBUG)
+#if defined(DEBUG) && defined(VERBOSE)
     std::cerr << "Hand id: " << hand.id << ", " << base << "\n";
 #endif
 

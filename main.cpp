@@ -20,13 +20,6 @@
 // 矩形
 #include "Rect.h"
 
-// ウィンドウモード時のウィンドウサイズの初期値
-const int defaultWindowWidth(960);
-const int defaultWindowHeight(540);
-
-// ウィンドウのタイトル
-const char windowTitle[] = "TED";
-
 //
 // メインプログラム
 //

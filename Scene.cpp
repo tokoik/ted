@@ -16,7 +16,7 @@ std::unique_ptr<SharedMemory> localAttitude(nullptr);
 std::unique_ptr<SharedMemory> remoteAttitude(nullptr);
 
 // コンストラクタ
-Scene::Scene(const GgSimpleObj *ob)
+Scene::Scene(const GgSimpleObj *obj)
   : obj(obj)
 {
 }

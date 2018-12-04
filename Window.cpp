@@ -759,8 +759,8 @@ void Window::select(int eye)
     // ヘッドトラッキングしないときは補正値だけにする
     if (!defaults.camera_tracking) mo[eye] = qr[eye].getMatrix();
 
-    // カラーバッファとデプスバッファを消去する
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // デプスバッファを消去する
+    glClear(GL_DEPTH_BUFFER_BIT);
 
     // Oculus Rift に対する処理はここで終了
     return;
@@ -769,6 +769,16 @@ void Window::select(int eye)
   // Oculus Rift 以外に表示する
   switch (defaults.display_mode)
   {
+	case MONO:
+
+			// ウィンドウ全体をビューポートにする
+			glViewport(0, 0, width, height);
+
+			// デプスバッファを消去する
+			glClear(GL_DEPTH_BUFFER_BIT);
+
+			break;
+
   case TOPANDBOTTOM:
 
     if (eye == camL)
@@ -776,8 +786,8 @@ void Window::select(int eye)
       // ディスプレイの上半分だけに描画する
       glViewport(0, height, width, height);
 
-      // カラーバッファとデプスバッファを消去する
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      // デプスバッファを消去する
+      glClear(GL_DEPTH_BUFFER_BIT);
     }
     else
     {
@@ -786,15 +796,16 @@ void Window::select(int eye)
     }
     break;
 
-  case SIDEBYSIDE:
+	case LINEBYLINE:
+	case SIDEBYSIDE:
 
     if (eye == camL)
     {
       // ディスプレイの左半分だけに描画する
       glViewport(0, 0, width, height);
 
-      // カラーバッファとデプスバッファを消去する
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      // デプスバッファを消去する
+      glClear(GL_DEPTH_BUFFER_BIT);
     }
     else
     {
@@ -808,8 +819,8 @@ void Window::select(int eye)
     // 左右のバッファに描画する
     glDrawBuffer(eye == camL ? GL_BACK_LEFT : GL_BACK_RIGHT);
 
-    // カラーバッファとデプスバッファを消去する
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // デプスバッファを消去する
+    glClear(GL_DEPTH_BUFFER_BIT);
     break;
 
   default:
@@ -1276,9 +1287,6 @@ void Window::resize(GLFWwindow *window, int width, int height)
           break;
 
         default:
-
-          // ウィンドウ全体をビューポートにしておく
-          glViewport(0, 0, width, height);
           break;
         }
       }
