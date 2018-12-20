@@ -421,10 +421,10 @@ int main(int argc, const char *const *const argv)
         rect.setCircle(window.getCircle());
 
         // ローカルのヘッドトラッキングの変換行列
-        const GgMatrix mo(window.getMo(eye));
+        const GgMatrix &mo(defaults.camera_tracking ? window.getMo(eye) : window.getQa(eye).getMatrix());
 
         // リモートのヘッドトラッキングの変換行列
-        const GgMatrix mr(mo * Scene::getRemoteAttitude(eye));
+        const GgMatrix &&mr(mo * Scene::getRemoteAttitude(eye));
 
         // 背景を描く
         rect.draw(texture[eye], defaults.remote_stabilize ? mr : mo, window.getSamples());
@@ -440,7 +440,7 @@ int main(int argc, const char *const *const argv)
         simple.selectMaterial(material);
 
         // 図形を描画する
-        if (window.showScene) scene.draw(window.getMp(eye), window.getMv(eye) * mo);
+        if (window.showScene) scene.draw(window.getMp(eye), window.getMv(eye) * window.getMo(eye));
 
         // 片目の処理を完了する
         window.commit(eye);

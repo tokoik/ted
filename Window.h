@@ -94,7 +94,7 @@ class Window
   GgVector po[camCount];
 
   // カメラ方向の補正値
-  GgQuaternion qr[camCount];
+  GgQuaternion qa[camCount];
 
   // カメラ方向の補正ステップ
   static GgQuaternion qrStep[2];
@@ -330,6 +330,14 @@ public:
   const GgQuaternion &getQo(int eye) const
   {
     return qo[eye];
+  }
+
+  //
+  // Oculus Rift のヘッドラッキングによる回転の補正値の四元数を得る
+  //
+  const GgQuaternion &getQa(int eye) const
+  {
+    return qa[eye];
   }
 
   //

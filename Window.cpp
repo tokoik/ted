@@ -154,7 +154,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   for (auto &m : mo) m = ggIdentity();
 
   // カメラの補正値を初期化する
-  for (auto &q : qr) q = ggIdentityQuaternion();
+  for (auto &q : qa) q = ggIdentityQuaternion();
 
   // 初期設定を読み込む
   std::ifstream attitude("attitude.json");
@@ -216,7 +216,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
       {
         GLfloat q[4];
         for (int i = 0; i < 4; ++i) q[i] = static_cast<GLfloat>(a[eye * 4 + i].get<double>());
-        qr[eye] = GgQuaternion(q);
+        qa[eye] = GgQuaternion(q);
       }
     }
   }
@@ -537,7 +537,7 @@ Window::~Window()
     // カメラ方向の補正値
     picojson::array q;
     for (int eye = 0; eye < eyeCount; ++eye)
-      for (int i = 0; i < 4; ++i) q.push_back(picojson::value(static_cast<double>(qr[eye].get()[i])));
+      for (int i = 0; i < 4; ++i) q.push_back(picojson::value(static_cast<double>(qa[eye].get()[i])));
     o.insert(std::make_pair("parallax_offset", picojson::value(q)));
 
     // 設定内容をシリアライズして保存
@@ -751,13 +751,10 @@ void Window::select(int eye)
     qo[eye] = GgQuaternion(o.x, o.y, o.z, -o.w);
 
     // 四元数から変換行列を求める
-    mo[eye] = (qr[eye] * qo[eye]).getMatrix();
+    mo[eye] = (qa[eye] * qo[eye]).getMatrix();
 
     // ヘッドトラッキングの変換行列を共有メモリに保存する
     Scene::setLocalAttitude(eye, mo[eye].transpose());
-
-    // ヘッドトラッキングしないときは補正値だけにする
-    if (!defaults.camera_tracking) mo[eye] = qr[eye].getMatrix();
 
     // デプスバッファを消去する
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -981,7 +978,7 @@ void Window::swapBuffers()
     else if (altKey)
     {
       // 背景を右に回転する
-      qr[camR] *= qrStep[0];
+      qa[camR] *= qrStep[0];
     }
     else if (defaults.display_mode != MONO)
     {
@@ -1007,7 +1004,7 @@ void Window::swapBuffers()
     else if (altKey)
     {
       // 背景を左に回転する
-      qr[camR] *= qrStep[0].conjugate();
+      qa[camR] *= qrStep[0].conjugate();
     }
     else if (defaults.display_mode != MONO)
     {
@@ -1033,7 +1030,7 @@ void Window::swapBuffers()
     else if (altKey)
     {
       // 背景を上に回転する
-      qr[camR] *= qrStep[1].conjugate();
+      qa[camR] *= qrStep[1].conjugate();
     }
     else
     {
@@ -1058,7 +1055,7 @@ void Window::swapBuffers()
     else if (altKey)
     {
       // 背景を下に回転する
-      qr[camR] *= qrStep[1];
+      qa[camR] *= qrStep[1];
     }
     else
     {
@@ -1153,7 +1150,7 @@ void Window::swapBuffers()
       if (btns[4])
       {
         // 背景を左右に回転する
-        qr[camR] *= parallaxButton > 0 ? qrStep[0] : qrStep[0].conjugate();
+        qa[camR] *= parallaxButton > 0 ? qrStep[0] : qrStep[0].conjugate();
       }
       else
       {
@@ -1175,7 +1172,7 @@ void Window::swapBuffers()
       if (btns[4])
       {
         // 背景を上下に回転する
-        qr[camR] *= zoomButton > 0 ? qrStep[1].conjugate() : qrStep[1];
+        qa[camR] *= zoomButton > 0 ? qrStep[1].conjugate() : qrStep[1];
       }
       else
       {
