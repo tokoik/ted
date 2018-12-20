@@ -86,6 +86,14 @@ int main(int argc, const char *const *const argv)
   // ウィンドウオブジェクトが生成されなければ終了する
   if (!window.get()) return EXIT_FAILURE;
 
+  // 共有メモリを確保する
+  if (!Scene::initialize(defaults.local_share_size, defaults.remote_share_size))
+  {
+    // 共有メモリの確保に失敗した
+    NOTIFY("変換行列を保持する共有メモリが確保できませんでした。");
+    return EXIT_FAILURE;
+  }
+
   // 背景画像のデータ
   const GLubyte *image[camCount] = { nullptr };
 
@@ -341,14 +349,6 @@ int main(int argc, const char *const *const argv)
   {
     // シェーダが読み込めなかった
     NOTIFY("図形描画用のシェーダファイルの読み込みに失敗しました。");
-    return EXIT_FAILURE;
-  }
-
-  // 共有メモリを確保する
-  if (!Scene::initialize(defaults.local_share_size, defaults.remote_share_size))
-  {
-    // 共有メモリの確保に失敗した
-    NOTIFY("変換行列を保持する共有メモリが確保できませんでした。");
     return EXIT_FAILURE;
   }
 
