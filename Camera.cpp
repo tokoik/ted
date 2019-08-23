@@ -17,6 +17,9 @@
 #  pragma comment(lib, "opencv_world" CV_VERSION_STR CV_EXT_STR)
 #endif
 
+// OpenCV の Legacy な定数
+#include <opencv2/imgcodecs/legacy/constants_c.h>
+
 // コンストラクタ
 Camera::Camera()
 {
