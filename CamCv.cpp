@@ -102,7 +102,8 @@ void CamCv::capture(int cam)
 bool CamCv::start(int cam)
 {
   // カメラのコーデック・解像度・フレームレートを設定する
-  camera[cam].set(CV_CAP_PROP_FOURCC, CV_FOURCC('H', '2', '6', '4'));
+  if (defaults.fourcc[0] != '\0') camera[cam].set(CV_CAP_PROP_FOURCC,
+    CV_FOURCC(defaults.fourcc[0], defaults.fourcc[1], defaults.fourcc[2], defaults.fourcc[3]));
   if (defaults.capture_width > 0.0) camera[cam].set(CV_CAP_PROP_FRAME_WIDTH, defaults.capture_width);
   if (defaults.capture_height > 0.0) camera[cam].set(CV_CAP_PROP_FRAME_HEIGHT, defaults.capture_height);
   if (defaults.capture_fps > 0.0) camera[cam].set(CV_CAP_PROP_FPS, defaults.capture_fps);
@@ -121,7 +122,12 @@ bool CamCv::start(int cam)
     size[cam][1] = static_cast<GLsizei>(camera[cam].get(CV_CAP_PROP_FRAME_HEIGHT));
 
 #if defined(DEBUG)
-    std::cerr << "Camera:" << cam << ", width:" << size[cam][0] << ", height:" << size[cam][1] << "\n";
+    const int cc(static_cast<int>(camera[cam].get(CV_CAP_PROP_FOURCC)));
+    std::cerr << "Camera:" << cam << ", width:" << size[cam][0] << ", height:" << size[cam][1]
+      << ", fourcc: " << static_cast<char>(cc & 255)
+      << static_cast<char>((cc >> 8) & 255)
+      << static_cast<char>((cc >> 16) & 255)
+      << static_cast<char>((cc >> 24) & 255) << "\n";
 #endif
 
     // キャプチャ用のメモリを確保する

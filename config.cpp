@@ -25,6 +25,7 @@ config defaults =
   0.0,                          // double capture_width; (0 ならカメラから取得)
   0.0,                          // double capture_height; (0 ならカメラから取得)
   0.0,                          // double capture_fps; (0 ならカメラから取得)
+  "",                           // char fourcc[4];
   0.0,                          // GLfloat fisheye_center_x;
   0.0,                          // GLfloat fisheye_center_y;
   1.0,                          // GLfloat fisheye_fov_x;
@@ -33,8 +34,8 @@ config defaults =
   MONO,                         // StereoMode display_mode; (※1)
   1,                            // int display_secondary;
   false,                        // bool display_fullscreen;
-  960,                          // int display_width;
-  540,                          // int display_height;
+  960,                          // int window_width;
+  540,                          // int window_height;
   0.0f,                         // GLfloat display_aspect;
   0.5f,                         // GLfloat display_center;
   1.5f,                         // GLfloat display_distance;
@@ -192,6 +193,24 @@ bool config::load(const std::string &file)
   if (v_capture_fps != o.end() && v_capture_fps->second.is<double>())
     capture_fps = v_capture_fps->second.get<double>();
 
+  // カメラのコーデック
+  const auto &v_capture_codec(o.find("capture_codec"));
+  if (v_capture_codec != o.end() && v_capture_codec->second.is<std::string>())
+  {
+    const std::string &codec(v_capture_codec->second.get<std::string>());
+    if (codec.length() == 4)
+    {
+      fourcc[0] = toupper(codec[0]);
+      fourcc[1] = toupper(codec[1]);
+      fourcc[2] = toupper(codec[2]);
+      fourcc[3] = toupper(codec[3]);
+    }
+    else
+    {
+      fourcc[0] = '\0';
+    }
+  }
+
   // 魚眼レンズの横の中心位置
   const auto &v_fisheye_center_x(o.find("fisheye_center_x"));
   if (v_fisheye_center_x != o.end() && v_fisheye_center_x->second.is<double>())
@@ -233,14 +252,14 @@ bool config::load(const std::string &file)
     display_fullscreen = v_fullscreen->second.get<bool>();
 
   // ディスプレイの横の画素数
-  const auto &v_display_width(o.find("display_width"));
-  if (v_display_width != o.end() && v_display_width->second.is<double>())
-    display_width = static_cast<int>(v_display_width->second.get<double>());
+  const auto &v_window_width(o.find("window_width"));
+  if (v_window_width != o.end() && v_window_width->second.is<double>())
+    window_width = static_cast<int>(v_window_width->second.get<double>());
 
   // ディスプレイの縦の画素数
-  const auto &v_display_height(o.find("display_height"));
-  if (v_display_height != o.end() && v_display_height->second.is<double>())
-    display_height = static_cast<int>(v_display_height->second.get<double>());
+  const auto &v_window_height(o.find("window_height"));
+  if (v_window_height != o.end() && v_window_height->second.is<double>())
+    window_height = static_cast<int>(v_window_height->second.get<double>());
 
   // ディスプレイの縦横比
   const auto &v_display_aspect(o.find("display_aspect"));
@@ -409,6 +428,9 @@ bool config::save(const std::string &file) const
   // カメラのフレームレート
   o.insert(std::make_pair("capture_fps", picojson::value(capture_fps)));
 
+  // カメラのコーデック
+  o.insert(std::make_pair("capture_codec", picojson::value(std::string(fourcc, 4))));
+
   // 魚眼レンズの横の中心位置
   o.insert(std::make_pair("fisheye_center_x", picojson::value(static_cast<double>(fisheye_center_x))));
 
@@ -434,10 +456,10 @@ bool config::save(const std::string &file) const
   o.insert(std::make_pair("fullscreen", picojson::value(display_fullscreen)));
 
   // ディスプレイの横の画素数
-  o.insert(std::make_pair("display_width", picojson::value(static_cast<double>(display_width))));
+  o.insert(std::make_pair("window_width", picojson::value(static_cast<double>(window_width))));
 
   // ディスプレイの縦の画素数
-  o.insert(std::make_pair("display_height", picojson::value(static_cast<double>(display_height))));
+  o.insert(std::make_pair("window_height", picojson::value(static_cast<double>(window_height))));
 
   // ディスプレイの縦横比
   o.insert(std::make_pair("display_aspect", picojson::value(static_cast<double>(display_aspect))));

@@ -45,6 +45,7 @@ struct config
   double capture_width;
   double capture_height;
   double capture_fps;
+  char fourcc[4];
   GLfloat fisheye_center_x;
   GLfloat fisheye_center_y;
   GLfloat fisheye_fov_x;
@@ -53,8 +54,8 @@ struct config
   int display_mode;
   int display_secondary;
   bool display_fullscreen;
-  int display_width;
-  int display_height;
+  int window_width;
+  int window_height;
   GLfloat display_aspect;
   GLfloat display_center;
   GLfloat display_distance;
