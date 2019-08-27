@@ -177,12 +177,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_676E1ED8FC7945E69ED709ABF93E6FE1"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_688BBFAEEFF640509A8CC9FC347E3FC9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -238,6 +232,12 @@
         "Entry"
         {
         "MsmKey" = "8:_77BCC11D55BF437EB984A09F75945433"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7C20A50D9F58428AB640B9FF81EF299F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1152,26 +1152,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_676E1ED8FC7945E69ED709ABF93E6FE1"
-            {
-            "SourcePath" = "8:C:\\librealsense2\\bin\\x64\\Release\\realsense2.dll"
-            "TargetName" = "8:realsense2.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_688BBFAEEFF640509A8CC9FC347E3FC9"
             {
             "SourcePath" = "8:..\\fixed.vert"
@@ -1356,6 +1336,26 @@
             {
             "SourcePath" = "8:..\\normal_right.jpg"
             "TargetName" = "8:normal_right.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7C20A50D9F58428AB640B9FF81EF299F"
+            {
+            "SourcePath" = "8:C:\\librealsense2\\bin\\x64\\realsense2.dll"
+            "TargetName" = "8:realsense2.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2419,18 +2419,18 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TelExistence Display"
-        "ProductCode" = "8:{177F8884-58CE-49BB-8F50-2DA6CC6AC8EC}"
-        "PackageCode" = "8:{064838AD-CA66-497A-AA13-D7D27BF4BEC1}"
+        "ProductCode" = "8:{D5FF5C8D-9676-4B58-9349-0653D024A003}"
+        "PackageCode" = "8:{9378FC40-12A8-4848-8C0E-B69D8A33703B}"
         "UpgradeCode" = "8:{7A39854F-F010-495F-856C-E53FA8330919}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
-        "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:0.1.4"
+        "InstallAllUsers" = "11:TRUE"
+        "ProductVersion" = "8:0.1.5"
         "Manufacturer" = "8:tokoi"
         "ARPHELPTELEPHONE" = "8:"
-        "ARPHELPLINK" = "8:"
+        "ARPHELPLINK" = "8:https://github.com/tokoik/ted/"
         "Title" = "8:TelExistence Display"
         "Subject" = "8:"
         "ARPCONTACT" = "8:Kohe Tokoi"
