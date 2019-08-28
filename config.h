@@ -54,8 +54,8 @@ struct config
   int display_mode;
   int display_secondary;
   bool display_fullscreen;
-  int window_width;
-  int window_height;
+  int display_width;
+  int display_height;
   GLfloat display_aspect;
   GLfloat display_center;
   GLfloat display_distance;

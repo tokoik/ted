@@ -3,7 +3,7 @@
   "model": "target.obj",
   "children": [
     {
-      "position": [ 0, -0.5, -0.3 ],
+      "position": [ 0, -0.05, 0 ],
       "controller": 2,
       "children": [
         {

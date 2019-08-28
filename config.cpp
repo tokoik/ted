@@ -20,7 +20,7 @@ config defaults =
   "normal_right.jpg",           // std::string camera_right_image;
   "",                           // std::string camera_right_movie;
   1271,                         // int camera_texture_samples;
-  true,                         // bool camera_texture_repeat;
+  false,                        // bool camera_texture_repeat;
   true,                         // bool camera_tracking;
   0.0,                          // double capture_width; (0 ならカメラから取得)
   0.0,                          // double capture_height; (0 ならカメラから取得)
@@ -34,8 +34,8 @@ config defaults =
   MONO,                         // StereoMode display_mode; (※1)
   1,                            // int display_secondary;
   false,                        // bool display_fullscreen;
-  960,                          // int window_width;
-  540,                          // int window_height;
+  960,                          // int display_width;
+  540,                          // int display_height;
   0.0f,                         // GLfloat display_aspect;
   0.5f,                         // GLfloat display_center;
   1.5f,                         // GLfloat display_distance;
@@ -51,7 +51,7 @@ config defaults =
   false,                        // bool texture_reshape;
   { 0, 0 },                     // int remote_delay[2];
   50,                           // int texture_quality;
-  1271,                         // int texture_samples;
+  1372,                         // int texture_samples;
   1.0,                          // GLfloat remote_fov_x;
   1.0,                          // GLfloat remote_fov_y;
   50,                           // int local_share_size;
@@ -252,14 +252,14 @@ bool config::load(const std::string &file)
     display_fullscreen = v_fullscreen->second.get<bool>();
 
   // ディスプレイの横の画素数
-  const auto &v_window_width(o.find("window_width"));
-  if (v_window_width != o.end() && v_window_width->second.is<double>())
-    window_width = static_cast<int>(v_window_width->second.get<double>());
+  const auto &v_display_width(o.find("display_width"));
+  if (v_display_width != o.end() && v_display_width->second.is<double>())
+    display_width = static_cast<int>(v_display_width->second.get<double>());
 
   // ディスプレイの縦の画素数
-  const auto &v_window_height(o.find("window_height"));
-  if (v_window_height != o.end() && v_window_height->second.is<double>())
-    window_height = static_cast<int>(v_window_height->second.get<double>());
+  const auto &v_display_height(o.find("display_height"));
+  if (v_display_height != o.end() && v_display_height->second.is<double>())
+    display_height = static_cast<int>(v_display_height->second.get<double>());
 
   // ディスプレイの縦横比
   const auto &v_display_aspect(o.find("display_aspect"));
@@ -456,10 +456,10 @@ bool config::save(const std::string &file) const
   o.insert(std::make_pair("fullscreen", picojson::value(display_fullscreen)));
 
   // ディスプレイの横の画素数
-  o.insert(std::make_pair("window_width", picojson::value(static_cast<double>(window_width))));
+  o.insert(std::make_pair("display_width", picojson::value(static_cast<double>(display_width))));
 
   // ディスプレイの縦の画素数
-  o.insert(std::make_pair("window_height", picojson::value(static_cast<double>(window_height))));
+  o.insert(std::make_pair("display_height", picojson::value(static_cast<double>(display_height))));
 
   // ディスプレイの縦横比
   o.insert(std::make_pair("display_aspect", picojson::value(static_cast<double>(display_aspect))));

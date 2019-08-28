@@ -13,7 +13,7 @@
 #undef VERBOSE
 
 // í∑Ç≥ÇÃÉXÉPÅ[Éã
-constexpr GLfloat scale(0.01f);
+constexpr GLfloat scale(0.001f);
 
 //
 // The following code contains code modified from Leap Motion SDK sample code.

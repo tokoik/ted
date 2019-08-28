@@ -76,8 +76,8 @@ int main(int argc, const char *const *const argv)
     monitor = nullptr;
 
     // ウィンドウのサイズにデフォルト値を設定する
-    windowWidth = defaults.window_width ? defaults.window_width : defaultWindowWidth;
-    windowHeight = defaults.window_height ? defaults.window_height : defaultWindowHeight;
+    windowWidth = defaults.display_width ? defaults.display_width : defaultWindowWidth;
+    windowHeight = defaults.display_height ? defaults.display_height : defaultWindowHeight;
   }
 
   // ウィンドウを開く

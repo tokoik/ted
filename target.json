@@ -2,7 +2,6 @@
   "controller": 0,
   "children": [
     {
-      "position": [ 0, 0, -0.5 ],
       "model": "target.obj"
     }
   ]
