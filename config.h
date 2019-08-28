@@ -114,7 +114,7 @@ constexpr int backBufferMultisample(0);
 // ŒõŒ¹
 constexpr GgSimpleShader::Light lightData =
 {
-  { 0.2f, 0.2f, 0.2f, 0.4f },                           // ŠÂ‹«Œõ¬•ª
+  { 0.2f, 0.2f, 0.2f, 1.0f },                           // ŠÂ‹«Œõ¬•ª
   { 1.0f, 1.0f, 1.0f, 0.0f },                           // ŠgU”½ËŒõ¬•ª
   { 1.0f, 1.0f, 1.0f, 0.0f },                           // ‹¾–ÊŒõ¬•ª
   { 0.0f, 0.0f, 1.0f, 1.0f }                            // ˆÊ’u

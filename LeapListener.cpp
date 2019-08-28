@@ -692,6 +692,7 @@ void LeapListener::getHandPose(GgMatrix *matrix) const
 
 #if defined(DEBUG) && defined(VERBOSE)
     std::cerr << "Hand id: " << hand.id << ", " << base << "\n";
+    std::cerr << "Position = (" << hand.palm.position.x << ", " << hand.palm.position.y << ", " << hand.palm.position.z << ")\n";
 #endif
 
     // Žè‚Ì‚Ð‚ç‚ÌˆÊ’u

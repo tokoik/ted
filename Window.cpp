@@ -358,9 +358,11 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
       const auto &fov(eyeRenderDesc[eye].Fov);
 #endif
 
+      // ズーム率
+      const auto zf(zoom * defaults.display_near);
+
       // 片目の透視投影変換行列を求める
-      mp[eye].loadFrustum(-fov.LeftTan * defaults.display_near, fov.RightTan * defaults.display_near,
-        -fov.DownTan * defaults.display_near, fov.UpTan * defaults.display_near,
+      mp[eye].loadFrustum(-fov.LeftTan * zf, fov.RightTan * zf, -fov.DownTan * zf, fov.UpTan * zf,
         defaults.display_near, defaults.display_far);
 
       // 片目のスクリーンのサイズと中心位置
