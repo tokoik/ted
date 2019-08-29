@@ -1095,7 +1095,7 @@ void Window::swapBuffers()
     // 'Z' キーの操作
     if (glfwGetKey(window, GLFW_KEY_Z))
     {
-      // ズーム率を上げる
+      // ズーム率を調整する
       if (shiftKey) ++zoomChange; else --zoomChange;
       zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
         + zoomChange * zoomStep;
@@ -1157,13 +1157,16 @@ void Window::swapBuffers()
     // スティックの速度係数
     const auto axesSpeedFactor(axesSpeedScale * speedFactor);
 
+    // L ボタンと R ボタンの状態
+    const auto lrButton(btns[4] | btns[5]);
+
     if (axesCount > 3)
     {
       // 物体を左右に移動する
       ox += (axes[0] - origin[0]) * axesSpeedFactor;
 
-      // LB ボタンか RB ボタンを同時に押していれば
-      if (btns[4] | btns[5])
+      // L ボタンか R ボタンを同時に押していれば
+      if (lrButton)
       {
         // 物体を前後に移動する
         oz += (axes[1] - origin[1]) * axesSpeedFactor;
@@ -1187,8 +1190,8 @@ void Window::swapBuffers()
     // B, X ボタンに変化があれば
     if (parallaxButton)
     {
-      // LB ボタンか RB ボタンを同時に押していれば
-      if (btns[4] | btns[5])
+      // L ボタンか R ボタンを同時に押していれば
+      if (lrButton)
       {
         // 背景を左右に回転する
         if (parallaxButton > 0)
@@ -1204,7 +1207,7 @@ void Window::swapBuffers()
       }
       else
       {
-        // スクリーンの間隔を拡大する
+        // スクリーンの間隔を調整する
         offset += parallaxButton * offsetStep;
       }
     }
@@ -1215,8 +1218,8 @@ void Window::swapBuffers()
     // Y, A ボタンに変化があれば
     if (zoomButton)
     {
-      // LB ボタンを同時に押していれば
-      if (btns[4])
+      // L ボタンか R ボタンを同時に押していれば
+      if (lrButton)
       {
         // 背景を上下に回転する
         if (zoomButton > 0)
@@ -1243,8 +1246,8 @@ void Window::swapBuffers()
     // 十字キーの左右ボタンに変化があれば
     if (textureXButton)
     {
-      // RB ボタンを同時に押していれば
-      if (btns[5])
+      // L ボタンか R ボタンを同時に押していれば
+      if (lrButton)
       {
         // 背景に対する横方向の画角を調整する
         circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(circleChange[0] += textureXButton) * shiftStep;
@@ -1262,8 +1265,8 @@ void Window::swapBuffers()
     // 十字キーの上下ボタンに変化があれば
     if (textureYButton)
     {
-      // RB ボタンを同時に押していれば
-      if (btns[5])
+      // L ボタンか R ボタンを同時に押していれば
+      if (lrButton)
       {
         // 背景に対する縦方向の画角を調整する
         circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(circleChange[1] += textureYButton) * shiftStep;
