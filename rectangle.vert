@@ -26,7 +26,7 @@ uniform sampler2D image;
 vec2 size = textureSize(image, 0);
 
 // 背景テクスチャのテクスチャ空間上のスケール
-vec2 scale = vec2(-0.5 * size.y / size.x, 0.5) / circle.st;
+vec2 scale = vec2(-0.5 * size.y / size.x, -0.5) / circle.st;
 
 // 背景テクスチャのテクスチャ空間上の中心位置
 vec2 center = circle.pq + 0.5;
@@ -57,8 +57,7 @@ void main(void)
   vec2 p = position * screen.st + screen.pq;
 
   // 視線ベクトル
-  //   これを回転したあと正規化して、その方向の視線単位ベクトルを得る。
-  vec4 vector = normalize(rotation * vec4(p, -focal, 0.0));
+  vec4 vector = rotation * vec4(p, -focal, 0.0);
 
   // テクスチャ座標
   texcoord = vector.xy * scale / vector.z + center;

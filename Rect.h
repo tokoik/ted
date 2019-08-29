@@ -17,22 +17,22 @@ class Rect
   const GLuint shader;
 
   // 格子間隔の uniform 変数の場所
-  const GLuint gapLoc;
+  const GLint gapLoc;
 
   // スクリーンのサイズと中心位置の uniform 変数の場所
-  const GLuint screenLoc;
+  const GLint screenLoc;
 
   // 焦点距離の uniform 変数の場所
-  const GLuint focalLoc;
+  const GLint focalLoc;
 
   // 背景テクスチャの半径と中心位置の uniform 変数の場所
-  const GLuint circleLoc;
+  const GLint circleLoc;
 
   // 視線の回転行列の uniform 変数の場所
-  const GLuint rotationLoc;
+  const GLint rotationLoc;
 
   // テクスチャのサンプラの uniform 変数の場所
-  const GLuint imageLoc;
+  const GLint imageLoc;
 
   // 頂点配列オブジェクト
   const GLuint vao;
