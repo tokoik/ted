@@ -47,7 +47,7 @@ class Rect
   GLfloat focal;
 
   // 背景テクスチャの半径と中心位置
-  const GLfloat *circle;
+  GLfloat circle[4];
 
 public:
 
@@ -70,7 +70,7 @@ public:
   void setFocal(GLfloat focal);
 
   // 背景テクスチャの半径と中心位置を設定する
-  void setCircle(const GLfloat *circle);
+  void setCircle(const GLfloat *circle, GLfloat offset);
 
   // 描画
   void draw(GLint texture, const GgMatrix &rotation, const GLsizei *samples) const;

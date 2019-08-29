@@ -418,7 +418,7 @@ int main(int argc, const char *const *const argv)
         rect.setFocal(window.getFocal());
 
         // 背景テクスチャの半径と中心位置
-        rect.setCircle(window.getCircle());
+        rect.setCircle(window.getCircle(), window.getOffset(eye));
 
         // ローカルのヘッドトラッキングの変換行列
         const GgMatrix &mo(defaults.camera_tracking ? window.getMo(eye) : window.getQa(eye).getMatrix());

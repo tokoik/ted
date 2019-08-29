@@ -48,9 +48,12 @@ void Rect::setFocal(GLfloat focal)
 }
 
 // ”wŒiƒeƒNƒXƒ`ƒƒ‚Ì”¼Œa‚Æ’†SˆÊ’u‚ðÝ’è‚·‚é
-void Rect::setCircle(const GLfloat *circle)
+void Rect::setCircle(const GLfloat *circle, GLfloat offset)
 {
-  this->circle = circle;
+  this->circle[0] = circle[0];
+  this->circle[1] = circle[1];
+  this->circle[2] = circle[2] + offset;
+  this->circle[3] = circle[3];
 }
 
 // •`‰æ

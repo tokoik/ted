@@ -6,9 +6,6 @@
 // シーングラフ
 #include "Scene.h"
 
-// Oculus Rift の目の数と識別子
-const int eyeCount(ovrEye_Count);
-
 // Oculus Rift SDK ライブラリ (LibOVR) の組み込み
 #if defined(_WIN32)
 #  pragma comment(lib, "libOVR.lib")
@@ -17,8 +14,11 @@ const int eyeCount(ovrEye_Count);
 // 標準ライブラリ
 #include <fstream>
 
+// Oculus Rift の目の数と識別子
+constexpr int eyeCount(ovrEye_Count);
+
 // ジョイスティック番号の最大値
-const int maxJoystick(4);
+constexpr int maxJoystick(4);
 
 #if OVR_PRODUCT_VERSION > 0
 // GetDefaultAdapterLuid のため
@@ -67,6 +67,9 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   : window(nullptr), camera(nullptr), session(nullptr)
   , showScene(true), showMirror(true)
   , oculusFbo{ 0, 0 }, mirrorFbo(0), mirrorTexture(nullptr)
+  , startPosition{ 0.0f, 0.0f, 0.0f }
+  , startOrientation{ 0.0f, 0.0f, 0.0f, 1.0f }
+  , initialOffset(defaultOffset), initialParallax(defaultParallax)
   , zoomChange(0), focalChange(0), circleChange{ 0, 0, 0, 0 }
   , key(GLFW_KEY_UNKNOWN), joy(-1)
 #if OVR_PRODUCT_VERSION > 0
@@ -201,6 +204,11 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
       picojson::array &c(v_circle->second.get<picojson::array>());
       for (int i = 0; i < 4; ++i) circleChange[i] = static_cast<int>(c[i].get<double>());
     }
+
+    // スクリーンの間隔の初期値
+    const auto &v_offset(o.find("offset"));
+    if (v_offset != o.end() && v_offset->second.is<double>())
+      initialOffset = static_cast<GLfloat>(v_offset->second.get<double>());
 
     // 視差の初期値
     const auto &v_parallax(o.find("parallax"));
@@ -533,8 +541,11 @@ Window::~Window()
     for (int i = 0; i < 4; ++i) c.push_back(picojson::value(static_cast<double>(circleChange[i])));
     o.insert(std::make_pair("circle", picojson::value(c)));
 
+    // スクリーンの間隔
+    o.insert(std::make_pair("offset", picojson::value(static_cast<double>(initialOffset))));
+
     // 視差
-    o.insert(std::make_pair("parallax", picojson::value(defaults.display_mode != MONO ? parallax : initialParallax)));
+    o.insert(std::make_pair("parallax", picojson::value(static_cast<double>(initialParallax))));
 
     // カメラ方向の補正値
     picojson::array q;
@@ -753,7 +764,7 @@ void Window::select(int eye)
     qo[eye] = GgQuaternion(o.x, o.y, o.z, -o.w);
 
     // 四元数から変換行列を求める
-    mo[eye] = (qa[eye] * qo[eye]).getMatrix();
+    mo[eye] = qo[eye].getMatrix();
 
     // ヘッドトラッキングの変換行列を共有メモリに保存する
     Scene::setLocalAttitude(eye, mo[eye].transpose());
@@ -980,13 +991,13 @@ void Window::swapBuffers()
     else if (altKey)
     {
       // 背景を右に回転する
+      qa[camL] *= qrStep[0].conjugate();
       qa[camR] *= qrStep[0];
     }
     else if (defaults.display_mode != MONO)
     {
-      // 視差を拡大する
-      parallax += parallaxStep;
-      updateProjectionMatrix();
+      // スクリーンの間隔を拡大する
+      offset += offsetStep;
     }
   }
 
@@ -1006,13 +1017,13 @@ void Window::swapBuffers()
     else if (altKey)
     {
       // 背景を左に回転する
+      qa[camL] *= qrStep[0];
       qa[camR] *= qrStep[0].conjugate();
     }
     else if (defaults.display_mode != MONO)
     {
       // 視差を縮小する
-      parallax -= parallaxStep;
-      updateProjectionMatrix();
+      offset -= offsetStep;
     }
   }
 
@@ -1032,6 +1043,7 @@ void Window::swapBuffers()
     else if (altKey)
     {
       // 背景を上に回転する
+      qa[camL] *= qrStep[1];
       qa[camR] *= qrStep[1].conjugate();
     }
     else
@@ -1057,6 +1069,7 @@ void Window::swapBuffers()
     else if (altKey)
     {
       // 背景を下に回転する
+      qa[camL] *= qrStep[1].conjugate();
       qa[camR] *= qrStep[1];
     }
     else
@@ -1066,10 +1079,36 @@ void Window::swapBuffers()
     }
   }
 
+  // HMD 以外のディスプレイの制御
+  if (!session)
+  {
+    // 'P' キーの操作
+    if (glfwGetKey(window, GLFW_KEY_P))
+    {
+      // 視差を調整する
+      parallax += shiftKey ? -parallaxStep : parallaxStep;
+
+      // 透視投影変換行列を更新する
+      updateProjectionMatrix();
+    }
+
+    // 'Z' キーの操作
+    if (glfwGetKey(window, GLFW_KEY_Z))
+    {
+      // ズーム率を上げる
+      if (shiftKey) ++zoomChange; else --zoomChange;
+      zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
+        + zoomChange * zoomStep;
+
+      // 透視投影変換行列を更新する
+      updateProjectionMatrix();
+    }
+  }
+
   // カメラの制御
   if (camera)
   {
-    // E キー
+    // 'E' キーの操作
     if (glfwGetKey(window, GLFW_KEY_E))
     {
       if (shiftKey)
@@ -1084,7 +1123,7 @@ void Window::swapBuffers()
       }
     }
 
-    // G キー
+    // 'G' キーの操作
     if (glfwGetKey(window, GLFW_KEY_G))
     {
       if (shiftKey)
@@ -1123,8 +1162,8 @@ void Window::swapBuffers()
       // 物体を左右に移動する
       ox += (axes[0] - origin[0]) * axesSpeedFactor;
 
-      // RB ボタンを同時に押していれば
-      if (btns[5])
+      // LB ボタンか RB ボタンを同時に押していれば
+      if (btns[4] | btns[5])
       {
         // 物体を前後に移動する
         oz += (axes[1] - origin[1]) * axesSpeedFactor;
@@ -1148,19 +1187,25 @@ void Window::swapBuffers()
     // B, X ボタンに変化があれば
     if (parallaxButton)
     {
-      // LB ボタンを同時に押していれば
-      if (btns[4])
+      // LB ボタンか RB ボタンを同時に押していれば
+      if (btns[4] | btns[5])
       {
         // 背景を左右に回転する
-        qa[camR] *= parallaxButton > 0 ? qrStep[0] : qrStep[0].conjugate();
+        if (parallaxButton > 0)
+        {
+          qa[camL] *= qrStep[0];
+          qa[camR] *= qrStep[0].conjugate();
+        }
+        else
+        {
+          qa[camL] *= qrStep[0].conjugate();
+          qa[camR] *= qrStep[0];
+        }
       }
       else
       {
-        // 視差を調整する
-        parallax += parallaxStep * static_cast<GLfloat>(parallaxButton);
-
-        // 透視投影変換行列を更新する
-        updateProjectionMatrix();
+        // スクリーンの間隔を拡大する
+        offset += parallaxButton * offsetStep;
       }
     }
 
@@ -1174,16 +1219,21 @@ void Window::swapBuffers()
       if (btns[4])
       {
         // 背景を上下に回転する
-        qa[camR] *= zoomButton > 0 ? qrStep[1].conjugate() : qrStep[1];
+        if (zoomButton > 0)
+        {
+          qa[camL] *= qrStep[1];
+          qa[camR] *= qrStep[1].conjugate();
+        }
+        else
+        {
+          qa[camL] *= qrStep[1].conjugate();
+          qa[camR] *= qrStep[1];
+        }
       }
       else
       {
-        // ズーム率を調整する
-        zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
-          + static_cast<GLfloat>(zoomChange += zoomButton) * zoomStep;
-
-        // 透視投影変換行列を更新する
-        updateProjectionMatrix();
+        // 焦点距離を調整する
+        focal = focalStep / (focalStep - static_cast<GLfloat>(focalChange += zoomButton));
       }
     }
 
@@ -1216,7 +1266,7 @@ void Window::swapBuffers()
       if (btns[5])
       {
         // 背景に対する縦方向の画角を調整する
-        circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(circleChange[1] += textureXButton) * shiftStep;
+        circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(circleChange[1] += textureYButton) * shiftStep;
       }
       else
       {
@@ -1485,6 +1535,9 @@ void Window::reset()
   circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(circleChange[2]) * shiftStep;
   circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(circleChange[3]) * shiftStep;
 
+  // スクリーンの間隔
+  offset = initialOffset;
+
   // 視差
   parallax = defaults.display_mode != MONO ? initialParallax : 0.0f;
 }
@@ -1506,14 +1559,14 @@ void Window::updateProjectionMatrix()
     const auto screenHeight(defaults.display_center / defaults.display_distance);
     const auto screenWidth(screenHeight * aspect);
 
-    // 視差によるスクリーンのオフセット量
-    const auto offset(parallax * defaults.display_near / defaults.display_distance);
+    // 視差によるスクリーンのシフト量
+    GLfloat shift(parallax * defaults.display_near / defaults.display_distance);
 
     // 左目の視野
     const GLfloat fovL[] =
     {
-      -screenWidth + offset,
-      screenWidth + offset,
+      -screenWidth + shift,
+      screenWidth + shift,
       -screenHeight,
       screenHeight
     };
@@ -1534,8 +1587,8 @@ void Window::updateProjectionMatrix()
       // 右目の視野
       const GLfloat fovR[] =
       {
-        -screenWidth - offset,
-        screenWidth - offset,
+        -screenWidth - shift,
+        screenWidth - shift,
         -screenHeight,
         screenHeight,
       };
@@ -1552,13 +1605,6 @@ void Window::updateProjectionMatrix()
     }
   }
 }
-
-// 物体の初期位置と姿勢
-GLfloat Window::startPosition[] = { 0.0f, 0.0f, 0.0f };
-GLfloat Window::startOrientation[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-// 視差の初期値 (単位 m)
-GLfloat Window::initialParallax(0.032f);
 
 // カメラ方向の調整ステップ
 GgQuaternion Window::qrStep[2];

@@ -69,13 +69,13 @@ class Window
   GLfloat ox, oy, oz;
 
   // 物体の初期位置
-  static GLfloat startPosition[3];
+  GLfloat startPosition[3];
 
   // トラックボール処理
   GgTrackball trackball;
 
   // 物体の初期姿勢
-  static GLfloat startOrientation[4];
+  GLfloat startOrientation[4];
 
   // モデル変換行列
   GgMatrix mm;
@@ -116,7 +116,7 @@ class Window
   GLfloat parallax;
 
   // 視差の初期値
-  static GLfloat initialParallax;
+  GLfloat initialParallax;
 
   // 投影変換
   GgMatrix mp[camCount];
@@ -127,6 +127,12 @@ class Window
 
   // スクリーンの幅と高さ
   GLfloat screen[camCount][4];
+
+  // スクリーンの間隔
+  GLfloat offset;
+
+  // スクリーンの間隔の変化量
+  GLfloat initialOffset;
 
   // 焦点距離
   GLfloat focal;
@@ -386,6 +392,14 @@ public:
   GLfloat getFocal() const
   {
     return focal;
+  }
+
+  //
+  // スクリーンの間隔を取り出す
+  //
+  GLfloat getOffset(int eye = 0) const
+  {
+    return static_cast<GLfloat>(1 - (eye & 1) * 2) * offset;
   }
 
   //

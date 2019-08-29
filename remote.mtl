@@ -1,11 +1,12 @@
-newmtl remote
-Kd 1 0 0
-Ke 0 0 0
-Ka 1 1 1
-Ks 0 0 0
-Ns 400
-Tr 0
-d 1
-Ni 1
-Tf 1 1 1
+# Blender MTL File: 'None'
+# Material Count: 1
 
+newmtl remote
+Ns 399.999988
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.000000 0.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.000000
+d 1.000000
+illum 1

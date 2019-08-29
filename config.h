@@ -96,7 +96,7 @@ constexpr int defaultWindowHeight(540);
 // ナビゲーションの速度調整
 constexpr GLfloat zoomStep(0.01f);                          // 物体のズーム率調整のステップ
 constexpr GLfloat shiftStep(0.001f);                        // 背景テクスチャのシフト量調整のステップ
-constexpr GLfloat focalStep(50.0f);                         // 背景テクスチャのスケール調整のステップ
+constexpr GLfloat focalStep(100.0f);                        // 背景テクスチャのスケール調整のステップ
 constexpr GLfloat speedScale(0.005f);                       // フレームあたりの移動速度係数
 constexpr GLfloat angleScale(-0.05f);                       // フレームあたりの回転速度係数
 constexpr GLfloat wheelXStep(0.005f);                       // マウスホイールの X 方向の係数
@@ -104,6 +104,15 @@ constexpr GLfloat wheelYStep(0.005f);                       // マウスホイールの 
 constexpr GLfloat axesSpeedScale(0.01f);                    // ゲームパッドのスティックの速度の係数
 constexpr GLfloat axesAngleScale(0.01f);                    // ゲームパッドのスティックの角速度の係数
 constexpr GLfloat btnsScale(0.02f);                         // ゲームパッドのボタンの係数
+
+// スクリーンの間隔のデフォルト値
+constexpr GLfloat defaultOffset(0.0f);
+
+// スクリーンの間隔の変更ステップ
+constexpr GLfloat offsetStep(0.001f);
+
+// 視差のデフォルト値
+constexpr GLfloat defaultParallax(0.032f);
 
 // 視差の変更ステップ (単位 m)
 constexpr GLfloat parallaxStep(0.001f);
@@ -144,11 +153,11 @@ constexpr int maxDropPackets(1000);
 // フレーム送信の最小間隔
 constexpr long long minDelay(10);
 
-// カメラの数と識別子
-constexpr int camCount(2), camL(0), camR(1);
+// カメラの識別子と数
+enum CameraId { camL, camR, camCount };
 
 // リモートカメラの数
-constexpr int remoteCamCount(2);
+constexpr int remoteCamCount(camCount);
 
 // ヘッダの長さ
 constexpr int headLength(camCount + 1);
