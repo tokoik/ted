@@ -129,7 +129,7 @@ void Camera::recv()
       // 受信した変換行列の格納場所
       GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));
 
-      // 変換行列を共有メモリに格納する
+      // 変換行列を共有メモリに格納する (head[camCount] には変換行列の数が入っている)
       remoteAttitude->store(body, head[camCount]);
     }
 
@@ -156,8 +156,8 @@ void Camera::send()
     // 左右フレームのサイズを 0 にしておく
     head[camL] = head[camR] = 0;
 
-    // 変換行列の数を保存する
-    head[camCount] = localAttitude->getUsed();
+    // 左右のフレームサイズの次に変換行列の数を保存する
+    head[camCount] = localAttitude->getSize();
 
     // 送信する変換行列の格納場所
     GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));

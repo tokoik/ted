@@ -48,24 +48,26 @@ bool Scene::initialize(unsigned int local_size, unsigned int remote_size)
   // ローカルの変換行列を保持する共有メモリが確保できたかチェックする
   if (!localAttitude->get()) return false;
 
+  // ローカルの変換行列を初期化する
+  localAttitude->set(0, local_size, ggIdentity());
+
+  // ローカルのモデル変換行列を確保する
+  localMatrixTable.resize(local_size, ggIdentity());
+
   // リモートの変換行列を保持する共有メモリを確保する
   remoteAttitude.reset(new SharedMemory(remoteMutexName, remoteShareName, remote_size));
 
   // リモートの変換行列を保持する共有メモリが確保できたかチェックする
   if (!remoteAttitude->get()) return false;
 
+  // リモートのの変換行列を初期化する
+  remoteAttitude->set(0, remote_size, ggIdentity());
+
+  // リモートのモデル変換行列を確保する
+  remoteMatrixTable.resize(remote_size, ggIdentity());
+
   // Leap Motion の listener と controller を作る
   listener.reset(new LeapListener);
-
-  // 変換行列を "Leap Motion の関節の数" + "視点の数" + "モデル変換行列の数" だけ確保する
-  for (int i = 0; i < jointCount + camCount + 1; ++i) localAttitude->push(ggIdentity());
-
-  // ローカルのモデル変換行列のサイズを確保する
-  localMatrixTable.resize(localAttitude->getUsed(), ggIdentity());
-
-  // リモートのモデル変換行列のサイズはローカルと同じにしておく
-  remoteMatrixTable.resize(localAttitude->getUsed());
-  for (auto &m : remoteMatrixTable) remoteAttitude->push(m = ggIdentity());
 
   // 共有メモリの確保に成功した
   return true;
@@ -220,8 +222,8 @@ void Scene::setup(const GgMatrix &m)
   // ローカルの変換行列に Leap Motion の関節の変換行列を取得する
   listener->getHandPose(localMatrixTable.data() + camCount + 1);
 
-  // ローカルの変換行列を共有メモリに保存する
-  localAttitude->store(localMatrixTable.data(), static_cast<unsigned int>(localMatrixTable.size()));
+  // ローカルの変換行列 (Leap Motion の関節, 視点, モデル変換行列) を共有メモリと同期する
+  localAttitude->sync(localMatrixTable.data(), jointCount + camCount + 1);
 
   // リモートの共有メモリから変換行列を取得する
   remoteAttitude->load(remoteMatrixTable.data(), static_cast<unsigned int>(remoteMatrixTable.size()));

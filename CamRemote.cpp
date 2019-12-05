@@ -338,7 +338,7 @@ void CamRemote::send()
     head[camL] = head[camR] = 0;
 
     // •ÏŠ·s—ñ‚Ì”‚ğ•Û‘¶‚·‚é
-    head[camCount] = localAttitude->getUsed();
+    head[camCount] = localAttitude->getSize();
 
     // ‘—M‚·‚é•ÏŠ·s—ñ‚ÌŠi”[êŠ
     GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));

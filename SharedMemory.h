@@ -25,9 +25,6 @@ class SharedMemory
   // 共有メモリの全要素数
   const unsigned int size;
 
-  // 使用中の共有メモリの要素数
-  unsigned int used;
-
 public:
 
   // コンストラクタ
@@ -45,26 +42,26 @@ public:
   // ミューテックスオブジェクトを解放する
   void unlock() const;
 
+  // 確保した共有メモリの要素の数を得る
+  unsigned int getSize() const;
+
   // 確保した共有メモリのアドレスを得る
   const GgMatrix *get() const;
 
-  // 確保した共有メモリの要素を得る
-  const GgMatrix &get(int i) const;
+  // 共有メモリの要素を取り出す
+  void get(unsigned int i, GgMatrix &m) const;
 
-  // 共有メモリの全要素数を得る
-  unsigned int getSize() const;
+  // 共有メモリの要素に格納する
+  void set(unsigned int i, const GgMatrix &m);
 
-  // 使用中の共有メモリの要素数を得る
-  unsigned int getUsed() const;
-
-  // 共有メモリの既存の変換行列に値を設定して番号を返す
-  unsigned int set(unsigned int i, const GgMatrix &m) const;
-
-  // 共有メモリに変換行列を追加して番号を返す
-  unsigned int push(const GgMatrix &m);
+  // 共有メモリの複数の要素に値を設定する
+  void set(unsigned int i, unsigned int count, const GgMatrix &m);
 
   // メモリの内容を共有メモリに保存する
   void store(const GgMatrix *src, unsigned int count) const;
+
+  // メモリの内容を共有メモリと同期する
+  void sync(GgMatrix *src, unsigned int count) const;
 
   // 共有メモリの内容をメモリに取り出す
   void load(GgMatrix *dst, unsigned int count) const;
