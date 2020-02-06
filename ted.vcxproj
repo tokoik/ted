@@ -26,10 +26,19 @@
     <ClInclude Include="CamRemote.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="gg.h" />
+    <ClInclude Include="imconfig.h" />
+    <ClInclude Include="imgui.h" />
+    <ClInclude Include="imgui_impl_glfw.h" />
+    <ClInclude Include="imgui_impl_opengl3.h" />
+    <ClInclude Include="imgui_internal.h" />
+    <ClInclude Include="imstb_rectpack.h" />
+    <ClInclude Include="imstb_textedit.h" />
+    <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="LeapListener.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="picojson.h" />
     <ClInclude Include="Rect.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SharedMemory.h" />
     <ClInclude Include="Window.h" />
@@ -42,6 +51,11 @@
     <ClCompile Include="CamRemote.cpp" />
     <ClCompile Include="config.cpp" />
     <ClCompile Include="gg.cpp" />
+    <ClCompile Include="imgui.cpp" />
+    <ClCompile Include="imgui_draw.cpp" />
+    <ClCompile Include="imgui_impl_glfw.cpp" />
+    <ClCompile Include="imgui_impl_opengl3.cpp" />
+    <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="LeapListener.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Network.cpp" />
@@ -69,12 +83,18 @@
     <None Include="theta.frag" />
     <None Include="theta.vert" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ted.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="ted.ico" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{92525727-B349-4D7C-AE12-EA18F30D2C41}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ted</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

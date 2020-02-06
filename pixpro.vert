@@ -1,4 +1,4 @@
-#version 150 core
+#version 430
 
 //
 // ‹›ŠáƒŒƒ“ƒY‰æ‘œ‚Ì•½–Ê“WŠJ

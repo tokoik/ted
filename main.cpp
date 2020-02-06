@@ -32,7 +32,7 @@ int main(int argc, const char *const *const argv)
   if (!defaults.load(config_file)) defaults.save(config_file);
 
   // GLFW を初期化する
-  if (glfwInit() == GL_FALSE)
+  if (glfwInit() == GLFW_FALSE)
   {
     // GLFW の初期化に失敗した
     NOTIFY("GLFW の初期化に失敗しました。");
@@ -382,7 +382,7 @@ int main(int argc, const char *const *const argv)
   const int drawCount(defaults.display_mode == MONO ? 1 : camCount);
 
   // ウィンドウが開いている間くり返し描画する
-  while (!window.shouldClose())
+  while (window)
   {
     // 左カメラをロックして画像を転送する
     camera->transmit(camL, texture[camL], size[camL]);

@@ -12,13 +12,13 @@
 #  if defined(_DEBUG)
 #    define CV_EXT_STR "d.lib"
 #  else
-#    define CV_EXT_STR ".lib"
+#    define cv::EXT_STR ".lib"
 #  endif
-#  pragma comment(lib, "opencv_world" CV_VERSION_STR CV_EXT_STR)
+#  pragma comment(lib, "opencv_core" CV_VERSION_STR CV_EXT_STR)
+#  pragma comment(lib, "opencv_highgui" CV_VERSION_STR CV_EXT_STR)
+#  pragma comment(lib, "opencv_imgcodecs" CV_VERSION_STR CV_EXT_STR)
+#  pragma comment(lib, "opencv_videoio" CV_VERSION_STR CV_EXT_STR)
 #endif
-
-// OpenCV の Legacy な定数
-#include <opencv2/imgcodecs/legacy/constants_c.h>
 
 // コンストラクタ
 Camera::Camera()
@@ -30,7 +30,7 @@ Camera::Camera()
   format = GL_BGR;
 
   // 圧縮設定
-  param.push_back(CV_IMWRITE_JPEG_QUALITY);
+  param.push_back(cv::IMWRITE_JPEG_QUALITY);
   param.push_back(defaults.remote_texture_quality);
 
   for (int cam = 0; cam < camCount; ++cam)

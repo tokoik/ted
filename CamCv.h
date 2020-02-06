@@ -17,11 +17,11 @@ class CamCv
   // OpenCV のキャプチャデバイスから取得した画像
   cv::Mat image[camCount];
 
-  // 現在のフレームの時刻
-  double frameTime[camCount];
-
   // キャプチャデバイスを開始する
   bool start(int cam);
+
+  // 最初のフレームの時刻
+  double startTime[camCount];
 
   // フレームをキャプチャする
   void capture(int cam);

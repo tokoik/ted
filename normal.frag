@@ -1,5 +1,4 @@
-#version 150 core
-#extension GL_ARB_explicit_attrib_location : enable
+#version 430
 
 //
 // テクスチャ座標の位置の画素色をそのまま使う

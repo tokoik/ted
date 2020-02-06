@@ -1,4 +1,4 @@
-#version 150 core
+#version 430
 
 //
 // RICOH THETA S のライブストリーミング映像の平面展開

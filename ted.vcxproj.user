@@ -2,11 +2,11 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerEnvironment>Path="$(Path);$(ProjectDir)bin\$(Platform);$(ProjectDir)bin\$(Platform)\$(Configuration);C:\librealsense2\bin\$(Platform)\$(Configuration);C:\OpenCV\x64\vc15\bin;C:\LeapSDK\lib\x64;" $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <LocalDebuggerEnvironment>Path="$(Path);$(ProjectDir)bin\$(Platform);$(ProjectDir)bin\$(Platform)\$(Configuration);C:\librealsense2\bin\$(Platform)\$(Configuration);C:\OpenCV\x64\vc15\bin;C:\gstreamer\1.0\x86_64\bin;C:\LeapSDK\lib\x64;" $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerEnvironment>Path="$(Path);$(ProjectDir)bin\$(Platform);$(ProjectDir)bin\$(Platform)\$(Configuration);C:\librealsense2\bin\$(Platform)\$(Configuration);C:\OpenCV\x64\vc15\bin;C:\LeapSDK\lib\x64;" $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <LocalDebuggerEnvironment>Path="$(Path);$(ProjectDir)bin\$(Platform);$(ProjectDir)bin\$(Platform)\$(Configuration);C:\librealsense2\bin\$(Platform)\$(Configuration);C:\OpenCV\x64\vc15\bin;C:\gstreamer\1.0\x86_64\bin;C:\LeapSDK\lib\x64;" $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>

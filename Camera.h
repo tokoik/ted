@@ -51,6 +51,9 @@ protected:
   // キャプチャした画像のサイズ
   GLsizei size[camCount][2];
 
+  // キャプチャするフレーム間隔
+  double interval[camCount];
+
   // キャプチャする画像のフォーマット
   GLenum format;
 

@@ -47,8 +47,8 @@ void CamCv::capture(int cam)
   // スレッドが実行可の間
   while (run[cam])
   {
-    // バッファが空のとき経過時間が現在のフレームの時刻に達していて
-    if (!buffer[cam] && glfwGetTime() >= frameTime[cam])
+    // バッファが空のとき経過時間が次のフレームの時刻に達していて
+    if (!buffer[cam] && glfwGetTime() - startTime[cam] >= camera[cam].get(cv::CAP_PROP_POS_MSEC) * 0.001)
     {
       // 次のフレームが存在すれば
       if (camera[cam].grab())
@@ -71,13 +71,10 @@ void CamCv::capture(int cam)
       }
 
       // フレームが取得できなかったらムービーファイルを巻き戻し
-      if (camera[cam].set(CV_CAP_PROP_POS_FRAMES, 0.0))
+      if (camera[cam].set(cv::CAP_PROP_POS_FRAMES, 0.0))
       {
-        // 経過時間をリセットして
-        glfwSetTime(0.0);
-
-        // フレームの時刻をリセットし
-        frameTime[cam] = 0.0;
+        // 次のフレームの時刻を求める
+        startTime[cam] = glfwGetTime() - camera[cam].get(cv::CAP_PROP_POS_MSEC) * 0.001 + interval[cam];
 
         // 次のフレームに進む
         continue;
@@ -102,27 +99,28 @@ void CamCv::capture(int cam)
 bool CamCv::start(int cam)
 {
   // カメラのコーデック・解像度・フレームレートを設定する
-  if (defaults.fourcc[0] != '\0') camera[cam].set(CV_CAP_PROP_FOURCC,
-    CV_FOURCC(defaults.fourcc[0], defaults.fourcc[1], defaults.fourcc[2], defaults.fourcc[3]));
-  if (defaults.capture_width > 0.0) camera[cam].set(CV_CAP_PROP_FRAME_WIDTH, defaults.capture_width);
-  if (defaults.capture_height > 0.0) camera[cam].set(CV_CAP_PROP_FRAME_HEIGHT, defaults.capture_height);
-  if (defaults.capture_fps > 0.0) camera[cam].set(CV_CAP_PROP_FPS, defaults.capture_fps);
+  if (defaults.fourcc[0] != '\0') camera[cam].set(cv::CAP_PROP_FOURCC,
+    cv::VideoWriter::fourcc(defaults.fourcc[0], defaults.fourcc[1], defaults.fourcc[2], defaults.fourcc[3]));
+  if (defaults.capture_width > 0.0) camera[cam].set(cv::CAP_PROP_FRAME_WIDTH, defaults.capture_width);
+  if (defaults.capture_height > 0.0) camera[cam].set(cv::CAP_PROP_FRAME_HEIGHT, defaults.capture_height);
+  if (defaults.capture_fps > 0.0) camera[cam].set(cv::CAP_PROP_FPS, defaults.capture_fps);
 
   // 左カメラから 1 フレームキャプチャする
   if (camera[cam].grab())
   {
-    // 最初のフレームを取得した時刻を基準にする
-    glfwSetTime(0.0);
+    // キャプチャした画像のフレームレートを取得する
+    const double fps(camera[cam].get(cv::CAP_PROP_FPS));
+    interval[cam] = fps > 0.0 ? 1.0 / fps : 0.033333333;
 
-    // 最初のフレームの時刻は 0 にする
-    frameTime[cam] = 0.0;
+    // 次のフレームの時刻を求める
+    startTime[cam] = glfwGetTime() - camera[cam].get(cv::CAP_PROP_POS_MSEC) * 0.001 + interval[cam];
 
     // キャプチャした画像のサイズを取得する
-    size[cam][0] = static_cast<GLsizei>(camera[cam].get(CV_CAP_PROP_FRAME_WIDTH));
-    size[cam][1] = static_cast<GLsizei>(camera[cam].get(CV_CAP_PROP_FRAME_HEIGHT));
+    size[cam][0] = static_cast<GLsizei>(camera[cam].get(cv::CAP_PROP_FRAME_WIDTH));
+    size[cam][1] = static_cast<GLsizei>(camera[cam].get(cv::CAP_PROP_FRAME_HEIGHT));
 
 #if defined(DEBUG)
-    const int cc(static_cast<int>(camera[cam].get(CV_CAP_PROP_FOURCC)));
+    const int cc(static_cast<int>(camera[cam].get(cv::CAP_PROP_FOURCC)));
     std::cerr << "Camera:" << cam << ", width:" << size[cam][0] << ", height:" << size[cam][1]
       << ", fourcc: " << static_cast<char>(cc & 255)
       << static_cast<char>((cc >> 8) & 255)
@@ -135,8 +133,8 @@ bool CamCv::start(int cam)
     buffer[cam] = image[cam].data;
 
     // 左カメラの利得と露出を取得する
-    gain = static_cast<GLsizei>(camera[cam].get(CV_CAP_PROP_GAIN));
-    exposure = static_cast<GLsizei>(camera[cam].get(CV_CAP_PROP_EXPOSURE) * 10.0);
+    gain = static_cast<GLsizei>(camera[cam].get(cv::CAP_PROP_GAIN));
+    exposure = static_cast<GLsizei>(camera[cam].get(cv::CAP_PROP_EXPOSURE) * 10.0);
 
     // キャプチャスレッドを起動する
     run[cam] = true;
@@ -154,7 +152,7 @@ void CamCv::increaseExposure()
   const double e(static_cast<double>(++exposure) * 0.1);
   for (int cam = 0; cam < camCount; ++cam)
   {
-    if (camera[cam].isOpened()) camera[cam].set(CV_CAP_PROP_EXPOSURE, e);
+    if (camera[cam].isOpened()) camera[cam].set(cv::CAP_PROP_EXPOSURE, e);
   }
 }
 
@@ -164,7 +162,7 @@ void CamCv::decreaseExposure()
   const double e(static_cast<double>(--exposure) * 0.1);
   for (int cam = 0; cam < camCount; ++cam)
   {
-    if (camera[cam].isOpened()) camera[cam].set(CV_CAP_PROP_EXPOSURE, e);
+    if (camera[cam].isOpened()) camera[cam].set(cv::CAP_PROP_EXPOSURE, e);
   }
 }
 
@@ -174,7 +172,7 @@ void CamCv::increaseGain()
   const double g(++gain);
   for (int cam = 0; cam < camCount; ++cam)
   {
-    if (camera[cam].isOpened()) camera[cam].set(CV_CAP_PROP_GAIN, g);
+    if (camera[cam].isOpened()) camera[cam].set(cv::CAP_PROP_GAIN, g);
   }
 }
 
@@ -184,6 +182,6 @@ void CamCv::decreaseGain()
   const double g(--gain);
   for (int cam = 0; cam < camCount; ++cam)
   {
-    if (camera[cam].isOpened()) camera[cam].set(CV_CAP_PROP_GAIN, g);
+    if (camera[cam].isOpened()) camera[cam].set(cv::CAP_PROP_GAIN, g);
   }
 }

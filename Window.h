@@ -222,21 +222,32 @@ public:
   //
   // ウィンドウの識別子の取得
   //
-  const GLFWwindow *get() const
+  GLFWwindow *get() const
   {
     return window;
   }
 
   //
+  // ウィンドウを閉じるよう指示する
+  //
+  void setClose(int close = GLFW_TRUE) const
+  {
+    glfwSetWindowShouldClose(window, close);
+  }
+
+  //
   // ウィンドウを閉じるべきかを判定する
   //
-  //   ・描画ループの継続条件として使う
-  //
-  bool shouldClose() const
+  int shouldClose() const
   {
-    // ウィンドウを閉じるか ESC キーがタイプされていれば真
-    return glfwWindowShouldClose(window) || glfwGetKey(window, GLFW_KEY_ESCAPE);
+    // ウィンドウを閉じるべきなら真を返す
+    return glfwWindowShouldClose(window);
   }
+
+  //
+  // イベントを取得してループを継続するなら真を返す
+  //
+  operator bool();
 
   //
   // 描画開始
