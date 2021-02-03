@@ -867,8 +867,8 @@ Window::operator bool()
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
 
-  // マウスカーソルが ImGui のウィンドウ上にあったらマウスもキーボードも処理しない
-  if (ImGui::IsAnyWindowHovered()) return true;
+  // マウスカーソルが ImGui のウィンドウ上にあったら Window クラスのマウス位置を更新しない
+  if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) return true;
 
   // マウスの現在位置を調べる
   const ImGuiIO &io(ImGui::GetIO());
@@ -1480,7 +1480,7 @@ void Window::mouse(GLFWwindow *window, int button, int action, int mods)
 {
 #ifdef IMGUI_VERSION
   // マウスカーソルが ImGui のウィンドウ上にあったら Window クラスのマウス位置を更新しない
-  if (ImGui::IsAnyWindowHovered()) return;
+  if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) return;
 #endif
 
   // このインスタンスの this ポインタを得る
@@ -1540,7 +1540,7 @@ void Window::wheel(GLFWwindow *window, double x, double y)
 {
 #ifdef IMGUI_VERSION
   // マウスカーソルが ImGui のウィンドウ上にあったら Window クラスのマウスホイールの回転量を更新しない
-  if (ImGui::IsAnyWindowHovered()) return;
+  if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) return;
 #endif
 
   // このインスタンスの this ポインタを得る
@@ -1575,7 +1575,7 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
 {
 #ifdef IMGUI_VERSION
   // ImGui のウィンドウが選択されていたらキーボードの処理を行わない
-  if (ImGui::IsAnyWindowFocused()) return;
+  if (ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow)) return;
 #endif
 
   // このインスタンスの this ポインタを得る
