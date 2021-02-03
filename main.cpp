@@ -144,8 +144,76 @@ int main(int argc, const char *const *const argv)
   // ダミーカメラが設定されていなければ
   if (!camera)
   {
-    // 左カメラを使わないとき
-    if (defaults.camera_left < 0)
+    // 左カメラから動画を入力するとき
+    if (defaults.camera_left >= 0 || !defaults.camera_left_movie.empty())
+    {
+      // 左カメラに OpenCV のキャプチャデバイスを使う
+      CamCv *const cam(new CamCv);
+
+      // 生成したカメラを記録しておく
+      camera.reset(cam);
+
+      // ムービーファイルが指定されていれば
+      if (!defaults.camera_left_movie.empty())
+      {
+        // ムービーファイルを開く
+        if (!cam->open(defaults.camera_left_movie, camL))
+        {
+          NOTIFY("左の動画ファイルが使用できません。");
+          return EXIT_FAILURE;
+        }
+      }
+      else
+      {
+        // カメラデバイスを開く
+        if (!cam->open(defaults.camera_left, camL))
+        {
+          NOTIFY("左のカメラが使用できません。");
+          return EXIT_FAILURE;
+        }
+      }
+
+      // 左カメラのサイズを得る
+      size[camL][0] = cam->getWidth(camL);
+      size[camL][1] = cam->getHeight(camL);
+
+      // 右カメラのサイズは左と同じにしておく
+      size[camR][0] = size[camL][0];
+      size[camR][1] = size[camL][1];
+
+      // 立体視表示を行うとき
+      if (defaults.display_mode != MONO)
+      {
+        // 右カメラに左と異なるムービーファイルが指定されていれば
+        if (!defaults.camera_right_movie.empty() && defaults.camera_right_movie != defaults.camera_left_movie)
+        {
+          // ムービーファイルを開く
+          if (!cam->open(defaults.camera_right_movie, camR))
+          {
+            NOTIFY("右の動画ファイルが使用できません。");
+            return EXIT_FAILURE;
+          }
+
+          // 右カメラのサイズを得る
+          size[camR][0] = cam->getWidth(camR);
+          size[camR][1] = cam->getHeight(camR);
+        }
+        else if (defaults.camera_right >= 0 && defaults.camera_right != defaults.camera_left)
+        {
+          // カメラデバイスを開く
+          if (!cam->open(defaults.camera_right, camR))
+          {
+            NOTIFY("右のカメラが使用できません。");
+            return EXIT_FAILURE;
+          }
+
+          // 右カメラのサイズを得る
+          size[camR][0] = cam->getWidth(camR);
+          size[camR][1] = cam->getHeight(camR);
+        }
+      }
+    }
+    else
     {
       // 右カメラだけを使うなら
       if (defaults.camera_right >= 0)
@@ -181,23 +249,21 @@ int main(int argc, const char *const *const argv)
         camera.reset(cam);
 
         // 左の画像が使用可能なら
-        if (cam->open(defaults.camera_left_image, camL))
-        {
-          // 左の画像を使用する
-          image[camL] = cam->getImage(camL);
-
-          // 左の画像のサイズを得る
-          size[camL][0] = cam->getWidth(camL);
-          size[camL][1] = cam->getHeight(camL);
-        }
-        else
+        if (!cam->open(defaults.camera_left_image, camL))
         {
           // 左の画像ファイルが読み込めなかった
           NOTIFY("左の画像ファイルが使用できません。");
           return EXIT_FAILURE;
         }
 
-        // 右の画像サイズは左と同じにしておく
+        // 左の画像を使用する
+        image[camL] = cam->getImage(camL);
+
+        // 左カメラのサイズを得る
+        size[camL][0] = camera->getWidth(camL);
+        size[camL][1] = camera->getHeight(camL);
+
+        // 右カメラのサイズは左と同じにしておく
         size[camR][0] = size[camL][0];
         size[camR][1] = size[camL][1];
 
@@ -208,76 +274,21 @@ int main(int argc, const char *const *const argv)
           if (!defaults.camera_right_image.empty())
           {
             // 右の画像が使用可能なら
-            if (cam->open(defaults.camera_right_image, camR))
-            {
-              // 右の画像を使用する
-              image[camR] = cam->getImage(camR);
-
-              // 右の画像のサイズを得る
-              size[camR][0] = cam->getWidth(camR);
-              size[camR][1] = cam->getHeight(camR);
-            }
-            else
+            if (!cam->open(defaults.camera_right_image, camR))
             {
               // 右の画像ファイルが読み込めなかった
               NOTIFY("右の画像ファイルが使用できません。");
               return EXIT_FAILURE;
             }
+
+            // 右の画像を使用する
+            image[camR] = cam->getImage(camR);
+
+            // 右の画像のサイズを得る
+            size[camR][0] = cam->getWidth(camR);
+            size[camR][1] = cam->getHeight(camR);
           }
         }
-      }
-    }
-    else
-    {
-      // 左カメラに OpenCV のキャプチャデバイスを使う
-      CamCv *const cam(new CamCv);
-
-      // 生成したカメラを記録しておく
-      camera.reset(cam);
-
-      // 左カメラが使用可能なら
-      if (defaults.camera_left >= 0
-        ? cam->open(defaults.camera_left, camL)
-        : !defaults.camera_left_movie.empty()
-        ? cam->open(defaults.camera_left_movie, camL)
-        : false)
-      {
-        // 左カメラの画像サイズを得る
-        size[camL][0] = cam->getWidth(camL);
-        size[camL][1] = cam->getHeight(camL);
-      }
-      else
-      {
-        // 左カメラが使えなかった
-        NOTIFY("左のカメラが使えません。");
-        return EXIT_FAILURE;
-      }
-
-      // 立体視表示を行うとき右カメラを使用するなら
-      if (defaults.display_mode != MONO && defaults.camera_right >= 0)
-      {
-        if (defaults.camera_right != defaults.camera_left
-          ? cam->open(defaults.camera_right, camR)
-          : !defaults.camera_right_movie.empty()
-          ? cam->open(defaults.camera_right_movie, camR)
-          : false)
-        {
-          // 右カメラの画像サイズを得る
-          size[camR][0] = cam->getWidth(camR);
-          size[camR][1] = cam->getHeight(camR);
-        }
-        else
-        {
-          // 右カメラが使えなかった
-          NOTIFY("右のカメラが使えません。");
-          return EXIT_FAILURE;
-        }
-      }
-      else
-      {
-        // 右の画像サイズは左と同じにしておく
-        size[camR][0] = size[camL][0];
-        size[camR][1] = size[camL][1];
       }
     }
 
@@ -381,9 +392,51 @@ int main(int argc, const char *const *const argv)
   // 描画回数
   const int drawCount(defaults.display_mode == MONO ? 1 : camCount);
 
+#ifdef IMGUI_VERSION
+  //
+  // ImGui の初期設定
+  //
+
+  //ImGuiIO& io = ImGui::GetIO();
+  //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+  //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+  // Setup Dear ImGui style
+  //ImGui::StyleColorsDark();
+  //ImGui::StyleColorsClassic();
+
+  // Load Fonts
+  // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
+  // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
+  // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
+  // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
+  // - Read 'docs/FONTS.txt' for more instructions and details.
+  // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
+  //io.Fonts->AddFontDefault();
+  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
+  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
+  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
+  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
+  //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+  //IM_ASSERT(font != NULL);
+#endif
+
   // ウィンドウが開いている間くり返し描画する
   while (window)
   {
+#ifdef IMGUI_VERSION
+    //
+    // ユーザインタフェース
+    //
+    ImGui::NewFrame();
+    ImGui::Begin("Control panel");
+    ImGui::Text("Frame rate: %6.2f fps", ImGui::GetIO().Framerate);
+    if (ImGui::Button("Quit")) window.setClose(GLFW_TRUE);
+    ImGui::End();
+    ImGui::Render();
+#endif
+
+
     // 左カメラをロックして画像を転送する
     camera->transmit(camL, texture[camL], size[camL]);
 

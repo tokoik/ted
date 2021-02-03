@@ -3,16 +3,14 @@
 //
 #include "Window.h"
 
-// シーングラフ
-#include "Scene.h"
-
-// ユーザインタフェース
-#define USE_GUI
-#ifdef USE_GUI
-#  include "imgui.h"
+// Dear ImGui を使うとき
+#ifdef IMGUI_VERSION
 #  include "imgui_impl_glfw.h"
 #  include "imgui_impl_opengl3.h"
 #endif
+
+// シーングラフ
+#include "Scene.h"
 
 // Oculus Rift SDK ライブラリ (LibOVR) の組み込み
 #if defined(_WIN32)
@@ -150,6 +148,17 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+#ifdef IMGUI_VERSION
+    // ImGui のバージョンをチェックする
+    IMGUI_CHECKVERSION();
+
+    // ImGui のコンテキストを作成する
+    ImGui::CreateContext();
+
+    // プログラム終了時には ImGui のコンテキストを破棄する
+    atexit([] { ImGui::DestroyContext(); });
+#endif
+
     // 実行済みの印をつける
     firstTime = false;
   }
@@ -257,40 +266,6 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
 
   // ゲームグラフィックス特論の都合にもとづく初期化を行う
   ggInit();
-
-#ifdef USE_GUI
-  //
-  // ユーザインタフェースの準備
-  //
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-  ImGuiIO& io = ImGui::GetIO(); (void)io;
-  //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-  //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-  // Setup Dear ImGui style
-  ImGui::StyleColorsDark();
-  //ImGui::StyleColorsClassic();
-
-  // Setup Platform/Renderer bindings
-  ImGui_ImplGlfw_InitForOpenGL(window, true);
-  ImGui_ImplOpenGL3_Init("#version 430");
-
-  // Load Fonts
-  // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-  // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-  // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-  // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-  // - Read 'docs/FONTS.txt' for more instructions and details.
-  // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-  //io.Fonts->AddFontDefault();
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-  //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-  //IM_ASSERT(font != NULL);
-#endif
 
   // Oculus Rift への表示ではスワップ間隔を待たない
   glfwSwapInterval(defaults.display_mode == OCULUS ? 0 : 1);
@@ -550,6 +525,38 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
     glGenFramebuffers(eyeCount, oculusFbo);
   }
 
+#ifdef IMGUI_VERSION
+  //
+  // ユーザインタフェースの準備
+  //
+  //ImGuiIO& io = ImGui::GetIO(); (void)io;
+  //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+  //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+  // Setup Dear ImGui style
+  //ImGui::StyleColorsDark();
+  //ImGui::StyleColorsClassic();
+
+  // Load Fonts
+  // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
+  // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
+  // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
+  // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
+  // - Read 'docs/FONTS.txt' for more instructions and details.
+  // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
+  //io.Fonts->AddFontDefault();
+  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
+  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
+  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
+  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
+  //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+  //IM_ASSERT(font != NULL);
+
+  // Setup Platform/Renderer bindings
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  ImGui_ImplOpenGL3_Init("#version 430");
+#endif
+
   // 投影変換行列・ビューポートを初期化する
   resize(window, width, height);
 }
@@ -671,11 +678,10 @@ Window::~Window()
     const_cast<ovrSession>(session) = nullptr;
   }
 
-#ifdef USE_GUI
-  // ユーザインタフェースの跡片付け
+#ifdef IMGUI_VERSION
+  // Shutdown Platform/Renderer bindings
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplGlfw_Shutdown();
-  ImGui::DestroyContext();
 #endif
 
   // 表示用のウィンドウを破棄する
@@ -693,25 +699,188 @@ Window::operator bool()
   // ウィンドウを閉じるべきなら false
   if (glfwWindowShouldClose(window)) return false;
 
-#ifdef USE_GUI
-  //
-  // ユーザインタフェース
-  //
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
+#if defined(LEAP_INTERPORATE_FRAME)
+  // Leap Motion の変換行列を更新する
+  Scene::update();
 #endif
+
+  // 速度を距離に比例させる
+  const auto speedFactor((fabs(oz) + 0.2f));
+
+  //
+  // ジョイスティックによる操作
+  //
+
+  // ジョイスティックが有効なら
+  if (joy >= 0)
+  {
+    // ボタン
+    int btnsCount;
+    const auto *const btns(glfwGetJoystickButtons(joy, &btnsCount));
+
+    // スティック
+    int axesCount;
+    const auto *const axes(glfwGetJoystickAxes(joy, &axesCount));
+
+    // スティックの速度係数
+    const auto axesSpeedFactor(axesSpeedScale * speedFactor);
+
+    // L ボタンと R ボタンの状態
+    const auto lrButton(btns[4] | btns[5]);
+
+    if (axesCount > 3)
+    {
+      // 物体を左右に移動する
+      ox += (axes[0] - origin[0]) * axesSpeedFactor;
+
+      // L ボタンか R ボタンを同時に押していれば
+      if (lrButton)
+      {
+        // 物体を前後に移動する
+        oz += (axes[1] - origin[1]) * axesSpeedFactor;
+      }
+      else
+      {
+        // 物体を上下に移動する
+        oy += (axes[1] - origin[1]) * axesSpeedFactor;
+      }
+
+      // 物体を左右に回転する
+      trackball.rotate(ggRotateQuaternion(0.0f, 1.0f, 0.0f, (axes[2] - origin[2]) * axesSpeedFactor));
+
+      // 物体を上下に回転する
+      trackball.rotate(ggRotateQuaternion(1.0f, 0.0f, 0.0f, (axes[3] - origin[3]) * axesSpeedFactor));
+    }
+
+    // B, X ボタンの状態
+    const auto parallaxButton(btns[1] - btns[2]);
+
+    // B, X ボタンに変化があれば
+    if (parallaxButton)
+    {
+      // L ボタンか R ボタンを同時に押していれば
+      if (lrButton)
+      {
+        // 背景を左右に回転する
+        if (parallaxButton > 0)
+        {
+          qa[camL] *= qrStep[0];
+          qa[camR] *= qrStep[0].conjugate();
+        }
+        else
+        {
+          qa[camL] *= qrStep[0].conjugate();
+          qa[camR] *= qrStep[0];
+        }
+      }
+      else
+      {
+        // スクリーンの間隔を調整する
+        offset += parallaxButton * offsetStep;
+      }
+    }
+
+    // Y, A ボタンの状態
+    const auto zoomButton(btns[3] - btns[0]);
+
+    // Y, A ボタンに変化があれば
+    if (zoomButton)
+    {
+      // L ボタンか R ボタンを同時に押していれば
+      if (lrButton)
+      {
+        // 背景を上下に回転する
+        if (zoomButton > 0)
+        {
+          qa[camL] *= qrStep[1];
+          qa[camR] *= qrStep[1].conjugate();
+        }
+        else
+        {
+          qa[camL] *= qrStep[1].conjugate();
+          qa[camR] *= qrStep[1];
+        }
+      }
+      else
+      {
+        // 焦点距離を調整する
+        focal = focalStep / (focalStep - static_cast<GLfloat>(focalChange += zoomButton));
+      }
+    }
+
+    // 十字キーの左右ボタンの状態
+    const auto textureXButton(btns[11] - btns[13]);
+
+    // 十字キーの左右ボタンに変化があれば
+    if (textureXButton)
+    {
+      // L ボタンか R ボタンを同時に押していれば
+      if (lrButton)
+      {
+        // 背景に対する横方向の画角を調整する
+        circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(circleChange[0] += textureXButton) * shiftStep;
+      }
+      else
+      {
+        // 背景の横位置を調整する
+        circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(circleChange[2] += textureXButton) * shiftStep;
+      }
+    }
+
+    // 十字キーの上下ボタンの状態
+    const auto textureYButton(btns[10] - btns[12]);
+
+    // 十字キーの上下ボタンに変化があれば
+    if (textureYButton)
+    {
+      // L ボタンか R ボタンを同時に押していれば
+      if (lrButton)
+      {
+        // 背景に対する縦方向の画角を調整する
+        circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(circleChange[1] += textureYButton) * shiftStep;
+      }
+      else
+      {
+        // 背景の縦位置を調整する
+        circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(circleChange[3] += textureYButton) * shiftStep;
+      }
+    }
+
+    // 設定をリセットする
+    if (btns[7])
+    {
+      reset();
+      updateProjectionMatrix();
+    }
+  }
 
   //
   // マウスによる操作
   //
 
-  // マウスの位置を調べる
+  // マウスの位置
   double x, y;
+
+#ifdef IMGUI_VERSION
+
+  // ImGui の新規フレームを作成する
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplGlfw_NewFrame();
+
+  // マウスカーソルが ImGui のウィンドウ上にあったらマウスもキーボードも処理しない
+  if (ImGui::IsAnyWindowHovered()) return true;
+
+  // マウスの現在位置を調べる
+  const ImGuiIO &io(ImGui::GetIO());
+  x = io.MousePos.x;
+  y = io.MousePos.y;
+
+#else
+
+  // マウスの位置を調べる
   glfwGetCursorPos(window, &x, &y);
 
-  // 速度を距離に比例させる
-  const auto speedFactor((fabs(oz) + 0.2f));
+#endif
 
   // 左ボタンドラッグ
   if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1))
@@ -907,158 +1076,6 @@ Window::operator bool()
       }
     }
   }
-
-  //
-  // ジョイスティックによる操作
-  //
-
-  // ジョイスティックが有効なら
-  if (joy >= 0)
-  {
-    // ボタン
-    int btnsCount;
-    const auto *const btns(glfwGetJoystickButtons(joy, &btnsCount));
-
-    // スティック
-    int axesCount;
-    const auto *const axes(glfwGetJoystickAxes(joy, &axesCount));
-
-    // スティックの速度係数
-    const auto axesSpeedFactor(axesSpeedScale * speedFactor);
-
-    // L ボタンと R ボタンの状態
-    const auto lrButton(btns[4] | btns[5]);
-
-    if (axesCount > 3)
-    {
-      // 物体を左右に移動する
-      ox += (axes[0] - origin[0]) * axesSpeedFactor;
-
-      // L ボタンか R ボタンを同時に押していれば
-      if (lrButton)
-      {
-        // 物体を前後に移動する
-        oz += (axes[1] - origin[1]) * axesSpeedFactor;
-      }
-      else
-      {
-        // 物体を上下に移動する
-        oy += (axes[1] - origin[1]) * axesSpeedFactor;
-      }
-
-      // 物体を左右に回転する
-      trackball.rotate(ggRotateQuaternion(0.0f, 1.0f, 0.0f, (axes[2] - origin[2]) * axesSpeedFactor));
-
-      // 物体を上下に回転する
-      trackball.rotate(ggRotateQuaternion(1.0f, 0.0f, 0.0f, (axes[3] - origin[3]) * axesSpeedFactor));
-    }
-
-    // B, X ボタンの状態
-    const auto parallaxButton(btns[1] - btns[2]);
-
-    // B, X ボタンに変化があれば
-    if (parallaxButton)
-    {
-      // L ボタンか R ボタンを同時に押していれば
-      if (lrButton)
-      {
-        // 背景を左右に回転する
-        if (parallaxButton > 0)
-        {
-          qa[camL] *= qrStep[0];
-          qa[camR] *= qrStep[0].conjugate();
-        }
-        else
-        {
-          qa[camL] *= qrStep[0].conjugate();
-          qa[camR] *= qrStep[0];
-        }
-      }
-      else
-      {
-        // スクリーンの間隔を調整する
-        offset += parallaxButton * offsetStep;
-      }
-    }
-
-    // Y, A ボタンの状態
-    const auto zoomButton(btns[3] - btns[0]);
-
-    // Y, A ボタンに変化があれば
-    if (zoomButton)
-    {
-      // L ボタンか R ボタンを同時に押していれば
-      if (lrButton)
-      {
-        // 背景を上下に回転する
-        if (zoomButton > 0)
-        {
-          qa[camL] *= qrStep[1];
-          qa[camR] *= qrStep[1].conjugate();
-        }
-        else
-        {
-          qa[camL] *= qrStep[1].conjugate();
-          qa[camR] *= qrStep[1];
-        }
-      }
-      else
-      {
-        // 焦点距離を調整する
-        focal = focalStep / (focalStep - static_cast<GLfloat>(focalChange += zoomButton));
-      }
-    }
-
-    // 十字キーの左右ボタンの状態
-    const auto textureXButton(btns[11] - btns[13]);
-
-    // 十字キーの左右ボタンに変化があれば
-    if (textureXButton)
-    {
-      // L ボタンか R ボタンを同時に押していれば
-      if (lrButton)
-      {
-        // 背景に対する横方向の画角を調整する
-        circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(circleChange[0] += textureXButton) * shiftStep;
-      }
-      else
-      {
-        // 背景の横位置を調整する
-        circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(circleChange[2] += textureXButton) * shiftStep;
-      }
-    }
-
-    // 十字キーの上下ボタンの状態
-    const auto textureYButton(btns[10] - btns[12]);
-
-    // 十字キーの上下ボタンに変化があれば
-    if (textureYButton)
-    {
-      // L ボタンか R ボタンを同時に押していれば
-      if (lrButton)
-      {
-        // 背景に対する縦方向の画角を調整する
-        circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(circleChange[1] += textureYButton) * shiftStep;
-      }
-      else
-      {
-        // 背景の縦位置を調整する
-        circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(circleChange[3] += textureYButton) * shiftStep;
-      }
-    }
-
-    // 設定をリセットする
-    if (btns[7])
-    {
-      reset();
-      updateProjectionMatrix();
-    }
-  }
-
-#if defined(LEAP_INTERPORATE_FRAME)
-  // Leap Motion の変換行列を更新する
-  Scene::update();
-#endif
 
   return true;
 }
@@ -1311,23 +1328,8 @@ void Window::commit(int eye)
 //
 void Window::swapBuffers()
 {
-#if defined(DEBUG)
   // エラーチェック
   ggError();
-#endif
-
-#ifdef USE_GUI
-  //
-  // ユーザインタフェース
-  //
-  ImGui::SetNextWindowSize(ImVec2(256, 228));
-  ImGui::Begin("Control panel");
-  ImGui::Text("Frame rate: %6.2f fps", ImGui::GetIO().Framerate);
-  if (ImGui::Button("Quit")) glfwSetWindowShouldClose(window, GLFW_TRUE);
-  ImGui::End();
-  ImGui::Render();
-  ggError();
-#endif
 
   // Oculus Rift 使用時
   if (session)
@@ -1374,29 +1376,26 @@ void Window::swapBuffers()
       glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     }
 
-#ifdef USE_GUI
+#ifdef IMGUI_VERSION
     // ユーザインタフェースを描画する
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    ggError();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    ggError();
+    ImDrawData *const imDrawData(ImGui::GetDrawData());
+    if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
 #endif
 
     // 残っている OpenGL コマンドを実行する
     glFlush();
-    ggError();
   }
   else
   {
-#ifdef USE_GUI
+#ifdef IMGUI_VERSION
     // ユーザインタフェースを描画する
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    ggError();
+    ImDrawData *const imDrawData(ImGui::GetDrawData());
+    if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
 #endif
 
     // カラーバッファを入れ替える
     glfwSwapBuffers(window);
-  ggError();
   }
 }
 
@@ -1479,6 +1478,11 @@ void Window::resize(GLFWwindow *window, int width, int height)
 //
 void Window::mouse(GLFWwindow *window, int button, int action, int mods)
 {
+#ifdef IMGUI_VERSION
+  // マウスカーソルが ImGui のウィンドウ上にあったら Window クラスのマウス位置を更新しない
+  if (ImGui::IsAnyWindowHovered()) return;
+#endif
+
   // このインスタンスの this ポインタを得る
   Window *const instance(static_cast<Window *>(glfwGetWindowUserPointer(window)));
 
@@ -1534,6 +1538,11 @@ void Window::mouse(GLFWwindow *window, int button, int action, int mods)
 //
 void Window::wheel(GLFWwindow *window, double x, double y)
 {
+#ifdef IMGUI_VERSION
+  // マウスカーソルが ImGui のウィンドウ上にあったら Window クラスのマウスホイールの回転量を更新しない
+  if (ImGui::IsAnyWindowHovered()) return;
+#endif
+
   // このインスタンスの this ポインタを得る
   Window *const instance(static_cast<Window *>(glfwGetWindowUserPointer(window)));
 
@@ -1564,6 +1573,11 @@ void Window::wheel(GLFWwindow *window, double x, double y)
 //
 void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
+#ifdef IMGUI_VERSION
+  // ImGui のウィンドウが選択されていたらキーボードの処理を行わない
+  if (ImGui::IsAnyWindowFocused()) return;
+#endif
+
   // このインスタンスの this ポインタを得る
   Window *const instance(static_cast<Window *>(glfwGetWindowUserPointer(window)));
 

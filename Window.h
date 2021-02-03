@@ -7,6 +7,9 @@
 // 各種設定
 #include "config.h"
 
+// Dear ImGui を使う
+#include "imgui.h"
+
 // カメラ関連の処理
 #include "Camera.h"
 

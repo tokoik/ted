@@ -15,25 +15,49 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_00E7C7347A72430A88747E5B0F7F3901"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0128996EDF0245B6B6E0E9E105156CC4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_03338E69CFCA4DA985A2A12D3266C130"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_05AE2C7B0F904D1CB7EBAEFBB8A08095"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_080C1275812B4FF08BD91E44483DC2F4"
+        "MsmKey" = "8:_05EEFE58B53B4DF6B1D738BB725FB217"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_0A49F3F72D2F413585B26F060CDAD175"
+        "MsmKey" = "8:_091DC2C53DF04EDCA7F3616DE2FA887E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_0A7AF947DE084468AC8D617444EBDA26"
+        "MsmKey" = "8:_096B2196F12E4135A2CD9850B5618057"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_09F3F81056CC4884B907A188A95D73B2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -45,13 +69,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0B67D804D9F24761BDEE7BF2EEB6166D"
+        "MsmKey" = "8:_0B651558289F44439D05368F6585534B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_0D78D1D565D644E68D91B3C8590C36B5"
+        "MsmKey" = "8:_0C9A3F7329A24ABBA913D306EB67EF44"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -63,19 +87,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0ED1DC941C1B4C0596C67712D5967BE8"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_1053E66A86BA4AD9A3885648C0ADAFA2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_106857B3BD8A41D299ED036D47421E47"
+        "MsmKey" = "8:_1060587F96DE4D568F61BCDDFF0DB1D3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_108C7678F2A04052AA504C51E32CAF3A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -87,55 +111,73 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_120F7AF6AAAC4A7F92294752026558FE"
+        "MsmKey" = "8:_11FBFF75F74F459FA7A03D832E3B4BC5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_126C3589CAC24F58831ADC2E4A54237B"
+        "MsmKey" = "8:_13F08AECC24B453C8F25DC325AEF28D4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_146C5DCDDA334F959617A864A5BE27E5"
+        "MsmKey" = "8:_147641DE1FCE4B6F9CBFF604F97D88A2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_150D50796A1D482880D4E49E0AF95DBE"
+        "MsmKey" = "8:_148F5EEE168E44A9866D7550005CC2C0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_16AF9A467F02421FAFE82CD992AC2B9E"
+        "MsmKey" = "8:_15461511B0704950AC882E51B77CAECC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_177FD027745A4E60A8E04F745039F710"
+        "MsmKey" = "8:_15CDBFE9B10147C2A22D444B4AB3EA6A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_180EBEFE3CEC48A28D63FEA13EF17C92"
+        "MsmKey" = "8:_16B0CC2D638D45A6B590EA55B26A765F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_1ACB2E8532C04DD8849B64156E8BDE9D"
+        "MsmKey" = "8:_17C4D252F70F4E319414F0BD3867C0A0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_1B11DCE0845C40F9BD731CEFC37262D1"
+        "MsmKey" = "8:_1B2E58240132444898D3567382DD79AB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1B985D8136E048EFBA032F02B39C1B64"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1BE45AB47B654CA1B147675EC6BDD72A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1BEBAB3920B2413290D97F325E6FD30A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -147,7 +189,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_1DD272C933874026AE2A83211CF0FA1D"
+        "MsmKey" = "8:_1DCCE83114AB4928BB8CE43DA8CA478D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -165,13 +207,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_20FA663CF83B40F58A4F39BEB595D87B"
+        "MsmKey" = "8:_21B349235D1443039A157593BC8AF0A5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_22B612ACF433410687D5CB878CFC20F9"
+        "MsmKey" = "8:_23052810B54349BF93E1C945F43503A6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -183,25 +225,31 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_23CD7D1F23664E169B08CE4CC51DE667"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_240BE76EC9184B06B06222FFF0B8CEE4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_2476C38B15114B48BE8A730A309233BB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_2757B79273D04AA78F56E5F007F3E522"
+        "MsmKey" = "8:_260F8F68D71142AB8B1A8FAF5F96677B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_26FD34BAA60E4A099EDD32BC7EC9D400"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_277B2ACF0DB74218ADB9032FC79404AB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_28412ED3CF14415CBE907BC582F40B15"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -219,37 +267,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2A011C9513B1421CA5E6DA63CB698987"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_2A30A7C8BE154898B66A6E9F03A55029"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_2A879A4657E441EEB49420A20EE2EC97"
+        "MsmKey" = "8:_2A8E6E29E9704C91966B0AC3A9DE8025"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_2B0B59B0C1064A09BE184E2E2D4D8D95"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2BAAB499CAB742128D2165AE08BAA2CB"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2BBF78EE09764C26AE915B0595C164DA"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2D4311487395464AB90CF054AED12F9E"
+        "MsmKey" = "8:_2ABAE3FF4C6F41978559FF648D2B6C8E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -261,13 +297,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_2EB339A70A43402187FD1A09A8E23819"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2F7FF9E4A55B435687DEFC4244345E33"
+        "MsmKey" = "8:_2DCD63DBF4284EE8869DE1F71672B95B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -279,19 +309,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_30E1CE19EEFE41DDA7BE34C9D329EC12"
+        "MsmKey" = "8:_30A09AD277D941BB84BDA9C915C995E2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_316B47BFBBD6404898854473BC575659"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_31995B11ECF54186BE97112BC042C960"
+        "MsmKey" = "8:_3180B12465F0470EAB554E670E88F526"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -303,13 +327,25 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_348D2A7EB7164908A0ACF4F014214DAB"
+        "MsmKey" = "8:_35B2E609B3284FEAB1F91572964AE71B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_35BC4E14E6234CCE851E675EF1C26E67"
+        "MsmKey" = "8:_38314BEAC87F4C82BC91F91D565101DC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_38F645D8034D4F9E928E367140EA606C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_39756E5555A64C26A12C16D47E4BF281"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -321,67 +357,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3AE3D51586A347C485D89938C9CACC1F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3B56590601974E0E924E4B335AE8AAC5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3BD18587E1454571877A16DF49125565"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3DF49C5FA11745A9BE20FAD3D459BAC8"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3E93A2F6C3E74BC09E9C1A670FFEB8D4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3FF1291ED6804AB19F1FD7B2EA7B4D56"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_40EB884419E547E3A901A48E91921E5B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_4188F356B1DC473AAC393D7D2AF2DF9A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_4350FDE9C80B4D96A10DF97461FF66AE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_4478AC98136B4616A4793CD4FFA7DA62"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_453FF1E6265147F690D2F33A4FD01FFC"
+        "MsmKey" = "8:_4248BF525C6A48F58F3418E37D3C6606"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -393,25 +369,37 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4742ADE1F9334F63B472F1F1D320D33C"
+        "MsmKey" = "8:_461743D364844A9E86A564384E15C3AB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_48C458D292034B31849DAAFEDCBAC57E"
+        "MsmKey" = "8:_46F1770CA8EC4DBDA8D6AECB8B1B9ACB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_4956C16CE7DC482BB1C3D42FABBB4E2E"
+        "MsmKey" = "8:_4701CFD404FF412AA89AD0202F01906C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_4ABC5187462B4C6AB6797D657C108445"
+        "MsmKey" = "8:_480143053C3543F799504CF2064E7497"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4820090FB52A459299BD90791DFBC421"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_48981038430648F1A6E42CBD27606A20"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -423,13 +411,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_4B58B26422264DB0A604B5F0EF17682A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4CF0E76165B64017B0FC75D43BF32D82"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4DE83D1E5B7F4B2A872F624A4C1073B6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_4E7F21BD0C9F4622995EC141D9129FFD"
+        "MsmKey" = "8:_4E96E8C4E5F24DABA53D0D868FC0E50B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -447,43 +447,67 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_505A7B18792E43B191C8CE52082EE84F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_51A6E506614C41DCA5021976C573B89D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_5280BA5FDDCA4CBABCF42518AB4A09DD"
+        "MsmKey" = "8:_55C1AC18C22745B48FE41EC07C7593BD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_5526E1F2DB954591B10870E527304157"
+        "MsmKey" = "8:_55D75910884044A18580C0D0EDB7B6A8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_56BCEDB0D8C64D44B21DCB5C660854FE"
+        "MsmKey" = "8:_569C72B1F6DD4C0B800E02F7EE61E793"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_577A582783104F459F59DA949809D7E2"
+        "MsmKey" = "8:_569C84CB175D4491AD56D312D1657CDC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_5B9676E9C4924BFB88B10F1F61FF61D3"
+        "MsmKey" = "8:_57AA03199A4C4AFEA9208BF3CA828017"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_5E08BA1E5F9B4E7FB57C77687EFBE457"
+        "MsmKey" = "8:_5875ABB8DEF74B9EBA4E7402D59C8371"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5987F1B846A7423899292F3702313129"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5AC34EFEA424441B99A56FA6B0682DF7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5BDF3CDCA3994E0990AF79F2CE9969B6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -495,7 +519,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_5FCBF118DA3C4FF0A34F65E82F007719"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_60FE5632F3B34D3DAE5C38C09FF5FC0B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_611FED66D0B34F499F75BCB8FF4A58CD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -507,19 +543,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_641538EDE5D746FCB3ABC4729AA24442"
+        "MsmKey" = "8:_62F6522643324EDDB0682DB937CC30F7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_67DFA9D4141B4FA6A9FB3B949049A2EF"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_68418F0FD5B64CC0B13BEEF11F86D0F2"
+        "MsmKey" = "8:_652A38AFA765453DAE01304F99C0102D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -531,13 +561,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_6A2710B806244D9DAFE1006EC3425B64"
+        "MsmKey" = "8:_68E5F8DBFEA94A37B4F6BEF95C59282C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_6A3AB0D5D04948458A24A2091B91EE2D"
+        "MsmKey" = "8:_6A2710B806244D9DAFE1006EC3425B64"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -549,7 +579,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_6B14E72B0C1A4FA1960DD4C3574B5C02"
+        "MsmKey" = "8:_6B4E65320D514BF484358F1CBC74FA9C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6C8DF0A185FF40F4B4A4B100FA4A2C1D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -561,19 +597,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_6F0923ED18D847E5BE0F0CF0C136858F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_70270463596F49BEAB824F0BA437D4E6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_705080AF344A48B9A1C48C9D30EA88F9"
+        "MsmKey" = "8:_6E9F3470761A44119C7C37B45B2FEE20"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -585,7 +609,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_710ACBF8EB3248BEA95215814CA2198D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_7213BE40F13B4227BEE4D85C8A512326"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7239A91840124DEB8DA01A57239EDE7A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -597,7 +633,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_74948783C0674AC497CFCCB72E5C5ABF"
+        "MsmKey" = "8:_755C6307D07D41A7A14CF76887122C67"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -609,7 +645,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_76327757739046DC88D37BE787967E6F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_7685A173467D4CD2AFFEA1C71C889B14"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_76C0DF10407D485BB514A646810C6FED"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -621,7 +669,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_7C20A50D9F58428AB640B9FF81EF299F"
+        "MsmKey" = "8:_78FEBD5541DC44D7AD617B2E13181CC7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_79639995D763417DAA69F731123323B5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -645,13 +699,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_7DCF8EB71E3D40769320F4C9A07CB68C"
+        "MsmKey" = "8:_7D87355DEABC4C05B032D0D0D4F0A2B1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_7DDFD7C4F8E048DCBF08E5C9EDF47FAB"
+        "MsmKey" = "8:_7DCF8EB71E3D40769320F4C9A07CB68C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -675,7 +729,25 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8151EBAA3DFF472DBE8CE504D239A28F"
+        "MsmKey" = "8:_81B89D03F7BA444BB6C5E97FF98995B3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8233C64CD2C14118B37DEB9FA641CB5B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8253A96EB2594CAFA280D17A769A8083"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_82D876CF9D104A30817A4B02EF80E042"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -687,13 +759,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_845AAF64B26342349563700C82F34C23"
+        "MsmKey" = "8:_85577CE18FEB44EF9B566C691EF0636B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8723B7D3436A43E5ADF9E95F792C4E08"
+        "MsmKey" = "8:_86B5F549CA6F42B184B8AFA110D2EEEC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -711,7 +783,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8A1833479995473F99F83D59CC8AB7BF"
+        "MsmKey" = "8:_8A01BE5374BD4CEE962E5BF98636EE98"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -729,13 +801,25 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8C911A4BA3EA4117A8A127A073C08AEC"
+        "MsmKey" = "8:_8D8FA6B5FDD74150BC240D699E444D7C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8CE6FDC56DB8491E9727D59ADC7512D9"
+        "MsmKey" = "8:_8D9219B87C844DC3BEAEF154BCE9F688"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8DDBEE6E232A44C8ABBF2BD330C3320B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8E33997367FA42AC9B4D6E6CD54F37F1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -747,7 +831,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9128844517E14BEBB2C7DD03F2ACD2A9"
+        "MsmKey" = "8:_9060E23A6B1B4B749268EA24B6F4D773"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_909F2EE3671D40DCA440868C3A34DB01"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -759,13 +849,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_914A09A261E54C18BA1D19292A0147E6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_91B920A3D5934F5584E1BBA87B37C5BF"
+        "MsmKey" = "8:_91AE3D919FD2468081D5187601B9F724"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -777,7 +861,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_92BAE79D9AEF4F82BD719A1DBA59CC5E"
+        "MsmKey" = "8:_931D189E2BE04869A980CEEC6FAE4F02"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -789,25 +873,55 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_954770E34AE543DBAF0D8A3B4DC5641D"
+        "MsmKey" = "8:_93FE211B71D44ADFA046B5C80517F9FA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_95E722C353234EC4950752CDB54CC756"
+        "MsmKey" = "8:_950E7B603772427FB3B53D31C1F31B26"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_97A38FC8FA3940089418F73EDDAAA49E"
+        "MsmKey" = "8:_9759AB2F364A482098D7319C140A3996"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_98B35D83B3CF4342A751007DD0E35B17"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_98F2F4EBD72E4D08A88E7010B95E0FAF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9936B808F77B4171B19AD22535228B97"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_9A6D6E501DB84ADB8F65953496A5173A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9AF600967D904AAF86E4EF436F0CF6F3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9C725D859F1D4216860AA87545974007"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -825,7 +939,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9D837A7B647446198C9C29798F959266"
+        "MsmKey" = "8:_9D969FFCB0234CCE933C973FB7558FC9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9E2DE58CEA1C43BFB852156AD0F9FE0B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -837,43 +957,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9FA2D415D6FE4C32BC95033996FE8E70"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9FFB4AA27A174E0181239CA85691D261"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A08FAD7E87D04EF4900604EA04DECBE8"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A0CEB37B43604D8A98AD8A0D38F67825"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A0CF8A04CA0042B7870FA9B3E61C60E9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A10CAD4092A9426A85C0D1DF7539583A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A1E06A4C98B74DFAAE3B2137DB20DBB4"
+        "MsmKey" = "8:_A003828565284A659153209D389A984C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -885,19 +969,37 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A3B9D2F120204C2B885D1E08F2A26AB9"
+        "MsmKey" = "8:_A622FB572EDF4EEC9DBD2D8F01538B4D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_A5C66EA918844854B42300DB2E4267C5"
+        "MsmKey" = "8:_A6CE26079B26430A87F3C272E3877033"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_A7D5B6BE53E2496DAB04F398205D823E"
+        "MsmKey" = "8:_A78EAC4FAE764CD6B7AD0D63636C74E9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_AB56C86A27F148908FD0E3EE794E7A54"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_ACB83CF82F694E75AC36D284F49A3F82"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_ACCC9E28E00D4E3487B2F8069FC21E3E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -909,19 +1011,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_AD67A04814E64F3491E7009223DD6246"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_AEF4C9FEF77848849CB2CBAD63AB1ECE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_B12CE9E5665E4E68B4FE074B6AC846E7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B16D848B77F84B998074AD6BC78D31B5"
+        "MsmKey" = "8:_B1071AB88ADE439DB13E3743AB42ABF8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -933,43 +1035,43 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_B1F977BDC23B4D238F57753DD35E98D5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B2410B4EC6F5492B899FF9515F4BBBF2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_B260BE59B55A4A8C878D5821FE86C0AA"
+        "MsmKey" = "8:_B2D298AA1C304B4B97570329611AD18B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_B386313BFF3E46B0AA1DCA88DD2590A1"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B3A19D77D08F4B718FF9C2F67FB4B0BD"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B56898D820E64FD081CBF585D41EB75A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B5F37DE3B0284BA6A5109DC2C8395D93"
+        "MsmKey" = "8:_B422F1C460B24D609046E696680F7E94"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_B66AE3C6C0674AF7A30C6B87193336CC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B7164AC383C04E6A85EA1896478B6837"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B72E142D7BF941F3BB73932A6ECC4EDC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -993,7 +1095,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B98AE358CEB44B149A23AE59842CE11E"
+        "MsmKey" = "8:_B9B6D16F748846FDAB8DBC02080FA25E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1011,55 +1113,43 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BCAD32FD814C4772848EAB884E88E69E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BDE6B7CFD3E74A88A8AC276196E7183B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_BEE185136B7B46D2BCE8D252294D0E40"
+        "MsmKey" = "8:_BE4A93086C7E4DD6896B9DDB02D5D3AC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_C2958CABE4114A178DC1169F77DC4153"
+        "MsmKey" = "8:_BECB0A1C2D1245628964FDDC1480C64F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_C2E1D8D8650241919B007E88A976C417"
+        "MsmKey" = "8:_BF287489452749649A686C039840F661"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_C2F7C10E10984B28A9C374316A4542F9"
+        "MsmKey" = "8:_BF4BA531CC0A4A4EA64257192A953E2C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_C48352997C994A199CB7199ACF2CF46C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C4DC21FFACBA4753B98747589022977A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C6ACEA8A54D247B3846145EDEFAC6BE6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C6B56F8C6ECB4E5097FDD366FAF62D67"
+        "MsmKey" = "8:_C0151921AD3D486CA4E9DDCDB00B5606"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1071,25 +1161,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_CAA364034EE148D7A756C604C6495C87"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_CADBA2386CF84AB5815F59A81ADF5FDC"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_CB6528A63E9841E2A655BCCC7254EAF6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_CD4882F6F4534799B2DAFFF6A874E01D"
+        "MsmKey" = "8:_CC17DA761C864664B384BE16AF80FCB4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1101,13 +1173,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_CDCBA94C9AA4419086997FF69595BF5D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_CDE1AFDCE02542D98775783B368D94D8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_D30170B2B08C458882AC015326BD59CA"
+        "MsmKey" = "8:_D22064C677314E5FA75BADDB62CCEBA4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D35CD422D11841199259D01FCDC99320"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1119,7 +1203,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D510A3EA9F184BBC95DCE4B827935AAD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D536B0A0BF094B2B8363E9DFDF34C425"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D61E31C8922C4B6791909D93E73F98BB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1131,13 +1227,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D98E90EEACB04696B9AD6984EB077B6B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DA6862D50C9E494C9C45BD7AF1EFEB25"
+        "MsmKey" = "8:_DA5959E9514246ACB0DF0B5E9D982F36"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1149,25 +1239,43 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DC4E0CC80D3A46FA91A77C3C2F841B15"
+        "MsmKey" = "8:_DDD2C1711A934E698B44F81795A600D0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_DD3C6101B33A41FA85BB0BC024492FE1"
+        "MsmKey" = "8:_DE33579D1DB64BC59802334095ABA293"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_DD8E09B94CA8468BA496B823C74AC844"
+        "MsmKey" = "8:_DEFD33EDA3E84F14A050CCF5CFC2E55C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_DECBA274CE5C4C3F8568D99EC2548924"
+        "MsmKey" = "8:_DF61D37076FF467A87A718AF83350224"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DFC8D6CD76EF4EF4BF4718BB53116CBE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DFDC89BA50504CB59539EACE5B9F53AD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E057A13892334720930D55CD3D134066"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1179,19 +1287,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E1AEFB3EF9D643019F7C3AB62CC38450"
+        "MsmKey" = "8:_E416D632169740AA992492885108A39D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_E2634FFA209245E7833D63FBB1BFF7B2"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E2931FFC31D2427D85CA594B7C51E99B"
+        "MsmKey" = "8:_E4E86989C940489DBC3FEBC9053FD7A8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1203,43 +1305,31 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_EAFC78811FC344FAAE6E5240D5AC8EC6"
+        "MsmKey" = "8:_E6ECE3BC34F24F4E90F2832357D83EBB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_EB6BCD72F858430A8FD4AFA7DE5BACDF"
+        "MsmKey" = "8:_E84E30AEB9F54C5CBD8BF9FAAAE31D43"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_ECB58F99014B4740AA755CE0A017DFC2"
+        "MsmKey" = "8:_EBC4D6FE58734912B11F9255E376E877"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_EDD9C02682E94E61AF5D9601C83605C6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_EE26ACA66F06426C89A19090E3BD4C50"
+        "MsmKey" = "8:_EBEE5088A47F4ED19F59158897C29894"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_EF334C11EBEB47E1B59121FA8C2604A3"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F074356F447E4577AECB0EC9A4CC2279"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1257,7 +1347,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F4F95A5DB0E94EE3818D8A4949977976"
+        "MsmKey" = "8:_F16CF20DE725405A8C6D6C659B2BDA98"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F26AA8CF6AF04FD9AC2A3D9A99E3C0B4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F26DC937FE01465E9791777937CA3116"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1269,25 +1371,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F64716DB12064CE890141F5474B3DC78"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F79B6959A5B44F328A389C291D7206B1"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F99D9C8576344D078A7CE8DFD1BF0C56"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FA53429FEB2F4599BBB74347CD290E19"
+        "MsmKey" = "8:_FB887E0B825A4C5BA855F6A26BE4834E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1299,7 +1383,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_FD4DD2A18B51407A92D855B6C6C19332"
+        "MsmKey" = "8:_FCACD67699E54F75BCED917F1E554543"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1311,13 +1395,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_FDB93FF1BF6C4DEB97AB485AE84A02EE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_FDC8710346C94660A4A754038D320D2D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_FDE1AE885BA24446A616517E09804B1E"
+        "MsmKey" = "8:_FECB5425D50F4B8083CA59F52E52BC5F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FF1E59108CB045A6922B2458B848490F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1398,6 +1494,66 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_00E7C7347A72430A88747E5B0F7F3901"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstbase-1.0-0.dll"
+            "TargetName" = "8:gstbase-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0128996EDF0245B6B6E0E9E105156CC4"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libcairo-script-interpreter-2.dll"
+            "TargetName" = "8:libcairo-script-interpreter-2.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_03338E69CFCA4DA985A2A12D3266C130"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\avutil-56.dll"
+            "TargetName" = "8:avutil-56.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_05AE2C7B0F904D1CB7EBAEFBB8A08095"
             {
             "SourcePath" = "8:..\\pixpro.vert"
@@ -1418,50 +1574,70 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_080C1275812B4FF08BD91E44483DC2F4"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_05EEFE58B53B4DF6B1D738BB725FB217"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libfreetype-6.dll"
-            "TargetName" = "8:libfreetype-6.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0A49F3F72D2F413585B26F060CDAD175"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstrtp-1.0-0.dll"
-            "TargetName" = "8:gstrtp-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0A7AF947DE084468AC8D617444EBDA26"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstrtspserver-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstrtspserver-1.0-0.dll"
             "TargetName" = "8:gstrtspserver-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_091DC2C53DF04EDCA7F3616DE2FA887E"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\psl-5.dll"
+            "TargetName" = "8:psl-5.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_096B2196F12E4135A2CD9850B5618057"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\json-glib-1.0-0.dll"
+            "TargetName" = "8:json-glib-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_09F3F81056CC4884B907A188A95D73B2"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstbasecamerabinsrc-1.0-0.dll"
+            "TargetName" = "8:gstbasecamerabinsrc-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1498,10 +1674,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0B67D804D9F24761BDEE7BF2EEB6166D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0B651558289F44439D05368F6585534B"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_highgui420.dll"
-            "TargetName" = "8:opencv_highgui420.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libogg-0.dll"
+            "TargetName" = "8:libogg-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1518,10 +1694,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0D78D1D565D644E68D91B3C8590C36B5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0C9A3F7329A24ABBA913D306EB67EF44"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\intl-8.dll"
-            "TargetName" = "8:intl-8.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstisoff-1.0-0.dll"
+            "TargetName" = "8:gstisoff-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1558,26 +1734,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0ED1DC941C1B4C0596C67712D5967BE8"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\nice-10.dll"
-            "TargetName" = "8:nice-10.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1053E66A86BA4AD9A3885648C0ADAFA2"
             {
             "SourcePath" = "8:..\\l-upper-arm.mtl"
@@ -1598,10 +1754,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_106857B3BD8A41D299ED036D47421E47"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1060587F96DE4D568F61BCDDFF0DB1D3"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_gapi420.dll"
-            "TargetName" = "8:opencv_gapi420.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_imgcodecs451d.dll"
+            "TargetName" = "8:opencv_imgcodecs451d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_108C7678F2A04052AA504C51E32CAF3A"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_video451.dll"
+            "TargetName" = "8:opencv_video451.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1638,10 +1814,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_120F7AF6AAAC4A7F92294752026558FE"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_11FBFF75F74F459FA7A03D832E3B4BC5"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libtheora-0.dll"
-            "TargetName" = "8:libtheora-0.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_features2d451.dll"
+            "TargetName" = "8:opencv_features2d451.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1658,10 +1834,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_126C3589CAC24F58831ADC2E4A54237B"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_13F08AECC24B453C8F25DC325AEF28D4"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libxml2-2.dll"
-            "TargetName" = "8:libxml2-2.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libssl-1_1-x64.dll"
+            "TargetName" = "8:libssl-1_1-x64.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1678,10 +1854,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_146C5DCDDA334F959617A864A5BE27E5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_147641DE1FCE4B6F9CBFF604F97D88A2"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libvorbis-0.dll"
-            "TargetName" = "8:libvorbis-0.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_calib3d451.dll"
+            "TargetName" = "8:opencv_calib3d451.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1698,10 +1874,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_150D50796A1D482880D4E49E0AF95DBE"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_148F5EEE168E44A9866D7550005CC2C0"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstapp-1.0-0.dll"
-            "TargetName" = "8:gstapp-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libtheoraenc-1.dll"
+            "TargetName" = "8:libtheoraenc-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1718,10 +1894,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_16AF9A467F02421FAFE82CD992AC2B9E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_15461511B0704950AC882E51B77CAECC"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libgnutlsxx-28.dll"
-            "TargetName" = "8:libgnutlsxx-28.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstphotography-1.0-0.dll"
+            "TargetName" = "8:gstphotography-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1738,10 +1914,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_177FD027745A4E60A8E04F745039F710"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_15CDBFE9B10147C2A22D444B4AB3EA6A"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstbasecamerabinsrc-1.0-0.dll"
-            "TargetName" = "8:gstbasecamerabinsrc-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libsbc-1.dll"
+            "TargetName" = "8:libsbc-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1758,10 +1934,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_180EBEFE3CEC48A28D63FEA13EF17C92"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_16B0CC2D638D45A6B590EA55B26A765F"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstbase-1.0-0.dll"
-            "TargetName" = "8:gstbase-1.0-0.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_core451.dll"
+            "TargetName" = "8:opencv_core451.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1778,10 +1954,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1ACB2E8532C04DD8849B64156E8BDE9D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_17C4D252F70F4E319414F0BD3867C0A0"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libcairo-script-interpreter-2.dll"
-            "TargetName" = "8:libcairo-script-interpreter-2.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\liba52-0.dll"
+            "TargetName" = "8:liba52-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1798,10 +1974,70 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1B11DCE0845C40F9BD731CEFC37262D1"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1B2E58240132444898D3567382DD79AB"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstcheck-1.0-0.dll"
-            "TargetName" = "8:gstcheck-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\pango-1.0-0.dll"
+            "TargetName" = "8:pango-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1B985D8136E048EFBA032F02B39C1B64"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\usrsctp-1.dll"
+            "TargetName" = "8:usrsctp-1.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1BE45AB47B654CA1B147675EC6BDD72A"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libexpat-1.dll"
+            "TargetName" = "8:libexpat-1.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1BEBAB3920B2413290D97F325E6FD30A"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_objdetect451d.dll"
+            "TargetName" = "8:opencv_objdetect451d.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1838,10 +2074,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1DD272C933874026AE2A83211CF0FA1D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1DCCE83114AB4928BB8CE43DA8CA478D"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_ml420.dll"
-            "TargetName" = "8:opencv_ml420.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libopencore-amrwb-0.dll"
+            "TargetName" = "8:libopencore-amrwb-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1898,10 +2134,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20FA663CF83B40F58A4F39BEB595D87B"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_21B349235D1443039A157593BC8AF0A5"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libopencore-amrnb-0.dll"
-            "TargetName" = "8:libopencore-amrnb-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstvalidate-1.0-0.dll"
+            "TargetName" = "8:gstvalidate-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1918,10 +2154,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_22B612ACF433410687D5CB878CFC20F9"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_23052810B54349BF93E1C945F43503A6"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libvisual-0.4-0.dll"
-            "TargetName" = "8:libvisual-0.4-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libfontconfig-1.dll"
+            "TargetName" = "8:libfontconfig-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1958,46 +2194,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_23CD7D1F23664E169B08CE4CC51DE667"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libopenjp2.dll"
-            "TargetName" = "8:libopenjp2.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_240BE76EC9184B06B06222FFF0B8CEE4"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libdca-0.dll"
-            "TargetName" = "8:libdca-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2476C38B15114B48BE8A730A309233BB"
             {
             "SourcePath" = "8:..\\theta_left.jpg"
@@ -2018,10 +2214,70 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2757B79273D04AA78F56E5F007F3E522"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_260F8F68D71142AB8B1A8FAF5F96677B"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstsctp-1.0-0.dll"
-            "TargetName" = "8:gstsctp-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\avfilter-7.dll"
+            "TargetName" = "8:avfilter-7.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_26FD34BAA60E4A099EDD32BC7EC9D400"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_flann451d.dll"
+            "TargetName" = "8:opencv_flann451d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_277B2ACF0DB74218ADB9032FC79404AB"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libiconv-2.dll"
+            "TargetName" = "8:libiconv-2.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_28412ED3CF14415CBE907BC582F40B15"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libvorbis-0.dll"
+            "TargetName" = "8:libvorbis-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2078,6 +2334,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A011C9513B1421CA5E6DA63CB698987"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libcairo-gobject-2.dll"
+            "TargetName" = "8:libcairo-gobject-2.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A30A7C8BE154898B66A6E9F03A55029"
             {
             "SourcePath" = "8:..\\config.json"
@@ -2098,10 +2374,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A879A4657E441EEB49420A20EE2EC97"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A8E6E29E9704C91966B0AC3A9DE8025"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libx264-148.dll"
-            "TargetName" = "8:libx264-148.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstgl-1.0-0.dll"
+            "TargetName" = "8:gstgl-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2118,70 +2394,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2B0B59B0C1064A09BE184E2E2D4D8D95"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2ABAE3FF4C6F41978559FF648D2B6C8E"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstpbutils-1.0-0.dll"
-            "TargetName" = "8:gstpbutils-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2BAAB499CAB742128D2165AE08BAA2CB"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libharfbuzz-0.dll"
-            "TargetName" = "8:libharfbuzz-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2BBF78EE09764C26AE915B0595C164DA"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_photo420.dll"
-            "TargetName" = "8:opencv_photo420.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2D4311487395464AB90CF054AED12F9E"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\graphene-1.0-0.dll"
-            "TargetName" = "8:graphene-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\openh264-6.dll"
+            "TargetName" = "8:openh264-6.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2218,30 +2434,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2EB339A70A43402187FD1A09A8E23819"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2DCD63DBF4284EE8869DE1F71672B95B"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\swresample-3.dll"
-            "TargetName" = "8:swresample-3.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2F7FF9E4A55B435687DEFC4244345E33"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\json-glib-1.0-0.dll"
-            "TargetName" = "8:json-glib-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\avformat-58.dll"
+            "TargetName" = "8:avformat-58.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2278,10 +2474,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_30E1CE19EEFE41DDA7BE34C9D329EC12"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_30A09AD277D941BB84BDA9C915C995E2"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libcrypto-1_1-x64.dll"
-            "TargetName" = "8:libcrypto-1_1-x64.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libxml2-2.dll"
+            "TargetName" = "8:libxml2-2.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2298,30 +2494,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_316B47BFBBD6404898854473BC575659"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3180B12465F0470EAB554E670E88F526"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_video420.dll"
-            "TargetName" = "8:opencv_video420.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_31995B11ECF54186BE97112BC042C960"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libmms-0.dll"
-            "TargetName" = "8:libmms-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libass-9.dll"
+            "TargetName" = "8:libass-9.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2358,10 +2534,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_348D2A7EB7164908A0ACF4F014214DAB"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_35B2E609B3284FEAB1F91572964AE71B"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libexpat-1.dll"
-            "TargetName" = "8:libexpat-1.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libspeex-1.dll"
+            "TargetName" = "8:libspeex-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2378,10 +2554,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_35BC4E14E6234CCE851E675EF1C26E67"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_38314BEAC87F4C82BC91F91D565101DC"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstvideo-1.0-0.dll"
-            "TargetName" = "8:gstvideo-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstadaptivedemux-1.0-0.dll"
+            "TargetName" = "8:gstadaptivedemux-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_38F645D8034D4F9E928E367140EA606C"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_highgui451d.dll"
+            "TargetName" = "8:opencv_highgui451d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_39756E5555A64C26A12C16D47E4BF281"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_videoio_ffmpeg451_64.dll"
+            "TargetName" = "8:opencv_videoio_ffmpeg451_64.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2418,210 +2634,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3AE3D51586A347C485D89938C9CACC1F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4248BF525C6A48F58F3418E37D3C6606"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gmodule-2.0-0.dll"
-            "TargetName" = "8:gmodule-2.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3B56590601974E0E924E4B335AE8AAC5"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_videoio_ffmpeg420_64.dll"
-            "TargetName" = "8:opencv_videoio_ffmpeg420_64.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3BD18587E1454571877A16DF49125565"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libspeex-1.dll"
-            "TargetName" = "8:libspeex-1.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3DF49C5FA11745A9BE20FAD3D459BAC8"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libopencore-amrwb-0.dll"
-            "TargetName" = "8:libopencore-amrwb-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3E93A2F6C3E74BC09E9C1A670FFEB8D4"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\avcodec-58.dll"
-            "TargetName" = "8:avcodec-58.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3FF1291ED6804AB19F1FD7B2EA7B4D56"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libmpg123-0.dll"
-            "TargetName" = "8:libmpg123-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_40EB884419E547E3A901A48E91921E5B"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libogg-0.dll"
-            "TargetName" = "8:libogg-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4188F356B1DC473AAC393D7D2AF2DF9A"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\ges-1.0-0.dll"
-            "TargetName" = "8:ges-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4350FDE9C80B4D96A10DF97461FF66AE"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\pangowin32-1.0-0.dll"
-            "TargetName" = "8:pangowin32-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4478AC98136B4616A4793CD4FFA7DA62"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libturbojpeg-0.dll"
-            "TargetName" = "8:libturbojpeg-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_453FF1E6265147F690D2F33A4FD01FFC"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\bz2.dll"
-            "TargetName" = "8:bz2.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstinsertbin-1.0-0.dll"
+            "TargetName" = "8:gstinsertbin-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2658,10 +2674,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4742ADE1F9334F63B472F1F1D320D33C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_461743D364844A9E86A564384E15C3AB"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libpixman-1-0.dll"
-            "TargetName" = "8:libpixman-1-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\liboggkate-1.dll"
+            "TargetName" = "8:liboggkate-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2678,10 +2694,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_48C458D292034B31849DAAFEDCBAC57E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_46F1770CA8EC4DBDA8D6AECB8B1B9ACB"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libwavpack-1.dll"
-            "TargetName" = "8:libwavpack-1.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_videoio451.dll"
+            "TargetName" = "8:opencv_videoio451.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2698,10 +2714,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4956C16CE7DC482BB1C3D42FABBB4E2E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4701CFD404FF412AA89AD0202F01906C"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gsttag-1.0-0.dll"
-            "TargetName" = "8:gsttag-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libsrt.dll"
+            "TargetName" = "8:libsrt.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2718,10 +2734,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4ABC5187462B4C6AB6797D657C108445"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_480143053C3543F799504CF2064E7497"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libass-9.dll"
-            "TargetName" = "8:libass-9.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libjpeg-8.dll"
+            "TargetName" = "8:libjpeg-8.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4820090FB52A459299BD90791DFBC421"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\sqlite3-0.dll"
+            "TargetName" = "8:sqlite3-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_48981038430648F1A6E42CBD27606A20"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\librtmp-1.dll"
+            "TargetName" = "8:librtmp-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2758,6 +2814,46 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4B58B26422264DB0A604B5F0EF17682A"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstsctp-1.0-0.dll"
+            "TargetName" = "8:gstsctp-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4CF0E76165B64017B0FC75D43BF32D82"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_calib3d451d.dll"
+            "TargetName" = "8:opencv_calib3d451d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4DE83D1E5B7F4B2A872F624A4C1073B6"
             {
             "SourcePath" = "8:..\\l-sholder.obj"
@@ -2778,10 +2874,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4E7F21BD0C9F4622995EC141D9129FFD"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4E96E8C4E5F24DABA53D0D868FC0E50B"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libFLAC-8.dll"
-            "TargetName" = "8:libFLAC-8.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\pangoft2-1.0-0.dll"
+            "TargetName" = "8:pangoft2-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2838,6 +2934,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_505A7B18792E43B191C8CE52082EE84F"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\soup-2.4-1.dll"
+            "TargetName" = "8:soup-2.4-1.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_51A6E506614C41DCA5021976C573B89D"
             {
             "SourcePath" = "8:..\\target.vert"
@@ -2858,10 +2974,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5280BA5FDDCA4CBABCF42518AB4A09DD"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_55C1AC18C22745B48FE41EC07C7593BD"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_features2d420.dll"
-            "TargetName" = "8:opencv_features2d420.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstsdp-1.0-0.dll"
+            "TargetName" = "8:gstsdp-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2878,10 +2994,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5526E1F2DB954591B10870E527304157"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_55D75910884044A18580C0D0EDB7B6A8"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gsturidownloader-1.0-0.dll"
-            "TargetName" = "8:gsturidownloader-1.0-0.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_stitching451d.dll"
+            "TargetName" = "8:opencv_stitching451d.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2898,10 +3014,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_56BCEDB0D8C64D44B21DCB5C660854FE"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_569C72B1F6DD4C0B800E02F7EE61E793"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libpng16-16.dll"
-            "TargetName" = "8:libpng16-16.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstvideo-1.0-0.dll"
+            "TargetName" = "8:gstvideo-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2918,10 +3034,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_577A582783104F459F59DA949809D7E2"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_569C84CB175D4491AD56D312D1657CDC"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstriff-1.0-0.dll"
-            "TargetName" = "8:gstriff-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libwavpack-1.dll"
+            "TargetName" = "8:libwavpack-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2938,10 +3054,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5B9676E9C4924BFB88B10F1F61FF61D3"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_57AA03199A4C4AFEA9208BF3CA828017"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libcairo-2.dll"
-            "TargetName" = "8:libcairo-2.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libcroco-0.6-3.dll"
+            "TargetName" = "8:libcroco-0.6-3.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2958,10 +3074,70 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5E08BA1E5F9B4E7FB57C77687EFBE457"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5875ABB8DEF74B9EBA4E7402D59C8371"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstaudio-1.0-0.dll"
-            "TargetName" = "8:gstaudio-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\graphene-1.0-0.dll"
+            "TargetName" = "8:graphene-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5987F1B846A7423899292F3702313129"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\opus-0.dll"
+            "TargetName" = "8:opus-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5AC34EFEA424441B99A56FA6B0682DF7"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libFLAC-8.dll"
+            "TargetName" = "8:libFLAC-8.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5BDF3CDCA3994E0990AF79F2CE9969B6"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\intl-8.dll"
+            "TargetName" = "8:intl-8.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2998,10 +3174,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5FCBF118DA3C4FF0A34F65E82F007719"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_gapi451.dll"
+            "TargetName" = "8:opencv_gapi451.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_60FE5632F3B34D3DAE5C38C09FF5FC0B"
             {
             "SourcePath" = "8:..\\l-hand.obj"
             "TargetName" = "8:l-hand.obj"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_611FED66D0B34F499F75BCB8FF4A58CD"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_photo451.dll"
+            "TargetName" = "8:opencv_photo451.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3038,10 +3254,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_641538EDE5D746FCB3ABC4729AA24442"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_62F6522643324EDDB0682DB937CC30F7"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libkate-1.dll"
-            "TargetName" = "8:libkate-1.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libopenjp2.dll"
+            "TargetName" = "8:libopenjp2.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3058,30 +3274,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_67DFA9D4141B4FA6A9FB3B949049A2EF"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_652A38AFA765453DAE01304F99C0102D"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libfontconfig-1.dll"
-            "TargetName" = "8:libfontconfig-1.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_68418F0FD5B64CC0B13BEEF11F86D0F2"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstvalidate-1.0-0.dll"
-            "TargetName" = "8:gstvalidate-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstpbutils-1.0-0.dll"
+            "TargetName" = "8:gstpbutils-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3118,10 +3314,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6A2710B806244D9DAFE1006EC3425B64"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_68E5F8DBFEA94A37B4F6BEF95C59282C"
             {
-            "SourcePath" = "8:..\\r-hinge.mtl"
-            "TargetName" = "8:r-hinge.mtl"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\avcodec-58.dll"
+            "TargetName" = "8:avcodec-58.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3138,10 +3334,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6A3AB0D5D04948458A24A2091B91EE2D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6A2710B806244D9DAFE1006EC3425B64"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\ffi-7.dll"
-            "TargetName" = "8:ffi-7.dll"
+            "SourcePath" = "8:..\\r-hinge.mtl"
+            "TargetName" = "8:r-hinge.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3178,10 +3374,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B14E72B0C1A4FA1960DD4C3574B5C02"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B4E65320D514BF484358F1CBC74FA9C"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\z-1.dll"
-            "TargetName" = "8:z-1.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libzbar-0.dll"
+            "TargetName" = "8:libzbar-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6C8DF0A185FF40F4B4A4B100FA4A2C1D"
+            {
+            "SourcePath" = "8:C:\\librealsense2\\x64\\bin\\realsense2.dll"
+            "TargetName" = "8:realsense2.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3218,50 +3434,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6F0923ED18D847E5BE0F0CF0C136858F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6E9F3470761A44119C7C37B45B2FEE20"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libssl-1_1-x64.dll"
-            "TargetName" = "8:libssl-1_1-x64.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_70270463596F49BEAB824F0BA437D4E6"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gio-2.0-0.dll"
-            "TargetName" = "8:gio-2.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_705080AF344A48B9A1C48C9D30EA88F9"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libsoup-2.4-1.dll"
-            "TargetName" = "8:libsoup-2.4-1.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_photo451d.dll"
+            "TargetName" = "8:opencv_photo451d.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3298,10 +3474,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_710ACBF8EB3248BEA95215814CA2198D"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\orc-test-0.4-0.dll"
+            "TargetName" = "8:orc-test-0.4-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7213BE40F13B4227BEE4D85C8A512326"
             {
             "SourcePath" = "8:..\\config.pdf"
             "TargetName" = "8:config.pdf"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7239A91840124DEB8DA01A57239EDE7A"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstwebrtc-1.0-0.dll"
+            "TargetName" = "8:gstwebrtc-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3338,10 +3554,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_74948783C0674AC497CFCCB72E5C5ABF"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_755C6307D07D41A7A14CF76887122C67"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstbadaudio-1.0-0.dll"
-            "TargetName" = "8:gstbadaudio-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstriff-1.0-0.dll"
+            "TargetName" = "8:gstriff-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3378,10 +3594,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_76327757739046DC88D37BE787967E6F"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libwinpthread-1.dll"
+            "TargetName" = "8:libwinpthread-1.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7685A173467D4CD2AFFEA1C71C889B14"
             {
             "SourcePath" = "8:..\\remote.obj"
             "TargetName" = "8:remote.obj"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_76C0DF10407D485BB514A646810C6FED"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstplayer-1.0-0.dll"
+            "TargetName" = "8:gstplayer-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3418,10 +3674,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7C20A50D9F58428AB640B9FF81EF299F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_78FEBD5541DC44D7AD617B2E13181CC7"
             {
-            "SourcePath" = "8:C:\\librealsense2\\bin\\x64\\realsense2.dll"
-            "TargetName" = "8:realsense2.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gobject-2.0-0.dll"
+            "TargetName" = "8:gobject-2.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_79639995D763417DAA69F731123323B5"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\pangowin32-1.0-0.dll"
+            "TargetName" = "8:pangowin32-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3498,10 +3774,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7DCF8EB71E3D40769320F4C9A07CB68C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7D87355DEABC4C05B032D0D0D4F0A2B1"
             {
-            "SourcePath" = "8:..\\fixed.json"
-            "TargetName" = "8:fixed.json"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstapp-1.0-0.dll"
+            "TargetName" = "8:gstapp-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3518,10 +3794,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7DDFD7C4F8E048DCBF08E5C9EDF47FAB"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7DCF8EB71E3D40769320F4C9A07CB68C"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libwinpthread-1.dll"
-            "TargetName" = "8:libwinpthread-1.dll"
+            "SourcePath" = "8:..\\fixed.json"
+            "TargetName" = "8:fixed.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3598,10 +3874,70 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8151EBAA3DFF472DBE8CE504D239A28F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_81B89D03F7BA444BB6C5E97FF98995B3"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libvo-aacenc-0.dll"
-            "TargetName" = "8:libvo-aacenc-0.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_dnn451.dll"
+            "TargetName" = "8:opencv_dnn451.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8233C64CD2C14118B37DEB9FA641CB5B"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libcrypto-1_1-x64.dll"
+            "TargetName" = "8:libcrypto-1_1-x64.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8253A96EB2594CAFA280D17A769A8083"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_flann451.dll"
+            "TargetName" = "8:opencv_flann451.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_82D876CF9D104A30817A4B02EF80E042"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\z-1.dll"
+            "TargetName" = "8:z-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3638,10 +3974,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_845AAF64B26342349563700C82F34C23"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_85577CE18FEB44EF9B566C691EF0636B"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libsrtp.dll"
-            "TargetName" = "8:libsrtp.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libcairo-2.dll"
+            "TargetName" = "8:libcairo-2.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3658,10 +3994,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8723B7D3436A43E5ADF9E95F792C4E08"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_86B5F549CA6F42B184B8AFA110D2EEEC"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gthread-2.0-0.dll"
-            "TargetName" = "8:gthread-2.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\ffi-7.dll"
+            "TargetName" = "8:ffi-7.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3718,10 +4054,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8A1833479995473F99F83D59CC8AB7BF"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8A01BE5374BD4CEE962E5BF98636EE98"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\avformat-58.dll"
-            "TargetName" = "8:avformat-58.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libvorbisenc-2.dll"
+            "TargetName" = "8:libvorbisenc-2.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3778,10 +4114,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8C911A4BA3EA4117A8A127A073C08AEC"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8D8FA6B5FDD74150BC240D699E444D7C"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libopenh264.dll"
-            "TargetName" = "8:libopenh264.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libtheoradec-1.dll"
+            "TargetName" = "8:libtheoradec-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3798,10 +4134,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8CE6FDC56DB8491E9727D59ADC7512D9"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8D9219B87C844DC3BEAEF154BCE9F688"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libmp3lame-0.dll"
-            "TargetName" = "8:libmp3lame-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\swresample-3.dll"
+            "TargetName" = "8:swresample-3.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8DDBEE6E232A44C8ABBF2BD330C3320B"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libfreetype-6.dll"
+            "TargetName" = "8:libfreetype-6.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8E33997367FA42AC9B4D6E6CD54F37F1"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libopencore-amrnb-0.dll"
+            "TargetName" = "8:libopencore-amrnb-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3838,10 +4214,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9128844517E14BEBB2C7DD03F2ACD2A9"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9060E23A6B1B4B749268EA24B6F4D773"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\liboggkate-1.dll"
-            "TargetName" = "8:liboggkate-1.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libvo-aacenc-0.dll"
+            "TargetName" = "8:libvo-aacenc-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_909F2EE3671D40DCA440868C3A34DB01"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libstdc++-6.dll"
+            "TargetName" = "8:libstdc++-6.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3878,30 +4274,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_914A09A261E54C18BA1D19292A0147E6"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_91AE3D919FD2468081D5187601B9F724"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libusrsctp-1.dll"
-            "TargetName" = "8:libusrsctp-1.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_91B920A3D5934F5584E1BBA87B37C5BF"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libspandsp-2.dll"
-            "TargetName" = "8:libspandsp-2.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libgcc_s_seh-1.dll"
+            "TargetName" = "8:libgcc_s_seh-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3938,10 +4314,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_92BAE79D9AEF4F82BD719A1DBA59CC5E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_931D189E2BE04869A980CEEC6FAE4F02"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_objdetect420.dll"
-            "TargetName" = "8:opencv_objdetect420.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_core451d.dll"
+            "TargetName" = "8:opencv_core451d.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3978,10 +4354,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_954770E34AE543DBAF0D8A3B4DC5641D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_93FE211B71D44ADFA046B5C80517F9FA"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libhogweed-4.dll"
-            "TargetName" = "8:libhogweed-4.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libpng16-16.dll"
+            "TargetName" = "8:libpng16-16.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3998,10 +4374,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_95E722C353234EC4950752CDB54CC756"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_950E7B603772427FB3B53D31C1F31B26"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstisoff-1.0-0.dll"
-            "TargetName" = "8:gstisoff-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\fribidi-0.dll"
+            "TargetName" = "8:fribidi-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4018,10 +4394,70 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_97A38FC8FA3940089418F73EDDAAA49E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9759AB2F364A482098D7319C140A3996"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\orc-test-0.4-0.dll"
-            "TargetName" = "8:orc-test-0.4-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libvorbisfile-3.dll"
+            "TargetName" = "8:libvorbisfile-3.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_98B35D83B3CF4342A751007DD0E35B17"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstallocators-1.0-0.dll"
+            "TargetName" = "8:gstallocators-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_98F2F4EBD72E4D08A88E7010B95E0FAF"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libmms-0.dll"
+            "TargetName" = "8:libmms-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9936B808F77B4171B19AD22535228B97"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstrtp-1.0-0.dll"
+            "TargetName" = "8:gstrtp-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4042,6 +4478,46 @@
             {
             "SourcePath" = "8:..\\fisheye_right.jpg"
             "TargetName" = "8:fisheye_right.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9AF600967D904AAF86E4EF436F0CF6F3"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstcontroller-1.0-0.dll"
+            "TargetName" = "8:gstcontroller-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9C725D859F1D4216860AA87545974007"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\bz2.dll"
+            "TargetName" = "8:bz2.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4098,10 +4574,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9D837A7B647446198C9C29798F959266"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9D969FFCB0234CCE933C973FB7558FC9"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libgcc_s_sjlj-1.dll"
-            "TargetName" = "8:libgcc_s_sjlj-1.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gsttag-1.0-0.dll"
+            "TargetName" = "8:gsttag-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9E2DE58CEA1C43BFB852156AD0F9FE0B"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libdv-4.dll"
+            "TargetName" = "8:libdv-4.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4138,130 +4634,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9FA2D415D6FE4C32BC95033996FE8E70"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A003828565284A659153209D389A984C"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libgomp-1.dll"
-            "TargetName" = "8:libgomp-1.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9FFB4AA27A174E0181239CA85691D261"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_calib3d420.dll"
-            "TargetName" = "8:opencv_calib3d420.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A08FAD7E87D04EF4900604EA04DECBE8"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstreamer-1.0-0.dll"
-            "TargetName" = "8:gstreamer-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A0CEB37B43604D8A98AD8A0D38F67825"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libdvdread-4.dll"
-            "TargetName" = "8:libdvdread-4.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A0CF8A04CA0042B7870FA9B3E61C60E9"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_videoio420.dll"
-            "TargetName" = "8:opencv_videoio420.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A10CAD4092A9426A85C0D1DF7539583A"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libtasn1-6.dll"
-            "TargetName" = "8:libtasn1-6.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A1E06A4C98B74DFAAE3B2137DB20DBB4"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstrtsp-1.0-0.dll"
-            "TargetName" = "8:gstrtsp-1.0-0.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_imgproc451d.dll"
+            "TargetName" = "8:opencv_imgproc451d.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4298,10 +4674,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A3B9D2F120204C2B885D1E08F2A26AB9"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A622FB572EDF4EEC9DBD2D8F01538B4D"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libsbc-1.dll"
-            "TargetName" = "8:libsbc-1.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\pixman-1-0.dll"
+            "TargetName" = "8:pixman-1-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4318,10 +4694,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A5C66EA918844854B42300DB2E4267C5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A6CE26079B26430A87F3C272E3877033"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\avutil-56.dll"
-            "TargetName" = "8:avutil-56.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libturbojpeg-0.dll"
+            "TargetName" = "8:libturbojpeg-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4338,10 +4714,70 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A7D5B6BE53E2496DAB04F398205D823E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A78EAC4FAE764CD6B7AD0D63636C74E9"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libdvdnav-4.dll"
-            "TargetName" = "8:libdvdnav-4.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libkate-1.dll"
+            "TargetName" = "8:libkate-1.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AB56C86A27F148908FD0E3EE794E7A54"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_videoio451d.dll"
+            "TargetName" = "8:opencv_videoio451d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ACB83CF82F694E75AC36D284F49A3F82"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gdk_pixbuf-2.0-0.dll"
+            "TargetName" = "8:gdk_pixbuf-2.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ACCC9E28E00D4E3487B2F8069FC21E3E"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_gapi451d.dll"
+            "TargetName" = "8:opencv_gapi451d.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4378,6 +4814,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AD67A04814E64F3491E7009223DD6246"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\pangocairo-1.0-0.dll"
+            "TargetName" = "8:pangocairo-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AEF4C9FEF77848849CB2CBAD63AB1ECE"
             {
             "SourcePath" = "8:..\\l-elbow.mtl"
@@ -4398,30 +4854,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B12CE9E5665E4E68B4FE074B6AC846E7"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B1071AB88ADE439DB13E3743AB42ABF8"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\pangocairo-1.0-0.dll"
-            "TargetName" = "8:pangocairo-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B16D848B77F84B998074AD6BC78D31B5"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libtheoradec-1.dll"
-            "TargetName" = "8:libtheoradec-1.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstbadaudio-1.0-0.dll"
+            "TargetName" = "8:gstbadaudio-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4458,6 +4894,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B1F977BDC23B4D238F57753DD35E98D5"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_highgui451.dll"
+            "TargetName" = "8:opencv_highgui451.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B2410B4EC6F5492B899FF9515F4BBBF2"
             {
             "SourcePath" = "8:..\\r-lower-arm.mtl"
@@ -4478,10 +4934,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B260BE59B55A4A8C878D5821FE86C0AA"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B2D298AA1C304B4B97570329611AD18B"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstfft-1.0-0.dll"
-            "TargetName" = "8:gstfft-1.0-0.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_ml451d.dll"
+            "TargetName" = "8:opencv_ml451d.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4498,70 +4954,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B386313BFF3E46B0AA1DCA88DD2590A1"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B422F1C460B24D609046E696680F7E94"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libtheoraenc-1.dll"
-            "TargetName" = "8:libtheoraenc-1.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B3A19D77D08F4B718FF9C2F67FB4B0BD"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libcairo-gobject-2.dll"
-            "TargetName" = "8:libcairo-gobject-2.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B56898D820E64FD081CBF585D41EB75A"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libvorbisenc-2.dll"
-            "TargetName" = "8:libvorbisenc-2.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B5F37DE3B0284BA6A5109DC2C8395D93"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libjpeg-8.dll"
-            "TargetName" = "8:libjpeg-8.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libcharset-1.dll"
+            "TargetName" = "8:libcharset-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4582,6 +4978,46 @@
             {
             "SourcePath" = "8:..\\theta_right.jpg"
             "TargetName" = "8:theta_right.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B7164AC383C04E6A85EA1896478B6837"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\nice-10.dll"
+            "TargetName" = "8:nice-10.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B72E142D7BF941F3BB73932A6ECC4EDC"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_dnn451d.dll"
+            "TargetName" = "8:opencv_dnn451d.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4658,10 +5094,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B98AE358CEB44B149A23AE59842CE11E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B9B6D16F748846FDAB8DBC02080FA25E"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libdv-4.dll"
-            "TargetName" = "8:libdv-4.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libdca-0.dll"
+            "TargetName" = "8:libdca-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4718,6 +5154,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BCAD32FD814C4772848EAB884E88E69E"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_ml451.dll"
+            "TargetName" = "8:opencv_ml451.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BDE6B7CFD3E74A88A8AC276196E7183B"
             {
             "SourcePath" = "8:..\\target.frag"
@@ -4738,10 +5194,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BEE185136B7B46D2BCE8D252294D0E40"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BE4A93086C7E4DD6896B9DDB02D5D3AC"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\glib-2.0-0.dll"
-            "TargetName" = "8:glib-2.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libvisual-0.4-0.dll"
+            "TargetName" = "8:libvisual-0.4-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4758,10 +5214,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C2958CABE4114A178DC1169F77DC4153"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BECB0A1C2D1245628964FDDC1480C64F"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libstdc++-6.dll"
-            "TargetName" = "8:libstdc++-6.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gsturidownloader-1.0-0.dll"
+            "TargetName" = "8:gsturidownloader-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4778,10 +5234,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C2E1D8D8650241919B007E88A976C417"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BF287489452749649A686C039840F661"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libgnutls-30.dll"
-            "TargetName" = "8:libgnutls-30.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_video451d.dll"
+            "TargetName" = "8:opencv_video451d.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4798,10 +5254,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C2F7C10E10984B28A9C374316A4542F9"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BF4BA531CC0A4A4EA64257192A953E2C"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_imgcodecs420.dll"
-            "TargetName" = "8:opencv_imgcodecs420.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\srtp2-1.dll"
+            "TargetName" = "8:srtp2-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4818,70 +5274,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C48352997C994A199CB7199ACF2CF46C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C0151921AD3D486CA4E9DDCDB00B5606"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstcodecparsers-1.0-0.dll"
-            "TargetName" = "8:gstcodecparsers-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C4DC21FFACBA4753B98747589022977A"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libnettle-6.dll"
-            "TargetName" = "8:libnettle-6.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C6ACEA8A54D247B3846145EDEFAC6BE6"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstmpegts-1.0-0.dll"
-            "TargetName" = "8:gstmpegts-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C6B56F8C6ECB4E5097FDD366FAF62D67"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstallocators-1.0-0.dll"
-            "TargetName" = "8:gstallocators-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libtiff-5.dll"
+            "TargetName" = "8:libtiff-5.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4918,70 +5314,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CAA364034EE148D7A756C604C6495C87"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CC17DA761C864664B384BE16AF80FCB4"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\orc-0.4-0.dll"
-            "TargetName" = "8:orc-0.4-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CADBA2386CF84AB5815F59A81ADF5FDC"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\pangoft2-1.0-0.dll"
-            "TargetName" = "8:pangoft2-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CB6528A63E9841E2A655BCCC7254EAF6"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libtiff-5.dll"
-            "TargetName" = "8:libtiff-5.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CD4882F6F4534799B2DAFFF6A874E01D"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstphotography-1.0-0.dll"
-            "TargetName" = "8:gstphotography-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libspandsp-2.dll"
+            "TargetName" = "8:libspandsp-2.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5018,6 +5354,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CDCBA94C9AA4419086997FF69595BF5D"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstnet-1.0-0.dll"
+            "TargetName" = "8:gstnet-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CDE1AFDCE02542D98775783B368D94D8"
             {
             "SourcePath" = "8:..\\finger.mtl"
@@ -5038,10 +5394,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D30170B2B08C458882AC015326BD59CA"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D22064C677314E5FA75BADDB62CCEBA4"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libvorbisfile-3.dll"
-            "TargetName" = "8:libvorbisfile-3.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_features2d451d.dll"
+            "TargetName" = "8:opencv_features2d451d.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D35CD422D11841199259D01FCDC99320"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\orc-0.4-0.dll"
+            "TargetName" = "8:orc-0.4-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5078,10 +5454,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D510A3EA9F184BBC95DCE4B827935AAD"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstcodecs-1.0-0.dll"
+            "TargetName" = "8:gstcodecs-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D536B0A0BF094B2B8363E9DFDF34C425"
             {
             "SourcePath" = "8:..\\hand_remote.json"
             "TargetName" = "8:hand_remote.json"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D61E31C8922C4B6791909D93E73F98BB"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gsttranscoder-1.0-0.dll"
+            "TargetName" = "8:gsttranscoder-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5118,30 +5534,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D98E90EEACB04696B9AD6984EB077B6B"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DA5959E9514246ACB0DF0B5E9D982F36"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstinsertbin-1.0-0.dll"
-            "TargetName" = "8:gstinsertbin-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DA6862D50C9E494C9C45BD7AF1EFEB25"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\librtmp-1.dll"
-            "TargetName" = "8:librtmp-1.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\harfbuzz.dll"
+            "TargetName" = "8:harfbuzz.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5178,10 +5574,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DC4E0CC80D3A46FA91A77C3C2F841B15"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DDD2C1711A934E698B44F81795A600D0"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstgl-1.0-0.dll"
-            "TargetName" = "8:gstgl-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gthread-2.0-0.dll"
+            "TargetName" = "8:gthread-2.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5198,10 +5594,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DD3C6101B33A41FA85BB0BC024492FE1"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DE33579D1DB64BC59802334095ABA293"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_core420.dll"
-            "TargetName" = "8:opencv_core420.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libx264-157.dll"
+            "TargetName" = "8:libx264-157.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5218,10 +5614,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DD8E09B94CA8468BA496B823C74AC844"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DEFD33EDA3E84F14A050CCF5CFC2E55C"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\avfilter-7.dll"
-            "TargetName" = "8:avfilter-7.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libtheora-0.dll"
+            "TargetName" = "8:libtheora-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5238,10 +5634,70 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DECBA274CE5C4C3F8568D99EC2548924"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DF61D37076FF467A87A718AF83350224"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gobject-2.0-0.dll"
-            "TargetName" = "8:gobject-2.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\glib-2.0-0.dll"
+            "TargetName" = "8:glib-2.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DFC8D6CD76EF4EF4BF4718BB53116CBE"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libmpg123-0.dll"
+            "TargetName" = "8:libmpg123-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DFDC89BA50504CB59539EACE5B9F53AD"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstfft-1.0-0.dll"
+            "TargetName" = "8:gstfft-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E057A13892334720930D55CD3D134066"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_imgproc451.dll"
+            "TargetName" = "8:opencv_imgproc451.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5278,10 +5734,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E1AEFB3EF9D643019F7C3AB62CC38450"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E416D632169740AA992492885108A39D"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libopus-0.dll"
-            "TargetName" = "8:libopus-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstmpegts-1.0-0.dll"
+            "TargetName" = "8:gstmpegts-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5298,30 +5754,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E2634FFA209245E7833D63FBB1BFF7B2"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E4E86989C940489DBC3FEBC9053FD7A8"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\fribidi-0.dll"
-            "TargetName" = "8:fribidi-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E2931FFC31D2427D85CA594B7C51E99B"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstadaptivedemux-1.0-0.dll"
-            "TargetName" = "8:gstadaptivedemux-1.0-0.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_stitching451.dll"
+            "TargetName" = "8:opencv_stitching451.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5358,10 +5794,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EAFC78811FC344FAAE6E5240D5AC8EC6"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E6ECE3BC34F24F4E90F2832357D83EBB"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstcontroller-1.0-0.dll"
-            "TargetName" = "8:gstcontroller-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gio-2.0-0.dll"
+            "TargetName" = "8:gio-2.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5378,10 +5814,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EB6BCD72F858430A8FD4AFA7DE5BACDF"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E84E30AEB9F54C5CBD8BF9FAAAE31D43"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstnet-1.0-0.dll"
-            "TargetName" = "8:gstnet-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstcodecparsers-1.0-0.dll"
+            "TargetName" = "8:gstcodecparsers-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5398,10 +5834,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ECB58F99014B4740AA755CE0A017DFC2"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EBC4D6FE58734912B11F9255E376E877"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstwebrtc-1.0-0.dll"
-            "TargetName" = "8:gstwebrtc-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstaudio-1.0-0.dll"
+            "TargetName" = "8:gstaudio-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5418,30 +5854,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EDD9C02682E94E61AF5D9601C83605C6"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EBEE5088A47F4ED19F59158897C29894"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstsdp-1.0-0.dll"
-            "TargetName" = "8:gstsdp-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EE26ACA66F06426C89A19090E3BD4C50"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_flann420.dll"
-            "TargetName" = "8:opencv_flann420.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gmodule-2.0-0.dll"
+            "TargetName" = "8:gmodule-2.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5462,26 +5878,6 @@
             {
             "SourcePath" = "8:..\\l-sholder.mtl"
             "TargetName" = "8:l-sholder.mtl"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F074356F447E4577AECB0EC9A4CC2279"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_stitching420.dll"
-            "TargetName" = "8:opencv_stitching420.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5538,10 +5934,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F4F95A5DB0E94EE3818D8A4949977976"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F16CF20DE725405A8C6D6C659B2BDA98"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libsrt.dll"
-            "TargetName" = "8:libsrt.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstreamer-1.0-0.dll"
+            "TargetName" = "8:gstreamer-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F26AA8CF6AF04FD9AC2A3D9A99E3C0B4"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstcheck-1.0-0.dll"
+            "TargetName" = "8:gstcheck-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F26DC937FE01465E9791777937CA3116"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libmp3lame-0.dll"
+            "TargetName" = "8:libmp3lame-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5578,70 +6014,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F64716DB12064CE890141F5474B3DC78"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FB887E0B825A4C5BA855F6A26BE4834E"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\gstplayer-1.0-0.dll"
-            "TargetName" = "8:gstplayer-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F79B6959A5B44F328A389C291D7206B1"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\liba52-0.dll"
-            "TargetName" = "8:liba52-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F99D9C8576344D078A7CE8DFD1BF0C56"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\libgmp-10.dll"
-            "TargetName" = "8:libgmp-10.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FA53429FEB2F4599BBB74347CD290E19"
-            {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\x86_64\\bin\\pango-1.0-0.dll"
-            "TargetName" = "8:pango-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\librsvg-2-2.dll"
+            "TargetName" = "8:librsvg-2-2.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5678,10 +6054,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FD4DD2A18B51407A92D855B6C6C19332"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FCACD67699E54F75BCED917F1E554543"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_dnn420.dll"
-            "TargetName" = "8:opencv_dnn420.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_imgcodecs451.dll"
+            "TargetName" = "8:opencv_imgcodecs451.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5718,6 +6094,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FDB93FF1BF6C4DEB97AB485AE84A02EE"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\ges-1.0-0.dll"
+            "TargetName" = "8:ges-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FDC8710346C94660A4A754038D320D2D"
             {
             "SourcePath" = "8:..\\target.obj"
@@ -5738,10 +6134,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FDE1AE885BA24446A616517E09804B1E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FECB5425D50F4B8083CA59F52E52BC5F"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_imgproc420.dll"
-            "TargetName" = "8:opencv_imgproc420.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstrtsp-1.0-0.dll"
+            "TargetName" = "8:gstrtsp-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FF1E59108CB045A6922B2458B848490F"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_objdetect451.dll"
+            "TargetName" = "8:opencv_objdetect451.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
