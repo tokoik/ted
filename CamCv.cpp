@@ -3,9 +3,6 @@
 //
 #include "CamCv.h"
 
-// OpenCV の Legacy な定数
-#include <opencv2/videoio/legacy/constants_c.h>
-
 // コンストラクタ
 CamCv::CamCv()
 {
