@@ -12,7 +12,7 @@
 #  if defined(_DEBUG)
 #    define CV_EXT_STR "d.lib"
 #  else
-#    define cv::EXT_STR ".lib"
+#    define CV_EXT_STR ".lib"
 #  endif
 #  pragma comment(lib, "opencv_core" CV_VERSION_STR CV_EXT_STR)
 #  pragma comment(lib, "opencv_highgui" CV_VERSION_STR CV_EXT_STR)

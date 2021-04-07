@@ -13,11 +13,16 @@ attitude.json
 *.userprefs
 
 # Build results
-/[Dd]ebug/
+[Dd]ebug/
+!/lib/Win32/[Dd]ebug/
+!/lib/x64/[Dd]ebug/
 [Dd]ebugPublic/
-/[Rr]elease/
+[Rr]elease/
+!/lib/Win32/[Rr]elease/
+!/lib/x64/[Rr]elease/
 [Rr]eleases/
-/x64/
+x64/
+!/lib/x64/
 [Ll]og/
 
 # Visual Studio 2015 cache/options directory
