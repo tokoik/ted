@@ -7,27 +7,21 @@
 // 各種設定
 #include "config.h"
 
-// Dear ImGui を使う
-#include "imgui.h"
-
 // カメラ関連の処理
 #include "Camera.h"
 
-// Windows API 関連の設定
+// Dear ImGui
+#include "imgui.h"
+
+// メッセージボックス
 #if defined(_WIN32)
-#  define NOMINMAX
-#  define GLFW_EXPOSE_NATIVE_WIN32
-#  define GLFW_EXPOSE_NATIVE_WGL
-#  include <GLFW/glfw3native.h>
-#  define OVR_OS_WIN32
 #  define NOTIFY(msg) MessageBox(NULL, TEXT(msg), TEXT("TED"), MB_ICONERROR | MB_OK)
 #else
 #  define NOTIFY(msg) std::cerr << msg << '\n'
 #endif
 
-// Oculus Rift SDK ライブラリ (LibOVR) の組み込み
-#include <OVR_CAPI_GL.h>
-#include <Extras/OVR_Math.h>
+// Oculus Rift 関連の処理
+class Oculus;
 
 //
 // ウィンドウ関連の処理を担当するクラス
@@ -35,10 +29,7 @@
 class Window
 {
   // ウィンドウの識別子
-  GLFWwindow *const window;
-
-  // このウィンドウで制御するカメラ
-  Camera *camera;
+  GLFWwindow* const window;
 
   // ビューポートの幅と高さ
   int width, height;
@@ -63,6 +54,9 @@ class Window
 
   // ドラッグ開始位置
   double cx, cy;
+
+  // このウィンドウで制御するカメラ
+  Camera* camera;
 
   //
   // モデル変換
@@ -149,73 +143,29 @@ class Window
   // 背景テクスチャの半径と中心の変化量
   int circleChange[4];
 
-  //
-  // Oculus Rift
-  //
-
-  // Oculus Rift のセッション
-  const ovrSession session;
-
-  // Oculus Rift の情報
-  ovrHmdDesc hmdDesc;
-
-  // Oculus Rift 表示用の FBO
-  GLuint oculusFbo[ovrEye_Count];
-
-#if OVR_PRODUCT_VERSION > 0
-  // Oculus Rift にレンダリングするフレームの番号
-  long long frameIndex;
-
-  // Oculus Rift への描画情報
-  ovrLayerEyeFov layerData;
-
-  // Oculus Rift 表示用の FBO のデプステクスチャ
-  GLuint oculusDepth[ovrEye_Count];
-
-  // ミラー表示用の FBO のカラーテクスチャ
-  ovrMirrorTexture mirrorTexture;
-#else
-  // Oculus Rift のレンダリング情報
-  ovrEyeRenderDesc eyeRenderDesc[ovrEye_Count];
-
-  // Oculus Rift の視点情報
-  ovrPosef eyePose[ovrEye_Count];
-
-  // Oculus Rift に転送する描画データ
-  ovrLayer_Union layerData;
-
-  // ミラー表示用の FBO のカラーテクスチャ
-  ovrGLTexture *mirrorTexture;
-#endif
-
-  // ミラー表示用の FBO
-  GLuint mirrorFbo;
-
-  //
   // 透視投影変換行列を求める
-  //
-  //   ・ウィンドウのサイズ変更時やカメラパラメータの変更時に呼び出す
-  //
-  void updateProjectionMatrix();
+  void update();
 
 public:
 
   //
   // コンストラクタ
   //
-  Window(int width = 640, int height = 480, const char *title = "GLFW Window"
-    , GLFWmonitor *monitor = nullptr, GLFWwindow *share = nullptr
+  Window(int width = 640, int height = 480,
+    const char* title = "GLFW Window",
+    GLFWmonitor* monitor = nullptr,
+    GLFWwindow* share = nullptr
   );
 
   //
   // コピーコンストラクタを封じる
   //
-  Window(const Window &w) = delete;
+  Window(const Window& w) = delete;
 
   //
   // 代入を封じる
   //
-  Window &operator=(const Window &w) = delete;
+  Window &operator=(const Window& w) = delete;
 
   //
   // デストラクタ
@@ -253,13 +203,6 @@ public:
   operator bool();
 
   //
-  // 描画開始
-  //
-  //   ・図形の描画開始前に呼び出す
-  //
-  bool start();
-
-  //
   // カラーバッファを入れ替えてイベントを取り出す
   //
   //   ・図形の描画終了後に呼び出す
@@ -274,28 +217,28 @@ public:
   //   ・ウィンドウのサイズ変更時にコールバック関数として呼び出される
   //   ・ウィンドウの作成時には明示的に呼び出す
   //
-  static void resize(GLFWwindow *window, int width, int height);
+  static void resize(GLFWwindow* window, int width, int height);
 
   //
   // マウスボタンを操作したときの処理
   //
   //   ・マウスボタンを押したときにコールバック関数として呼び出される
   //
-  static void mouse(GLFWwindow *window, int button, int action, int mods);
+  static void mouse(GLFWwindow* window, int button, int action, int mods);
 
   //
   // マウスホイール操作時の処理
   //
   //   ・マウスホイールを操作した時にコールバック関数として呼び出される
   //
-  static void wheel(GLFWwindow *window, double x, double y);
+  static void wheel(GLFWwindow* window, double x, double y);
 
   //
   // キーボードをタイプした時の処理
   //
   //   ．キーボードをタイプした時にコールバック関数として呼び出される
   //
-  static void keyboard(GLFWwindow *window, int key, int scancode, int action, int mods);
+  static void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
 
   //
   // 設定値の初期化
@@ -305,25 +248,15 @@ public:
   //
   // このウィンドウで制御するカメラを設定する
   //
-  void setControlCamera(Camera *cam)
+  void setControlCamera(Camera* cam)
   {
     camera = cam;
   }
 
   //
-  // 図形を見せる目を選択する
-  //
-  void select(int eye);
-
-  //
-  // 図形の描画を完了する
-  //
-  void commit(int eye);
-
-  //
   // モデル変換行列を得る
   //
-  const GgMatrix &getMm() const
+  const GgMatrix& getMm() const
   {
     return mm;
   }
@@ -331,7 +264,7 @@ public:
   //
   // ビュー変換行列を得る
   //
-  const GgMatrix &getMv(int eye) const
+  const GgMatrix& getMv(int eye) const
   {
     return mv[eye];
   }
@@ -339,7 +272,7 @@ public:
   //
   // Oculus Rift のヘッドラッキングによる移動を得る
   //
-  const GgVector &getPo(int eye) const
+  const GgVector& getPo(int eye) const
   {
     return po[eye];
   }
@@ -347,7 +280,7 @@ public:
   //
   // Oculus Rift のヘッドラッキングによる回転の四元数を得る
   //
-  const GgQuaternion &getQo(int eye) const
+  const GgQuaternion& getQo(int eye) const
   {
     return qo[eye];
   }
@@ -355,7 +288,7 @@ public:
   //
   // Oculus Rift のヘッドラッキングによる回転の補正値の四元数を得る
   //
-  const GgQuaternion &getQa(int eye) const
+  const GgQuaternion& getQa(int eye) const
   {
     return qa[eye];
   }
@@ -363,7 +296,7 @@ public:
   //
   // Oculus Rift のヘッドラッキングによる回転の変換行列を得る
   //
-  const GgMatrix &getMo(int eye) const
+  const GgMatrix& getMo(int eye) const
   {
     return mo[eye];
   }
@@ -371,7 +304,7 @@ public:
   //
   // プロジェクション変換行列を得る
   //
-  const GgMatrix &getMp(int eye) const
+  const GgMatrix& getMp(int eye) const
   {
     return mp[eye];
   }
@@ -379,7 +312,7 @@ public:
   //
   // メッシュの縦横の格子点数を取り出す
   //
-  const GLsizei *getSamples() const
+  const GLsizei* getSamples() const
   {
     return samples;
   }
@@ -387,7 +320,7 @@ public:
   //
   // メッシュの縦横の格子間隔を取り出す
   //
-  const GLfloat *getGap() const
+  const GLfloat* getGap() const
   {
     return gap;
   }
@@ -395,7 +328,7 @@ public:
   //
   // スクリーンの幅と高さを取り出す
   //
-  const GLfloat *getScreen(int eye) const
+  const GLfloat* getScreen(int eye) const
   {
     return screen[eye];
   }
@@ -437,4 +370,23 @@ public:
 
   // ミラー表示
   bool showMirror;
+
+  // Oculus Rift のコンテキスト
+  friend class Oculus;
+  static Oculus *oculus;
+
+  // Oculus Rift を起動する
+  bool startOculus();
+
+  // Oculus Rift を停止する
+  void stopOculus();
+
+  // 描画する目を選択する
+  void select(int eye);
+
+  // 描画を開始する
+  bool start();
+
+  // 描画を完了する
+  static void commit(int eye);
 };

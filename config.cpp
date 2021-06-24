@@ -31,7 +31,7 @@ config defaults =
   1.0,                          // GLfloat fisheye_fov_x;
   1.0,                          // GLfloat fisheye_fov_y;
   OVR::OV_CAM5MP_FHD,           // int ovrvision_propaty; (※3)
-  MONO,                         // StereoMode display_mode; (※1)
+  MONOCULAR,                    // StereoMode display_mode; (※1)
   1,                            // int display_secondary;
   false,                        // bool display_fullscreen;
   960,                          // int display_width;
@@ -54,18 +54,18 @@ config defaults =
   1372,                         // int texture_samples;
   1.0,                          // GLfloat remote_fov_x;
   1.0,                          // GLfloat remote_fov_y;
-  50,                           // int local_share_size;
-  50,                           // int remote_share_size;
+  localShareSize,               // int local_share_size;
+  remoteShareSize,              // int remote_share_size;
   10                            // int max_level;
 };
 
 //
 // ※1 立体視の設定 (StereoMode)
 //
-//    NONE = 0,                 // 単眼視
-//    LINEBYLINE,               // インターレース（未実装）
-//    TOPANDBOTTOM,             // 上下２分割
-//    SIDEBYSIDE,               // 左右２分割
+//    MONOCULAR = 0,            // 単眼視
+//    LINE_BY_LINE,             // インターレース（未実装）
+//    TOP_AND_BOTTOM,           // 上下２分割
+//    SIDE_BY_SIDE,             // 左右２分割
 //    QUADBUFFER,               // クワッドバッファステレオ
 //    OCULUS                    // Oculus Rift (HMD)
 //
