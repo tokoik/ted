@@ -128,6 +128,9 @@
     <ClCompile Include="libs\ImGui\nfd_win.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Oculus.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="mesh.frag">

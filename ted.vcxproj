@@ -28,6 +28,7 @@
     <ClInclude Include="gg.h" />
     <ClInclude Include="LeapListener.h" />
     <ClInclude Include="Network.h" />
+    <ClInclude Include="Oculus.h" />
     <ClInclude Include="picojson.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="resource.h" />
@@ -53,6 +54,7 @@
     <ClCompile Include="libs\ImGui\nfd_win.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Network.cpp" />
+    <ClCompile Include="Oculus.cpp" />
     <ClCompile Include="Rect.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SharedMemory.cpp" />

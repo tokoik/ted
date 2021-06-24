@@ -56,7 +56,7 @@ int main(int argc, const char *const *const argv)
     // モニタの存在チェック
     if (mcount == 0)
     {
-      NOTIFY("GLFW の初期化をしていないか表示可能なディスプレイが見つかりません。");
+      NOTIFY("表示可能なディスプレイが見つかりません。");
       return EXIT_FAILURE;
     }
 
@@ -84,24 +84,43 @@ int main(int argc, const char *const *const argv)
   Window window(windowWidth, windowHeight, windowTitle, monitor);
 
   // ウィンドウオブジェクトが生成されなければ終了する
-  if (!window.get()) return EXIT_FAILURE;
+  if (!window.get())
+  {
+    // ウインドウの作成を失敗させたと思われる設定を戻す
+    defaults.display_mode = MONOCULAR;
+    defaults.display_fullscreen = false;
+
+    // 設定ファイルを保存する
+    defaults.save(config_file);
+
+    // ウィンドウが開けなかったので終了する
+    NOTIFY("表示用のウィンドウを作成できませんでした。");
+    return EXIT_FAILURE;
+  }
 
   // 共有メモリを確保する
   if (!Scene::initialize(defaults.local_share_size, defaults.remote_share_size))
   {
-    // 共有メモリの確保に失敗した
-    NOTIFY("変換行列を保持する共有メモリが確保できませんでした。");
+    // 共有メモリの確保を失敗させたと思われる設定を戻す
+    defaults.local_share_size = localShareSize;
+    defaults.remote_share_size = remoteShareSize;
+
+    // 設定ファイルを保存する
+    defaults.save(config_file);
+
+    // 共有メモリの確保に失敗したので終了する
+    NOTIFY("共有メモリが確保できませんでした。");
     return EXIT_FAILURE;
   }
 
   // 背景画像のデータ
-  const GLubyte *image[camCount] = { nullptr };
+  const GLubyte *image[camCount]{ nullptr };
 
   // 背景画像のサイズ
   GLsizei size[camCount][2];
 
   // 背景画像を取得するカメラ
-  std::shared_ptr<Camera> camera(nullptr);
+  std::shared_ptr<Camera> camera;
 
   // ネットワークを使用する場合
   if (defaults.role != STANDALONE)
@@ -182,7 +201,7 @@ int main(int argc, const char *const *const argv)
       size[camR][1] = size[camL][1];
 
       // 立体視表示を行うとき
-      if (defaults.display_mode != MONO)
+      if (defaults.display_mode != MONOCULAR)
       {
         // 右カメラに左と異なるムービーファイルが指定されていれば
         if (!defaults.camera_right_movie.empty() && defaults.camera_right_movie != defaults.camera_left_movie)
@@ -268,7 +287,7 @@ int main(int argc, const char *const *const argv)
         size[camR][1] = size[camL][1];
 
         // 立体視表示を行うとき
-        if (defaults.display_mode != MONO)
+        if (defaults.display_mode != MONOCULAR)
         {
           // 右の画像が指定されていれば
           if (!defaults.camera_right_image.empty())
@@ -383,43 +402,17 @@ int main(int argc, const char *const *const argv)
   // 材質
   const GgSimpleShader::MaterialBuffer material(materialData);
 
-  // カリング
+  // カリングする
   glCullFace(GL_BACK);
 
-  // アルファブレンディング
+  // アルファブレンディングする
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  // 描画回数
-  const int drawCount(defaults.display_mode == MONO ? 1 : camCount);
+  // 描画回数は単眼視なら 1、それ以外ならカメラの数
+  const int drawCount(defaults.display_mode == MONOCULAR ? 1 : camCount);
 
-#ifdef IMGUI_VERSION
-  //
-  // ImGui の初期設定
-  //
-
-  //ImGuiIO& io = ImGui::GetIO();
-  //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-  //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-  // Setup Dear ImGui style
-  //ImGui::StyleColorsDark();
-  //ImGui::StyleColorsClassic();
-
-  // Load Fonts
-  // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-  // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-  // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-  // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-  // - Read 'docs/FONTS.txt' for more instructions and details.
-  // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-  //io.Fonts->AddFontDefault();
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-  //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-  //IM_ASSERT(font != NULL);
-#endif
+  // デフォルトが OCULUS なら Oculus Rift を起動する
+  if (defaults.display_mode == OCULUS) window.startOculus();
 
   // ウィンドウが開いている間くり返し描画する
   while (window)
@@ -433,11 +426,20 @@ int main(int argc, const char *const *const argv)
     ImGui::SetNextWindowSize(ImVec2(170, 71), ImGuiCond_Once);
     ImGui::Begin("Control panel");
     ImGui::Text("Frame rate: %6.2f fps", ImGui::GetIO().Framerate);
+    if (ImGui::RadioButton("Monocular", &defaults.display_mode, MONOCULAR)) window.stopOculus();
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Line by Line", &defaults.display_mode, LINE_BY_LINE)) window.stopOculus();
+    ImGui::SameLine();
+      if (ImGui::RadioButton("Top and Bottom", &defaults.display_mode, TOP_AND_BOTTOM)) window.stopOculus();
+    ImGui::SameLine();
+        if (ImGui::RadioButton("Side by Side", &defaults.display_mode, SIDE_BY_SIDE)) window.stopOculus();
+    ImGui::SameLine();
+    int mode{ defaults.display_mode };
+    if (ImGui::RadioButton("Oculus", &mode, OCULUS) && window.startOculus()) defaults.display_mode = mode;
     if (ImGui::Button("Quit")) window.setClose(GLFW_TRUE);
     ImGui::End();
     ImGui::Render();
 #endif
-
 
     // 左カメラをロックして画像を転送する
     camera->transmit(camL, texture[camL], size[camL]);
