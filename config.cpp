@@ -5,11 +5,11 @@
 // 各種設定
 #include "config.h"
 
-// 標準ライブラリ
-#include <fstream>
-
 // Ovrvision Pro
 #include "ovrvision_pro.h"
+
+// 標準ライブラリ
+#include <fstream>
 
 config defaults =
 {
@@ -32,8 +32,9 @@ config defaults =
   1.0,                          // GLfloat fisheye_fov_y;
   OVR::OV_CAM5MP_FHD,           // int ovrvision_propaty; (※3)
   MONOCULAR,                    // StereoMode display_mode; (※1)
-  1,                            // int display_secondary;
+  0,                            // int display_secondary;
   false,                        // bool display_fullscreen;
+  false,                        // bool display_quadbuffer;
   960,                          // int display_width;
   540,                          // int display_height;
   0.0f,                         // GLfloat display_aspect;
@@ -63,7 +64,7 @@ config defaults =
 // ※1 立体視の設定 (StereoMode)
 //
 //    MONOCULAR = 0,            // 単眼視
-//    LINE_BY_LINE,             // インターレース（未実装）
+//    INTERLACE,             // インターレース（未実装）
 //    TOP_AND_BOTTOM,           // 上下２分割
 //    SIDE_BY_SIDE,             // 左右２分割
 //    QUADBUFFER,               // クワッドバッファステレオ
@@ -104,26 +105,15 @@ config defaults =
 //
 
 //
-// JSON ファイルの読み込み
+// 最初に読み込んだ設定ファイル名
 //
-bool config::read(const std::string &file, picojson::value &v)
-{
-  std::ifstream config(file);
-  if (!config) return false;
-  config >> v;
-  config.close();
-  return true;
-}
+std::string config::config_file;
 
 //
-// 設定ファイルの読み込み
+// JSON の読み取り
 //
-bool config::load(const std::string &file)
+bool config::read(picojson::value &v)
 {
-  // 設定内容の読み込み
-  picojson::value v;
-  if (!read(file, v)) return false;
-
   // 設定内容のパース
   const auto &o(v.get<picojson::object>());
   if (o.empty()) return false;
@@ -250,6 +240,11 @@ bool config::load(const std::string &file)
   const auto &v_fullscreen(o.find("fullscreen"));
   if (v_fullscreen != o.end() && v_fullscreen->second.is<bool>())
     display_fullscreen = v_fullscreen->second.get<bool>();
+
+  // クアッドバッファステレオ表示
+  const auto &v_quadbuffer(o.find("quadbuffer"));
+  if (v_quadbuffer != o.end() && v_quadbuffer->second.is<bool>())
+    display_quadbuffer = v_quadbuffer->second.get<bool>();
 
   // ディスプレイの横の画素数
   const auto &v_display_width(o.find("display_width"));
@@ -380,6 +375,27 @@ bool config::load(const std::string &file)
 }
 
 //
+// 設定ファイルの読み込み
+//
+bool config::load(const std::string &file)
+{
+  // 読み込んだ設定ファイル名を覚えておく
+  config_file = file;
+
+  // 設定ファイルを開く
+  std::ifstream config(file);
+  if (!config) return false;
+
+  // 設定ファイルを読み込む
+  picojson::value v;
+  config >> v;
+  config.close();
+
+  // 設定を解析する
+  return read(v);
+}
+
+//
 // 設定ファイルの書き込み
 //
 bool config::save(const std::string &file) const
@@ -454,6 +470,9 @@ bool config::save(const std::string &file) const
 
   // フルスクリーン表示
   o.insert(std::make_pair("fullscreen", picojson::value(display_fullscreen)));
+
+  // クアッドバッファステレオ表示
+  o.insert(std::make_pair("quadbuffer", picojson::value(display_quadbuffer)));
 
   // ディスプレイの横の画素数
   o.insert(std::make_pair("display_width", picojson::value(static_cast<double>(display_width))));

@@ -14,6 +14,7 @@
 #include "SharedMemory.h"
 
 // 標準ライブラリ
+#include <map>
 #include <queue>
 
 // 共有メモリ上に置く操縦者の変換行列
@@ -66,7 +67,10 @@ public:
   static bool initialize(unsigned int local_size, unsigned int remote_size);
 
   // シーングラフを読み込む
-  Scene *load(const picojson::value &v, const GgSimpleShader *shader, int level);
+  picojson::object load(const picojson::value& v);
+
+  // シーングラフを解析する
+  Scene *read(const picojson::value &v, const GgSimpleShader *shader, int level);
 
   // 子供にシーンを追加する
   Scene *addChild(Scene *scene);

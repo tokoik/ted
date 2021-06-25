@@ -15,7 +15,7 @@ using namespace gg;
 enum StereoMode
 {
   MONOCULAR = 0,                            // 単眼視
-  LINE_BY_LINE,                             // インターレース（未実装）
+  INTERLACE,                                // インターレース（未実装）
   TOP_AND_BOTTOM,                           // 上下２分割
   SIDE_BY_SIDE,                             // 左右２分割
   QUADBUFFER,                               // クワッドバッファステレオ
@@ -54,6 +54,7 @@ struct config
   int display_mode;
   int display_secondary;
   bool display_fullscreen;
+  bool display_quadbuffer;
   int display_width;
   int display_height;
   GLfloat display_aspect;
@@ -78,7 +79,8 @@ struct config
   int remote_share_size;
   int max_level;
   picojson::value scene;
-  static bool read(const std::string &file, picojson::value &v);
+  static std::string config_file;
+  bool read(picojson::value &v);
   bool load(const std::string &file);
   bool save(const std::string &file) const;
 };
@@ -167,3 +169,12 @@ constexpr int localShareSize{ 64 };
 
 // リモートの共有メモリのサイズ
 constexpr int remoteShareSize{ 64 };
+
+// ファイルマッピングオブジェクト名
+constexpr wchar_t* localMutexName{ L"TED_LOCAL_MUTEX" };
+constexpr wchar_t* localShareName{ L"TED_LOCAL_SHARE" };
+constexpr wchar_t* remoteMutexName{ L"TED_REMOTE_MUTEX" };
+constexpr wchar_t* remoteShareName{ L"TED_REMOTE_SHARE" };
+
+// 設定ファイル名
+constexpr char defaultConfig[]{ "config.json" };

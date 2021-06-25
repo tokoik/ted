@@ -3,17 +3,14 @@
 //
 #include "Scene.h"
 
-// ファイルマッピングオブジェクト名
-constexpr LPCWSTR localMutexName = L"TED_LOCAL_MUTEX";
-constexpr LPCWSTR localShareName = L"TED_LOCAL_SHARE";
-constexpr LPCWSTR remoteMutexName = L"TED_REMOTE_MUTEX";
-constexpr LPCWSTR remoteShareName = L"TED_REMOTE_SHARE";
+// 標準ライブラリ
+#include <fstream>
 
 // 共有メモリ上に置く操縦者の変換行列
-std::unique_ptr<SharedMemory> localAttitude(nullptr);
+std::unique_ptr<SharedMemory> localAttitude{ nullptr };
 
 // 共有メモリ上に置く作業者の変換行列
-std::unique_ptr<SharedMemory> remoteAttitude(nullptr);
+std::unique_ptr<SharedMemory> remoteAttitude{ nullptr };
 
 // コンストラクタ
 Scene::Scene(const GgSimpleObj *obj)
@@ -25,7 +22,7 @@ Scene::Scene(const GgSimpleObj *obj)
 Scene::Scene(const picojson::value &v, const GgSimpleShader *shader, int level)
   : obj(nullptr)
 {
-  load(v, shader, level);
+  read(v, shader, level);
 }
 
 // シーングラフからシーンのオブジェクトを作成するコンストラクタ
@@ -74,18 +71,38 @@ bool Scene::initialize(unsigned int local_size, unsigned int remote_size)
 }
 
 // シーングラフを読み込む
-Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int level)
+inline picojson::object Scene::load(const picojson::value& v)
+{
+  // v が object ならそれを返す
+  if (v.is<picojson::object>()) return v.get<picojson::object>();
+
+  // v が文字列だったら
+  if (v.is<std::string>())
+  {
+    // v をファイル名だとしてシーングラフファイルを開く
+    std::ifstream scene(v.get<std::string>());
+
+    // 開けなかったら空のオブジェクトを返す
+    if (!scene) return picojson::object{};
+
+    // 設定ファイルを読み込む
+    picojson::value f;
+    scene >> f;
+    scene.close();
+
+    // 読み込んだ設定が object ならそれを返す
+    if (f.is<picojson::object>()) return f.get<picojson::object>();
+  }
+  
+  // これら以外なら空の object を返す
+  return picojson::object{};
+}
+
+// シーングラフを解析する
+Scene *Scene::read(const picojson::value &v, const GgSimpleShader *shader, int level)
 {
   // 引数ををパースする
-  const auto &o(
-    v.is<std::string>() ? [&v]()
-  {
-    picojson::value f;
-    return config::read(v.get<std::string>(), f)
-      && f.is<picojson::object>() ? f.get<picojson::object>() : picojson::object();
-  } ()
-    : v.is<picojson::object>() ? v.get<picojson::object>() : picojson::object()
-    );
+  const auto &&o(load(v));
   if (o.empty()) return this;
 
   // シーンオブジェクトの変換行列

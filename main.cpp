@@ -20,13 +20,16 @@
 // 矩形
 #include "Rect.h"
 
+// メニュー
+#include "Menu.h"
+
 //
 // メインプログラム
 //
 int main(int argc, const char *const *const argv)
 {
-  // 引数を設定ファイル名に使う（指定されていなければ config.json にする）
-  const char *config_file(argc > 1 ? argv[1] : "config.json");
+  // 引数を設定ファイル名に使う（指定されていなければ defaultConfig にする）
+  const char *config_file(argc > 1 ? argv[1] : defaultConfig);
 
   // 設定ファイルを読み込む (見つからなかったら作る)
   if (!defaults.load(config_file)) defaults.save(config_file);
@@ -87,8 +90,9 @@ int main(int argc, const char *const *const argv)
   if (!window.get())
   {
     // ウインドウの作成を失敗させたと思われる設定を戻す
-    defaults.display_mode = MONOCULAR;
+    defaults.display_secondary = 0;
     defaults.display_fullscreen = false;
+    defaults.display_quadbuffer = false;
 
     // 設定ファイルを保存する
     defaults.save(config_file);
@@ -414,32 +418,14 @@ int main(int argc, const char *const *const argv)
   // デフォルトが OCULUS なら Oculus Rift を起動する
   if (defaults.display_mode == OCULUS) window.startOculus();
 
+  // メニュー
+  Menu menu(window);
+
   // ウィンドウが開いている間くり返し描画する
   while (window)
   {
-#ifdef IMGUI_VERSION
-    //
-    // ユーザインタフェース
-    //
-    ImGui::NewFrame();
-    ImGui::SetNextWindowPos(ImVec2(4, 4), ImGuiCond_Once);
-    ImGui::SetNextWindowSize(ImVec2(170, 71), ImGuiCond_Once);
-    ImGui::Begin("Control panel");
-    ImGui::Text("Frame rate: %6.2f fps", ImGui::GetIO().Framerate);
-    if (ImGui::RadioButton("Monocular", &defaults.display_mode, MONOCULAR)) window.stopOculus();
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Line by Line", &defaults.display_mode, LINE_BY_LINE)) window.stopOculus();
-    ImGui::SameLine();
-      if (ImGui::RadioButton("Top and Bottom", &defaults.display_mode, TOP_AND_BOTTOM)) window.stopOculus();
-    ImGui::SameLine();
-        if (ImGui::RadioButton("Side by Side", &defaults.display_mode, SIDE_BY_SIDE)) window.stopOculus();
-    ImGui::SameLine();
-    int mode{ defaults.display_mode };
-    if (ImGui::RadioButton("Oculus", &mode, OCULUS) && window.startOculus()) defaults.display_mode = mode;
-    if (ImGui::Button("Quit")) window.setClose(GLFW_TRUE);
-    ImGui::End();
-    ImGui::Render();
-#endif
+    // メニューを表示する
+    menu.show();
 
     // 左カメラをロックして画像を転送する
     camera->transmit(camL, texture[camL], size[camL]);
