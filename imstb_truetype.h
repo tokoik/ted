@@ -1670,13 +1670,13 @@ static int stbtt__GetGlyphShapeTT(const stbtt_fontinfo *info, int glyph_index, s
       next_move = 0;
       flagcount=0;
 
-      // in first pass, we load uninterpreted data into the allocated array
+      // in first pass, we read uninterpreted data into the allocated array
       // above, shifted to the end of the array so we won't overwrite it when
       // we create our final data starting from the front
 
       off = m - n; // starting offset for uninterpreted data, regardless of how m ends up being calculated
 
-      // first load flags
+      // first read flags
 
       for (i=0; i < n; ++i) {
          if (flagcount == 0) {
@@ -1688,7 +1688,7 @@ static int stbtt__GetGlyphShapeTT(const stbtt_fontinfo *info, int glyph_index, s
          vertices[off+i].type = flags;
       }
 
-      // now load x coordinates
+      // now read x coordinates
       x=0;
       for (i=0; i < n; ++i) {
          flags = vertices[off+i].type;
@@ -1704,7 +1704,7 @@ static int stbtt__GetGlyphShapeTT(const stbtt_fontinfo *info, int glyph_index, s
          vertices[off+i].x = (stbtt_int16) x;
       }
 
-      // now load y coordinates
+      // now read y coordinates
       y=0;
       for (i=0; i < n; ++i) {
          flags = vertices[off+i].type;

@@ -4,14 +4,8 @@
 // ウィンドウ関連の処理
 //
 
-// 各種設定
-#include "config.h"
-
 // カメラ関連の処理
 #include "Camera.h"
-
-// Dear ImGui
-#include "imgui.h"
 
 // メッセージボックス
 #if defined(_WIN32)
@@ -30,6 +24,9 @@ class Window
 {
   // ウィンドウの識別子
   GLFWwindow* const window;
+
+  // ウィンドウのサイズ
+  GLsizei size[2];
 
   // ビューポートの幅と高さ
   int width, height;
@@ -143,9 +140,6 @@ class Window
   // 背景テクスチャの半径と中心の変化量
   int circleChange[4];
 
-  // 透視投影変換行列を求める
-  void update();
-
 public:
 
   //
@@ -244,6 +238,11 @@ public:
   // 設定値の初期化
   //
   void reset();
+
+  //
+  // 透視投影変換行列を求める
+  //
+  void update();
 
   //
   // このウィンドウで制御するカメラを設定する
@@ -355,6 +354,14 @@ public:
   const GLfloat *getCircle() const
   {
     return circle;
+  }
+
+  //
+  // ウィンドウのサイズを取り出す
+  //
+  const GLsizei* getSize() const
+  {
+    return size;
   }
 
   //

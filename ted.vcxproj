@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Attitude.h" />
     <ClInclude Include="CamCv.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CamImage.h" />
@@ -35,6 +36,7 @@
     <ClInclude Include="imstb_textedit.h" />
     <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="LeapListener.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Oculus.h" />
     <ClInclude Include="picojson.h" />
@@ -45,6 +47,7 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Attitude.cpp" />
     <ClCompile Include="CamCv.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CamImage.cpp" />
@@ -60,6 +63,7 @@
     <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="LeapListener.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Oculus.cpp" />
     <ClCompile Include="Rect.cpp" />

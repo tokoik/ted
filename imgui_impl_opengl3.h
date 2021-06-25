@@ -12,7 +12,7 @@
 // Read online: https://github.com/ocornut/imgui/tree/master/docs
 
 // About Desktop OpenGL function loaders:
-//  Modern Desktop OpenGL doesn't have a standard portable header file to load OpenGL function pointers.
+//  Modern Desktop OpenGL doesn't have a standard portable header file to read OpenGL function pointers.
 //  Helper libraries are often used for this purpose! Here we are supporting a few common ones (gl3w, glew, glad).
 //  You may use another loader/header of your choice (glext, glLoadGen, etc.), or chose to manually implement your own.
 

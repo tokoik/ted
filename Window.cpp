@@ -13,6 +13,7 @@
 #include <fstream>
 
 // Dear ImGui
+#include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
@@ -45,8 +46,8 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
     qrStep[0].loadRotate(0.0f, 1.0f, 0.0f, 0.001f);
     qrStep[1].loadRotate(1.0f, 0.0f, 0.0f, 0.001f);
 
-    // クワッドバッファステレオモードにする
-    if (defaults.display_mode == QUADBUFFER)
+    // クワッドバッファステレオモードを有効にする
+    if (defaults.display_quadbuffer)
     {
       glfwWindowHint(GLFW_STEREO, GLFW_TRUE);
     }
@@ -238,7 +239,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   //
   // ユーザインタフェースの準備
   //
-  //ImGuiIO& io = ImGui::GetIO(); (void)io;
+  ImGuiIO& io = ImGui::GetIO(); (void)io;
   //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
   //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
@@ -247,7 +248,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   //ImGui::StyleColorsClassic();
 
   // Load Fonts
-  // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
+  // - If no fonts are loaded, dear imgui will use the default font. You can also read multiple fonts and use ImGui::PushFont()/PopFont() to select them.
   // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
   // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
   // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
@@ -258,8 +259,8 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
   //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
   //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-  //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-  //IM_ASSERT(font != NULL);
+  const ImFont* const font{ io.Fonts->AddFontFromFileTTF("Mplus1-Regular.ttf", 22.0f, NULL, io.Fonts->GetGlyphRangesJapanese()) };
+  IM_ASSERT(font != NULL);
 #endif
 
   // 投影変換行列・ビューポートを初期化する
@@ -773,10 +774,14 @@ void Window::resize(GLFWwindow *window, int width, int height)
 
   if (instance)
   {
+    // ウィンドウのサイズを保存する
+    instance->size[0] = width;
+    instance->size[1] = height;
+
     // Oculus Rift 使用時以外
     if (!instance->oculus)
     {
-      if (defaults.display_mode == LINE_BY_LINE)
+      if (defaults.display_mode == INTERLACE)
       {
         // VR 室のディスプレイでは表示領域の横半分をビューポートにする
         width /= 2;
@@ -1082,7 +1087,7 @@ void Window::select(int eye)
     }
     break;
 
-  case LINE_BY_LINE:
+  case INTERLACE:
   case SIDE_BY_SIDE:
 
     if (eye == camL)
