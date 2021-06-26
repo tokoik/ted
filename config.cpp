@@ -11,60 +11,14 @@
 // 標準ライブラリ
 #include <fstream>
 
-config defaults =
-{
-  -1,                           // int camera_left; (※2)
-  "normal_left.jpg",            // std::string camera_left_image;
-  "",                           // std::string camera_left_movie;
-  -1,                           // int camera_right; (※2)
-  "normal_right.jpg",           // std::string camera_right_image;
-  "",                           // std::string camera_right_movie;
-  1271,                         // int camera_texture_samples;
-  false,                        // bool camera_texture_repeat;
-  true,                         // bool camera_tracking;
-  0.0,                          // double capture_width; (0 ならカメラから取得)
-  0.0,                          // double capture_height; (0 ならカメラから取得)
-  0.0,                          // double capture_fps; (0 ならカメラから取得)
-  "",                           // char fourcc[4];
-  0.0,                          // GLfloat fisheye_center_x;
-  0.0,                          // GLfloat fisheye_center_y;
-  1.0,                          // GLfloat fisheye_fov_x;
-  1.0,                          // GLfloat fisheye_fov_y;
-  OVR::OV_CAM5MP_FHD,           // int ovrvision_propaty; (※3)
-  MONOCULAR,                    // StereoMode display_mode; (※1)
-  0,                            // int display_secondary;
-  false,                        // bool display_fullscreen;
-  false,                        // bool display_quadbuffer;
-  960,                          // int display_width;
-  540,                          // int display_height;
-  0.0f,                         // GLfloat display_aspect;
-  0.5f,                         // GLfloat display_center;
-  1.5f,                         // GLfloat display_distance;
-  0.1f,                         // GLfloat display_near;
-  5.0f,                         // GLfloat display_far;
-  1.0f,                         // GLfloat display_zoom;
-  "fixed.vert",                 // std::string vertex_shader;
-  "normal.frag",                // std::string fragment_shader;
-  STANDALONE,                   // int role (※4)
-  0,                            // int port;
-  "",                           // std::string address;
-  true,                         // bool remote_stabilize;
-  false,                        // bool texture_reshape;
-  { 0, 0 },                     // int remote_delay[2];
-  50,                           // int texture_quality;
-  1372,                         // int texture_samples;
-  1.0,                          // GLfloat remote_fov_x;
-  1.0,                          // GLfloat remote_fov_y;
-  localShareSize,               // int local_share_size;
-  remoteShareSize,              // int remote_share_size;
-  10                            // int max_level;
-};
+// 初期設定
+config defaults;
 
 //
 // ※1 立体視の設定 (StereoMode)
 //
 //    MONOCULAR = 0,            // 単眼視
-//    INTERLACE,             // インターレース（未実装）
+//    INTERLACE,                // インターレース（未実装）
 //    TOP_AND_BOTTOM,           // 上下２分割
 //    SIDE_BY_SIDE,             // 左右２分割
 //    QUADBUFFER,               // クワッドバッファステレオ
@@ -105,9 +59,64 @@ config defaults =
 //
 
 //
-// 最初に読み込んだ設定ファイル名
+// コンストラクタ
 //
-std::string config::config_file;
+config::config()
+  : display_mode{ MONOCULAR }                 // 画面表示のモード (※1)
+  , display_quadbuffer{ false }               // クワッドバッファステレオ表示を行うとき true
+  , display_fullscreen{ false }               // フルスクリーン表示を行うとき true
+  , display_secondary{ 0 }                    // フルスクリーン表示するディスプレイの番号
+  , display_width{ 960 }                      // 画面（ミラー表示）の横の画素数
+  , display_height{ 540 }                     // 画面（ミラー表示）の盾の画素数
+  , display_aspect{ 0.0f }                    // 画面の縦横比
+  , display_center{ 0.5f }                    // 画面の中心の高さ
+  , display_distance{ 1.5f }                  // 画面までの距離
+  , display_near{ 0.1f }                      // 視点から前方面までの距離
+  , display_far{ 5.0f }                       // 視点から後方面までの距離
+  , camera_left{ -1 }                         // 左カメラの番号 (※2)
+  , camera_left_image{ "normal_left.jpg" }    // 左カメラの代わりに使う静止画
+  , camera_left_movie{ "" }                   // 左カメラの代わりに使う動画
+  , camera_right{ -1 }                        // 右カメラの番号 (※2)
+  , camera_right_image{ "normal_right.jpg" }  // 右カメラの代わりに使う静止画
+  , camera_right_movie{ "" }                  // 右カメラの代わりに使う動画
+  , camera_texture_samples{ 1271 }            // 背景画像をマッピングするときのメッシュの分割数
+  , camera_texture_repeat{ false }            // 背景画像を繰り返しでマッピングするとき true
+  , camera_tracking{ true }                   // 背景画像をヘッドトラッキングに追従させるとき true
+  , camera_width{ 0.0 }                       // カメラの横の画素数
+  , camera_height{ 0.0 }                      // カメラの縦の画素数
+  , camera_fps{ 0.0 }                         // カメラのフレームレート
+  , camera_fourcc{ '\0', '\0', '\0', '\0' }   // カメラの４文字コーデック
+  , camera_center_x{ 0.0 }                    // 魚眼カメラの横の中心位置
+  , camera_center_y{ 0.0 }                    // 魚眼カメラの横の中心位置
+  , camera_fov_x{ 1.0 }                       // 魚眼カメラの横の画角
+  , camera_fov_y{ 1.0 }                       // 魚眼カメラの縦の画角
+  , ovrvision_property{ OVR::OV_CAM5MP_FHD }  // Ovrvision Pro の設定 (※3)
+  , vertex_shader{ "fixed.vert" }             // バーテックスシェーダのソースプログラム
+  , fragment_shader{ "normal.frag" }          // フラグメントシェーダのソースプログラム
+  , role{ STANDALONE }                        // 役割 (※4)
+  , port{ 0 }                                 // 通信に使うポート番号
+  , address{ "" }                             // 相手先の IP アドレス
+  , remote_stabilize{ true }                  // 相手先の映像を安定化するとき true
+  , remote_texture_reshape{ false }           // 相手先の映像を変形するとき true
+  , remote_delay{ 0, 0 }                      // 相手先の表示に加える遅延
+  , remote_texture_quality{ 50 }              // 送信する画像の品質
+  , remote_texture_samples{ 1372 }            // 受信した画像をマッピングするときのメッシュの分割数
+  , remote_fov_x{ 1.0 }                       // 相手先のレンズの横の画角
+  , remote_fov_y{ 1.0 }                       // 相手先のレンズの縦の画角
+  , local_share_size{ localShareSize }        // 送信に用いる共有メモリのブロック数
+  , remote_share_size{ remoteShareSize }      // 受信に用いる共有メモリのブロック数
+  , max_level{ 10 }                           // シーンファイルの入れ子の深さの上限
+  , scene{}                                   // シーングラフ
+  , config_file{ "" }                         // 設定ファイルのファイル名
+{
+}
+
+//
+// デストラクタ
+//
+config::~config()
+{
+}
 
 //
 // JSON の読み取り
@@ -117,6 +126,61 @@ bool config::read(picojson::value &v)
   // 設定内容のパース
   const auto &o(v.get<picojson::object>());
   if (o.empty()) return false;
+
+  // 立体視の方式
+  const auto &v_stereo(o.find("stereo"));
+  if (v_stereo != o.end() && v_stereo->second.is<double>())
+    display_mode = static_cast<int>(v_stereo->second.get<double>());
+
+  // クアッドバッファステレオ表示
+  const auto &v_quadbuffer(o.find("quadbuffer"));
+  if (v_quadbuffer != o.end() && v_quadbuffer->second.is<bool>())
+    display_quadbuffer = v_quadbuffer->second.get<bool>();
+
+  // フルスクリーン表示
+  const auto &v_fullscreen(o.find("fullscreen"));
+  if (v_fullscreen != o.end() && v_fullscreen->second.is<bool>())
+    display_fullscreen = v_fullscreen->second.get<bool>();
+
+  // フルスクリーン表示するディスプレイの番号
+  const auto &v_use_secondary(o.find("use_secondary"));
+  if (v_use_secondary != o.end() && v_use_secondary->second.is<double>())
+    display_secondary = static_cast<int>(v_use_secondary->second.get<double>());
+
+  // ディスプレイの横の画素数
+  const auto &v_display_width(o.find("display_width"));
+  if (v_display_width != o.end() && v_display_width->second.is<double>())
+    display_width = static_cast<int>(v_display_width->second.get<double>());
+
+  // ディスプレイの縦の画素数
+  const auto &v_display_height(o.find("display_height"));
+  if (v_display_height != o.end() && v_display_height->second.is<double>())
+    display_height = static_cast<int>(v_display_height->second.get<double>());
+
+  // ディスプレイの縦横比
+  const auto &v_display_aspect(o.find("display_aspect"));
+  if (v_display_aspect != o.end() && v_display_aspect->second.is<double>())
+    display_aspect = static_cast<GLfloat>(v_display_aspect->second.get<double>());
+
+  // ディスプレイの中心の高さ
+  const auto &v_display_center(o.find("display_center"));
+  if (v_display_center != o.end() && v_display_center->second.is<double>())
+    display_center = static_cast<GLfloat>(v_display_center->second.get<double>());
+
+  // 視点からディスプレイまでの距離
+  const auto &v_display_distance(o.find("display_distance"));
+  if (v_display_distance != o.end() && v_display_distance->second.is<double>())
+    display_distance = static_cast<GLfloat>(v_display_distance->second.get<double>());
+
+  // 視点から前方面までの距離 (焦点距離)
+  const auto &v_depth_near(o.find("depth_near"));
+  if (v_depth_near != o.end() && v_depth_near->second.is<double>())
+    display_near = static_cast<GLfloat>(v_depth_near->second.get<double>());
+
+  // 視点から後方面までの距離
+  const auto &v_depth_far(o.find("depth_far"));
+  if (v_depth_far != o.end() && v_depth_far->second.is<double>())
+    display_far = static_cast<GLfloat>(v_depth_far->second.get<double>());
 
   // 左目のキャプチャデバイスのデバイス番号もしくはムービーファイル
   const auto &v_left_camera(o.find("left_camera"));
@@ -171,17 +235,17 @@ bool config::read(picojson::value &v)
   // カメラの横の画素数
   const auto &v_capture_width(o.find("capture_width"));
   if (v_capture_width != o.end() && v_capture_width->second.is<double>())
-    capture_width = v_capture_width->second.get<double>();
+    camera_width = v_capture_width->second.get<double>();
 
   // カメラの縦の画素数
   const auto &v_capture_height(o.find("capture_height"));
   if (v_capture_height != o.end() && v_capture_height->second.is<double>())
-    capture_height = v_capture_height->second.get<double>();
+    camera_height = v_capture_height->second.get<double>();
 
   // カメラのフレームレート
   const auto &v_capture_fps(o.find("capture_fps"));
   if (v_capture_fps != o.end() && v_capture_fps->second.is<double>())
-    capture_fps = v_capture_fps->second.get<double>();
+    camera_fps = v_capture_fps->second.get<double>();
 
   // カメラのコーデック
   const auto &v_capture_codec(o.find("capture_codec"));
@@ -190,101 +254,41 @@ bool config::read(picojson::value &v)
     const std::string &codec(v_capture_codec->second.get<std::string>());
     if (codec.length() == 4)
     {
-      fourcc[0] = toupper(codec[0]);
-      fourcc[1] = toupper(codec[1]);
-      fourcc[2] = toupper(codec[2]);
-      fourcc[3] = toupper(codec[3]);
+      camera_fourcc[0] = toupper(codec[0]);
+      camera_fourcc[1] = toupper(codec[1]);
+      camera_fourcc[2] = toupper(codec[2]);
+      camera_fourcc[3] = toupper(codec[3]);
     }
     else
     {
-      fourcc[0] = '\0';
+      camera_fourcc[0] = '\0';
     }
   }
 
   // 魚眼レンズの横の中心位置
   const auto &v_fisheye_center_x(o.find("fisheye_center_x"));
   if (v_fisheye_center_x != o.end() && v_fisheye_center_x->second.is<double>())
-    fisheye_center_x = static_cast<GLfloat>(v_fisheye_center_x->second.get<double>());
+    camera_center_x = static_cast<GLfloat>(v_fisheye_center_x->second.get<double>());
 
   // 魚眼レンズの縦の中心位置
   const auto &v_fisheye_center_y(o.find("fisheye_center_y"));
   if (v_fisheye_center_y != o.end() && v_fisheye_center_y->second.is<double>())
-    fisheye_center_y = static_cast<GLfloat>(v_fisheye_center_y->second.get<double>());
+    camera_center_y = static_cast<GLfloat>(v_fisheye_center_y->second.get<double>());
 
   // 魚眼レンズの横の画角
   const auto &v_fisheye_fov_x(o.find("fisheye_fov_x"));
   if (v_fisheye_fov_x != o.end() && v_fisheye_fov_x->second.is<double>())
-    fisheye_fov_x = static_cast<GLfloat>(v_fisheye_fov_x->second.get<double>());
+    camera_fov_x = static_cast<GLfloat>(v_fisheye_fov_x->second.get<double>());
 
   // 魚眼レンズの縦の画角
   const auto &v_fisheye_fov_y(o.find("fisheye_fov_y"));
   if (v_fisheye_fov_y != o.end() && v_fisheye_fov_y->second.is<double>())
-    fisheye_fov_y = static_cast<GLfloat>(v_fisheye_fov_y->second.get<double>());
+    camera_fov_y = static_cast<GLfloat>(v_fisheye_fov_y->second.get<double>());
 
   // Ovrvision Pro のモード
   const auto &v_ovrvision_property(o.find("ovrvision_property"));
   if (v_ovrvision_property != o.end() && v_ovrvision_property->second.is<double>())
     ovrvision_property = static_cast<int>(v_ovrvision_property->second.get<double>());
-
-  // 立体視の方式
-  const auto &v_stereo(o.find("stereo"));
-  if (v_stereo != o.end() && v_stereo->second.is<double>())
-    display_mode = static_cast<int>(v_stereo->second.get<double>());
-
-  // セカンダリディスプレイの使用
-  const auto &v_use_secondary(o.find("use_secondary"));
-  if (v_use_secondary != o.end() && v_use_secondary->second.is<double>())
-    display_secondary = static_cast<int>(v_use_secondary->second.get<double>());
-
-  // フルスクリーン表示
-  const auto &v_fullscreen(o.find("fullscreen"));
-  if (v_fullscreen != o.end() && v_fullscreen->second.is<bool>())
-    display_fullscreen = v_fullscreen->second.get<bool>();
-
-  // クアッドバッファステレオ表示
-  const auto &v_quadbuffer(o.find("quadbuffer"));
-  if (v_quadbuffer != o.end() && v_quadbuffer->second.is<bool>())
-    display_quadbuffer = v_quadbuffer->second.get<bool>();
-
-  // ディスプレイの横の画素数
-  const auto &v_display_width(o.find("display_width"));
-  if (v_display_width != o.end() && v_display_width->second.is<double>())
-    display_width = static_cast<int>(v_display_width->second.get<double>());
-
-  // ディスプレイの縦の画素数
-  const auto &v_display_height(o.find("display_height"));
-  if (v_display_height != o.end() && v_display_height->second.is<double>())
-    display_height = static_cast<int>(v_display_height->second.get<double>());
-
-  // ディスプレイの縦横比
-  const auto &v_display_aspect(o.find("display_aspect"));
-  if (v_display_aspect != o.end() && v_display_aspect->second.is<double>())
-    display_aspect = static_cast<GLfloat>(v_display_aspect->second.get<double>());
-
-  // ディスプレイの中心の高さ
-  const auto &v_display_center(o.find("display_center"));
-  if (v_display_center != o.end() && v_display_center->second.is<double>())
-    display_center = static_cast<GLfloat>(v_display_center->second.get<double>());
-
-  // 視点からディスプレイまでの距離
-  const auto &v_display_distance(o.find("display_distance"));
-  if (v_display_distance != o.end() && v_display_distance->second.is<double>())
-    display_distance = static_cast<GLfloat>(v_display_distance->second.get<double>());
-
-  // 視点から前方面までの距離 (焦点距離)
-  const auto &v_depth_near(o.find("depth_near"));
-  if (v_depth_near != o.end() && v_depth_near->second.is<double>())
-    display_near = static_cast<GLfloat>(v_depth_near->second.get<double>());
-
-  // 視点から後方面までの距離
-  const auto &v_depth_far(o.find("depth_far"));
-  if (v_depth_far != o.end() && v_depth_far->second.is<double>())
-    display_far = static_cast<GLfloat>(v_depth_far->second.get<double>());
-
-  // シーンに対するズーム率
-  const auto &v_zoom(o.find("zoom"));
-  if (v_zoom != o.end() && v_zoom->second.is<double>())
-    display_zoom = static_cast<GLfloat>(v_zoom->second.get<double>());
 
   // バーテックスシェーダのソースファイル名
   const auto &v_vertex_shader(o.find("vertex_shader"));
@@ -407,6 +411,39 @@ bool config::save(const std::string &file) const
   // オブジェクト
   picojson::object o;
 
+  // 立体視の方式
+  o.insert(std::make_pair("stereo", picojson::value(static_cast<double>(display_mode))));
+
+  // クアッドバッファステレオ表示
+  o.insert(std::make_pair("quadbuffer", picojson::value(display_quadbuffer)));
+
+  // フルスクリーン表示
+  o.insert(std::make_pair("fullscreen", picojson::value(display_fullscreen)));
+
+  // フルスクリーン表示するディスプレイの番号
+  o.insert(std::make_pair("use_secondary", picojson::value(static_cast<double>(display_secondary))));
+
+  // ディスプレイの横の画素数
+  o.insert(std::make_pair("display_width", picojson::value(static_cast<double>(display_width))));
+
+  // ディスプレイの縦の画素数
+  o.insert(std::make_pair("display_height", picojson::value(static_cast<double>(display_height))));
+
+  // ディスプレイの縦横比
+  o.insert(std::make_pair("display_aspect", picojson::value(static_cast<double>(display_aspect))));
+
+  // ディスプレイの中心の高さ
+  o.insert(std::make_pair("display_center", picojson::value(static_cast<double>(display_center))));
+
+  // 視点からディスプレイまでの距離
+  o.insert(std::make_pair("display_distance", picojson::value(static_cast<double>(display_distance))));
+
+  // 視点から前方面までの距離 (焦点距離)
+  o.insert(std::make_pair("depth_near", picojson::value(static_cast<double>(display_near))));
+
+  // 視点から後方面までの距離
+  o.insert(std::make_pair("depth_far", picojson::value(static_cast<double>(display_far))));
+
   // 左目のキャプチャデバイスのデバイス番号もしくはムービーファイル
   o.insert(std::make_pair("left_camera", camera_left_movie.empty()
     ? picojson::value(static_cast<double>(camera_left))
@@ -436,67 +473,31 @@ bool config::save(const std::string &file) const
   o.insert(std::make_pair("stabilize", picojson::value(remote_stabilize)));
 
   // カメラの横の画素数
-  o.insert(std::make_pair("capture_width", picojson::value(capture_width)));
+  o.insert(std::make_pair("capture_width", picojson::value(camera_width)));
 
   // カメラの縦の画素数
-  o.insert(std::make_pair("capture_height", picojson::value(capture_height)));
+  o.insert(std::make_pair("capture_height", picojson::value(camera_height)));
 
   // カメラのフレームレート
-  o.insert(std::make_pair("capture_fps", picojson::value(capture_fps)));
+  o.insert(std::make_pair("capture_fps", picojson::value(camera_fps)));
 
   // カメラのコーデック
-  o.insert(std::make_pair("capture_codec", picojson::value(std::string(fourcc, 4))));
+  o.insert(std::make_pair("capture_codec", picojson::value(std::string(camera_fourcc, 4))));
 
   // 魚眼レンズの横の中心位置
-  o.insert(std::make_pair("fisheye_center_x", picojson::value(static_cast<double>(fisheye_center_x))));
+  o.insert(std::make_pair("fisheye_center_x", picojson::value(static_cast<double>(camera_center_x))));
 
   // 魚眼レンズの縦の中心位置
-  o.insert(std::make_pair("fisheye_center_y", picojson::value(static_cast<double>(fisheye_center_y))));
+  o.insert(std::make_pair("fisheye_center_y", picojson::value(static_cast<double>(camera_center_y))));
 
   // 魚眼レンズの横の画角
-  o.insert(std::make_pair("fisheye_fov_x", picojson::value(static_cast<double>(fisheye_fov_x))));
+  o.insert(std::make_pair("fisheye_fov_x", picojson::value(static_cast<double>(camera_fov_x))));
 
   // 魚眼レンズの縦の画角
-  o.insert(std::make_pair("fisheye_fov_y", picojson::value(static_cast<double>(fisheye_fov_y))));
+  o.insert(std::make_pair("fisheye_fov_y", picojson::value(static_cast<double>(camera_fov_y))));
 
   // Ovrvision Pro のモード
   o.insert(std::make_pair("ovrvision_property", picojson::value(static_cast<double>(ovrvision_property))));
-
-  // 立体視の方式
-  o.insert(std::make_pair("stereo", picojson::value(static_cast<double>(display_mode))));
-
-  // セカンダリディスプレイの使用
-  o.insert(std::make_pair("use_secondary", picojson::value(static_cast<double>(display_secondary))));
-
-  // フルスクリーン表示
-  o.insert(std::make_pair("fullscreen", picojson::value(display_fullscreen)));
-
-  // クアッドバッファステレオ表示
-  o.insert(std::make_pair("quadbuffer", picojson::value(display_quadbuffer)));
-
-  // ディスプレイの横の画素数
-  o.insert(std::make_pair("display_width", picojson::value(static_cast<double>(display_width))));
-
-  // ディスプレイの縦の画素数
-  o.insert(std::make_pair("display_height", picojson::value(static_cast<double>(display_height))));
-
-  // ディスプレイの縦横比
-  o.insert(std::make_pair("display_aspect", picojson::value(static_cast<double>(display_aspect))));
-
-  // ディスプレイの中心の高さ
-  o.insert(std::make_pair("display_center", picojson::value(static_cast<double>(display_center))));
-
-  // 視点からディスプレイまでの距離
-  o.insert(std::make_pair("display_distance", picojson::value(static_cast<double>(display_distance))));
-
-  // 視点から前方面までの距離 (焦点距離)
-  o.insert(std::make_pair("depth_near", picojson::value(static_cast<double>(display_near))));
-
-  // 視点から後方面までの距離
-  o.insert(std::make_pair("depth_far", picojson::value(static_cast<double>(display_far))));
-
-  // シーンに対するズーム率
-  o.insert(std::make_pair("zoom", picojson::value(static_cast<double>(display_zoom))));
 
   // バーテックスシェーダのソースファイル名
   o.insert(std::make_pair("vertex_shader", picojson::value(vertex_shader)));

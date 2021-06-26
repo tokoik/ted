@@ -33,55 +33,147 @@ enum HostRole
 // 設定値
 struct config
 {
-  int camera_left;
-  std::string camera_left_image;
-  std::string camera_left_movie;
-  int camera_right;
-  std::string camera_right_image;
-  std::string camera_right_movie;
-  int camera_texture_samples;
-  bool camera_texture_repeat;
-  bool camera_tracking;
-  double capture_width;
-  double capture_height;
-  double capture_fps;
-  char fourcc[4];
-  GLfloat fisheye_center_x;
-  GLfloat fisheye_center_y;
-  GLfloat fisheye_fov_x;
-  GLfloat fisheye_fov_y;
-  int ovrvision_property;
+  // 画面表示のモード
   int display_mode;
-  int display_secondary;
-  bool display_fullscreen;
+
+  // クワッドバッファステレオ表示を行うとき true
   bool display_quadbuffer;
+
+  // フルスクリーン表示を行うとき true
+  bool display_fullscreen;
+
+  // フルスクリーン表示するディスプレイの番号
+  int display_secondary;
+
+  // 画面の解像度
   int display_width;
   int display_height;
+
+  // 画面の縦横比
   GLfloat display_aspect;
+
+  // 画面の中心の高さ
   GLfloat display_center;
+
+  // 画面までの距離
   GLfloat display_distance;
+
+  // 視点から前方面までの距離
   GLfloat display_near;
+
+  // 視点から後方面までの距離
   GLfloat display_far;
-  GLfloat display_zoom;
+
+  // 左カメラの番号
+  int camera_left;
+
+  // 左カメラの代わりに使う静止画
+  std::string camera_left_image;
+
+  // 左カメラの代わりに使う動画
+  std::string camera_left_movie;
+
+  // 右カメラの番号
+  int camera_right;
+
+  // 右カメラの代わりに使う静止画
+  std::string camera_right_image;
+
+  // 右カメラの代わりに使う動画
+  std::string camera_right_movie;
+
+  // 背景画像をマッピングするときのメッシュの分割数
+  int camera_texture_samples;
+
+  // 背景画像を繰り返しでマッピングするとき true
+  bool camera_texture_repeat;
+
+  // 背景画像をヘッドトラッキングに追従させるとき true
+  bool camera_tracking;
+
+  // カメラの解像度
+  double camera_width;
+  double camera_height;
+
+  // カメラのフレームレート
+  double camera_fps;
+
+  // カメラの４文字コーデック
+  char camera_fourcc[4];
+
+  // 魚眼カメラの中心位置
+  GLfloat camera_center_x;
+  GLfloat camera_center_y;
+
+  // 魚眼カメラの画角
+  GLfloat camera_fov_x;
+  GLfloat camera_fov_y;
+
+  // Ovrvision Pro の設定
+  int ovrvision_property;
+
+  // バーテックスシェーダのソースプログラム
   std::string vertex_shader;
+
+  // フラグメントシェーダのソースプログラム
   std::string fragment_shader;
+
+  // 役割
   int role;
+
+  // 通信に使うポート番号
   int port;
+
+  // 相手先の IP アドレス
   std::string address;
+
+  // 相手先の映像を安定化するとき true
   bool remote_stabilize;
+
+  // 相手先の映像を変形するとき true
   bool remote_texture_reshape;
+
+  // 相手先の表示に加える遅延
   unsigned int remote_delay[2];
+
+  // 送信する画像の品質
   int remote_texture_quality;
+
+  // 受信した画像をマッピングするときのメッシュの分割数
   int remote_texture_samples;
+
+  // 相手先のレンズの画角
   GLfloat remote_fov_x;
   GLfloat remote_fov_y;
+
+  // 送信に用いる共有メモリのブロック数
   int local_share_size;
+
+  // 受信に用いる共有メモリのブロック数
   int remote_share_size;
+
+  // シーンファイルの入れ子の深さの上限
   int max_level;
+
+  // シーングラフ
   picojson::value scene;
-  static std::string config_file;
+
+  // 設定ファイルのファイル名
+  std::string config_file;
+
+  // コンストラクタ
+  config();
+
+  // デストラクタ
+  virtual ~config();
+
+  // 設定の解析
   bool read(picojson::value &v);
+
+  // 設定の読み込み
   bool load(const std::string &file);
+
+  // 設定の書き込み
   bool save(const std::string &file) const;
 };
 
@@ -178,3 +270,6 @@ constexpr wchar_t* remoteShareName{ L"TED_REMOTE_SHARE" };
 
 // 設定ファイル名
 constexpr char defaultConfig[]{ "config.json" };
+
+// 姿勢ファイル名
+constexpr char defaultAttitude[]{ "attitude.json" };

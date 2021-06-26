@@ -142,7 +142,7 @@ void Camera::recv()
 void Camera::send()
 {
   // キャプチャ間隔
-  const double capture_interval(defaults.capture_fps > 0.0 ? 1000.0 / defaults.capture_fps : minDelay);
+  const double capture_interval(defaults.camera_fps > 0.0 ? 1000.0 / defaults.camera_fps : minDelay);
 
   // 直前のフレームの送信時刻
   double last(glfwGetTime());

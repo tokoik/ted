@@ -56,29 +56,7 @@ class Window
   Camera* camera;
 
   //
-  // モデル変換
-  //
-
-  // 物体の位置
-  GLfloat ox, oy, oz;
-
-  // 物体の初期位置
-  GLfloat startPosition[3];
-
-  // トラックボール処理
-  GgTrackball trackball;
-
-  // 物体の初期姿勢
-  GLfloat startOrientation[4];
-
-  // モデル変換行列
-  GgMatrix mm;
-
-  // ヘッドトラッキングの変換行列
-  GgMatrix mo[camCount];
-
-  //
-  // ビュー変換
+  // ヘッドトラッキング
   //
 
   // ヘッドトラッキングによる回転
@@ -87,32 +65,20 @@ class Window
   // ヘッドトラッキングによる位置
   GgVector po[camCount];
 
-  // カメラ方向の補正値
-  GgQuaternion qa[camCount];
+  // ヘッドトラッキングの変換行列
+  GgMatrix mo[camCount];
 
-  // カメラ方向の補正ステップ
-  static GgQuaternion qrStep[2];
+  //
+  // 座標変換
+  //
 
-  // ビュー変換
+  // モデル変換行列
+  GgMatrix mm;
+
+  // ビュー変換行列
   GgMatrix mv[camCount];
 
-  //
-  // 投影変換
-  //
-
-  // 物体に対するズーム率
-  GLfloat zoom;
-
-  // ズーム率の変化量
-  int zoomChange;
-
-  // 視差
-  GLfloat parallax;
-
-  // 視差の初期値
-  GLfloat initialParallax;
-
-  // 投影変換
+  // 投影変換行列
   GgMatrix mp[camCount];
 
   //
@@ -120,25 +86,13 @@ class Window
   //
 
   // スクリーンの幅と高さ
-  GLfloat screen[camCount][4];
+  GgVector screen[camCount];
 
   // スクリーンの間隔
   GLfloat offset;
 
-  // スクリーンの間隔の変化量
-  GLfloat initialOffset;
-
-  // 焦点距離
-  GLfloat focal;
-
-  // 焦点距離の変化量
-  int focalChange;
-
   // 背景テクスチャの半径と中心
-  GLfloat circle[4];
-
-  // 背景テクスチャの半径と中心の変化量
-  int circleChange[4];
+  GgVector circle;
 
 public:
 
@@ -240,7 +194,7 @@ public:
   void reset();
 
   //
-  // 透視投影変換行列を求める
+  // 透視投影変換行列を更新する
   //
   void update();
 
@@ -285,14 +239,6 @@ public:
   }
 
   //
-  // Oculus Rift のヘッドラッキングによる回転の補正値の四元数を得る
-  //
-  const GgQuaternion& getQa(int eye) const
-  {
-    return qa[eye];
-  }
-
-  //
   // Oculus Rift のヘッドラッキングによる回転の変換行列を得る
   //
   const GgMatrix& getMo(int eye) const
@@ -329,15 +275,7 @@ public:
   //
   const GLfloat* getScreen(int eye) const
   {
-    return screen[eye];
-  }
-
-  //
-  // 焦点距離を取り出す
-  //
-  GLfloat getFocal() const
-  {
-    return focal;
+    return screen[eye].data();
   }
 
   //
@@ -353,7 +291,7 @@ public:
   //
   const GLfloat *getCircle() const
   {
-    return circle;
+    return circle.data();
   }
 
   //

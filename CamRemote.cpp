@@ -16,8 +16,8 @@ CamRemote::CamRemote(bool reshape)
   if (reshape)
   {
     // 背景画像のサイズ
-    size[camR][0] = size[camL][0] = static_cast<GLsizei>(defaults.capture_width);
-    size[camR][1] = size[camL][1] = static_cast<GLsizei>(defaults.capture_height);
+    size[camR][0] = size[camL][0] = static_cast<GLsizei>(defaults.camera_width);
+    size[camR][1] = size[camL][1] = static_cast<GLsizei>(defaults.camera_height);
 
     // 背景画像の変形に使うフレームバッファオブジェクト
     glGenFramebuffers(1, &fb);
@@ -323,7 +323,7 @@ void CamRemote::recv()
 void CamRemote::send()
 {
   // キャプチャ間隔
-  const double capture_interval(defaults.capture_fps > 0.0 ? 1000.0 / defaults.capture_fps : 30.0);
+  const double capture_interval(defaults.camera_fps > 0.0 ? 1000.0 / defaults.camera_fps : 30.0);
 
   // 直前のフレームの送信時刻
   double last(glfwGetTime());

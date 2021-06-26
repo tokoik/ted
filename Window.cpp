@@ -114,76 +114,6 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   // ƒJƒƒ‰‚Ì•â³’l‚ğ‰Šú‰»‚·‚é
   for (auto &q : qa) q = ggIdentityQuaternion();
 
-  // ‰Šúİ’è‚ğ“Ç‚İ‚Ş
-  std::ifstream attitude("attitude.json");
-  if (attitude)
-  {
-    // İ’è“à—e‚Ì“Ç‚İ‚İ
-    picojson::value v;
-    attitude >> v;
-    attitude.close();
-
-    // İ’è“à—e‚Ìƒp[ƒX
-    picojson::object &o(v.get<picojson::object>());
-
-    // ‰ŠúˆÊ’u
-    const auto &v_position(o.find("position"));
-    if (v_position != o.end() && v_position->second.is<picojson::array>())
-    {
-      picojson::array &p(v_position->second.get<picojson::array>());
-      for (int i = 0; i < 3; ++i) startPosition[i] = static_cast<GLfloat>(p[i].get<double>());
-    }
-
-    // ‰Šúp¨
-    const auto &v_orientation(o.find("orientation"));
-    if (v_orientation != o.end() && v_orientation->second.is<picojson::array>())
-    {
-      picojson::array &a(v_orientation->second.get<picojson::array>());
-      for (int i = 0; i < 4; ++i) startOrientation[i] = static_cast<GLfloat>(a[i].get<double>());
-    }
-
-    // ‰ŠúƒY[ƒ€—¦
-    const auto &v_zoom(o.find("zoom"));
-    if (v_zoom != o.end() && v_zoom->second.is<double>())
-      zoomChange = static_cast<int>(v_zoom->second.get<double>());
-
-    // Å“_‹——£‚Ì‰Šú’l
-    const auto &v_focal(o.find("focal"));
-    if (v_focal != o.end() && v_focal->second.is<double>())
-      focalChange = static_cast<int>(v_focal->second.get<double>());
-
-    // ”wŒiƒeƒNƒXƒ`ƒƒ‚Ì”¼Œa‚Æ’†SˆÊ’u‚Ì‰Šú’l
-    const auto &v_circle(o.find("circle"));
-    if (v_circle != o.end() && v_circle->second.is<picojson::array>())
-    {
-      picojson::array &c(v_circle->second.get<picojson::array>());
-      for (int i = 0; i < 4; ++i) circleChange[i] = static_cast<int>(c[i].get<double>());
-    }
-
-    // ƒXƒNƒŠ[ƒ“‚ÌŠÔŠu‚Ì‰Šú’l
-    const auto &v_offset(o.find("offset"));
-    if (v_offset != o.end() && v_offset->second.is<double>())
-      initialOffset = static_cast<GLfloat>(v_offset->second.get<double>());
-
-    // ‹·‚Ì‰Šú’l
-    const auto &v_parallax(o.find("parallax"));
-    if (v_parallax != o.end() && v_parallax->second.is<double>())
-      initialParallax = static_cast<GLfloat>(v_parallax->second.get<double>());
-
-    // ƒJƒƒ‰•ûŒü‚Ì•â³’l
-    const auto &v_parallax_offset(o.find("parallax_offset"));
-    if (v_parallax_offset != o.end() && v_parallax_offset->second.is<picojson::array>())
-    {
-      picojson::array &a(v_parallax_offset->second.get<picojson::array>());
-      for (int eye = 0; eye < camCount; ++eye)
-      {
-        GLfloat q[4];
-        for (int i = 0; i < 4; ++i) q[i] = static_cast<GLfloat>(a[eye * 4 + i].get<double>());
-        qa[eye] = GgQuaternion(q);
-      }
-    }
-  }
-
   // İ’è‚ğ‰Šú‰»‚·‚é
   reset();
 
@@ -298,51 +228,6 @@ Window::~Window()
   // İ’è’l‚Ì•Û‘¶æ
   std::ofstream attitude("attitude.json");
 
-  // İ’è’l‚ğ•Û‘¶‚·‚é
-  if (attitude)
-  {
-    picojson::object o;
-
-    // ˆÊ’u
-    picojson::array p(3);
-    p[0] = picojson::value(ox);
-    p[1] = picojson::value(oy);
-    p[2] = picojson::value(oz);
-    o.insert(std::make_pair("position", picojson::value(p)));
-
-    // p¨
-    picojson::array a;
-    for (int i = 0; i < 4; ++i) a.push_back(picojson::value(trackball.getQuaternion().get()[i]));
-    o.insert(std::make_pair("orientation", picojson::value(a)));
-
-    // ƒY[ƒ€—¦
-    o.insert(std::make_pair("zoom", picojson::value(static_cast<double>(zoomChange))));
-
-    // Å“_‹——£
-    o.insert(std::make_pair("focal", picojson::value(static_cast<double>(focalChange))));
-
-    // ”wŒiƒeƒNƒXƒ`ƒƒ‚Ì”¼Œa‚Æ’†SˆÊ’u
-    picojson::array c;
-    for (int i = 0; i < 4; ++i) c.push_back(picojson::value(static_cast<double>(circleChange[i])));
-    o.insert(std::make_pair("circle", picojson::value(c)));
-
-    // ƒXƒNƒŠ[ƒ“‚ÌŠÔŠu
-    o.insert(std::make_pair("offset", picojson::value(static_cast<double>(initialOffset))));
-
-    // ‹·
-    o.insert(std::make_pair("parallax", picojson::value(static_cast<double>(initialParallax))));
-
-    // ƒJƒƒ‰•ûŒü‚Ì•â³’l
-    picojson::array q;
-    for (int eye = 0; eye < camCount; ++eye)
-      for (int i = 0; i < 4; ++i) q.push_back(picojson::value(static_cast<double>(qa[eye].get()[i])));
-    o.insert(std::make_pair("parallax_offset", picojson::value(q)));
-
-    // İ’è“à—e‚ğƒVƒŠƒAƒ‰ƒCƒY‚µ‚Ä•Û‘¶
-    picojson::value v(o);
-    attitude << v.serialize(true);
-    attitude.close();
-  }
 
 #ifdef IMGUI_VERSION
   // Shutdown Platform/Renderer bindings
@@ -484,12 +369,12 @@ Window::operator bool()
       if (lrButton)
       {
         // ”wŒi‚É‘Î‚·‚é‰¡•ûŒü‚Ì‰æŠp‚ğ’²®‚·‚é
-        circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(circleChange[0] += textureXButton) * shiftStep;
+        circle[0] = defaults.camera_fov_x + static_cast<GLfloat>(circleChange[0] += textureXButton) * shiftStep;
       }
       else
       {
         // ”wŒi‚Ì‰¡ˆÊ’u‚ğ’²®‚·‚é
-        circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(circleChange[2] += textureXButton) * shiftStep;
+        circle[2] = defaults.camera_center_x + static_cast<GLfloat>(circleChange[2] += textureXButton) * shiftStep;
       }
     }
 
@@ -503,12 +388,12 @@ Window::operator bool()
       if (lrButton)
       {
         // ”wŒi‚É‘Î‚·‚éc•ûŒü‚Ì‰æŠp‚ğ’²®‚·‚é
-        circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(circleChange[1] += textureYButton) * shiftStep;
+        circle[1] = defaults.camera_fov_y + static_cast<GLfloat>(circleChange[1] += textureYButton) * shiftStep;
       }
       else
       {
         // ”wŒi‚ÌcˆÊ’u‚ğ’²®‚·‚é
-        circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(circleChange[3] += textureYButton) * shiftStep;
+        circle[3] = defaults.camera_center_y + static_cast<GLfloat>(circleChange[3] += textureYButton) * shiftStep;
       }
     }
 
@@ -591,12 +476,12 @@ Window::operator bool()
     else if (ctrlKey)
     {
       // ”wŒi‚É‘Î‚·‚é‰¡•ûŒü‚Ì‰æŠp‚ğL‚°‚é
-      circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(++circleChange[0]) * shiftStep;
+      circle[0] = defaults.camera_fov_x + static_cast<GLfloat>(++circleChange[0]) * shiftStep;
     }
     else if (shiftKey)
     {
       // ”wŒi‚ğ‰E‚É‚¸‚ç‚·
-      circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(++circleChange[2]) * shiftStep;
+      circle[2] = defaults.camera_center_x + static_cast<GLfloat>(++circleChange[2]) * shiftStep;
     }
     else if (defaults.display_mode != MONOCULAR)
     {
@@ -617,12 +502,12 @@ Window::operator bool()
     else if (ctrlKey)
     {
       // ”wŒi‚É‘Î‚·‚é‰¡•ûŒü‚Ì‰æŠp‚ğ‹·‚ß‚é
-      circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(--circleChange[0]) * shiftStep;
+      circle[0] = defaults.camera_fov_x + static_cast<GLfloat>(--circleChange[0]) * shiftStep;
     }
     else if (shiftKey)
     {
       // ”wŒi‚ğ¶‚É‚¸‚ç‚·
-      circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(--circleChange[2]) * shiftStep;
+      circle[2] = defaults.camera_center_x + static_cast<GLfloat>(--circleChange[2]) * shiftStep;
     }
     else if (defaults.display_mode != MONOCULAR)
     {
@@ -643,12 +528,12 @@ Window::operator bool()
     else if (ctrlKey)
     {
       // ”wŒi‚É‘Î‚·‚éc•ûŒü‚Ì‰æŠp‚ğL‚°‚é
-      circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(++circleChange[1]) * shiftStep;
+      circle[1] = defaults.camera_fov_y + static_cast<GLfloat>(++circleChange[1]) * shiftStep;
     }
     else if (shiftKey)
     {
       // ”wŒi‚ğã‚É‚¸‚ç‚·
-      circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(++circleChange[3]) * shiftStep;
+      circle[3] = defaults.camera_center_y + static_cast<GLfloat>(++circleChange[3]) * shiftStep;
     }
     else
     {
@@ -669,12 +554,12 @@ Window::operator bool()
     else if (ctrlKey)
     {
       // ”wŒi‚É‘Î‚·‚éc•ûŒü‚Ì‰æŠp‚ğ‹·‚ß‚é
-      circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(--circleChange[1]) * shiftStep;
+      circle[1] = defaults.camera_fov_y + static_cast<GLfloat>(--circleChange[1]) * shiftStep;
     }
     else if (shiftKey)
     {
       // ”wŒi‚ğ‰º‚É‚¸‚ç‚·
-      circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(--circleChange[3]) * shiftStep;
+      circle[3] = defaults.camera_center_y + static_cast<GLfloat>(--circleChange[3]) * shiftStep;
     }
     else
     {
@@ -1045,10 +930,10 @@ void Window::reset()
   focal = focalStep / (focalStep - static_cast<GLfloat>(focalChange));
 
   // ”wŒiƒeƒNƒXƒ`ƒƒ‚Ì”¼Œa‚Æ’†SˆÊ’u
-  circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(circleChange[0]) * shiftStep;
-  circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(circleChange[1]) * shiftStep;
-  circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(circleChange[2]) * shiftStep;
-  circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(circleChange[3]) * shiftStep;
+  circle[0] = defaults.camera_fov_x + static_cast<GLfloat>(circleChange[0]) * shiftStep;
+  circle[1] = defaults.camera_fov_y + static_cast<GLfloat>(circleChange[1]) * shiftStep;
+  circle[2] = defaults.camera_center_x + static_cast<GLfloat>(circleChange[2]) * shiftStep;
+  circle[3] = defaults.camera_center_y + static_cast<GLfloat>(circleChange[3]) * shiftStep;
 
   // ƒXƒNƒŠ[ƒ“‚ÌŠÔŠu
   offset = initialOffset;

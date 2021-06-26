@@ -1,10 +1,10 @@
 #pragma once
 
-/*
-** ゲームグラフィックス特論の宿題用補助プログラム GLFW3 版
+/*!
+** \mainpage ゲームグラフィックス特論の宿題用補助プログラム GLFW3 版
 **
 
-Copyright (c) 2011-2017 Kohe Tokoi. All Rights Reserved.
+Copyright (c) 2011-2021 Kohe Tokoi. All Rights Reserved.
 
 Permission is hereby granted, free of charge,  to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,20 +25,45 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **
 */
 
-//! \cond INCLUDE_OPENGL_FUNCTIONS
+/*!
+** \file gg.h
+** \brief ゲームグラフィックス特論の宿題用補助プログラム GLFW3 版の宣言.
+** \author Kohe Tokoi
+** \date March 31, 2021
+** \cond INCLUDE_OPENGL_FUNCTIONS
+*/
 
-// GLFW では OpenGL の Core Profile を使う
+// macOS で "OpenGL deprecated の警告を出さない
+#if defined(__APPLE__)
+#  define GL_SILENCE_DEPRECATION
+#endif
+
+// フレームワークに GLFW 3 を使う
 #define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
 
 // Windows (Visual Studio) 用の設定
-#if defined(_WIN32)
+#if defined(_MSC_VER)
+// 非推奨の警告を出さない
 #  pragma warning(disable:4996)
+// 数学ライブラリの定数を使う
 #  define _USE_MATH_DEFINES
+// MIN() / MAX マクロは使わない
 #  define NOMINMAX
+// APIENTRY マクロは使わない
 #  undef APIENTRY
+// デバッグビルドの時
 #  if defined(_DEBUG)
 #    define DEBUG
+#    define GLFW3_CONFIGURATION "Debug"
+#  else
+#    define GLFW3_CONFIGURATION "Release"
+#  endif
+// プラットフォームを調べる
+#  if defined(_WIN64)
+#    define GLFW3_PLATFORM "x64"
+#  else
+#    define GLFW3_PLATFORM "Win32"
 #  endif
 #endif
 
@@ -3501,6 +3526,20 @@ namespace gg
       getConjugateMatrix(m);
       return m;
     }
+
+    //! \brief 四元数の要素にアクセスする.
+    //!   \return 四元数を格納した GLfloat 型の 4 要素の配列変数 の i 番目の要素の参照.
+    const GLfloat &operator[](std::size_t i) const
+    {
+      return quaternion[i];
+    }
+
+    //! \brief 四元数の要素にアクセスする.
+    //!   \return 四元数を格納した GLfloat 型の 4 要素の配列変数 の i 番目の要素の参照.
+    GLfloat &operator[](std::size_t i)
+    {
+      return quaternion[i];
+    }
   };
 
   //! \brief 四元数を返す
@@ -3817,6 +3856,20 @@ namespace gg
     const GLfloat *get() const
     {
       return rt.get();
+    }
+
+    //! \brief 現在の回転の四元数の要素にアクセスする.
+    //!   \return 現在の回転の四元数を格納した GLfloat 型の 4 要素の配列変数 の i 番目の要素の参照.
+    const GLfloat &operator[](std::size_t i) const
+    {
+      return tq[i];
+    }
+
+    //! \brief 現在の回転の四元数の要素にアクセスする
+    //!   \return 現在の回転の四元数を格納した GLfloat 型の 4 要素の配列変数 の i 番目の要素の参照.
+    GLfloat &operator[](std::size_t i)
+    {
+      return tq[i];
     }
   };
 
