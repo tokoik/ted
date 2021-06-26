@@ -17,6 +17,9 @@
 // シーングラフ
 #include "Scene.h"
 
+// 姿勢
+#include "Attitude.h"
+
 // 矩形
 #include "Rect.h"
 
@@ -33,6 +36,9 @@ int main(int argc, const char *const *const argv)
 
   // 設定ファイルを読み込む (見つからなかったら作る)
   if (!defaults.load(config_file)) defaults.save(config_file);
+
+  // 姿勢ファイルを読み込む（見つからなかったら作る）
+  if (!attitude.load(defaultAttitude)) attitude.save(defaultAttitude);
 
   // GLFW を初期化する
   if (glfwInit() == GLFW_FALSE)
