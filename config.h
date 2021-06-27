@@ -188,9 +188,6 @@ constexpr int defaultWindowWidth{ 960 };
 constexpr int defaultWindowHeight{ 540 };
 
 // ƒiƒrƒQ[ƒVƒ‡ƒ“‚Ì‘¬“x’²®
-constexpr GLfloat zoomStep{ 0.01f };        // •¨‘Ì‚ÌƒY[ƒ€—¦’²®‚ÌƒXƒeƒbƒv
-constexpr GLfloat shiftStep{ 0.001f };      // ”wŒiƒeƒNƒXƒ`ƒƒ‚ÌƒVƒtƒg—Ê’²®‚ÌƒXƒeƒbƒv
-constexpr GLfloat focalStep{ 100.0f };      // ”wŒiƒeƒNƒXƒ`ƒƒ‚ÌƒXƒP[ƒ‹’²®‚ÌƒXƒeƒbƒv
 constexpr GLfloat speedScale{ 0.005f };     // ƒtƒŒ[ƒ€‚ ‚½‚è‚ÌˆÚ“®‘¬“xŒW”
 constexpr GLfloat angleScale{ -0.05f };     // ƒtƒŒ[ƒ€‚ ‚½‚è‚Ì‰ñ“]‘¬“xŒW”
 constexpr GLfloat wheelXStep{ 0.005f };     // ƒ}ƒEƒXƒzƒC[ƒ‹‚Ì X •ûŒü‚ÌŒW”
@@ -199,17 +196,38 @@ constexpr GLfloat axesSpeedScale{ 0.01f };  // ƒQ[ƒ€ƒpƒbƒh‚ÌƒXƒeƒBƒbƒN‚Ì‘¬“x‚ÌŒ
 constexpr GLfloat axesAngleScale{ 0.01f };  // ƒQ[ƒ€ƒpƒbƒh‚ÌƒXƒeƒBƒbƒN‚ÌŠp‘¬“x‚ÌŒW”
 constexpr GLfloat btnsScale{ 0.02f };       // ƒQ[ƒ€ƒpƒbƒh‚Ìƒ{ƒ^ƒ“‚ÌŒW”
 
-// ƒXƒNƒŠ[ƒ“‚ÌŠÔŠu‚ÌƒfƒtƒHƒ‹ƒg’l
-constexpr GLfloat defaultOffset{ 0.0f };
-
-// ƒXƒNƒŠ[ƒ“‚ÌŠÔŠu‚Ì•ÏXƒXƒeƒbƒv
-constexpr GLfloat offsetStep{ 0.001f };
+// ƒY[ƒ€—¦‚Ì•ÏXƒXƒeƒbƒv
+constexpr GLfloat zoomStep{ 0.01f };
 
 // ‹·‚ÌƒfƒtƒHƒ‹ƒg’l
 constexpr GLfloat defaultParallax{ 0.032f };
 
 // ‹·‚Ì•ÏXƒXƒeƒbƒv (’PˆÊ m)
 constexpr GLfloat parallaxStep{ 0.001f };
+
+// ‘OŒi‚É‘Î‚·‚éÅ“_‹——£‚Ì•ÏXƒXƒeƒbƒv
+constexpr GLfloat foreFocalStep{ 0.01f };
+
+// ‘OŒi‚É‘Î‚·‚éc‰¡”ä‚Ì•ÏXƒXƒeƒbƒv
+constexpr GLfloat foreAspectStep{ 0.01f };
+
+// ”wŒi‚É‘Î‚·‚éÅ“_‹——£‚Ì•ÏXƒXƒeƒbƒv
+constexpr GLfloat backFocalStep{ 0.01f };
+
+// ”wŒi‚É‘Î‚·‚éc‰¡”ä‚Ì•ÏXƒXƒeƒbƒv
+constexpr GLfloat backAspectStep{ 0.01f };
+
+// ƒŒƒ“ƒY‚Ì‰æŠp‚Ì•ÏXƒXƒeƒbƒv
+constexpr GLfloat fovStep{ 0.001f };
+
+// ƒŒƒ“ƒY‚ÌˆÊ’u‚Ì•ÏXƒXƒeƒbƒv
+constexpr GLfloat shiftStep{ 0.001f };
+
+// ƒXƒNƒŠ[ƒ“‚ÌŠÔŠu‚ÌƒfƒtƒHƒ‹ƒg’l
+constexpr GLfloat offsetDefault{ 0.0f };
+
+// ƒXƒNƒŠ[ƒ“‚ÌŠÔŠu‚Ì•ÏXƒXƒeƒbƒv
+constexpr GLfloat offsetStep{ 0.001f };
 
 // ƒ}ƒ‹ƒ`ƒTƒ“ƒvƒŠƒ“ƒO‚ÌƒTƒ“ƒvƒ‹” (Oculus Rift)
 constexpr int backBufferMultisample{ 0 };

@@ -136,14 +136,12 @@ void Menu::cameraWindow()
     window.update();
   if (ImGui::SliderFloat(u8"後方面", &defaults.display_far, defaults.display_near, 10.0f))
     window.update();
-  if (ImGui::SliderFloat(u8"ズーム", &defaults.display_zoom, 1.0f, 10.0f))
-    window.update();
   ImGui::End();
 }
 
 #if 0
 //
-// シーン設定ウィンドウ
+// 前景設定ウィンドウ
 //
 void Menu::objectWindow()
 {

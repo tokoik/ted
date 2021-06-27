@@ -6,6 +6,9 @@
 // Oculus Rift 関連の処理
 #include "Oculus.h"
 
+// 姿勢
+#include "Attitude.h"
+
 // Windows 関連のライブラリの読み込み
 #if defined(_WIN32)
 // Oculus Rift SDK ライブラリ (LibOVR) をリンクする
@@ -187,7 +190,7 @@ bool Oculus::initialize(Window &window)
 #endif
 
     // ズーム率
-    const auto zf(window.zoom * defaults.display_near);
+    const auto zf(attitude.foreAdjust[0] * defaults.display_near);
 
     // 片目の透視投影変換行列を求める
     window.mp[eye].loadFrustum(

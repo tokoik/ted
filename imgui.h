@@ -475,7 +475,7 @@ namespace ImGui
     IMGUI_API bool          RadioButton(const char* label, bool active);                    // use with e.g. if (RadioButton("one", my_value==1)) { my_value = 1; }
     IMGUI_API bool          RadioButton(const char* label, int* v, int v_button);           // shortcut to handle the above pattern when value is an integer
     IMGUI_API void          ProgressBar(float fraction, const ImVec2& size_arg = ImVec2(-FLT_MIN, 0), const char* overlay = NULL);
-    IMGUI_API void          Bullet();                                                       // draw a small circle + keep the cursor on the same line. advance cursor x position by GetTreeNodeToLabelSpacing(), same distance that TreeNode() uses
+    IMGUI_API void          Bullet();                                                       // draw a small circleAdjust + keep the cursor on the same line. advance cursor x position by GetTreeNodeToLabelSpacing(), same distance that TreeNode() uses
 
     // Widgets: Combo Box
     // - The BeginCombo()/EndCombo() api allows you to manage your contents and selection state however you want it, by creating e.g. Selectable() items.
@@ -1585,7 +1585,7 @@ enum ImGuiMouseCursor_
     ImGuiMouseCursor_ResizeNESW,        // When hovering over the bottom-left corner of a window
     ImGuiMouseCursor_ResizeNWSE,        // When hovering over the bottom-right corner of a window
     ImGuiMouseCursor_Hand,              // (Unused by Dear ImGui functions. Use for e.g. hyperlinks)
-    ImGuiMouseCursor_NotAllowed,        // When hovering something with disallowed interaction. Usually a crossed circle.
+    ImGuiMouseCursor_NotAllowed,        // When hovering something with disallowed interaction. Usually a crossed circleAdjust.
     ImGuiMouseCursor_COUNT
 };
 
@@ -2357,7 +2357,7 @@ struct ImDrawList
 
     // Primitives
     // - For rectangular primitives, "p_min" and "p_max" represent the upper-left and lower-right corners.
-    // - For circle primitives, use "num_segments == 0" to automatically calculate tessellation (preferred).
+    // - For circleAdjust primitives, use "num_segments == 0" to automatically calculate tessellation (preferred).
     //   In older versions (until Dear ImGui 1.77) the AddCircle functions defaulted to num_segments == 12.
     //   In future versions we will use textures to provide cheaper and higher-quality circles.
     //   Use AddNgon() and AddNgonFilled() functions if you need to guaranteed a specific number of sides.
@@ -2395,7 +2395,7 @@ struct ImDrawList
     inline    void  PathFillConvex(ImU32 col)                                   { AddConvexPolyFilled(_Path.Data, _Path.Size, col); _Path.Size = 0; }  // Note: Anti-aliased filling requires points to be in clockwise order.
     inline    void  PathStroke(ImU32 col, ImDrawFlags flags = 0, float thickness = 1.0f) { AddPolyline(_Path.Data, _Path.Size, col, flags, thickness); _Path.Size = 0; }
     IMGUI_API void  PathArcTo(const ImVec2& center, float radius, float a_min, float a_max, int num_segments = 0);
-    IMGUI_API void  PathArcToFast(const ImVec2& center, float radius, int a_min_of_12, int a_max_of_12);                // Use precomputed angles for a 12 steps circle
+    IMGUI_API void  PathArcToFast(const ImVec2& center, float radius, int a_min_of_12, int a_max_of_12);                // Use precomputed angles for a 12 steps circleAdjust
     IMGUI_API void  PathBezierCubicCurveTo(const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, int num_segments = 0); // Cubic Bezier (4 control points)
     IMGUI_API void  PathBezierQuadraticCurveTo(const ImVec2& p2, const ImVec2& p3, int num_segments = 0);               // Quadratic Bezier (3 control points)
     IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, ImDrawFlags flags = 0);

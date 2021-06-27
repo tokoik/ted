@@ -15,14 +15,18 @@ Attitude attitude;
 Attitude::Attitude()
   : position{ 0.0f, 0.0f, 0.0f, 1.0f }
   , initialPosition{ 0.0f, 0.0f, 0.0f, 1.0f }
-  , foreIntrinsic{ 1.0f, 1.0f, 0.0f, 0.0f }
-  , initialForeIntrinsic{ 1.0f, 1.0f, 0.0f, 0.0f }
-  , backIntrinsic{ 1.0f, 1.0f, 0.0f, 0.0f }
-  , initialBackIntrinsic{ 1.0f, 1.0f, 0.0f, 0.0f }
-  , parallax{ 0.065f }
-  , initialParallax{ 0.065f }
+  , parallax{ 0 }
+  , initialParallax{ 0 }
+  , foreAdjust{ 0, 0, 0, 0 }
+  , initialForeAdjust{ 0, 0, 0, 0 }
+  , backAdjust{ 0, 0, 0, 0 }
+  , initialBackAdjust{ 0, 0, 0, 0 }
+  , circleAdjust{ 0, 0, 0, 0 }
+  , initialCircleAdjust{ 0, 0, 0, 0 }
+  , offset{ 0 }
+  , initialOffset{ 0 }
 {
-  // カメラごとの姿勢の補正値の初期値
+  // カメラごとの姿勢の補正値
   for (auto &o : eyeOrientation)
   {
     o[0] = o[1] = o[2] = 0.0f;
@@ -41,8 +45,8 @@ Attitude::Attitude()
   if (firstTime)
   {
     // カメラ方向の調整ステップを求める
-    qrStep[0].loadRotate(0.0f, 1.0f, 0.0f, 0.001f);
-    qrStep[1].loadRotate(1.0f, 0.0f, 0.0f, 0.001f);
+    eyeOrientationStep[0].loadRotate(0.0f, 1.0f, 0.0f, 0.001f);
+    eyeOrientationStep[1].loadRotate(1.0f, 0.0f, 0.0f, 0.001f);
   }
 }
 
@@ -71,27 +75,6 @@ bool Attitude::read(picojson::value &v)
     for (int i = 0; i < 4; ++i) initialOrientation[i] = static_cast<GLfloat>(a[i].get<double>());
   }
 
-  // シーンの焦点距離・縦横比・中心位置の初期値
-  const auto &v_fore_intrisic(o.find("fore_intrinsic"));
-  if (v_fore_intrisic != o.end() && v_fore_intrisic->second.is<picojson::array>())
-  {
-    picojson::array &c(v_fore_intrisic->second.get<picojson::array>());
-    for (int i = 0; i < 4; ++i) initialForeIntrinsic[i] = static_cast<GLfloat>(c[i].get<double>());
-  }
-
-  // 背景の焦点距離・縦横比・中心位置の初期値
-  const auto &v_back_intrisic(o.find("back_intrinsic"));
-  if (v_back_intrisic != o.end() && v_back_intrisic->second.is<picojson::array>())
-  {
-    picojson::array &c(v_back_intrisic->second.get<picojson::array>());
-    for (int i = 0; i < 4; ++i) initialBackIntrinsic[i] = static_cast<GLfloat>(c[i].get<double>());
-  }
-
-  // 視差の初期値
-  const auto &v_parallax(o.find("parallax"));
-  if (v_parallax != o.end() && v_parallax->second.is<double>())
-    initialParallax = static_cast<GLfloat>(v_parallax->second.get<double>());
-
   // カメラ方向の補正値
   const auto &v_parallax_offset(o.find("parallax_offset"));
   if (v_parallax_offset != o.end() && v_parallax_offset->second.is<picojson::array>())
@@ -105,18 +88,39 @@ bool Attitude::read(picojson::value &v)
     }
   }
 
+  // 視差の初期値
+  const auto &v_parallax(o.find("parallax"));
+  if (v_parallax != o.end() && v_parallax->second.is<double>())
+    initialParallax = static_cast<int>(v_parallax->second.get<double>());
+
+  // 前景の焦点距離・縦横比・中心位置の初期値
+  const auto &v_fore_intrisic(o.find("fore_intrinsic"));
+  if (v_fore_intrisic != o.end() && v_fore_intrisic->second.is<picojson::array>())
+  {
+    picojson::array &c(v_fore_intrisic->second.get<picojson::array>());
+    for (int i = 0; i < 4; ++i) initialForeAdjust[i] = static_cast<int>(c[i].get<double>());
+  }
+
+  // 背景の焦点距離・縦横比・中心位置の初期値
+  const auto &v_back_intrisic(o.find("back_intrinsic"));
+  if (v_back_intrisic != o.end() && v_back_intrisic->second.is<picojson::array>())
+  {
+    picojson::array &c(v_back_intrisic->second.get<picojson::array>());
+    for (int i = 0; i < 4; ++i) initialBackAdjust[i] = static_cast<int>(c[i].get<double>());
+  }
+
   // 背景テクスチャの半径と中心位置の初期値
   const auto &v_circle(o.find("circle"));
   if (v_circle != o.end() && v_circle->second.is<picojson::array>())
   {
     picojson::array &c(v_circle->second.get<picojson::array>());
-    for (int i = 0; i < 4; ++i) initialCircle[i] = static_cast<GLfloat>(c[i].get<double>());
+    for (int i = 0; i < 4; ++i) initialCircleAdjust[i] = static_cast<int>(c[i].get<double>());
   }
 
   // スクリーンの間隔の初期値
   const auto &v_offset(o.find("offset"));
   if (v_offset != o.end() && v_offset->second.is<double>())
-    initialOffset = static_cast<GLfloat>(v_offset->second.get<double>());
+    initialOffset = static_cast<int>(v_offset->second.get<double>());
 
   return true;
 }
@@ -154,22 +158,22 @@ bool Attitude::save(const std::string &file) const
 
   // 位置
   picojson::array p;
-  for (int i = 0; i < 4; ++i) p.push_back(picojson::value(position[i]));
+  for (int i = 0; i < 4; ++i) p.push_back(picojson::value(static_cast<double>(position[i])));
   o.insert(std::make_pair("position", picojson::value(p)));
 
   // 姿勢
   picojson::array a;
-  for (int i = 0; i < 4; ++i) a.push_back(picojson::value(initialOrientation[i]));
+  for (int i = 0; i < 4; ++i) a.push_back(picojson::value(static_cast<double>(initialOrientation[i])));
   o.insert(std::make_pair("orientation", picojson::value(a)));
 
-  // シーンに対する焦点距離と中心位置
+  // 前景に対する焦点距離と中心位置
   picojson::array f;
-  for (int i = 0; i < 4; ++i) f.push_back(picojson::value(foreIntrinsic[i]));
+  for (int i = 0; i < 4; ++i) f.push_back(picojson::value(static_cast<double>(foreAdjust[i])));
   o.insert(std::make_pair("fore_intrinsic", picojson::value(f)));
 
   // 背景に対する焦点距離と中心位置
   picojson::array b;
-  for (int i = 0; i < 4; ++i) f.push_back(picojson::value(backIntrinsic[i]));
+  for (int i = 0; i < 4; ++i) f.push_back(picojson::value(static_cast<double>(backAdjust[i])));
   o.insert(std::make_pair("back_intrinsic", picojson::value(b)));
 
   // 視差
@@ -184,7 +188,7 @@ bool Attitude::save(const std::string &file) const
 
   // 背景テクスチャの半径と中心位置
   picojson::array c;
-  for (int i = 0; i < 4; ++i) c.push_back(picojson::value(static_cast<double>(circle[i])));
+  for (int i = 0; i < 4; ++i) c.push_back(picojson::value(static_cast<double>(circleAdjust[i])));
   o.insert(std::make_pair("circle", picojson::value(c)));
 
   // スクリーンの間隔
@@ -204,3 +208,6 @@ bool Attitude::save(const std::string &file) const
 Attitude::~Attitude()
 {
 }
+
+// カメラ方向の補正ステップ
+GgQuaternion Attitude::eyeOrientationStep[2];
