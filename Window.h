@@ -81,18 +81,27 @@ class Window
   // 投影変換行列
   GgMatrix mp[camCount];
 
+  // ズーム率
+  GLfloat zoom;
+
   //
   // 背景画像
   //
 
+  // 背景テクスチャの半径と中心
+  GgVector circle;
+
   // スクリーンの幅と高さ
   GgVector screen[camCount];
 
+  // 焦点距離
+  GLfloat focal;
+
+  // 視差
+  GLfloat parallax;
+
   // スクリーンの間隔
   GLfloat offset;
-
-  // 背景テクスチャの半径と中心
-  GgVector circle;
 
 public:
 
@@ -276,6 +285,14 @@ public:
   const GLfloat* getScreen(int eye) const
   {
     return screen[eye].data();
+  }
+
+  //
+  // 焦点距離を取り出す
+  //
+  const GLfloat getFocal() const
+  {
+    return focal;
   }
 
   //

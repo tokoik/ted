@@ -9,39 +9,17 @@
 // 姿勢
 struct Attitude
 {
-  // シーンの基準位置
+  // 前景の基準位置
   GgVector position;
 
-  // シーンの初期位置
+  // 前景の初期位置
   GgVector initialPosition;
 
-  // シーンの基準姿勢
+  // 前景の基準姿勢
   GgTrackball orientation;
 
-  // シーンの初期姿勢
+  // 前景の初期姿勢
   GgTrackball initialOrientation;
-
-  // シーンに対する焦点距離と中心位置の補正値
-  //   0: focal length, 1: aspect ratio
-  //   2: center in x,  3: center in y
-  GgVector foreIntrinsic;
-
-  // シーンに対する焦点距離と中心位置の補正値の初期値
-  GgVector initialForeIntrinsic;
-
-  // 背景に対する焦点距離と中心位置の補正値
-  //   0: focal length, 1: aspect ratio
-  //   2: center in x,  3: center in y
-  GgVector backIntrinsic;
-
-  // 背景に対する焦点距離と中心位置の補正値の初期値
-  GgVector initialBackIntrinsic;
-
-  // 視差
-  GLfloat parallax;
-
-  // 視差の初期値
-  GLfloat initialParallax;
 
   // カメラごとの姿勢の補正値
   GgQuaternion eyeOrientation[camCount];
@@ -50,19 +28,43 @@ struct Attitude
   GgQuaternion initialEyeOrientation[camCount];
 
   // カメラ方向の補正ステップ
-  static GgQuaternion qrStep[2];
+  static GgQuaternion eyeOrientationStep[2];
 
-  // 背景テクスチャの半径と中心位置
-  GgVector circle;
+  // 視差の補正値
+  int parallax;
 
-  // 背景テクスチャの半径と中心位置の初期値
-  GgVector initialCircle;
+  // 視差の補正値の初期値
+  int initialParallax;
+
+  // 前景に対する焦点距離と中心位置の補正値
+  //   0: focal length, 1: aspect ratio
+  //   2: center in x,  3: center in y
+  std::array<int, 4> foreAdjust;
+
+  // 前景に対する焦点距離と中心位置の補正値の初期値
+  std::array<int, 4> initialForeAdjust;
+
+  // 背景に対する焦点距離と中心位置の補正値
+  //   0: focal length, 1: aspect ratio
+  //   2: center in x,  3: center in y
+  std::array<int, 4> backAdjust;
+
+  // 背景に対する焦点距離と中心位置の補正値の初期値
+  std::array<int, 4> initialBackAdjust;
+
+  // 背景テクスチャの半径と中心位置の補正値
+  //   0: fov in x,     1: fov in y
+  //   2: center in x,  3: center in y
+  std::array<int, 4> circleAdjust;
+
+  // 背景テクスチャの半径と中心位置の補正値の初期値
+  std::array<int, 4> initialCircleAdjust;
 
   // スクリーンの間隔
-  GLfloat offset;
+  int offset;
 
   // スクリーンの間隔の初期値
-  GLfloat initialOffset;
+  int initialOffset;
 
   // コンストラクタ
   Attitude();

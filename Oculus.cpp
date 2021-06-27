@@ -192,7 +192,7 @@ bool Oculus::initialize(Window &window)
 #endif
 
     // ƒY[ƒ€—¦
-    const auto zf(window.zoom * defaults.display_near);
+    const auto zf(attitude.foreAdjust[0] * defaults.display_near);
 
     // •Ğ–Ú‚Ì“§‹“Š‰e•ÏŠ·s—ñ‚ğ‹‚ß‚é
     window.mp[eye].loadFrustum(

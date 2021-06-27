@@ -26,6 +26,9 @@
 #include "Oculus.h"
 >>>>>>> 3fa99b2 (Separate oculus classes)
 
+// 姿勢
+#include "Attitude.h"
+
 // シーングラフ
 #include "Scene.h"
 
@@ -48,13 +51,6 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   , camera{ nullptr }
   , showScene{ true }
   , showMirror{ true }
-  , startPosition{ 0.0f, 0.0f, 0.0f }
-  , startOrientation{ 0.0f, 0.0f, 0.0f, 1.0f }
-  , initialOffset{ defaultOffset }
-  , initialParallax{ defaultParallax }
-  , zoomChange{ 0 }
-  , focalChange{ 0 }
-  , circleChange{ 0, 0, 0, 0 }
   , key{ GLFW_KEY_UNKNOWN }
   , joy{ -1 }
 {
@@ -62,10 +58,6 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   static bool firstTime{ true };
   if (firstTime)
   {
-    // カメラ方向の調整ステップを求める
-    qrStep[0].loadRotate(0.0f, 1.0f, 0.0f, 0.001f);
-    qrStep[1].loadRotate(1.0f, 0.0f, 0.0f, 0.001f);
-
     // クワッドバッファステレオモードを有効にする
     if (defaults.display_quadbuffer)
     {
@@ -110,9 +102,6 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
 
   // ヘッドトラッキングの変換行列を初期化する
   for (auto &m : mo) m = ggIdentity();
-
-  // カメラの補正値を初期化する
-  for (auto &q : qa) q = ggIdentityQuaternion();
 
   // 設定を初期化する
   reset();
@@ -225,10 +214,6 @@ Window::~Window()
   // ウィンドウが開かれていなかったら戻る
   if (!window) return;
 
-  // 設定値の保存先
-  std::ofstream attitude("attitude.json");
-
-
 #ifdef IMGUI_VERSION
   // Shutdown Platform/Renderer bindings
   ImGui_ImplOpenGL3_Shutdown();
@@ -256,7 +241,7 @@ Window::operator bool()
 #endif
 
   // 速度を距離に比例させる
-  const auto speedFactor((fabs(oz) + 0.2f));
+  const auto speedFactor((fabs(attitude.position[2]) + 0.2f));
 
   //
   // ジョイスティックによる操作
@@ -282,25 +267,25 @@ Window::operator bool()
     if (axesCount > 3)
     {
       // 物体を左右に移動する
-      ox += (axes[0] - origin[0]) * axesSpeedFactor;
+      attitude.position[0] += (axes[0] - origin[0]) * axesSpeedFactor;
 
       // L ボタンか R ボタンを同時に押していれば
       if (lrButton)
       {
         // 物体を前後に移動する
-        oz += (axes[1] - origin[1]) * axesSpeedFactor;
+        attitude.position[2] += (axes[1] - origin[1]) * axesSpeedFactor;
       }
       else
       {
         // 物体を上下に移動する
-        oy += (axes[1] - origin[1]) * axesSpeedFactor;
+        attitude.position[1] += (axes[1] - origin[1]) * axesSpeedFactor;
       }
 
       // 物体を左右に回転する
-      trackball.rotate(ggRotateQuaternion(0.0f, 1.0f, 0.0f, (axes[2] - origin[2]) * axesSpeedFactor));
+      attitude.orientation.rotate(ggRotateQuaternion(0.0f, 1.0f, 0.0f, (axes[2] - origin[2]) * axesSpeedFactor));
 
       // 物体を上下に回転する
-      trackball.rotate(ggRotateQuaternion(1.0f, 0.0f, 0.0f, (axes[3] - origin[3]) * axesSpeedFactor));
+      attitude.orientation.rotate(ggRotateQuaternion(1.0f, 0.0f, 0.0f, (axes[3] - origin[3]) * axesSpeedFactor));
     }
 
     // B, X ボタンの状態
@@ -315,19 +300,19 @@ Window::operator bool()
         // 背景を左右に回転する
         if (parallaxButton > 0)
         {
-          qa[camL] *= qrStep[0];
-          qa[camR] *= qrStep[0].conjugate();
+          attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[0];
+          attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[0].conjugate();
         }
         else
         {
-          qa[camL] *= qrStep[0].conjugate();
-          qa[camR] *= qrStep[0];
+          attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[0].conjugate();
+          attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[0];
         }
       }
       else
       {
         // スクリーンの間隔を調整する
-        offset += parallaxButton * offsetStep;
+        offset = offsetDefault + offsetStep * (attitude.offset += parallaxButton);
       }
     }
 
@@ -343,19 +328,19 @@ Window::operator bool()
         // 背景を上下に回転する
         if (zoomButton > 0)
         {
-          qa[camL] *= qrStep[1];
-          qa[camR] *= qrStep[1].conjugate();
+          attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[1];
+          attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[1].conjugate();
         }
         else
         {
-          qa[camL] *= qrStep[1].conjugate();
-          qa[camR] *= qrStep[1];
+          attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[1].conjugate();
+          attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[1];
         }
       }
       else
       {
         // 焦点距離を調整する
-        focal = focalStep / (focalStep - static_cast<GLfloat>(focalChange += zoomButton));
+        focal = 1.0f / (1.0f - backFocalStep * (attitude.backAdjust[0] += zoomButton));
       }
     }
 
@@ -369,12 +354,12 @@ Window::operator bool()
       if (lrButton)
       {
         // 背景に対する横方向の画角を調整する
-        circle[0] = defaults.camera_fov_x + static_cast<GLfloat>(circleChange[0] += textureXButton) * shiftStep;
+        circle[0] = defaults.camera_fov_x + fovStep * (attitude.circleAdjust[0] += textureXButton);
       }
       else
       {
         // 背景の横位置を調整する
-        circle[2] = defaults.camera_center_x + static_cast<GLfloat>(circleChange[2] += textureXButton) * shiftStep;
+        circle[2] = defaults.camera_center_x + shiftStep * (attitude.circleAdjust[2] += textureXButton);
       }
     }
 
@@ -388,12 +373,12 @@ Window::operator bool()
       if (lrButton)
       {
         // 背景に対する縦方向の画角を調整する
-        circle[1] = defaults.camera_fov_y + static_cast<GLfloat>(circleChange[1] += textureYButton) * shiftStep;
+        circle[1] = defaults.camera_fov_y + fovStep * (attitude.circleAdjust[1] += textureYButton);
       }
       else
       {
         // 背景の縦位置を調整する
-        circle[3] = defaults.camera_center_y + static_cast<GLfloat>(circleChange[3] += textureYButton) * shiftStep;
+        circle[3] = defaults.camera_center_y + shiftStep * (attitude.circleAdjust[3] += textureYButton);
       }
     }
 
@@ -438,8 +423,8 @@ Window::operator bool()
   {
     // 物体の位置を移動する
     const auto speed(speedScale * speedFactor);
-    ox += static_cast<GLfloat>(x - cx) * speed;
-    oy += static_cast<GLfloat>(cy - y) * speed;
+    attitude.position[0] += static_cast<GLfloat>(x - cx) * speed;
+    attitude.position[1] += static_cast<GLfloat>(cy - y) * speed;
     cx = x;
     cy = y;
   }
@@ -448,7 +433,7 @@ Window::operator bool()
   if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2))
   {
     // 物体を回転する
-    trackball.motion(float(x), float(y));
+    attitude.orientation.motion(static_cast<float>(x), static_cast<float>(y));
   }
 
   //
@@ -470,23 +455,23 @@ Window::operator bool()
     if (altKey)
     {
       // 背景を右に回転する
-      if (!ctrlKey) qa[camL] *= qrStep[0].conjugate();
-      if (!shiftKey) qa[camR] *= qrStep[0].conjugate();
+      if (!ctrlKey) attitude.eyeOrientation[camL] *= qrStep[0].conjugate();
+      if (!shiftKey) attitude.eyeOrientation[camR] *= qrStep[0].conjugate();
     }
     else if (ctrlKey)
     {
       // 背景に対する横方向の画角を広げる
-      circle[0] = defaults.camera_fov_x + static_cast<GLfloat>(++circleChange[0]) * shiftStep;
+      circle[0] = defaults.camera_fov_x + fovStep * ++attitude.circleAdjust[0];
     }
     else if (shiftKey)
     {
       // 背景を右にずらす
-      circle[2] = defaults.camera_center_x + static_cast<GLfloat>(++circleChange[2]) * shiftStep;
+      circle[2] = defaults.camera_center_x + shiftStep * ++attitude.circleAdjust[2];
     }
     else if (defaults.display_mode != MONOCULAR)
     {
       // スクリーンの間隔を拡大する
-      offset += offsetStep;
+      offset = offsetDefault + offsetStep * ++attitude.offset;
     }
   }
 
@@ -496,23 +481,23 @@ Window::operator bool()
     if (altKey)
     {
       // 背景を左に回転する
-      if (!ctrlKey) qa[camL] *= qrStep[0];
-      if (!shiftKey) qa[camR] *= qrStep[0];
+      if (!ctrlKey) attitude.eyeOrientation[camL] *= qrStep[0];
+      if (!shiftKey) attitude.eyeOrientation[camR] *= qrStep[0];
     }
     else if (ctrlKey)
     {
       // 背景に対する横方向の画角を狭める
-      circle[0] = defaults.camera_fov_x + static_cast<GLfloat>(--circleChange[0]) * shiftStep;
+      circle[0] = defaults.camera_fov_x + fovStep * --attitude.circleAdjust[0];
     }
     else if (shiftKey)
     {
       // 背景を左にずらす
-      circle[2] = defaults.camera_center_x + static_cast<GLfloat>(--circleChange[2]) * shiftStep;
+      circle[2] = defaults.camera_center_x + shiftStep * --attitude.circleAdjust[2];
     }
     else if (defaults.display_mode != MONOCULAR)
     {
       // 視差を縮小する
-      offset -= offsetStep;
+      offset = offsetDefault + offsetStep * --attitude.offset;
     }
   }
 
@@ -522,23 +507,23 @@ Window::operator bool()
     if (altKey)
     {
       // 背景を上に回転する
-      if (!ctrlKey) qa[camL] *= qrStep[1];
-      if (!shiftKey) qa[camR] *= qrStep[1];
+      if (!ctrlKey) attitude.eyeOrientation[camL] *= qrStep[1];
+      if (!shiftKey) attitude.eyeOrientation[camR] *= qrStep[1];
     }
     else if (ctrlKey)
     {
       // 背景に対する縦方向の画角を広げる
-      circle[1] = defaults.camera_fov_y + static_cast<GLfloat>(++circleChange[1]) * shiftStep;
+      circle[1] = defaults.camera_fov_y + fovStep * ++attitude.circleAdjust[1];
     }
     else if (shiftKey)
     {
       // 背景を上にずらす
-      circle[3] = defaults.camera_center_y + static_cast<GLfloat>(++circleChange[3]) * shiftStep;
+      circle[3] = defaults.camera_center_y + shiftStep * ++attitude.circleAdjust[3];
     }
     else
     {
       // 焦点距離を延ばす
-      focal = focalStep / (focalStep - static_cast<GLfloat>(++focalChange));
+      focal = 1.0f / (1.0f - backFocalStep * ++attitude.backAdjust[0]);
     }
   }
 
@@ -548,46 +533,45 @@ Window::operator bool()
     if (altKey)
     {
       // 背景を下に回転する
-      if (!ctrlKey) qa[camL] *= qrStep[1].conjugate();
-      if (!shiftKey) qa[camR] *= qrStep[1].conjugate();
+      if (!ctrlKey) attitude.eyeOrientation[camL] *= qrStep[1].conjugate();
+      if (!shiftKey) attitude.eyeOrientation[camR] *= qrStep[1].conjugate();
     }
     else if (ctrlKey)
     {
       // 背景に対する縦方向の画角を狭める
-      circle[1] = defaults.camera_fov_y + static_cast<GLfloat>(--circleChange[1]) * shiftStep;
+      circle[1] = defaults.camera_fov_y + fovStep * --attitude.circleAdjust[1];
     }
     else if (shiftKey)
     {
       // 背景を下にずらす
-      circle[3] = defaults.camera_center_y + static_cast<GLfloat>(--circleChange[3]) * shiftStep;
+      circle[3] = defaults.camera_center_y + shiftStep * --attitude.circleAdjust[3];
     }
     else
     {
       // 焦点距離を縮める
-      focal = focalStep / (focalStep - static_cast<GLfloat>(--focalChange));
+      focal = 1.0f / (1.0f - backFocalStep * --attitude.backAdjust[0]);
     }
   }
 
   // 'P' キーの操作
   if (glfwGetKey(window, GLFW_KEY_P))
   {
-    // 視差を調整する
-    parallax += shiftKey ? -parallaxStep : parallaxStep;
+    // 'P' キーの操作
+    if (glfwGetKey(window, GLFW_KEY_P))
+    {
+      // 視差を調整する
+      parallax = defaultParallax + parallaxStep * (shiftKey ? --attitude.parallax : ++attitude.parallax);
+    }
+
+    // 'Z' キーの操作
+    else if (glfwGetKey(window, GLFW_KEY_Z))
+    {
+      // ズーム率を調整する
+      zoom = 1.0f / (1.0f - zoomStep * (shiftKey ? --attitude.foreAdjust[0] : ++attitude.foreAdjust[0]));
+    }
 
     // 透視投影変換行列を更新する
-    updateProjectionMatrix();
-  }
-
-  // 'Z' キーの操作
-  if (glfwGetKey(window, GLFW_KEY_Z))
-  {
-    // ズーム率を調整する
-    if (shiftKey) ++zoomChange; else --zoomChange;
-    zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
-      + zoomChange * zoomStep;
-
-    // 透視投影変換行列を更新する
-    updateProjectionMatrix();
+    update();
   }
 
   // カメラの制御
@@ -738,7 +722,7 @@ void Window::resize(GLFWwindow *window, int width, int height)
     instance->update();
 
     // トラックボール処理の範囲を設定する
-    instance->trackball.region(static_cast<float>(width) / angleScale, static_cast<float>(height) / angleScale);
+    attitude.orientation.region(static_cast<float>(width) / angleScale, static_cast<float>(height) / angleScale);
   }
 }
 
@@ -782,12 +766,12 @@ void Window::mouse(GLFWwindow *window, int button, int action, int mods)
       if (action)
       {
         // トラックボール処理開始
-        instance->trackball.begin(float(x), float(y));
+        attitude.orientation.begin(static_cast<float>(x), static_cast<float>(y));
       }
       else
       {
         // トラックボール処理終了
-        instance->trackball.end(float(x), float(y));
+        attitude.orientation.end(static_cast<float>(x), static_cast<float>(y));
       }
       break;
 
@@ -822,8 +806,7 @@ void Window::wheel(GLFWwindow *window, double x, double y)
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
     {
       // ズーム率を調整する
-      instance->zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
-        + static_cast<GLfloat>(instance->zoomChange += static_cast<int>(y)) * zoomStep;
+      instance->zoom = 1.0f / (1.0f - zoomStep * (attitude.foreAdjust[0] += static_cast<int>(y)));
 
       // 透視投影変換行列を更新する
       instance->update();
@@ -831,8 +814,8 @@ void Window::wheel(GLFWwindow *window, double x, double y)
     else
     {
       // 物体を前後に移動する
-      const GLfloat advSpeed((fabs(instance->oz) * 5.0f + 1.0f) * wheelYStep * static_cast<GLfloat>(y));
-      instance->oz += advSpeed;
+      const GLfloat advSpeed((fabs(attitude.position[2]) * 5.0f + 1.0f) * wheelYStep * static_cast<GLfloat>(y));
+      attitude.position[2] += advSpeed;
     }
   }
 }
@@ -871,7 +854,7 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
 
       case GLFW_KEY_SPACE:
 
-        // シーンの表示を ON/OFF する
+        // 前景の表示を ON/OFF する
         instance->showScene = !instance->showScene;
         break;
 
@@ -914,32 +897,40 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
 void Window::reset()
 {
   // 物体の位置
-  ox = startPosition[0];
-  oy = startPosition[1];
-  oz = startPosition[2];
+  attitude.position = attitude.initialPosition;
 
   // 物体の回転
-  trackball.reset();
-  trackball.rotate(ggQuaternion(startOrientation));
+  attitude.orientation.reset(attitude.initialOrientation.getQuaternion());
 
-  // ズーム率
-  zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
-    + static_cast<GLfloat>(zoomChange) * zoomStep;
+  // カメラごとの姿勢の補正値
+  for (int cam = 0; cam < camCount; ++cam) attitude.eyeOrientation[cam] = attitude.initialEyeOrientation[cam];
 
-  // 焦点距離
-  focal = focalStep / (focalStep - static_cast<GLfloat>(focalChange));
+  // 前景に対する焦点距離と中心位置の補正値
+  attitude.foreAdjust = attitude.initialForeAdjust;
+
+  // 背景に対する焦点距離と中心位置の補正値
+  attitude.backAdjust = attitude.initialBackAdjust;
+
+  // 背景テクスチャの半径と中心位置の補正値
+  attitude.circleAdjust = attitude.initialCircleAdjust;
 
   // 背景テクスチャの半径と中心位置
-  circle[0] = defaults.camera_fov_x + static_cast<GLfloat>(circleChange[0]) * shiftStep;
-  circle[1] = defaults.camera_fov_y + static_cast<GLfloat>(circleChange[1]) * shiftStep;
-  circle[2] = defaults.camera_center_x + static_cast<GLfloat>(circleChange[2]) * shiftStep;
-  circle[3] = defaults.camera_center_y + static_cast<GLfloat>(circleChange[3]) * shiftStep;
+  circle[0] = defaults.camera_fov_x + fovStep * attitude.initialCircleAdjust[0];
+  circle[1] = defaults.camera_fov_y + fovStep * attitude.initialCircleAdjust[1];
+  circle[2] = defaults.camera_center_x + shiftStep * attitude.initialCircleAdjust[2];
+  circle[3] = defaults.camera_center_y + shiftStep * attitude.initialCircleAdjust[3];
 
-  // スクリーンの間隔
-  offset = initialOffset;
+  // 焦点距離
+  focal = 1.0f / (1.0f - backFocalStep * attitude.initialBackAdjust[0]);
 
   // 視差
-  parallax = defaults.display_mode != MONOCULAR ? initialParallax : 0.0f;
+  parallax = defaultParallax + parallaxStep * (attitude.parallax = attitude.initialParallax);
+
+  // スクリーンの間隔
+  offset = offsetDefault + offsetStep * (attitude.offset = attitude.initialOffset);
+
+  // ズーム率
+  zoom = 1.0f / (1.0f - zoomStep * (attitude.foreAdjust[0] = attitude.initialForeAdjust[0]));
 }
 
 //
@@ -1040,7 +1031,7 @@ void Window::select(int eye)
     break;
   }
 
-  // 目をずらす代わりにシーンを動かす
+  // 目をずらす代わりに前景を動かす
   mv[eye] = ggTranslate(eye == camL ? parallax : -parallax, 0.0f, 0.0f);
 }
 
@@ -1052,7 +1043,7 @@ bool Window::start()
   if (!oculus) return true;
 
   // モデル変換行列を設定する
-  mm = ggTranslate(ox, oy, -oz) * trackball.getMatrix();
+  mm = ggTranslate(attitude.position) * attitude.orientation.getMatrix();
 
   // モデル変換行列を共有メモリに保存する
   Scene::setup(mm);
@@ -1129,9 +1120,6 @@ void Window::commit(int eye)
 {
   if (oculus) oculus->commit(eye);
 }
-
-// カメラ方向の調整ステップ
-GgQuaternion Window::qrStep[2];
 
 // Oculus Rift のセッション
 Oculus* Window::oculus{ nullptr };

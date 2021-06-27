@@ -470,7 +470,9 @@ int main(int argc, const char *const *const argv)
         rect.setCircle(window.getCircle(), window.getOffset(eye));
 
         // ローカルのヘッドトラッキングの変換行列
-        const GgMatrix &&mo(defaults.camera_tracking ? window.getMo(eye) * window.getQa(eye).getMatrix() : window.getQa(eye).getMatrix());
+        const GgMatrix &&mo(defaults.camera_tracking
+          ? window.getMo(eye) * attitude.eyeOrientation[eye].getMatrix()
+          : attitude.eyeOrientation[eye].getMatrix());
 
         // リモートのヘッドトラッキングの変換行列
         const GgMatrix &&mr(mo * Scene::getRemoteAttitude(eye));
