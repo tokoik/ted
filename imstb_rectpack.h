@@ -245,7 +245,7 @@ STBRP_DEF void stbrp_setup_allow_out_of_mem(stbrp_context *context, int allow_ou
       // if it's ok to run out of memory, then don't bother aligning them;
       // this gives better packing, but may fail due to OOM (even though
       // the rectangles easily fit). @TODO a smarter approach would be to only
-      // quantize once we've hit OOM, then we could data rid of this parameter.
+      // quantize once we've hit OOM, then we could get rid of this parameter.
       context->align = 1;
    else {
       // if it's not ok to run out of memory, then quantize the widths
@@ -486,7 +486,7 @@ static stbrp__findresult stbrp__skyline_pack_rectangle(stbrp_context *context, i
       *res.prev_link = node;
    }
 
-   // from here, traverse cur and free the nodes, until we data to one
+   // from here, traverse cur and free the nodes, until we get to one
    // that shouldn't be freed
    while (cur->next && cur->next->x <= res.x + width) {
       stbrp_node *next = cur->next;

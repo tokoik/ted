@@ -1043,7 +1043,7 @@ void ImDrawList::_PathArcToFastEx(const ImVec2& center, float radius, int a_min_
     if (a_step <= 0)
         a_step = IM_DRAWLIST_ARCFAST_SAMPLE_MAX / _CalcCircleAutoSegmentCount(radius);
 
-    // Make sure we never do steps larger than one quarter of the circleAdjust
+    // Make sure we never do steps larger than one quarter of the circle
     a_step = ImClamp(a_step, 1, IM_DRAWLIST_ARCFAST_TABLE_SIZE / 4);
 
     // Normalize a_min_sample to always start lie in [0..IM_DRAWLIST_ARCFAST_SAMPLE_MAX] range.
@@ -1119,7 +1119,7 @@ void ImDrawList::_PathArcToN(const ImVec2& center, float radius, float a_min, fl
     IM_ASSERT(a_min <= a_max);
 
     // Note that we are adding a point at both a_min and a_max.
-    // If you are trying to draw a full closed circleAdjust you don't want the overlapping points!
+    // If you are trying to draw a full closed circle you don't want the overlapping points!
     _Path.reserve(_Path.Size + (num_segments + 1));
     for (int i = 0; i <= num_segments; i++)
     {
