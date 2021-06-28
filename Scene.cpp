@@ -19,15 +19,11 @@ Scene::Scene(const GgSimpleObj *obj)
 }
 
 // シーングラフからシーンのオブジェクトを作成するコンストラクタ
-Scene::Scene(const picojson::value &v, const GgSimpleShader *shader, int level)
+Scene::Scene(const picojson::value &v, int level)
   : obj(nullptr)
 {
-  read(v, shader, level);
+  read(v, level);
 }
-
-// シーングラフからシーンのオブジェクトを作成するコンストラクタ
-Scene::Scene(const picojson::value &v, const GgSimpleShader &shader, int level)
-  : Scene(v, &shader, level) {}
 
 // デストラクタ
 Scene::~Scene()
@@ -37,8 +33,11 @@ Scene::~Scene()
 }
 
 // 共有メモリを確保して初期化する
-bool Scene::initialize(unsigned int local_size, unsigned int remote_size)
+bool Scene::initialize(const GgSimpleShader *shader, unsigned int local_size, unsigned int remote_size)
 {
+  // シェーダを設定する
+  Scene::shader = shader;
+
   // ローカルの変換行列を保持する共有メモリを確保する
   localAttitude.reset(new SharedMemory(localMutexName, localShareName, local_size));
 
@@ -99,7 +98,7 @@ inline picojson::object Scene::load(const picojson::value& v)
 }
 
 // シーングラフを解析する
-Scene *Scene::read(const picojson::value &v, const GgSimpleShader *shader, int level)
+Scene *Scene::read(const picojson::value &v, int level)
 {
   // 引数ををパースする
   const auto &&o(load(v));
@@ -182,7 +181,7 @@ Scene *Scene::read(const picojson::value &v, const GgSimpleShader *shader, int l
     else
     {
       // ファイルから図形を読み込む
-      obj = new GgSimpleObj(model.c_str(), shader);
+      obj = new GgSimpleObj(model.c_str());
 
       // パーツリストに登録する
       parts.emplace(std::make_pair(model, std::unique_ptr<const GgSimpleObj>(obj)));
@@ -200,12 +199,12 @@ Scene *Scene::read(const picojson::value &v, const GgSimpleShader *shader, int l
       {
         for (const auto c : v_children->second.get<picojson::array>())
         {
-          if (!c.is<picojson::null>()) addChild(new Scene(c, shader, level));
+          if (!c.is<picojson::null>()) addChild(new Scene(c, level));
         }
       }
       else if (v_children->second.is<std::string>())
       {
-        addChild(new Scene(v_children->second, shader, level));
+        addChild(new Scene(v_children->second, level));
       }
     }
   }
@@ -295,7 +294,7 @@ void Scene::draw(const GgMatrix &mp, const GgMatrix &mv) const
   if (obj)
   {
     // シェーダが設定されていれば変換行列を設定し
-    if (obj->getShader()) obj->getShader()->loadMatrix(mp, mw);
+    if (shader) shader->loadMatrix(mp, mw);
 
     // このパーツを描画する
     obj->draw();
@@ -304,6 +303,9 @@ void Scene::draw(const GgMatrix &mp, const GgMatrix &mv) const
   // すべての子供のパーツを描画する
   for (const auto o : children) o->draw(mp, mw);
 }
+
+// シェーダ
+const GgSimpleShader *Scene::shader{ nullptr };
 
 // 読み込んだパーツを登録するパーツリスト
 std::map<const std::string, std::unique_ptr<const GgSimpleObj>> Scene::parts;

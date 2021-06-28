@@ -31,6 +31,9 @@ class Scene
   // 描画するパーツ
   const GgSimpleObj *obj;
 
+  // 使用するシェーダ
+  static const GgSimpleShader *shader;
+
   // 読み込んだパーツを登録するパーツリスト
   static std::map<const std::string, std::unique_ptr<const GgSimpleObj>> parts;
 
@@ -55,22 +58,19 @@ public:
   Scene(const GgSimpleObj *obj = nullptr);
 
   // シーングラフからシーンのオブジェクトを作成するコンストラクタ
-  Scene(const picojson::value &v, const GgSimpleShader *shader, int level = 0);
-
-  // シーングラフからシーンのオブジェクトを作成するコンストラクタ
-  Scene(const picojson::value &v, const GgSimpleShader &shader, int level = 0);
+  Scene(const picojson::value &v, int level = 0);
 
   // デストラクタ
   virtual ~Scene();
 
-  // 共有メモリを確保して初期化する
-  static bool initialize(unsigned int local_size, unsigned int remote_size);
+  // シェーダを設定し共有メモリを確保して初期化する
+  static bool initialize(const GgSimpleShader *shader, unsigned int local_size, unsigned int remote_size);
 
   // シーングラフを読み込む
   picojson::object load(const picojson::value& v);
 
   // シーングラフを解析する
-  Scene *read(const picojson::value &v, const GgSimpleShader *shader, int level);
+  Scene *read(const picojson::value &v, int level);
 
   // 子供にシーンを追加する
   Scene *addChild(Scene *scene);

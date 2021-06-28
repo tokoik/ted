@@ -241,15 +241,6 @@ constexpr GgSimpleShader::Light lightData
   { 0.0f, 0.0f, 1.0f, 1.0f }                // ˆÊ’u
 };
 
-// Ş¿
-constexpr GgSimpleShader::Material materialData
-{
-  { 0.8f, 0.8f, 0.8f, 1.0f },               // ŠÂ‹«Œõ‚Ì”½ËŒW”
-  { 0.8f, 0.8f, 0.8f, 1.0f },               // ŠgU”½ËŒW”
-  { 0.2f, 0.2f, 0.2f, 1.0f },               // ‹¾–Ê”½ËŒW”
-  50.0f                                     // ‹P‚«ŒW”
-};
-
 // ƒeƒNƒXƒ`ƒƒ‚Ì‹«ŠEF
 constexpr GLfloat borderColor[]{ 0.0f, 0.0f, 0.0f, 1.0f };
 

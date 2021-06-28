@@ -108,8 +108,28 @@ int main(int argc, const char *const *const argv)
     return EXIT_FAILURE;
   }
 
+  // 背景描画用の矩形を作成する
+  Rect rect(defaults.vertex_shader, defaults.fragment_shader);
+
+  // シェーダプログラム名を調べる
+  if (!rect.get())
+  {
+    // シェーダが読み込めなかった
+    NOTIFY("背景描画用のシェーダファイルの読み込みに失敗しました。");
+    return EXIT_FAILURE;
+  }
+
+  // 図形描画用のシェーダプログラムを読み込む
+  GgSimpleShader simple("simple.vert", "simple.frag");
+  if (!simple.get())
+  {
+    // シェーダが読み込めなかった
+    NOTIFY("図形描画用のシェーダファイルの読み込みに失敗しました。");
+    return EXIT_FAILURE;
+  }
+
   // 共有メモリを確保する
-  if (!Scene::initialize(defaults.local_share_size, defaults.remote_share_size))
+  if (!Scene::initialize(&simple, defaults.local_share_size, defaults.remote_share_size))
   {
     // 共有メモリの確保を失敗させたと思われる設定を戻す
     defaults.local_share_size = localShareSize;
@@ -383,34 +403,11 @@ int main(int argc, const char *const *const argv)
   // 通常のフレームバッファに戻す
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-  // 図形描画用のシェーダプログラムを読み込む
-  GgSimpleShader simple("simple.vert", "simple.frag");
-  if (!simple.get())
-  {
-    // シェーダが読み込めなかった
-    NOTIFY("図形描画用のシェーダファイルの読み込みに失敗しました。");
-    return EXIT_FAILURE;
-  }
-
   // シーングラフ
-  Scene scene(defaults.scene, simple);
-
-  // 背景描画用の矩形を作成する
-  Rect rect(defaults.vertex_shader, defaults.fragment_shader);
-
-  // シェーダプログラム名を調べる
-  if (!rect.get())
-  {
-    // シェーダが読み込めなかった
-    NOTIFY("背景描画用のシェーダファイルの読み込みに失敗しました。");
-    return EXIT_FAILURE;
-  }
+  Scene scene(defaults.scene);
 
   // 光源
   const GgSimpleShader::LightBuffer light(lightData);
-
-  // 材質
-  const GgSimpleShader::MaterialBuffer material(materialData);
 
   // カリングする
   glCullFace(GL_BACK);
@@ -486,9 +483,7 @@ int main(int argc, const char *const *const argv)
         glEnable(GL_BLEND);
 
         // 描画用のシェーダプログラムの使用開始
-        simple.use();
-        simple.selectLight(light);
-        simple.selectMaterial(material);
+        simple.use(light);
 
         // 図形を描画する
         if (window.showScene) scene.draw(window.getMp(eye), window.getMv(eye) * window.getMo(eye));
