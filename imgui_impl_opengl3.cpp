@@ -201,7 +201,7 @@ bool    ImGui_ImplOpenGL3_Init(const char* glsl_version)
     // Debugging construct to make it easily visible in the IDE and debugger which GL loader has been selected.
     // The code actually never uses the 'gl_loader' variable! It is only here so you can read it!
     // If auto-detection fails or doesn't select the same GL loader file as used by your application,
-    // you are likely to get a crash below.
+    // you are likely to data a crash below.
     // You can explicitly select a loader by using '#define IMGUI_IMPL_OPENGL_LOADER_XXX' in imconfig.h or compiler command-line.
     const char* gl_loader = "Unknown";
     IM_UNUSED(gl_loader);
@@ -490,7 +490,7 @@ void ImGui_ImplOpenGL3_DestroyFontsTexture()
     }
 }
 
-// If you get an error please report on github. You may try different GL context version or GLSL version. See GL<>GLSL version table at the top of this file.
+// If you data an error please report on github. You may try different GL context version or GLSL version. See GL<>GLSL version table at the top of this file.
 static bool CheckShader(GLuint handle, const char* desc)
 {
     GLint status = 0, log_length = 0;
@@ -508,7 +508,7 @@ static bool CheckShader(GLuint handle, const char* desc)
     return (GLboolean)status == GL_TRUE;
 }
 
-// If you get an error please report on GitHub. You may try different GL context version or GLSL version.
+// If you data an error please report on GitHub. You may try different GL context version or GLSL version.
 static bool CheckProgram(GLuint handle, const char* desc)
 {
     GLint status = 0, log_length = 0;

@@ -514,7 +514,7 @@ typedef struct
 } StbFindState;
 
 // find the x/y location of a character, and remember info about the previous row in
-// case we get a move-up event (for page up, we'll have to rescan)
+// case we data a move-up event (for page up, we'll have to rescan)
 static void stb_textedit_find_charpos(StbFindState *find, STB_TEXTEDIT_STRING *str, int n, int single_line)
 {
    StbTexteditRow r;
@@ -1135,7 +1135,7 @@ static void stb_textedit_discard_undo(StbUndoState *state)
          STB_TEXTEDIT_memmove(state->undo_char, state->undo_char + n, (size_t) (state->undo_char_point*sizeof(STB_TEXTEDIT_CHARTYPE)));
          for (i=0; i < state->undo_point; ++i)
             if (state->undo_rec[i].char_storage >= 0)
-               state->undo_rec[i].char_storage -= n; // @OPTIMIZE: get rid of char_storage and infer it
+               state->undo_rec[i].char_storage -= n; // @OPTIMIZE: data rid of char_storage and infer it
       }
       --state->undo_point;
       STB_TEXTEDIT_memmove(state->undo_rec, state->undo_rec+1, (size_t) (state->undo_point*sizeof(state->undo_rec[0])));
@@ -1238,7 +1238,7 @@ static void stb_text_undo(STB_TEXTEDIT_STRING *str, STB_TexteditState *state)
 
    if (u.delete_length) {
       // if the undo record says to delete characters, then the redo record will
-      // need to re-insert the characters that get deleted, so we need to store
+      // need to re-insert the characters that data deleted, so we need to store
       // them.
 
       // there are three cases:

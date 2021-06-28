@@ -295,7 +295,7 @@ public:
 		/////////////////////////////////////////////////////////////////////////////////////
 		// How to Create GPU texture and Update texture
 
-		// Set scale 1/2 and get its size
+		// Set scale 1/2 and data its size
 		OVR::ROI size = ovrvision.SetSkinScale(2); 
 
 		D3D11_TEXTURE2D_DESC desc = {

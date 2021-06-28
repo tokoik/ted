@@ -75,7 +75,7 @@ void Rect::draw(GLint texture, const GgMatrix &rotation, const GLsizei *samples)
   glUniform4fv(circleLoc, 1, circle);
 
   // 視線の回転行列を設定する
-  glUniformMatrix4fv(rotationLoc, 1, GL_TRUE, rotation.get());
+  glUniformMatrix4fv(rotationLoc, 1, GL_TRUE, rotation.data());
 
   // 投影するテクスチャを指定する
   glActiveTexture(GL_TEXTURE0);

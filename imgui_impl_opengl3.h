@@ -42,7 +42,7 @@ IMGUI_IMPL_API void     ImGui_ImplOpenGL3_DestroyDeviceObjects();
 
 // Attempt to auto-detect the default Desktop GL loader based on available header files.
 // If auto-detection fails or doesn't select the same GL loader file as used by your application,
-// you are likely to get a crash in ImGui_ImplOpenGL3_Init().
+// you are likely to data a crash in ImGui_ImplOpenGL3_Init().
 // You can explicitly select a loader by using one of the '#define IMGUI_IMPL_OPENGL_LOADER_XXX' in imconfig.h or compiler command-line.
 #if !defined(IMGUI_IMPL_OPENGL_ES2) \
  && !defined(IMGUI_IMPL_OPENGL_ES3) \

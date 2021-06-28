@@ -1636,11 +1636,8 @@ namespace gg
   /*!
   ** \brief •ÏŠ·s—ñ.
   */
-  class GgMatrix
+  class GgMatrix : public std::array<GLfloat, 16>
   {
-    // •ÏŠ·s—ñ‚Ì—v‘f
-    std::array<GLfloat, 16> array;
-
     // s—ñ a ‚ÆƒxƒNƒgƒ‹ b ‚ÌÏ‚ğƒxƒNƒgƒ‹ c ‚É‘ã“ü‚·‚é
     void projection(GLfloat *c, const GLfloat *a, const GLfloat *b) const;
 
@@ -1677,7 +1674,7 @@ namespace gg
     //!   \return a ‚ğ‘ã“ü‚µ‚½ GgMatrix Œ^‚Ì’l.
     GgMatrix &load(const GLfloat *a)
     {
-      for (int i = 0; i < 16; ++i) array[i] = a[i];
+      for (int i = 0; i < 16; ++i) (*this)[i] = a[i];
       return *this;
     }
 
@@ -1686,7 +1683,7 @@ namespace gg
     //!   \return m ‚ğ‘ã“ü‚µ‚½ GgMatrix Œ^‚Ì’l.
     GgMatrix &load(const GgMatrix &m)
     {
-      return load(m.array.data());
+      return load(m.data());
     }
 
     //! \brief •ÏŠ·s—ñ‚É”z—ñ‚ÉŠi”[‚µ‚½•ÏŠ·s—ñ‚ğ‰ÁZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
@@ -1694,7 +1691,7 @@ namespace gg
     //!   \return •ÏŠ·s—ñ‚É a ‚ğ‰Á‚¦‚½ GgMatrix Œ^‚Ì’l.
     GgMatrix &loadAdd(const GLfloat *a)
     {
-      for (int i = 0; i < 16; ++i) array[i] += a[i];
+      for (int i = 0; i < 16; ++i) (*this)[i] += a[i];
       return *this;
     }
 
@@ -1703,7 +1700,7 @@ namespace gg
     //!   \return •ÏŠ·s—ñ‚É m ‚ğ‰Á‚¦‚½ GgMatrix Œ^‚Ì’l.
     GgMatrix &loadAdd(const GgMatrix &m)
     {
-      return loadAdd(m.array.data());
+      return loadAdd(m.data());
     }
 
     //! \brief •ÏŠ·s—ñ‚©‚ç”z—ñ‚ÉŠi”[‚µ‚½•ÏŠ·s—ñ‚ğŒ¸Z‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
@@ -1711,7 +1708,7 @@ namespace gg
     //!   \return •ÏŠ·s—ñ‚É a ‚ğˆø‚¢‚½ GgMatrix Œ^‚Ì’l.
     GgMatrix &loadSubtract(const GLfloat *a)
     {
-      for (int i = 0; i < 16; ++i) array[i] -= a[i];
+      for (int i = 0; i < 16; ++i) (*this)[i] -= a[i];
       return *this;
     }
 
@@ -1720,7 +1717,7 @@ namespace gg
     //!   \return •ÏŠ·s—ñ‚É m ‚ğˆø‚¢‚½ GgMatrix Œ^‚Ì’l.
     GgMatrix &loadSubtract(const GgMatrix &m)
     {
-      return loadSubtract(m.array.data());
+      return loadSubtract(m.data());
     }
 
     //! \brief •ÏŠ·s—ñ‚É”z—ñ‚ÉŠi”[‚µ‚½•ÏŠ·s—ñ‚ğæZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
@@ -1736,7 +1733,7 @@ namespace gg
     //!   \return •ÏŠ·s—ñ‚É m ‚ğŠ|‚¯‚½ GgMatrix Œ^‚Ì’l.
     GgMatrix &loadMultiply(const GgMatrix &m)
     {
-      return loadMultiply(m.array.data());
+      return loadMultiply(m.data());
     }
 
     //! \brief •ÏŠ·s—ñ‚ğ”z—ñ‚ÉŠi”[‚µ‚½•ÏŠ·s—ñ‚ÅœZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
@@ -1752,7 +1749,7 @@ namespace gg
     //!   \return •ÏŠ·s—ñ‚É m ‚ğæ‚¶‚½ GgMatrix Œ^‚Ì’l.
     GgMatrix &loadDivide(const GgMatrix &m)
     {
-      return loadDivide(m.array.data());
+      return loadDivide(m.data());
     }
 
     //! \brief •ÏŠ·s—ñ‚É”z—ñ‚ÉŠi”[‚µ‚½•ÏŠ·s—ñ‚ğ‰ÁZ‚µ‚½’l‚ğ•Ô‚·.
@@ -1769,7 +1766,7 @@ namespace gg
     //!   \return •ÏŠ·s—ñ‚É m ‚ğ‰Á‚¦‚½ GgMatrix Œ^‚Ì’l.
     GgMatrix add(const GgMatrix &m) const
     {
-      return add(m.array.data());
+      return add(m.data());
     }
 
     //! \brief •ÏŠ·s—ñ‚©‚ç”z—ñ‚ÉŠi”[‚µ‚½•ÏŠ·s—ñ‚ğŒ¸Z‚µ‚½’l‚ğ•Ô‚·.
@@ -1786,7 +1783,7 @@ namespace gg
     //!   \return •ÏŠ·s—ñ‚É m ‚ğˆø‚¢‚½ GgMatrix Œ^‚Ì’l.
     GgMatrix subtract(const GgMatrix &m) const
     {
-      return subtract(m.array.data());
+      return subtract(m.data());
     }
 
     //! \brief •ÏŠ·s—ñ‚É”z—ñ‚ÉŠi”[‚µ‚½•ÏŠ·s—ñ‚ğæZ‚µ‚½’l‚ğ•Ô‚·.
@@ -1795,7 +1792,7 @@ namespace gg
     GgMatrix multiply(const GLfloat *a) const
     {
       GgMatrix t;
-      multiply(t.array.data(), array.data(), a);
+      multiply(t.data(), data(), a);
       return t;
     }
 
@@ -1804,7 +1801,7 @@ namespace gg
     //!   \return •ÏŠ·s—ñ‚É m ‚ğŠ|‚¯‚½ GgMatrix Œ^‚Ì’l.
     GgMatrix multiply(const GgMatrix &m) const
     {
-      return multiply(m.array.data());
+      return multiply(m.data());
     }
 
     //! \brief •ÏŠ·s—ñ‚ğ”z—ñ‚ÉŠi”[‚µ‚½•ÏŠ·s—ñ‚ÅœZ‚µ‚½’l‚ğ•Ô‚·.
@@ -1814,7 +1811,7 @@ namespace gg
     {
       GgMatrix t, ia;
       ia.loadInvert(a);
-      multiply(t.array.data(), array.data(), ia.array.data());
+      multiply(t.data(), data(), ia.data());
       return t;
     }
 
@@ -1823,7 +1820,7 @@ namespace gg
     //!   \return •ÏŠ·s—ñ‚ğ m ‚ÅŠ„‚Á‚½ GgMatrix Œ^‚Ì’l.
     GgMatrix divide(const GgMatrix &m) const
     {
-      return divide(m.array.data());
+      return divide(m.data());
     }
 
     // ‰‰Zq
@@ -1833,7 +1830,7 @@ namespace gg
     }
     GgMatrix &operator=(const GgMatrix &m)
     {
-      return operator=(m.array.data());
+      return operator=(m.data());
     }
     GgMatrix &operator+=(const GLfloat *a)
     {
@@ -1841,7 +1838,7 @@ namespace gg
     }
     GgMatrix &operator+=(const GgMatrix &m)
     {
-      return operator+=(m.array.data());
+      return operator+=(m.data());
     }
     GgMatrix &operator-=(const GLfloat *a)
     {
@@ -1849,7 +1846,7 @@ namespace gg
     }
     GgMatrix &operator-=(const GgMatrix &m)
     {
-      return operator-=(m.array.data());
+      return operator-=(m.data());
     }
     GgMatrix &operator*=(const GLfloat *a)
     {
@@ -1857,7 +1854,7 @@ namespace gg
     }
     GgMatrix &operator*=(const GgMatrix &m)
     {
-      return operator*=(m.array.data());
+      return operator*=(m.data());
     }
     GgMatrix &operator/=(const GLfloat *a)
     {
@@ -1865,7 +1862,7 @@ namespace gg
     }
     GgMatrix &operator/=(const GgMatrix &m)
     {
-      return operator/=(m.array.data());
+      return operator/=(m.data());
     }
     GgMatrix operator+(const GLfloat *a) const
     {
@@ -1873,7 +1870,7 @@ namespace gg
     }
     GgMatrix operator+(const GgMatrix &m) const
     {
-      return operator+(m.array.data());
+      return operator+(m.data());
     }
     GgMatrix operator-(const GLfloat *a) const
     {
@@ -1881,7 +1878,7 @@ namespace gg
     }
     GgMatrix operator-(const GgMatrix &m) const
     {
-      return operator-(m.array.data());
+      return operator-(m.data());
     }
     GgMatrix operator*(const GLfloat *a) const
     {
@@ -1889,7 +1886,7 @@ namespace gg
     }
     GgMatrix operator*(const GgMatrix &m) const
     {
-      return operator*(m.array.data());
+      return operator*(m.data());
     }
     GgMatrix operator/(const GLfloat *a) const
     {
@@ -1897,7 +1894,7 @@ namespace gg
     }
     GgMatrix operator/(const GgMatrix &m) const
     {
-      return operator/(m.array.data());
+      return operator/(m.data());
     }
 
     //! \brief ’PˆÊs—ñ‚ğŠi”[‚·‚é.
@@ -2086,7 +2083,7 @@ namespace gg
     //!   \return İ’è‚µ‚½ m ‚Ì“]’us—ñ.
     GgMatrix &loadTranspose(const GgMatrix &m)
     {
-      return loadTranspose(m.array.data());
+      return loadTranspose(m.data());
     }
 
     //! \brief ‹ts—ñ‚ğŠi”[‚·‚é.
@@ -2099,7 +2096,7 @@ namespace gg
     //!   \return İ’è‚µ‚½ m ‚Ì‹ts—ñ.
     GgMatrix &loadInvert(const GgMatrix &m)
     {
-      return loadInvert(m.array.data());
+      return loadInvert(m.data());
     }
 
     //! \brief –@ü•ÏŠ·s—ñ‚ğŠi”[‚·‚é.
@@ -2112,7 +2109,7 @@ namespace gg
     //!   \return İ’è‚µ‚½ m ‚Ì–@ü•ÏŠ·s—ñ.
     GgMatrix &loadNormal(const GgMatrix &m)
     {
-      return loadNormal(m.array.data());
+      return loadNormal(m.data());
     }
 
     //! \brief •½sˆÚ“®•ÏŠ·‚ğæ‚¶‚½Œ‹‰Ê‚ğ•Ô‚·.
@@ -2357,7 +2354,7 @@ namespace gg
     //!   \param v Œ³‚ÌƒxƒNƒgƒ‹‚Ì GLfloat Œ^‚Ì 4 —v‘f‚Ì”z—ñ•Ï”.
     void projection(GLfloat *c, const GLfloat *v) const
     {
-      projection(c, array.data(), v);
+      projection(c, data(), v);
     }
 
     //! \brief ƒxƒNƒgƒ‹‚É‘Î‚µ‚Ä“Š‰e•ÏŠ·‚ğs‚¤.
@@ -2395,38 +2392,10 @@ namespace gg
     }
 
     //! \brief •ÏŠ·s—ñ‚ğæ‚èo‚·.
-    //!   \return •ÏŠ·s—ñ‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 16 —v‘f‚Ì”z—ñ•Ï”.
-    const GLfloat *get() const
-    {
-      return array.data();
-    }
-
-    //! \brief •ÏŠ·s—ñ‚ğæ‚èo‚·.
     //!   \param a •ÏŠ·s—ñ‚ğŠi”[‚·‚é GLfloat Œ^‚Ì 16 —v‘f‚Ì”z—ñ•Ï”.
     void get(GLfloat *a) const
     {
-      for (int i = 0; i < 16; ++i) a[i] = array[i];
-    }
-
-    //! \brief •ÏŠ·s—ñ‚Ì—v‘f‚ğæ‚èo‚·.
-    //!   \return •ÏŠ·s—ñ‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 16 —v‘f‚Ì”z—ñ•Ï” ‚Ì i ”Ô–Ú‚Ì—v‘f.
-    GLfloat get(int i) const
-    {
-      return array[i];
-    }
-
-    //! \brief •ÏŠ·s—ñ‚Ì—v‘f‚ÉƒAƒNƒZƒX‚·‚é.
-    //!   \return •ÏŠ·s—ñ‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 16 —v‘f‚Ì”z—ñ•Ï” ‚Ì i ”Ô–Ú‚Ì—v‘f‚ÌQÆ.
-    const GLfloat &operator[](std::size_t i) const
-    {
-      return array[i];
-    }
-
-    //! \brief •ÏŠ·s—ñ‚Ì—v‘f‚ÉƒAƒNƒZƒX‚·‚é.
-    //!   \return •ÏŠ·s—ñ‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 16 —v‘f‚Ì”z—ñ•Ï” ‚Ì i ”Ô–Ú‚Ì—v‘f‚ÌQÆ.
-    GLfloat &operator[](std::size_t i)
-    {
-      return array[i];
+      for (int i = 0; i < 16; ++i) a[i] = (*this)[i];
     }
   };
 
@@ -2698,11 +2667,8 @@ namespace gg
   /*!
   ** \brief lŒ³”.
   */
-  class GgQuaternion
+  class GgQuaternion : public GgVector
   {
-    // lŒ³”‚Ì—v‘f
-    GgVector quaternion;
-
     // GgQuaternion Œ^‚ÌlŒ³” p ‚ÆlŒ³” q ‚ÌÏ‚ğlŒ³” r ‚É‹‚ß‚é
     void multiply(GLfloat *r, const GLfloat *p, const GLfloat *q) const;
 
@@ -2758,7 +2724,7 @@ namespace gg
     //!   \return lŒ³”‚Ìƒmƒ‹ƒ€.
     GLfloat norm() const
     {
-      return ggLength4(quaternion.data());
+      return ggLength4(data());
     }
 
     //! \brief lŒ³”‚ğŠi”[‚·‚é.
@@ -2769,19 +2735,10 @@ namespace gg
     //!   \return İ’è‚µ‚½lŒ³”.
     GgQuaternion &load(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
     {
-      quaternion[0] = x;
-      quaternion[1] = y;
-      quaternion[2] = z;
-      quaternion[3] = w;
-      return *this;
-    }
-
-    //! \brief lŒ³”‚ğŠi”[‚·‚é.
-    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
-    //!   \return İ’è‚µ‚½lŒ³”.
-    GgQuaternion &load(const GgVector &v)
-    {
-      quaternion = v;
+      (*this)[0] = x;
+      (*this)[1] = y;
+      (*this)[2] = z;
+      (*this)[3] = w;
       return *this;
     }
 
@@ -2794,11 +2751,21 @@ namespace gg
     }
 
     //! \brief lŒ³”‚ğŠi”[‚·‚é.
+    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
+    //!   \return İ’è‚µ‚½lŒ³”.
+    GgQuaternion &load(const GgVector &v)
+    {
+      *static_cast<GgVector *>(this) = v;
+      return *this;
+    }
+
+    //! \brief lŒ³”‚ğŠi”[‚·‚é.
     //!   \param q GgQuaternion Œ^‚ÌlŒ³”.
     //!   \return İ’è‚µ‚½lŒ³”.
     GgQuaternion &load(const GgQuaternion &q)
     {
-      return load(q.quaternion);
+      *this = q;
+      return *this;
     }
 
     //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğ‰ÁZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
@@ -2809,19 +2776,11 @@ namespace gg
     //!   \return (x, y, z, w) ‚ğ‰Á‚¦‚½lŒ³”.
     GgQuaternion &loadAdd(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
     {
-      quaternion[0] += x;
-      quaternion[1] += y;
-      quaternion[2] += z;
-      quaternion[3] += w;
+      (*this)[0] += x;
+      (*this)[1] += y;
+      (*this)[2] += z;
+      (*this)[3] += w;
       return *this;
-    }
-
-    //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğ‰ÁZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
-    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
-    //!   \return v ‚ğ‰Á‚¦‚½lŒ³”.
-    GgQuaternion &loadAdd(const GgVector &v)
-    {
-      return loadAdd(v[0], v[1], v[2], v[3]);
     }
 
     //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğ‰ÁZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
@@ -2833,11 +2792,19 @@ namespace gg
     }
 
     //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğ‰ÁZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
+    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
+    //!   \return v ‚ğ‰Á‚¦‚½lŒ³”.
+    GgQuaternion &loadAdd(const GgVector &v)
+    {
+      return loadAdd(v.data());
+    }
+
+    //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğ‰ÁZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
     //!   \param q GgQuaternion Œ^‚ÌlŒ³”.
     //!   \return q ‚ğ‰Á‚¦‚½lŒ³”.
     GgQuaternion &loadAdd(const GgQuaternion &q)
     {
-      return loadAdd(q.quaternion);
+      return loadAdd(q.data());
     }
 
     //! \brief lŒ³”‚©‚ç•Ê‚ÌlŒ³”‚ğŒ¸Z‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
@@ -2848,19 +2815,11 @@ namespace gg
     //!   \return (x, y, z, w) ‚ğˆø‚¢‚½lŒ³”.
     GgQuaternion &loadSubtract(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
     {
-      quaternion[0] -= x;
-      quaternion[1] -= y;
-      quaternion[2] -= z;
-      quaternion[3] -= w;
+      (*this)[0] -= x;
+      (*this)[1] -= y;
+      (*this)[2] -= z;
+      (*this)[3] -= w;
       return *this;
-    }
-
-    //! \brief lŒ³”‚©‚ç•Ê‚ÌlŒ³”‚ğŒ¸Z‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
-    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
-    //!   \return v ‚ğˆø‚¢‚½lŒ³”.
-    GgQuaternion &loadSubtract(const GgVector &v)
-    {
-      return loadSubtract(v[0], v[1], v[2], v[3]);
     }
 
     //! \brief lŒ³”‚©‚ç•Ê‚ÌlŒ³”‚ğŒ¸Z‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
@@ -2872,11 +2831,19 @@ namespace gg
     }
 
     //! \brief lŒ³”‚©‚ç•Ê‚ÌlŒ³”‚ğŒ¸Z‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
+    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
+    //!   \return v ‚ğˆø‚¢‚½lŒ³”.
+    GgQuaternion &loadSubtract(const GgVector &v)
+    {
+      return loadSubtract(v.data());
+    }
+
+    //! \brief lŒ³”‚©‚ç•Ê‚ÌlŒ³”‚ğŒ¸Z‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
     //!   \param q GgQuaternion Œ^‚ÌlŒ³”.
     //!   \return q ‚ğˆø‚¢‚½lŒ³”.
     GgQuaternion &loadSubtract(const GgQuaternion &q)
     {
-      return loadSubtract(q.quaternion);
+      return loadSubtract(q.data());
     }
 
     //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğæZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
@@ -2892,14 +2859,6 @@ namespace gg
     }
 
     //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğæZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
-    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
-    //!   \return v ‚ğæ‚¶‚½lŒ³”.
-    GgQuaternion &loadMultiply(const GgVector &v)
-    {
-      return loadMultiply(v.data());
-    }
-
-    //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğæZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
     //!   \param a lŒ³”‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 4 —v‘f‚Ì”z—ñ•Ï”.
     //!   \return a ‚ğæ‚¶‚½lŒ³”.
     GgQuaternion &loadMultiply(const GLfloat *a)
@@ -2908,11 +2867,19 @@ namespace gg
     }
 
     //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğæZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
+    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
+    //!   \return v ‚ğæ‚¶‚½lŒ³”.
+    GgQuaternion &loadMultiply(const GgVector &v)
+    {
+      return loadMultiply(v.data());
+    }
+
+    //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğæZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
     //!   \param q GgQuaternion Œ^‚ÌlŒ³”.
     //!   \return q ‚ğæ‚¶‚½lŒ³”.
     GgQuaternion &loadMultiply(const GgQuaternion &q)
     {
-      return loadMultiply(q.quaternion);
+      return loadMultiply(q.data());
     }
 
     //! \brief lŒ³‚ğ•Ê‚ÌlŒ³”‚ÅœZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
@@ -2928,14 +2895,6 @@ namespace gg
     }
 
     //! \brief lŒ³‚ğ•Ê‚ÌlŒ³”‚ÅœZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
-    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
-    //!   \return v ‚ÅŠ„‚Á‚½lŒ³”.
-    GgQuaternion &loadDivide(const GgVector &v)
-    {
-      return loadDivide(v.data());
-    }
-
-    //! \brief lŒ³‚ğ•Ê‚ÌlŒ³”‚ÅœZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
     //!   \param a lŒ³”‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 4 —v‘f‚Ì”z—ñ•Ï”.
     //!   \return a ‚ÅŠ„‚Á‚½lŒ³”.
     GgQuaternion &loadDivide(const GLfloat *a)
@@ -2944,11 +2903,19 @@ namespace gg
     }
 
     //! \brief lŒ³‚ğ•Ê‚ÌlŒ³”‚ÅœZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
+    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
+    //!   \return v ‚ÅŠ„‚Á‚½lŒ³”.
+    GgQuaternion &loadDivide(const GgVector &v)
+    {
+      return loadDivide(v.data());
+    }
+
+    //! \brief lŒ³‚ğ•Ê‚ÌlŒ³”‚ÅœZ‚µ‚½Œ‹‰Ê‚ğŠi”[‚·‚é.
     //!   \param q GgQuaternion Œ^‚ÌlŒ³”.
     //!   \return q ‚ÅŠ„‚Á‚½lŒ³”.
     GgQuaternion &loadDivide(const GgQuaternion &q)
     {
-      return loadDivide(q.quaternion);
+      return loadDivide(q.data());
     }
 
     //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğ‰ÁZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
@@ -2959,20 +2926,8 @@ namespace gg
     //!   \return (x, y, z, w) ‚ğ‰Á‚¦‚½lŒ³”.
     GgQuaternion add(GLfloat x, GLfloat y, GLfloat z, GLfloat w) const
     {
-      GgQuaternion s;
-      s.quaternion[0] = quaternion[0] + x;
-      s.quaternion[1] = quaternion[1] + y;
-      s.quaternion[2] = quaternion[2] + z;
-      s.quaternion[3] = quaternion[3] + w;
-      return s;
-    }
-
-    //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğ‰ÁZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
-    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
-    //!   \return v ‚ğ‰Á‚¦‚½lŒ³”.
-    GgQuaternion add(const GgVector &v) const
-    {
-      return add(v[0], v[1], v[2], v[3]);
+      GgQuaternion s{ *this };
+      return s.loadAdd(x, y, z, w);;
     }
 
     //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğ‰ÁZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
@@ -2984,11 +2939,19 @@ namespace gg
     }
 
     //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğ‰ÁZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
+    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
+    //!   \return v ‚ğ‰Á‚¦‚½lŒ³”.
+    GgQuaternion add(const GgVector &v) const
+    {
+      return add(v.data());
+    }
+
+    //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğ‰ÁZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
     //!   \param q GgQuaternion Œ^‚ÌlŒ³”.
     //!   \return q ‚ğ‰Á‚¦‚½lŒ³”.
     GgQuaternion add(const GgQuaternion &q) const
     {
-      return add(q.quaternion);
+      return add(q.data());
     }
 
     //! \brief lŒ³”‚©‚ç•Ê‚ÌlŒ³”‚ğŒ¸Z‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
@@ -2999,20 +2962,8 @@ namespace gg
     //!   \return (x, y, z, w) ‚ğˆø‚¢‚½lŒ³”.
     GgQuaternion subtract(GLfloat x, GLfloat y, GLfloat z, GLfloat w) const
     {
-      GgQuaternion s;
-      s.quaternion[0] = quaternion[0] - x;
-      s.quaternion[1] = quaternion[1] - y;
-      s.quaternion[2] = quaternion[2] - z;
-      s.quaternion[3] = quaternion[3] - w;
-      return s;
-    }
-
-    //! \brief lŒ³”‚©‚ç•Ê‚ÌlŒ³”‚ğŒ¸Z‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
-    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
-    //!   \return v ‚ğˆø‚¢‚½lŒ³”.
-    GgQuaternion subtract(const GgVector &v) const
-    {
-      return subtract(v[0], v[1], v[2], v[3]);
+      GgQuaternion s{ *this };
+      return s.loadSubtract(x, y, z, w);
     }
 
     //! \brief lŒ³”‚©‚ç•Ê‚ÌlŒ³”‚ğŒ¸Z‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
@@ -3024,11 +2975,19 @@ namespace gg
     }
 
     //! \brief lŒ³”‚©‚ç•Ê‚ÌlŒ³”‚ğŒ¸Z‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
+    //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
+    //!   \return v ‚ğˆø‚¢‚½lŒ³”.
+    GgQuaternion subtract(const GgVector &v) const
+    {
+      return subtract(v.data());
+    }
+
+    //! \brief lŒ³”‚©‚ç•Ê‚ÌlŒ³”‚ğŒ¸Z‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
     //!   \param q GgQuaternion Œ^‚ÌlŒ³”.
     //!   \return q ‚ğˆø‚¢‚½lŒ³”.
     GgQuaternion subtract(const GgQuaternion &q) const
     {
-      return subtract(q.quaternion);
+      return subtract(q.data());
     }
 
     //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğæZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
@@ -3044,6 +3003,16 @@ namespace gg
     }
 
     //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğæZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
+    //!   \param a lŒ³”‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 4 —v‘f‚Ì”z—ñ•Ï”.
+    //!   \return a ‚ğŠ|‚¯‚½lŒ³”.
+    GgQuaternion multiply(const GLfloat *a) const
+    {
+      GgQuaternion s;
+      multiply(s.data(), data(), a);
+      return s;
+    }
+
+    //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğæZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
     //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
     //!   \return v ‚ğŠ|‚¯‚½lŒ³”.
     GgQuaternion multiply(const GgVector &v) const
@@ -3052,21 +3021,11 @@ namespace gg
     }
 
     //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğæZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
-    //!   \param a lŒ³”‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 4 —v‘f‚Ì”z—ñ•Ï”.
-    //!   \return a ‚ğŠ|‚¯‚½lŒ³”.
-    GgQuaternion multiply(const GLfloat *a) const
-    {
-      GgQuaternion s;
-      multiply(s.quaternion.data(), quaternion.data(), a);
-      return s;
-    }
-
-    //! \brief lŒ³”‚É•Ê‚ÌlŒ³”‚ğæZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
     //!   \param q GgQuaternion Œ^‚ÌlŒ³”.
     //!   \return q ‚ğŠ|‚¯‚½lŒ³”.
     GgQuaternion multiply(const GgQuaternion &q) const
     {
-      return multiply(q.quaternion);
+      return multiply(q.data());
     }
 
     //! \brief lŒ³”‚ğ•Ê‚ÌlŒ³”‚ÅœZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
@@ -3082,6 +3041,17 @@ namespace gg
     }
 
     //! \brief lŒ³”‚ğ•Ê‚ÌlŒ³”‚ÅœZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
+    //!   \param a lŒ³”‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 4 —v‘f‚Ì”z—ñ•Ï”.
+    //!   \return a ‚ÅŠ„‚Á‚½lŒ³”.
+    GgQuaternion divide(const GLfloat *a) const
+    {
+      GgQuaternion s, ia;
+      ia.loadInvert(a);
+      multiply(s.data(), data(), ia.data());
+      return s;
+    }
+
+    //! \brief lŒ³”‚ğ•Ê‚ÌlŒ³”‚ÅœZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
     //!   \param v lŒ³”‚ğŠi”[‚µ‚½ GgVector Œ^‚Ì•Ï”.
     //!   \return v ‚ÅŠ„‚Á‚½lŒ³”.
     GgQuaternion divide(const GgVector &v) const
@@ -3090,22 +3060,11 @@ namespace gg
     }
 
     //! \brief lŒ³”‚ğ•Ê‚ÌlŒ³”‚ÅœZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
-    //!   \param a lŒ³”‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 4 —v‘f‚Ì”z—ñ•Ï”.
-    //!   \return a ‚ÅŠ„‚Á‚½lŒ³”.
-    GgQuaternion divide(const GLfloat *a) const
-    {
-      GgQuaternion s, ia;
-      ia.loadInvert(a);
-      multiply(s.quaternion.data(), quaternion.data(), ia.quaternion.data());
-      return s;
-    }
-
-    //! \brief lŒ³”‚ğ•Ê‚ÌlŒ³”‚ÅœZ‚µ‚½Œ‹‰Ê‚ğ•Ô‚·.
     //!   \param q GgQuaternion Œ^‚ÌlŒ³”.
     //!   \return q ‚ÅŠ„‚Á‚½lŒ³”.
     GgQuaternion divide(const GgQuaternion &q) const
     {
-      return divide(q.quaternion);
+      return divide(q.data());
     }
 
     // ‰‰Zq
@@ -3115,7 +3074,7 @@ namespace gg
     }
     GgQuaternion &operator=(const GgQuaternion &q)
     {
-      return operator=(q.quaternion.data());
+      return operator=(q.data());
     }
     GgQuaternion &operator+=(const GLfloat *a)
     {
@@ -3123,7 +3082,7 @@ namespace gg
     }
     GgQuaternion &operator+=(const GgQuaternion &q)
     {
-      return operator+=(q.quaternion.data());
+      return operator+=(q.data());
     }
     GgQuaternion &operator-=(const GLfloat *a)
     {
@@ -3131,7 +3090,7 @@ namespace gg
     }
     GgQuaternion &operator-=(const GgQuaternion &q)
     {
-      return operator-=(q.quaternion.data());
+      return operator-=(q.data());
     }
     GgQuaternion &operator*=(const GLfloat *a)
     {
@@ -3139,7 +3098,7 @@ namespace gg
     }
     GgQuaternion &operator*=(const GgQuaternion &q)
     {
-      return operator*=(q.quaternion.data());
+      return operator*=(q.data());
     }
     GgQuaternion &operator/=(const GLfloat *a)
     {
@@ -3147,7 +3106,7 @@ namespace gg
     }
     GgQuaternion &operator/=(const GgQuaternion &q)
     {
-      return operator/=(q.quaternion.data());
+      return operator/=(q.data());
     }
     GgQuaternion operator+(const GLfloat *a) const
     {
@@ -3155,7 +3114,7 @@ namespace gg
     }
     GgQuaternion operator+(const GgQuaternion &q) const
     {
-      return operator+(q.quaternion.data());
+      return operator+(q.data());
     }
     GgQuaternion operator-(const GLfloat *a) const
     {
@@ -3163,7 +3122,7 @@ namespace gg
     }
     GgQuaternion operator-(const GgQuaternion &q) const
     {
-      return operator-(q.quaternion.data());
+      return operator-(q.data());
     }
     GgQuaternion operator*(const GLfloat *a) const
     {
@@ -3171,7 +3130,7 @@ namespace gg
     }
     GgQuaternion operator*(const GgQuaternion &q) const
     {
-      return operator*(q.quaternion.data());
+      return operator*(q.data());
     }
     GgQuaternion operator/(const GLfloat *a) const
     {
@@ -3179,7 +3138,7 @@ namespace gg
     }
     GgQuaternion operator/(const GgQuaternion &q) const
     {
-      return operator/(q.quaternion.data());
+      return operator/(q.data());
     }
 
     //! \brief ‰ñ“]‚Ì•ÏŠ·s—ñ‚ğ•\‚·lŒ³”‚ğŠi”[‚·‚é.
@@ -3187,7 +3146,7 @@ namespace gg
     //!   \return a ‚É‚æ‚é‰ñ“]‚Ì•ÏŠ·‚É‘Š“–‚·‚élŒ³”.
     GgQuaternion &loadMatrix(const GLfloat *a)
     {
-      toQuaternion(quaternion.data(), a);
+      toQuaternion(data(), a);
       return *this;
     }
 
@@ -3196,7 +3155,7 @@ namespace gg
     //!   \return m ‚É‚æ‚é‰ñ“]‚Ì•ÏŠ·‚É‘Š“–‚·‚élŒ³”.
     GgQuaternion &loadMatrix(const GgMatrix &m)
     {
-      return loadMatrix(m.get());
+      return loadMatrix(m.data());
     }
 
     //! \brief ’PˆÊŒ³‚ğŠi”[‚·‚é.
@@ -3340,7 +3299,7 @@ namespace gg
     //!   \return Ši”[‚µ‚½ a, b ‚ğ t ‚Å“à•ª‚µ‚½lŒ³”.
     GgQuaternion &loadSlerp(const GLfloat *a, const GLfloat *b, GLfloat t)
     {
-      slerp(quaternion.data(), a, b, t);
+      slerp(data(), a, b, t);
       return *this;
     }
 
@@ -3351,7 +3310,7 @@ namespace gg
     //!   \return Ši”[‚µ‚½ q, r ‚ğ t ‚Å“à•ª‚µ‚½lŒ³”.
     GgQuaternion &loadSlerp(const GgQuaternion &q, const GgQuaternion &r, GLfloat t)
     {
-      return loadSlerp(q.quaternion.data(), r.quaternion.data(), t);
+      return loadSlerp(q.data(), r.data(), t);
     }
 
     //! \brief ‹…–ÊüŒ`•âŠÔ‚ÌŒ‹‰Ê‚ğŠi”[‚·‚é.
@@ -3361,7 +3320,7 @@ namespace gg
     //!   \return Ši”[‚µ‚½ q, a ‚ğ t ‚Å“à•ª‚µ‚½lŒ³”.
     GgQuaternion &loadSlerp(const GgQuaternion &q, const GLfloat *a, GLfloat t)
     {
-      return loadSlerp(q.quaternion.data(), a, t);
+      return loadSlerp(q.data(), a, t);
     }
 
     //! \brief ‹…–ÊüŒ`•âŠÔ‚ÌŒ‹‰Ê‚ğŠi”[‚·‚é.
@@ -3371,7 +3330,7 @@ namespace gg
     //!   \return Ši”[‚µ‚½ a, q ‚ğ t ‚Å“à•ª‚µ‚½lŒ³”.
     GgQuaternion &loadSlerp(const GLfloat *a, const GgQuaternion &q, GLfloat t)
     {
-      return loadSlerp(a, q.quaternion.data(), t);
+      return loadSlerp(a, q.data(), t);
     }
 
     //! \brief ˆø”‚Éw’è‚µ‚½lŒ³”‚ğ³‹K‰»‚µ‚ÄŠi”[‚·‚é.
@@ -3384,7 +3343,7 @@ namespace gg
     //!   \return ³‹K‰»‚³‚ê‚½lŒ³”.
     GgQuaternion &loadNormalize(const GgQuaternion &q)
     {
-      return loadNormalize(q.quaternion.data());
+      return loadNormalize(q.data());
     }
 
     //! \brief ˆø”‚Éw’è‚µ‚½lŒ³”‚Ì‹¤–ğlŒ³”‚ğŠi”[‚·‚é.
@@ -3397,7 +3356,7 @@ namespace gg
     //!   \return ‹¤–ğlŒ³”.
     GgQuaternion &loadConjugate(const GgQuaternion &q)
     {
-      return loadConjugate(q.quaternion.data());
+      return loadConjugate(q.data());
     }
 
     //! \brief ˆø”‚Éw’è‚µ‚½lŒ³”‚Ì‹tŒ³‚ğŠi”[‚·‚é.
@@ -3410,7 +3369,7 @@ namespace gg
     //!   \return lŒ³”‚Ì‹tŒ³.
     GgQuaternion &loadInvert(const GgQuaternion &q)
     {
-      return loadInvert(q.quaternion.data());
+      return loadInvert(q.data());
     }
 
     //! \brief ‹…–ÊüŒ`•âŠÔ‚ÌŒ‹‰Ê‚ğ•Ô‚·.
@@ -3420,7 +3379,7 @@ namespace gg
     GgQuaternion slerp(GLfloat *a, GLfloat t) const
     {
       GgQuaternion p;
-      slerp(p.quaternion.data(), quaternion.data(), a, t);
+      slerp(p.data(), data(), a, t);
       return p;
     }
 
@@ -3431,7 +3390,7 @@ namespace gg
     GgQuaternion slerp(const GgQuaternion &q, GLfloat t) const
     {
       GgQuaternion p;
-      slerp(p.quaternion.data(), quaternion.data(), q.quaternion.data(), t);
+      slerp(p.data(), data(), q.data(), t);
       return p;
     }
 
@@ -3440,7 +3399,7 @@ namespace gg
     GgQuaternion normalize() const
     {
       GgQuaternion q;
-      q.loadNormalize(quaternion.data());
+      q.loadNormalize(data());
       return q;
     }
 
@@ -3449,7 +3408,7 @@ namespace gg
     GgQuaternion conjugate() const
     {
       GgQuaternion q;
-      q.loadConjugate(quaternion.data());
+      q.loadConjugate(data());
       return q;
     }
 
@@ -3458,39 +3417,32 @@ namespace gg
     GgQuaternion invert() const
     {
       GgQuaternion q;
-      q.loadInvert(quaternion.data());
+      q.loadInvert(data());
       return q;
-    }
-
-    //! \brief lŒ³”‚ğæ‚èo‚·.
-    //!   \return lŒ³”‚ğ•\‚· GLfloat Œ^‚Ì 4 —v‘f‚Ì”z—ñ•Ï”.
-    const GLfloat *get() const
-    {
-      return quaternion.data();
     }
 
     //! \brief lŒ³”‚ğæ‚èo‚·.
     //!   \param a lŒ³”‚ğŠi”[‚·‚é GLfloat Œ^‚Ì 4 —v‘f‚Ì”z—ñ•Ï”.
     void get(GLfloat *a) const
     {
-      a[0] = quaternion[0];
-      a[1] = quaternion[1];
-      a[2] = quaternion[2];
-      a[3] = quaternion[3];
+      a[0] = (*this)[0];
+      a[1] = (*this)[1];
+      a[2] = (*this)[2];
+      a[3] = (*this)[3];
     }
 
     //! \brief lŒ³”‚ª•\‚·‰ñ“]‚Ì•ÏŠ·s—ñ‚ğ a ‚É‹‚ß‚é.
     //!   \param a ‰ñ“]‚Ì•ÏŠ·s—ñ‚ğŠi”[‚·‚é GLfloat Œ^‚Ì 16 —v‘f‚Ì”z—ñ•Ï”.
     void getMatrix(GLfloat *a) const
     {
-      toMatrix(a, quaternion.data());
+      toMatrix(a, data());
     }
 
     //! \brief lŒ³”‚ª•\‚·‰ñ“]‚Ì•ÏŠ·s—ñ‚ğ m ‚É‹‚ß‚é.
     //!   \param m ‰ñ“]‚Ì•ÏŠ·s—ñ‚ğŠi”[‚·‚é GgMatrix Œ^‚Ì•Ï”.
     void getMatrix(GgMatrix &m) const
     {
-      getMatrix(m.array.data());
+      getMatrix(m.data());
     }
 
     //! \brief lŒ³”‚ª•\‚·‰ñ“]‚Ì•ÏŠ·s—ñ‚ğæ‚èo‚·.
@@ -3507,15 +3459,15 @@ namespace gg
     void getConjugateMatrix(GLfloat *a) const
     {
       GgQuaternion c;
-      c.loadConjugate(quaternion.data());
-      toMatrix(a, c.quaternion.data());
+      c.loadConjugate(data());
+      toMatrix(a, c.data());
     }
 
     //! \brief lŒ³”‚Ì‹¤–ğ‚ª•\‚·‰ñ“]‚Ì•ÏŠ·s—ñ‚ğ m ‚É‹‚ß‚é.
     //!   \param m ‰ñ“]‚Ì•ÏŠ·s—ñ‚ğŠi”[‚·‚é GgMatrix Œ^‚Ì•Ï”.
     void getConjugateMatrix(GgMatrix &m) const
     {
-      getConjugateMatrix(m.array.data());
+      getConjugateMatrix(m.data());
     }
 
     //! \brief lŒ³”‚Ì‹¤–ğ‚ª•\‚·‰ñ“]‚Ì•ÏŠ·s—ñ‚ğæ‚èo‚·.
@@ -3525,20 +3477,6 @@ namespace gg
       GgMatrix m;
       getConjugateMatrix(m);
       return m;
-    }
-
-    //! \brief lŒ³”‚Ì—v‘f‚ÉƒAƒNƒZƒX‚·‚é.
-    //!   \return lŒ³”‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 4 —v‘f‚Ì”z—ñ•Ï” ‚Ì i ”Ô–Ú‚Ì—v‘f‚ÌQÆ.
-    const GLfloat &operator[](std::size_t i) const
-    {
-      return quaternion[i];
-    }
-
-    //! \brief lŒ³”‚Ì—v‘f‚ÉƒAƒNƒZƒX‚·‚é.
-    //!   \return lŒ³”‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 4 —v‘f‚Ì”z—ñ•Ï” ‚Ì i ”Ô–Ú‚Ì—v‘f‚ÌQÆ.
-    GLfloat &operator[](std::size_t i)
-    {
-      return quaternion[i];
     }
   };
 
@@ -3584,7 +3522,7 @@ namespace gg
   //!   \return m ‚É‚æ‚é‰ñ“]‚Ì•ÏŠ·‚É‘Š“–‚·‚élŒ³”.
   inline GgQuaternion ggMatrixQuaternion(const GgMatrix &m)
   {
-    return ggMatrixQuaternion(m.get());
+    return ggMatrixQuaternion(m.data());
   }
 
   //! \brief lŒ³” q ‚Ì‰ñ“]‚Ì•ÏŠ·s—ñ‚ğ•Ô‚·.
@@ -3675,7 +3613,7 @@ namespace gg
   //!   \return q, r ‚ğ t ‚Å“à•ª‚µ‚½lŒ³”.
   inline GgQuaternion ggSlerp(const GgQuaternion &q, const GgQuaternion &r, GLfloat t)
   {
-    return ggSlerp(q.get(), r.get(), t);
+    return ggSlerp(q.data(), r.data(), t);
   }
 
   //! \brief “ñ‚Â‚ÌlŒ³”‚Ì‹…–ÊüŒ`•âŠÔ‚ÌŒ‹‰Ê‚ğ•Ô‚·.
@@ -3685,7 +3623,7 @@ namespace gg
   //!   \return q, a ‚ğ t ‚Å“à•ª‚µ‚½lŒ³”.
   inline GgQuaternion ggSlerp(const GgQuaternion &q, const GLfloat *a, GLfloat t)
   {
-    return ggSlerp(q.get(), a, t);
+    return ggSlerp(q.data(), a, t);
   }
 
   //! \brief “ñ‚Â‚ÌlŒ³”‚Ì‹…–ÊüŒ`•âŠÔ‚ÌŒ‹‰Ê‚ğ•Ô‚·.
@@ -3695,7 +3633,7 @@ namespace gg
   //!   \return a, q ‚ğ t ‚Å“à•ª‚µ‚½lŒ³”.
   inline GgQuaternion ggSlerp(const GLfloat *a, const GgQuaternion &q, GLfloat t)
   {
-    return ggSlerp(a, q.get(), t);
+    return ggSlerp(a, q.data(), t);
   }
 
   //! \brief lŒ³”‚Ìƒmƒ‹ƒ€‚ğ•Ô‚·.
@@ -3733,13 +3671,12 @@ namespace gg
   /*!
   ** \brief ŠÈˆÕƒgƒ‰ƒbƒNƒ{[ƒ‹ˆ—.
   */
-  class GgTrackball
+  class GgTrackball : public GgQuaternion
   {
     bool drag;        // ƒhƒ‰ƒbƒO’†‚©”Û‚©
     float start[2];   // ƒhƒ‰ƒbƒOŠJnˆÊ’u
     float scale[2];   // ƒ}ƒEƒX‚Ìâ‘ÎˆÊ’u¨ƒEƒBƒ“ƒhƒE“à‚Å‚Ì‘Š‘ÎˆÊ’u‚ÌŠ·ZŒW”
     GgQuaternion cq;  // ‰ñ“]‚Ì‰Šú’l (lŒ³”)
-    GgQuaternion tq;  // ƒhƒ‰ƒbƒO’†‚Ì‰ñ“] (lŒ³”)
     GgMatrix rt;      // ‰ñ“]‚Ì•ÏŠ·s—ñ
 
   public:
@@ -3843,7 +3780,7 @@ namespace gg
     //!   \return ‰ñ“]‚Ì•ÏŠ·‚ğ•\‚· Quaternion Œ^‚ÌlŒ³”.
     const GgQuaternion &getQuaternion() const
     {
-      return tq;
+      return *static_cast<const GgQuaternion *>(this);
     }
 
     //! \brief Œ»İ‚Ì‰ñ“]‚Ì•ÏŠ·s—ñ‚ğæ‚èo‚·.
@@ -3857,21 +3794,7 @@ namespace gg
     //!   \return ‰ñ“]‚Ì•ÏŠ·‚ğ•\‚· GLfloat Œ^‚Ì 16 —v‘f‚Ì”z—ñ.
     const GLfloat *get() const
     {
-      return rt.get();
-    }
-
-    //! \brief Œ»İ‚Ì‰ñ“]‚ÌlŒ³”‚Ì—v‘f‚ÉƒAƒNƒZƒX‚·‚é.
-    //!   \return Œ»İ‚Ì‰ñ“]‚ÌlŒ³”‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 4 —v‘f‚Ì”z—ñ•Ï” ‚Ì i ”Ô–Ú‚Ì—v‘f‚ÌQÆ.
-    const GLfloat &operator[](std::size_t i) const
-    {
-      return tq[i];
-    }
-
-    //! \brief Œ»İ‚Ì‰ñ“]‚ÌlŒ³”‚Ì—v‘f‚ÉƒAƒNƒZƒX‚·‚é
-    //!   \return Œ»İ‚Ì‰ñ“]‚ÌlŒ³”‚ğŠi”[‚µ‚½ GLfloat Œ^‚Ì 4 —v‘f‚Ì”z—ñ•Ï” ‚Ì i ”Ô–Ú‚Ì—v‘f‚ÌQÆ.
-    GLfloat &operator[](std::size_t i)
-    {
-      return tq[i];
+      return rt.data();
     }
   };
 
@@ -5064,7 +4987,7 @@ namespace gg
     //!   \param mv GgMatrix Œ^‚Ìƒ‚ƒfƒ‹ƒrƒ…[•ÏŠ·s—ñ.
     virtual void loadMatrix(const GgMatrix &mp, const GgMatrix &mv) const
     {
-      loadMatrix(mp.get(), mv.get());
+      loadMatrix(mp.data(), mv.data());
     }
 
     //! \brief ƒVƒF[ƒ_ƒvƒƒOƒ‰ƒ€‚Ìg—p‚ğŠJn‚·‚é.
@@ -5156,7 +5079,7 @@ namespace gg
     //!   \param mn GgMatrix Œ^‚Ìƒ‚ƒfƒ‹ƒrƒ…[•ÏŠ·s—ñ‚Ì–@ü•ÏŠ·s—ñ.
     virtual void loadMatrix(const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mn) const
     {
-      loadMatrix(mp.get(), mv.get(), mn.get());
+      loadMatrix(mp.data(), mv.data(), mn.data());
     }
 
     //! \brief •ÏŠ·s—ñ‚ğİ’è‚·‚é.
@@ -5533,7 +5456,7 @@ namespace gg
     //!   \param mn GgMatrix Œ^‚Ìƒ‚ƒfƒ‹ƒrƒ…[•ÏŠ·s—ñ‚Ì–@ü•ÏŠ·s—ñ.
     void use(const LightBuffer &light, const GgMatrix &mp, const GgMatrix &mv, const GgMatrix &mn) const
     {
-      use(light, mp.get(), mv.get(), mn.get());
+      use(light, mp.data(), mv.data(), mn.data());
     }
 
     //! \brief ŒõŒ¹‚Æ•ÏŠ·s—ñ‚ğw’è‚µ‚ÄƒVƒF[ƒ_ƒvƒƒOƒ‰ƒ€‚Ìg—p‚ğŠJn‚·‚é.

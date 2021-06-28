@@ -1389,7 +1389,7 @@ void ImGui::SeparatorEx(ImGuiSeparatorFlags flags)
         if (columns)
             PushColumnsBackground();
 
-        // We don't provide our width to the layout so that it doesn't get feed back into AutoFit
+        // We don't provide our width to the layout so that it doesn't data feed back into AutoFit
         const ImRect bb(ImVec2(x1, window->DC.CursorPos.y), ImVec2(x2, window->DC.CursorPos.y + thickness_draw));
         ItemSize(ImVec2(0.0f, thickness_layout));
         const bool item_visible = ItemAdd(bb, 0);
@@ -3961,7 +3961,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         state->TextA.resize(0);
         state->TextAIsValid = false;                // TextA is not valid yet (we will display buf until then)
         state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, buf_size, buf, NULL, &buf_end);
-        state->CurLenA = (int)(buf_end - buf);      // We can't get the result from ImStrncpy() above because it is not UTF-8 aware. Here we'll cut off malformed UTF-8.
+        state->CurLenA = (int)(buf_end - buf);      // We can't data the result from ImStrncpy() above because it is not UTF-8 aware. Here we'll cut off malformed UTF-8.
 
         // Preserve cursor position and undo/redo stack if we come back to same widget
         // FIXME: For non-readonly widgets we might be able to require that TextAIsValid && TextA == buf ? (untested) and discard undo stack if user buffer has changed.
@@ -6615,7 +6615,7 @@ bool ImGui::BeginMainMenuBar()
     {
         // Set window position
         // We don't attempt to calculate our height ahead, as it depends on the per-viewport font size.
-        // However menu-bar will affect the minimum window size so we'll get the right height.
+        // However menu-bar will affect the minimum window size so we'll data the right height.
         ImVec2 menu_bar_pos = viewport->Pos + viewport->CurrWorkOffsetMin;
         ImVec2 menu_bar_size = ImVec2(viewport->Size.x - viewport->CurrWorkOffsetMin.x + viewport->CurrWorkOffsetMax.x, 1.0f);
         SetNextWindowPos(menu_bar_pos);

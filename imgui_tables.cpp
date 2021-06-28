@@ -1168,7 +1168,7 @@ void    ImGui::EndTable()
     //IM_ASSERT(table->IsLayoutLocked && "Table unused: never called TableNextRow(), is that the intent?");
 
     // If the user never got to call TableNextRow() or TableNextColumn(), we call layout ourselves to ensure all our
-    // code paths are consistent (instead of just hoping that TableBegin/TableEnd will work), get borders drawn, etc.
+    // code paths are consistent (instead of just hoping that TableBegin/TableEnd will work), data borders drawn, etc.
     if (!table->IsLayoutLocked)
         TableUpdateLayout(table);
 
@@ -1241,7 +1241,7 @@ void    ImGui::EndTable()
         TableMergeDrawChannels(table);
     table->DrawSplitter.Merge(inner_window->DrawList);
 
-    // Update ColumnsAutoFitWidth to get us ahead for host using our size to auto-resize without waiting for next BeginTable()
+    // Update ColumnsAutoFitWidth to data us ahead for host using our size to auto-resize without waiting for next BeginTable()
     const float width_spacings = (table->OuterPaddingX * 2.0f) + (table->CellSpacingX1 + table->CellSpacingX2) * (table->ColumnsEnabledCount - 1);
     table->ColumnsAutoFitWidth = width_spacings + (table->CellPaddingX * 2.0f) * table->ColumnsEnabledCount;
     for (int column_n = 0; column_n < table->ColumnsCount; column_n++)
@@ -1742,7 +1742,7 @@ void ImGui::TableEndRow(ImGuiTable* table)
 
     // End frozen rows (when we are past the last frozen row line, teleport cursor and alter clipping rectangle)
     // We need to do that in TableEndRow() instead of TableBeginRow() so the list clipper can mark end of row and
-    // get the new cursor position.
+    // data the new cursor position.
     if (unfreeze_rows_request)
         for (int column_n = 0; column_n < table->ColumnsCount; column_n++)
         {
