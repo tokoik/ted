@@ -267,12 +267,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_2A30A7C8BE154898B66A6E9F03A55029"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_2A8E6E29E9704C91966B0AC3A9DE8025"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -652,6 +646,12 @@
         "Entry"
         {
         "MsmKey" = "8:_79639995D763417DAA69F731123323B5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7965B9D371F8480CAFC1CBF54067EDC0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1047,6 +1047,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BDAAF95EA9B94E5589F2F66C600DBC2E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BDE6B7CFD3E74A88A8AC276196E7183B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1126,12 +1132,6 @@
         "Entry"
         {
         "MsmKey" = "8:_D35CD422D11841199259D01FCDC99320"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D3FE522E9A88426C829CB3B638971691"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2234,26 +2234,6 @@
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libcairo-gobject-2.dll"
             "TargetName" = "8:libcairo-gobject-2.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A30A7C8BE154898B66A6E9F03A55029"
-            {
-            "SourcePath" = "8:..\\config.json"
-            "TargetName" = "8:config.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4850,6 +4830,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BDAAF95EA9B94E5589F2F66C600DBC2E"
+            {
+            "SourcePath" = "8:..\\Mplus1-Regular.ttf"
+            "TargetName" = "8:Mplus1-Regular.ttf"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BDE6B7CFD3E74A88A8AC276196E7183B"
             {
             "SourcePath" = "8:..\\target.frag"
@@ -5114,26 +5114,6 @@
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\orc-0.4-0.dll"
             "TargetName" = "8:orc-0.4-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D3FE522E9A88426C829CB3B638971691"
-            {
-            "SourcePath" = "8:..\\x64\\Release\\ted.exe"
-            "TargetName" = "8:ted.exe"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5818,7 +5798,7 @@
         {
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_22AD224362704684B1F969685D67EB44"
             {
-            "DefaultLocation" = "8:[LocalAppDataFolder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFiles64Folder][Manufacturer]\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -5877,16 +5857,16 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TelExistence Display"
-        "ProductCode" = "8:{F6081E41-A3B1-446B-99C2-6838BFEF753F}"
-        "PackageCode" = "8:{562A1204-0089-4EA7-9D99-271CF7754CCF}"
+        "ProductCode" = "8:{1C573A22-8C0F-46B7-8848-5878829540CA}"
+        "PackageCode" = "8:{E91055D4-51E3-41FB-A6F3-E5C362380155}"
         "UpgradeCode" = "8:{7A39854F-F010-495F-856C-E53FA8330919}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
-        "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:0.1.9"
-        "Manufacturer" = "8:tokoi"
+        "InstallAllUsers" = "11:TRUE"
+        "ProductVersion" = "8:0.2.0"
+        "Manufacturer" = "8:Visual Media Laboratory"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/tokoik/ted/"
         "Title" = "8:TelExistence Display"
@@ -5998,6 +5978,20 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_1EC8873F18874F769ABF221E050CA986"
+            {
+            "Name" = "8:TED"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_7965B9D371F8480CAFC1CBF54067EDC0"
+            "Folder" = "8:_419B312862F24A4BA58F293DEB3C8FC5"
+            "WorkingFolder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Icon" = "8:_DB53BB6E207849BC8D5F2935E524DCD5"
+            "Feature" = "8:"
+            }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_448CE7EA81214BFC98720C0D1817D6B8"
             {
             "Name" = "8:シーングラフの書式"
@@ -6026,7 +6020,7 @@
             "Icon" = "8:"
             "Feature" = "8:"
             }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_69D8ECE82542468A91EBE9993C7386E7"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_47D7E5AE4B0A4EF3862AB50E5F5C86A2"
             {
             "Name" = "8:TED"
             "Arguments" = "8:"
@@ -6034,22 +6028,8 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_D3FE522E9A88426C829CB3B638971691"
+            "Target" = "8:_7965B9D371F8480CAFC1CBF54067EDC0"
             "Folder" = "8:_8EC4758028894E69872C5798C2C69635"
-            "WorkingFolder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Icon" = "8:_DB53BB6E207849BC8D5F2935E524DCD5"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_BF76F34F2F62404588718718940685BB"
-            {
-            "Name" = "8:TED"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_D3FE522E9A88426C829CB3B638971691"
-            "Folder" = "8:_419B312862F24A4BA58F293DEB3C8FC5"
             "WorkingFolder" = "8:_22AD224362704684B1F969685D67EB44"
             "Icon" = "8:_DB53BB6E207849BC8D5F2935E524DCD5"
             "Feature" = "8:"
@@ -6062,7 +6042,7 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_2A30A7C8BE154898B66A6E9F03A55029"
+            "Target" = "8:"
             "Folder" = "8:_8EC4758028894E69872C5798C2C69635"
             "WorkingFolder" = "8:_22AD224362704684B1F969685D67EB44"
             "Icon" = "8:"
@@ -6481,6 +6461,34 @@
         }
         "ProjectOutput"
         {
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_7965B9D371F8480CAFC1CBF54067EDC0"
+            {
+            "SourcePath" = "8:..\\x64\\Release\\ted.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{92525727-B349-4D7C-AE12-EA18F30D2C41}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
         }
     }
 }
