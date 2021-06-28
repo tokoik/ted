@@ -197,7 +197,7 @@ bool CamRemote::transmit(int cam, GLuint texture, const GLsizei *size)
     glBindTexture(GL_TEXTURE_2D, resample[cam]);
 
     // リモートのヘッドトラッキング情報を設定してレンダリング
-    glUniformMatrix4fv(rotationLoc, 1, GL_FALSE, Scene::getRemoteAttitude(cam).get());
+    glUniformMatrix4fv(rotationLoc, 1, GL_FALSE, Scene::getRemoteAttitude(cam).data());
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, slices * 2, stacks - 1);
 
     // レンダリング先を通常のフレームバッファに戻す

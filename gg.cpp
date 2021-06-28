@@ -4230,10 +4230,10 @@ void gg::GgMatrix::multiply(GLfloat *c, const GLfloat *a, const GLfloat *b) cons
 */
 gg::GgMatrix &gg::GgMatrix::loadIdentity()
 {
-  array[ 1] = array[ 2] = array[ 3] = array[ 4] =
-  array[ 6] = array[ 7] = array[ 8] = array[ 9] =
-  array[11] = array[12] = array[13] = array[14] = 0.0f;
-  array[ 0] = array[ 5] = array[10] = array[15] = 1.0f;
+  (*this)[ 1] = (*this)[ 2] = (*this)[ 3] = (*this)[ 4] =
+  (*this)[ 6] = (*this)[ 7] = (*this)[ 8] = (*this)[ 9] =
+  (*this)[11] = (*this)[12] = (*this)[13] = (*this)[14] = 0.0f;
+  (*this)[ 0] = (*this)[ 5] = (*this)[10] = (*this)[15] = 1.0f;
 
   return *this;
 }
@@ -4243,13 +4243,13 @@ gg::GgMatrix &gg::GgMatrix::loadIdentity()
 */
 gg::GgMatrix &gg::GgMatrix::loadTranslate(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-  array[12] = x;
-  array[13] = y;
-  array[14] = z;
-  array[ 0] = array[ 5] = array[10] = array[15] = w;
-  array[ 1] = array[ 2] = array[ 3] = array[ 4] =
-  array[ 6] = array[ 7] = array[ 8] = array[ 9] =
-  array[ 11] = 0.0f;
+  (*this)[12] = x;
+  (*this)[13] = y;
+  (*this)[14] = z;
+  (*this)[ 0] = (*this)[ 5] = (*this)[10] = (*this)[15] = w;
+  (*this)[ 1] = (*this)[ 2] = (*this)[ 3] = (*this)[ 4] =
+  (*this)[ 6] = (*this)[ 7] = (*this)[ 8] = (*this)[ 9] =
+  (*this)[ 11] = 0.0f;
 
   return *this;
 }
@@ -4259,13 +4259,13 @@ gg::GgMatrix &gg::GgMatrix::loadTranslate(GLfloat x, GLfloat y, GLfloat z, GLflo
 */
 gg::GgMatrix &gg::GgMatrix::loadScale(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-  array[ 0] = x;
-  array[ 5] = y;
-  array[10] = z;
-  array[15] = w;
-  array[ 1] = array[ 2] = array[ 3] = array[ 4] =
-  array[ 6] = array[ 7] = array[ 8] = array[ 9] =
-  array[11] = array[12] = array[13] = array[14] = 0.0f;
+  (*this)[ 0] = x;
+  (*this)[ 5] = y;
+  (*this)[10] = z;
+  (*this)[15] = w;
+  (*this)[ 1] = (*this)[ 2] = (*this)[ 3] = (*this)[ 4] =
+  (*this)[ 6] = (*this)[ 7] = (*this)[ 8] = (*this)[ 9] =
+  (*this)[11] = (*this)[12] = (*this)[13] = (*this)[14] = 0.0f;
 
   return *this;
 }
@@ -4278,10 +4278,10 @@ gg::GgMatrix &gg::GgMatrix::loadRotateX(GLfloat a)
   const GLfloat c(cos(a));
   const GLfloat s(sin(a));
 
-  array[ 0] = 1.0f; array[ 1] = 0.0f; array[ 2] = 0.0f; array[ 3] = 0.0f;
-  array[ 4] = 0.0f; array[ 5] = c;    array[ 6] = s;    array[ 7] = 0.0f;
-  array[ 8] = 0.0f; array[ 9] = -s;   array[10] = c;    array[11] = 0.0f;
-  array[12] = 0.0f; array[13] = 0.0f; array[14] = 0.0f; array[15] = 1.0f;
+  (*this)[ 0] = 1.0f; (*this)[ 1] = 0.0f; (*this)[ 2] = 0.0f; (*this)[ 3] = 0.0f;
+  (*this)[ 4] = 0.0f; (*this)[ 5] = c;    (*this)[ 6] = s;    (*this)[ 7] = 0.0f;
+  (*this)[ 8] = 0.0f; (*this)[ 9] = -s;   (*this)[10] = c;    (*this)[11] = 0.0f;
+  (*this)[12] = 0.0f; (*this)[13] = 0.0f; (*this)[14] = 0.0f; (*this)[15] = 1.0f;
 
   return *this;
 }
@@ -4294,10 +4294,10 @@ gg::GgMatrix &gg::GgMatrix::loadRotateY(GLfloat a)
   const GLfloat c(cos(a));
   const GLfloat s(sin(a));
 
-  array[ 0] = c;    array[ 1] = 0.0f; array[ 2] = -s;   array[ 3] = 0.0f;
-  array[ 4] = 0.0f; array[ 5] = 1.0f; array[ 6] = 0.0f; array[ 7] = 0.0f;
-  array[ 8] = s;    array[ 9] = 0.0f; array[10] = c;    array[11] = 0.0f;
-  array[12] = 0.0f; array[13] = 0.0f; array[14] = 0.0f; array[15] = 1.0f;
+  (*this)[ 0] = c;    (*this)[ 1] = 0.0f; (*this)[ 2] = -s;   (*this)[ 3] = 0.0f;
+  (*this)[ 4] = 0.0f; (*this)[ 5] = 1.0f; (*this)[ 6] = 0.0f; (*this)[ 7] = 0.0f;
+  (*this)[ 8] = s;    (*this)[ 9] = 0.0f; (*this)[10] = c;    (*this)[11] = 0.0f;
+  (*this)[12] = 0.0f; (*this)[13] = 0.0f; (*this)[14] = 0.0f; (*this)[15] = 1.0f;
 
   return *this;
 }
@@ -4310,10 +4310,10 @@ gg::GgMatrix &gg::GgMatrix::loadRotateZ(GLfloat a)
   const GLfloat c(cos(a));
   const GLfloat s(sin(a));
 
-  array[ 0] = c;    array[ 1] = s;    array[ 2] = 0.0f; array[ 3] = 0.0f;
-  array[ 4] = -s;   array[ 5] = c;    array[ 6] = 0.0f; array[ 7] = 0.0f;
-  array[ 8] = 0.0f; array[ 9] = 0.0f; array[10] = 1.0f; array[11] = 0.0f;
-  array[12] = 0.0f; array[13] = 0.0f; array[14] = 0.0f; array[15] = 1.0f;
+  (*this)[ 0] = c;    (*this)[ 1] = s;    (*this)[ 2] = 0.0f; (*this)[ 3] = 0.0f;
+  (*this)[ 4] = -s;   (*this)[ 5] = c;    (*this)[ 6] = 0.0f; (*this)[ 7] = 0.0f;
+  (*this)[ 8] = 0.0f; (*this)[ 9] = 0.0f; (*this)[10] = 1.0f; (*this)[11] = 0.0f;
+  (*this)[12] = 0.0f; (*this)[13] = 0.0f; (*this)[14] = 0.0f; (*this)[15] = 1.0f;
 
   return *this;
 }
@@ -4333,25 +4333,25 @@ gg::GgMatrix &gg::GgMatrix::loadRotate(GLfloat x, GLfloat y, GLfloat z, GLfloat 
     const GLfloat c(cos(a)), c1(1.0f - c);
     const GLfloat s(sin(a));
 
-    array[ 0] = (1.0f - l2) * c + l2;
-    array[ 1] = lm * c1 + n * s;
-    array[ 2] = nl * c1 - m * s;
-    array[ 3] = 0.0f;
+    (*this)[ 0] = (1.0f - l2) * c + l2;
+    (*this)[ 1] = lm * c1 + n * s;
+    (*this)[ 2] = nl * c1 - m * s;
+    (*this)[ 3] = 0.0f;
 
-    array[ 4] = lm * c1 - n * s;
-    array[ 5] = (1.0f - m2) * c + m2;
-    array[ 6] = mn * c1 + l * s;
-    array[ 7] = 0.0f;
+    (*this)[ 4] = lm * c1 - n * s;
+    (*this)[ 5] = (1.0f - m2) * c + m2;
+    (*this)[ 6] = mn * c1 + l * s;
+    (*this)[ 7] = 0.0f;
 
-    array[ 8] = nl * c1 + m * s;
-    array[ 9] = mn * c1 - l * s;
-    array[10] = (1.0f - n2) * c + n2;
-    array[11] = 0.0f;
+    (*this)[ 8] = nl * c1 + m * s;
+    (*this)[ 9] = mn * c1 - l * s;
+    (*this)[10] = (1.0f - n2) * c + n2;
+    (*this)[11] = 0.0f;
 
-    array[12] = 0.0f;
-    array[13] = 0.0f;
-    array[14] = 0.0f;
-    array[15] = 1.0f;
+    (*this)[12] = 0.0f;
+    (*this)[13] = 0.0f;
+    (*this)[14] = 0.0f;
+    (*this)[15] = 1.0f;
   }
 
   return *this;
@@ -4362,22 +4362,22 @@ gg::GgMatrix &gg::GgMatrix::loadRotate(GLfloat x, GLfloat y, GLfloat z, GLfloat 
 */
 gg::GgMatrix &gg::GgMatrix::loadTranspose(const GLfloat *marray)
 {
-  array[ 0] = marray[ 0];
-  array[ 1] = marray[ 4];
-  array[ 2] = marray[ 8];
-  array[ 3] = marray[12];
-  array[ 4] = marray[ 1];
-  array[ 5] = marray[ 5];
-  array[ 6] = marray[ 9];
-  array[ 7] = marray[13];
-  array[ 8] = marray[ 2];
-  array[ 9] = marray[ 6];
-  array[10] = marray[10];
-  array[11] = marray[14];
-  array[12] = marray[ 3];
-  array[13] = marray[ 7];
-  array[14] = marray[11];
-  array[15] = marray[15];
+  (*this)[ 0] = marray[ 0];
+  (*this)[ 1] = marray[ 4];
+  (*this)[ 2] = marray[ 8];
+  (*this)[ 3] = marray[12];
+  (*this)[ 4] = marray[ 1];
+  (*this)[ 5] = marray[ 5];
+  (*this)[ 6] = marray[ 9];
+  (*this)[ 7] = marray[13];
+  (*this)[ 8] = marray[ 2];
+  (*this)[ 9] = marray[ 6];
+  (*this)[10] = marray[10];
+  (*this)[11] = marray[14];
+  (*this)[12] = marray[ 3];
+  (*this)[13] = marray[ 7];
+  (*this)[14] = marray[11];
+  (*this)[15] = marray[15];
 
   return *this;
 }
@@ -4438,26 +4438,26 @@ gg::GgMatrix &gg::GgMatrix::loadInvert(const GLfloat *marray)
   // LU •ª‰ğ‚©‚ç‹ts—ñ‚ğ‹‚ß‚é
   for (int k = 0; k < 4; ++k)
   {
-    // array ‚É’PˆÊs—ñ‚ğİ’è‚·‚é
+    // (*this) ‚É’PˆÊs—ñ‚ğİ’è‚·‚é
     for (int i = 0; i < 4; ++i)
     {
-      array[i * 4 + k] = (plu[i] == lu + k * 5) ? 1.0f : 0.0f;
+      (*this)[i * 4 + k] = (plu[i] == lu + k * 5) ? 1.0f : 0.0f;
     }
     // lu ‚©‚ç‹ts—ñ‚ğ‹‚ß‚é
     for (int i = 0; i < 4; ++i)
     {
       for (int j = i; ++j < 4;)
       {
-        array[j * 4 + k] -= array[i * 4 + k] * plu[j][i];
+        (*this)[j * 4 + k] -= (*this)[i * 4 + k] * plu[j][i];
       }
     }
     for (int i = 4; --i >= 0;)
     {
       for (int j = i; ++j < 4;)
       {
-        array[i * 4 + k] -= plu[i][j] * array[j * 4 + k];
+        (*this)[i * 4 + k] -= plu[i][j] * (*this)[j * 4 + k];
       }
-      array[i * 4 + k] /= plu[i][i];
+      (*this)[i * 4 + k] /= plu[i][i];
     }
   }
 
@@ -4469,17 +4469,17 @@ gg::GgMatrix &gg::GgMatrix::loadInvert(const GLfloat *marray)
 */
 gg::GgMatrix &gg::GgMatrix::loadNormal(const GLfloat *marray)
 {
-  array[ 0] = marray[ 5] * marray[10] - marray[ 6] * marray[ 9];
-  array[ 1] = marray[ 6] * marray[ 8] - marray[ 4] * marray[10];
-  array[ 2] = marray[ 4] * marray[ 9] - marray[ 5] * marray[ 8];
-  array[ 4] = marray[ 9] * marray[ 2] - marray[10] * marray[ 1];
-  array[ 5] = marray[10] * marray[ 0] - marray[ 8] * marray[ 2];
-  array[ 6] = marray[ 8] * marray[ 1] - marray[ 9] * marray[ 0];
-  array[ 8] = marray[ 1] * marray[ 6] - marray[ 2] * marray[ 5];
-  array[ 9] = marray[ 2] * marray[ 4] - marray[ 0] * marray[ 6];
-  array[10] = marray[ 0] * marray[ 5] - marray[ 1] * marray[ 4];
-  array[ 3] = array[ 7] = array[11] = array[12] = array[13] = array[14] = 0.0f;
-  array[15] = 1.0f;
+  (*this)[ 0] = marray[ 5] * marray[10] - marray[ 6] * marray[ 9];
+  (*this)[ 1] = marray[ 6] * marray[ 8] - marray[ 4] * marray[10];
+  (*this)[ 2] = marray[ 4] * marray[ 9] - marray[ 5] * marray[ 8];
+  (*this)[ 4] = marray[ 9] * marray[ 2] - marray[10] * marray[ 1];
+  (*this)[ 5] = marray[10] * marray[ 0] - marray[ 8] * marray[ 2];
+  (*this)[ 6] = marray[ 8] * marray[ 1] - marray[ 9] * marray[ 0];
+  (*this)[ 8] = marray[ 1] * marray[ 6] - marray[ 2] * marray[ 5];
+  (*this)[ 9] = marray[ 2] * marray[ 4] - marray[ 0] * marray[ 6];
+  (*this)[10] = marray[ 0] * marray[ 5] - marray[ 1] * marray[ 4];
+  (*this)[ 3] = (*this)[ 7] = (*this)[11] = (*this)[12] = (*this)[13] = (*this)[14] = 0.0f;
+  (*this)[15] = 1.0f;
 
   return *this;
 }
@@ -4512,30 +4512,30 @@ gg::GgMatrix &gg::GgMatrix::loadLookat(GLfloat ex, GLfloat ey, GLfloat ez,
 
   // x ²‚Ì³‹K‰»
   const GLfloat x(sqrt(xx * xx + xy * xy + xz * xz));
-  array[ 0] = xx / x;
-  array[ 4] = xy / x;
-  array[ 8] = xz / x;
+  (*this)[ 0] = xx / x;
+  (*this)[ 4] = xy / x;
+  (*this)[ 8] = xz / x;
 
   // y ²‚Ì³‹K‰»
   y = sqrt(y);
-  array[ 1] = yx / y;
-  array[ 5] = yy / y;
-  array[ 9] = yz / y;
+  (*this)[ 1] = yx / y;
+  (*this)[ 5] = yy / y;
+  (*this)[ 9] = yz / y;
 
   // z ²‚Ì³‹K‰»
   const GLfloat z(sqrt(zx * zx + zy * zy + zz * zz));
-  array[ 2] = zx / z;
-  array[ 6] = zy / z;
-  array[10] = zz / z;
+  (*this)[ 2] = zx / z;
+  (*this)[ 6] = zy / z;
+  (*this)[10] = zz / z;
 
   // •½sˆÚ“®
-  array[12] = -(ex * array[ 0] + ey * array[ 4] + ez * array[ 8]);
-  array[13] = -(ex * array[ 1] + ey * array[ 5] + ez * array[ 9]);
-  array[14] = -(ex * array[ 2] + ey * array[ 6] + ez * array[10]);
+  (*this)[12] = -(ex * (*this)[ 0] + ey * (*this)[ 4] + ez * (*this)[ 8]);
+  (*this)[13] = -(ex * (*this)[ 1] + ey * (*this)[ 5] + ez * (*this)[ 9]);
+  (*this)[14] = -(ex * (*this)[ 2] + ey * (*this)[ 6] + ez * (*this)[10]);
 
   // c‚è
-  array[ 3] = array[ 7] = array[11] = 0.0f;
-  array[15] = 1.0f;
+  (*this)[ 3] = (*this)[ 7] = (*this)[11] = 0.0f;
+  (*this)[15] = 1.0f;
 
   return *this;
 }
@@ -4552,16 +4552,16 @@ gg::GgMatrix &gg::GgMatrix::loadOrthogonal(GLfloat left, GLfloat right,
 
   if (dx != 0.0f && dy != 0.0f && dz != 0.0f)
   {
-    array[ 0] = 2.0f / dx;
-    array[ 5] = 2.0f / dy;
-    array[10] = -2.0f / dz;
-    array[12] = -(right + left) / dx;
-    array[13] = -(top + bottom) / dy;
-    array[14] = -(zFar + zNear) / dz;
-    array[15] = 1.0f;
-    array[ 1] = array[ 2] = array[ 3] = array[ 4] =
-    array[ 6] = array[ 7] = array[ 8] = array[ 9] =
-    array[11] = 0.0f;
+    (*this)[ 0] = 2.0f / dx;
+    (*this)[ 5] = 2.0f / dy;
+    (*this)[10] = -2.0f / dz;
+    (*this)[12] = -(right + left) / dx;
+    (*this)[13] = -(top + bottom) / dy;
+    (*this)[14] = -(zFar + zNear) / dz;
+    (*this)[15] = 1.0f;
+    (*this)[ 1] = (*this)[ 2] = (*this)[ 3] = (*this)[ 4] =
+    (*this)[ 6] = (*this)[ 7] = (*this)[ 8] = (*this)[ 9] =
+    (*this)[11] = 0.0f;
   }
 
   return *this;
@@ -4579,16 +4579,16 @@ gg::GgMatrix &gg::GgMatrix::loadFrustum(GLfloat left, GLfloat right,
 
   if (dx != 0.0f && dy != 0.0f && dz != 0.0f)
   {
-    array[ 0] = 2.0f * zNear / dx;
-    array[ 5] = 2.0f * zNear / dy;
-    array[ 8] = (right + left) / dx;
-    array[ 9] = (top + bottom) / dy;
-    array[10] = -(zFar + zNear) / dz;
-    array[11] = -1.0f;
-    array[14] = -2.0f * zFar * zNear / dz;
-    array[ 1] = array[ 2] = array[ 3] = array[ 4] =
-    array[ 6] = array[ 7] = array[12] = array[13] =
-    array[15] = 0.0f;
+    (*this)[ 0] = 2.0f * zNear / dx;
+    (*this)[ 5] = 2.0f * zNear / dy;
+    (*this)[ 8] = (right + left) / dx;
+    (*this)[ 9] = (top + bottom) / dy;
+    (*this)[10] = -(zFar + zNear) / dz;
+    (*this)[11] = -1.0f;
+    (*this)[14] = -2.0f * zFar * zNear / dz;
+    (*this)[ 1] = (*this)[ 2] = (*this)[ 3] = (*this)[ 4] =
+    (*this)[ 6] = (*this)[ 7] = (*this)[12] = (*this)[13] =
+    (*this)[15] = 0.0f;
   }
 
   return *this;
@@ -4604,14 +4604,14 @@ gg::GgMatrix &gg::GgMatrix::loadPerspective(GLfloat fovy, GLfloat aspect,
 
   if (dz != 0.0f)
   {
-    array[ 5] = 1.0f / tan(fovy * 0.5f);
-    array[ 0] = array[5] / aspect;
-    array[10] = -(zFar + zNear) / dz;
-    array[11] = -1.0f;
-    array[14] = -2.0f * zFar * zNear / dz;
-    array[ 1] = array[ 2] = array[ 3] = array[ 4] =
-    array[ 6] = array[ 7] = array[ 8] = array[ 9] =
-    array[12] = array[13] = array[15] = 0.0f;
+    (*this)[ 5] = 1.0f / tan(fovy * 0.5f);
+    (*this)[ 0] = (*this)[5] / aspect;
+    (*this)[10] = -(zFar + zNear) / dz;
+    (*this)[11] = -1.0f;
+    (*this)[14] = -2.0f * zFar * zNear / dz;
+    (*this)[ 1] = (*this)[ 2] = (*this)[ 3] = (*this)[ 4] =
+    (*this)[ 6] = (*this)[ 7] = (*this)[ 8] = (*this)[ 9] =
+    (*this)[12] = (*this)[13] = (*this)[15] = 0.0f;
   }
 
   return *this;
@@ -4716,15 +4716,16 @@ gg::GgQuaternion &gg::GgQuaternion::loadRotate(GLfloat x, GLfloat y, GLfloat z, 
   {
     GLfloat s(sin(a *= 0.5f) / sqrt(l));
 
-    quaternion[0] = x * s;
-    quaternion[1] = y * s;
-    quaternion[2] = z * s;
+    (*this)[0] = x * s;
+    (*this)[1] = y * s;
+    (*this)[2] = z * s;
   }
   else
   {
-    quaternion[0] = quaternion[1] = quaternion[2] = 0.0f;
+    (*this)[0] = (*this)[1] = (*this)[2] = 0.0f;
   }
-  quaternion[3] = cos(a);
+
+  (*this)[3] = cos(a);
 
   return *this;
 }
@@ -4736,9 +4737,9 @@ gg::GgQuaternion &gg::GgQuaternion::loadRotateX(GLfloat a)
 {
   const GLfloat t(a * 0.5f);
 
-  quaternion[0] = sin(t);
-  quaternion[3] = cos(t);
-  quaternion[1] = quaternion[2] = 0.0f;
+  (*this)[0] = sin(t);
+  (*this)[3] = cos(t);
+  (*this)[1] = (*this)[2] = 0.0f;
 
   return *this;
 }
@@ -4750,9 +4751,9 @@ gg::GgQuaternion &gg::GgQuaternion::loadRotateY(GLfloat a)
 {
   const GLfloat t(a * 0.5f);
 
-  quaternion[1] = sin(t);
-  quaternion[3] = cos(t);
-  quaternion[0] = quaternion[2] = 0.0f;
+  (*this)[1] = sin(t);
+  (*this)[3] = cos(t);
+  (*this)[0] = (*this)[2] = 0.0f;
 
   return *this;
 }
@@ -4764,9 +4765,9 @@ gg::GgQuaternion &gg::GgQuaternion::loadRotateZ(GLfloat a)
 {
   const GLfloat t(a * 0.5f);
 
-  quaternion[2] = sin(t);
-  quaternion[3] = cos(t);
-  quaternion[0] = quaternion[1] = 0.0f;
+  (*this)[2] = sin(t);
+  (*this)[3] = cos(t);
+  (*this)[0] = (*this)[1] = 0.0f;
 
   return *this;
 }
@@ -4792,12 +4793,12 @@ gg::GgQuaternion &gg::GgQuaternion::loadEuler(GLfloat heading, GLfloat pitch, GL
 */
 gg::GgQuaternion &gg::GgQuaternion::loadNormalize(const GLfloat *a)
 {
-  quaternion[0] = a[0];
-  quaternion[1] = a[1];
-  quaternion[2] = a[2];
-  quaternion[3] = a[3];
+  (*this)[0] = a[0];
+  (*this)[1] = a[1];
+  (*this)[2] = a[2];
+  (*this)[3] = a[3];
 
-  ggNormalize4(quaternion.data());
+  ggNormalize4(data());
 
   return *this;
 }
@@ -4808,10 +4809,10 @@ gg::GgQuaternion &gg::GgQuaternion::loadNormalize(const GLfloat *a)
 gg::GgQuaternion &gg::GgQuaternion::loadConjugate(const GLfloat *a)
 {
   // w —v‘f‚ğ”½“]‚·‚é
-  quaternion[0] = a[0];
-  quaternion[1] = a[1];
-  quaternion[2] = a[2];
-  quaternion[3] = -a[3];
+  (*this)[0] = a[0];
+  (*this)[1] = a[1];
+  (*this)[2] = a[2];
+  (*this)[3] = -a[3];
 
   return *this;
 }
@@ -4831,10 +4832,10 @@ gg::GgQuaternion &gg::GgQuaternion::loadInvert(const GLfloat *a)
     r.loadConjugate(a);
 
     // ƒmƒ‹ƒ€‚Ì“ñæ‚ÅŠ„‚é
-    quaternion[0] = r.quaternion[0] / l;
-    quaternion[1] = r.quaternion[1] / l;
-    quaternion[2] = r.quaternion[2] / l;
-    quaternion[3] = r.quaternion[3] / l;
+    (*this)[0] = r[0] / l;
+    (*this)[1] = r[1] / l;
+    (*this)[2] = r[2] / l;
+    (*this)[3] = r[3] / l;
   }
 
   return *this;
@@ -4849,10 +4850,10 @@ void gg::GgTrackball::reset(const GgQuaternion &q)
   drag = false;
 
   // ’PˆÊƒNƒH[ƒ^[ƒjƒIƒ“‚É‰Šú’l‚ğ—^‚¦‚é
-  tq = cq = q;
+  *static_cast<GgQuaternion *>(this) = cq = q;
 
   // ‰ñ“]s—ñ‚ğ‰Šú‰»‚·‚é
-  tq.getMatrix(rt);
+  static_cast<const GgQuaternion *>(this)->getMatrix(rt);
 }
 
 /*
@@ -4903,10 +4904,10 @@ void gg::GgTrackball::motion(float x, float y)
     if (a != 0.0)
     {
       // Œ»İ‚Ì‰ñ“]‚ÌlŒ³”‚Éì‚Á‚½lŒ³”‚ğŠ|‚¯‚Ä‡¬‚·‚é
-      tq = ggRotateQuaternion(d[1], d[0], 0.0f, a * 6.283185f) * cq;
+      *static_cast<GgQuaternion*>(this) = ggRotateQuaternion(d[1], d[0], 0.0f, a * 6.283185f) * cq;
 
       // ‡¬‚µ‚½lŒ³”‚©‚ç‰ñ“]‚Ì•ÏŠ·s—ñ‚ğ‹‚ß‚é
-      tq.getMatrix(rt);
+      static_cast<const GgQuaternion *>(this)->getMatrix(rt);
     }
   }
 }
@@ -4922,13 +4923,13 @@ void gg::GgTrackball::rotate(const GgQuaternion &q)
   if (!drag)
   {
     // •Û‘¶‚³‚ê‚Ä‚¢‚élŒ³”‚ÉC³•ª‚ÌlŒ³”‚ğŠ|‚¯‚Ä‡¬‚·‚é
-    tq = q * cq;
+    *static_cast<GgQuaternion*>(this) = q * cq;
 
     // ‡¬‚µ‚½lŒ³”‚©‚ç‰ñ“]‚Ì•ÏŠ·s—ñ‚ğ‹‚ß‚é
-    tq.getMatrix(rt);
+    static_cast<const GgQuaternion *>(this)->getMatrix(rt);
 
     // Œë·‚ğ‹zû‚·‚é‚½‚ß‚É³‹K‰»‚µ‚Ä•Û‘¶‚·‚é
-    cq = tq.normalize();
+    cq = normalize();
   }
 }
 
@@ -4944,7 +4945,7 @@ void gg::GgTrackball::end(float x, float y)
   motion(x, y);
 
   // Œë·‚ğ‹zû‚·‚é‚½‚ß‚É³‹K‰»‚µ‚Ä•Û‘¶‚·‚é
-  cq = tq.normalize();
+  cq = normalize();
 
   // ƒhƒ‰ƒbƒOI—¹
   drag = false;
