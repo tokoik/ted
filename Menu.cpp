@@ -12,9 +12,6 @@
 #include "CamImage.h"
 #include "CamRemote.h"
 
-// シーングラフ
-#include "Scene.h"
-
 // Dear ImGui
 #include "imgui.h"
 
@@ -107,7 +104,7 @@ void Menu::nodataWindow()
 void Menu::displayWindow()
 {
   ImGui::SetNextWindowPos(ImVec2(4, 32), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(192, 258), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(192, 290), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
 
   ImGui::Begin(u8"表示設定", &showDisplayWindow);
@@ -119,6 +116,14 @@ void Menu::displayWindow()
   if (ImGui::RadioButton(u8"Quad Buffer", &defaults.display_mode, QUADBUFFER)) window.stopOculus();
   int mode{ defaults.display_mode };
   if (ImGui::RadioButton("Oculus", &mode, OCULUS) && window.startOculus()) defaults.display_mode = mode;
+  if (ImGui::Checkbox("Leap Motion", &defaults.leap_motion))
+  {
+    if (defaults.leap_motion)
+      if (!scene.startLeapMotion()) defaults.leap_motion = false;
+    else
+      scene.stopLeapMotion();
+  }
+
   ImGui::End();
 }
 
@@ -127,7 +132,7 @@ void Menu::displayWindow()
 //
 void Menu::cameraWindow()
 {
-  ImGui::SetNextWindowPos(ImVec2(4, 294), ImGuiCond_Once);
+  ImGui::SetNextWindowPos(ImVec2(4, 326), ImGuiCond_Once);
   ImGui::SetNextWindowSize(ImVec2(192, 258), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
 
@@ -438,8 +443,9 @@ void Menu::menuBar()
 //
 // コンストラクタ
 //
-Menu::Menu(Window& window)
+Menu::Menu(Window& window, Scene& scene)
   : window{ window }
+  , scene{ scene }
   , showNodataWindow{ false }
   , showDisplayWindow{ true }
   , showCameraWindow{ true }

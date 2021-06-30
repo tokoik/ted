@@ -6,11 +6,26 @@
 // 標準ライブラリ
 #include <fstream>
 
+// シェーダ
+const GgSimpleShader *Scene::shader{ nullptr };
+
+// 読み込んだパーツを登録するパーツリスト
+std::map<const std::string, std::unique_ptr<const GgSimpleObj>> Scene::parts;
+
 // 共有メモリ上に置く操縦者の変換行列
-std::unique_ptr<SharedMemory> localAttitude{ nullptr };
+std::unique_ptr<SharedMemory> localAttitude;
 
 // 共有メモリ上に置く作業者の変換行列
-std::unique_ptr<SharedMemory> remoteAttitude{ nullptr };
+std::unique_ptr<SharedMemory> remoteAttitude;
+
+// 外部モデル変換行列のテーブルのコピー
+std::vector<GgMatrix> Scene::localMatrixTable, Scene::remoteMatrixTable;
+
+// リモートカメラの姿勢のタイミングをフレームに合わせて遅らせるためのキュー
+std::queue<GgMatrix> Scene::fifo[remoteCamCount];
+
+// Leap Motion
+LeapListener Scene::listener;
 
 // コンストラクタ
 Scene::Scene(const GgSimpleObj *obj)
@@ -61,9 +76,6 @@ bool Scene::initialize(const GgSimpleShader *shader, unsigned int local_size, un
 
   // リモートのモデル変換行列を確保する
   remoteMatrixTable.resize(remote_size, ggIdentity());
-
-  // Leap Motion の listener と controller を作る
-  listener.reset(new LeapListener);
 
   // 共有メモリの確保に成功した
   return true;
@@ -233,10 +245,10 @@ void Scene::setup(const GgMatrix &m)
 
 #if defined(LEAP_INTERPORATE_FRAME)
   // Leap Motion と CPU の同期をとる
-  listener->synchronize();
+  listener.synchronize();
 #else
   // ローカルの変換行列に Leap Motion の関節の変換行列を取得する
-  listener->getHandPose(localMatrixTable.data() + camCount + 1);
+  listener.getHandPose(localMatrixTable.data() + camCount + 1);
 
   // ローカルの変換行列 (Leap Motion の関節, 視点, モデル変換行列) を共有メモリと同期する
   localAttitude->sync(localMatrixTable.data(), jointCount + camCount + 1);
@@ -251,7 +263,7 @@ void Scene::setup(const GgMatrix &m)
 void Scene::update()
 {
   // ローカルの変換行列に Leap Motion の関節の変換行列を取得する
-  listener->getHandPose(localMatrixTable.data() + camCount + 1);
+  listener.getHandPose(localMatrixTable.data() + camCount + 1);
 
   // ローカルの変換行列を共有メモリに保存する
   localAttitude->store(localMatrixTable.data(), static_cast<unsigned int>(localMatrixTable.size()));
@@ -303,18 +315,3 @@ void Scene::draw(const GgMatrix &mp, const GgMatrix &mv) const
   // すべての子供のパーツを描画する
   for (const auto o : children) o->draw(mp, mw);
 }
-
-// シェーダ
-const GgSimpleShader *Scene::shader{ nullptr };
-
-// 読み込んだパーツを登録するパーツリスト
-std::map<const std::string, std::unique_ptr<const GgSimpleObj>> Scene::parts;
-
-// 外部モデル変換行列のテーブルのコピー
-std::vector<GgMatrix> Scene::localMatrixTable, Scene::remoteMatrixTable;
-
-// リモートカメラの姿勢のタイミングをフレームに合わせて遅らせるためのキュー
-std::queue<GgMatrix> Scene::fifo[remoteCamCount];
-
-// Leap Motion
-std::unique_ptr<LeapListener> Scene::listener;

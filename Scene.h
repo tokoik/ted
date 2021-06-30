@@ -50,7 +50,7 @@ class Scene
   static std::queue<GgMatrix> fifo[remoteCamCount];
 
   // Leap Motion
-  static std::unique_ptr<LeapListener> listener;
+  static LeapListener listener;
 
 public:
 
@@ -91,6 +91,20 @@ public:
 
   // リモートのカメラのトラッキング情報を遅延させて取り出す
   static const GgMatrix &getRemoteAttitude(int cam);
+
+  // Leap Motion を起動する
+  static bool startLeapMotion()
+  {
+    // Leap Motion の listener と controller を作る
+    return listener.openConnection() != nullptr;
+  }
+
+  // Leap Motion を起動する
+  static void stopLeapMotion()
+  {
+    // Leap Motion の listener と controller を作る
+    listener.closeConnection();
+  }
 
   // このパーツ以下のすべてのパーツを描画する
   void draw(const GgMatrix &mp, const GgMatrix &mv) const;

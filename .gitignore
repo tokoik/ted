@@ -274,3 +274,6 @@ __pycache__/
 *.swp
 *.bak
 *~
+
+# ImGui
+imgui.ini
