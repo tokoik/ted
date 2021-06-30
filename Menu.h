@@ -7,11 +7,17 @@
 // ウィンドウ関連の処理
 #include "Window.h"
 
+// シーングラフ
+#include "Scene.h"
+
 class Menu
 {
 
   // メニューを表示するウィンドウ
   Window& window;
+
+  // メニューで操作するシーン
+  Scene& scene;
 
   // サブウィンドウのオン・オフ
   bool showNodataWindow;
@@ -43,7 +49,7 @@ class Menu
 public:
 
   // コンストラクタ
-  Menu(Window& window);
+  Menu(Window& window, Scene& scene);
 
   // デストラクタ
   virtual ~Menu();

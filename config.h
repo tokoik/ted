@@ -112,6 +112,9 @@ struct config
   // Ovrvision Pro の設定
   int ovrvision_property;
 
+  // Leap Motion の使用
+  bool leap_motion;
+
   // バーテックスシェーダのソースプログラム
   std::string vertex_shader;
 

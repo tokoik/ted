@@ -13,7 +13,13 @@
 #undef VERBOSE
 
 // 長さのスケール
-constexpr GLfloat scale(0.001f);
+constexpr GLfloat scale{ 0.001f };
+
+// タイムアウト
+constexpr unsigned int timeout{ 1000 };
+
+// リトライ回数
+constexpr unsigned int retry{ 5 };
 
 //
 // The following code contains code modified from Leap Motion SDK sample code.
@@ -441,7 +447,6 @@ static void serviceMessageLoop()
 {
   do
   {
-    constexpr unsigned int timeout(1000);
     LEAP_CONNECTION_MESSAGE msg;
 
     const eLeapRS result(LeapPollConnection(connectionHandle, timeout, &msg));
@@ -524,7 +529,6 @@ static void closeConnectionHandle(LEAP_CONNECTION *connectionHandle)
 // コンストラクタ
 LeapListener::LeapListener()
 {
-  openConnection();
 }
 
 // デストラクタ
@@ -543,40 +547,48 @@ const LEAP_CONNECTION *LeapListener::openConnection()
   // serviceMessageLoop() が既に起動していたら何もしない
   if (_isRunning) return &connectionHandle;
 
-  // connectionHandle が得られていなかったら connectionHandle を作成して
-  if (connectionHandle || LeapCreateConnection(NULL, &connectionHandle) == eLeapRS_Success)
+  // connectionHandle が得られていなければ
+  if (!connectionHandle)
   {
-    // connectionHandle に接続して
-    const eLeapRS result(LeapOpenConnection(connectionHandle));
+    // connectionHandle を作成する
+    const eLeapRS resultCh{ LeapCreateConnection(NULL, &connectionHandle) };
 
-    // 接続できたら
-    if (result == eLeapRS_Success)
-    {
-      // servceMessageLoop() でポーリングして接続完了を待ち
-      do
-      {
-        serviceMessageLoop();
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
-      }
-      while (!IsConnected);
-
-      // serviceMessageLoopLeap() のループが回るようにして
-      _isRunning = true;
-
-      // serviceMessage() を別スレッドでループさせる
-      pollingThread = std::thread(serviceMessageLoop);
-
-      // HMD 用に最適化する
-      LeapSetPolicyFlags(connectionHandle, eLeapPolicyFlag_OptimizeHMD, 0);
-
-#if defined(LEAP_INTERPORATE_FRAME)
-      // クロックシンセサイザを生成する
-      LeapCreateClockRebaser(&clockSynchronizer);
-#endif
-    }
+    // connectionHandle が作成できなかったらエラー
+    if (resultCh != eLeapRS_Success) return nullptr;
   }
 
-  // ハンドルを返す
+  // connectionHandle に接続する
+  const eLeapRS result(LeapOpenConnection(connectionHandle));
+
+  // connectionHandle に接続できなかったらエラー
+  if (result != eLeapRS_Success) return nullptr;
+
+  // servceMessageLoop() でポーリングして接続完了を待つ
+  unsigned int count{ 0 };
+  do
+  {
+    serviceMessageLoop();
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+  } while (!IsConnected && ++count < retry);
+
+  // リトライ回数に達していたらあきらめる
+  if (count == retry) return nullptr;
+
+  // serviceMessageLoopLeap() のループが回るようにして
+  _isRunning = true;
+
+  // serviceMessage() を別スレッドでループさせる
+  pollingThread = std::thread(serviceMessageLoop);
+
+  // HMD 用に最適化する
+  LeapSetPolicyFlags(connectionHandle, eLeapPolicyFlag_OptimizeHMD, 0);
+
+#if defined(LEAP_INTERPORATE_FRAME)
+  // クロックシンセサイザを生成する
+  LeapCreateClockRebaser(&clockSynchronizer);
+#endif
+
+  // connectionHandle を返す
   return &connectionHandle;
 }
 
@@ -587,6 +599,11 @@ void LeapListener::closeConnection()
 
   // serviceMessageLoop() を止めて
   _isRunning = false;
+
+#if defined(LEAP_INTERPORATE_FRAME)
+  // クロックシンセサイザを破棄する
+  LeapDestroyClockRebaser(&clockSynchronizer);
+#endif
 
   // Leap Motion との接続を閉じて
   LeapCloseConnection(connectionHandle);

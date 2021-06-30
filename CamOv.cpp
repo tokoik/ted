@@ -18,6 +18,12 @@
 #  endif
 #endif
 
+// Ovrvision Pro
+OVR::OvrvisionPro *CamOv::ovrvision_pro(nullptr);
+
+// 接続されている Ovrvision Pro の台数
+int CamOv::count(0);
+
 // コンストラクタ
 CamOv::CamOv()
 {
@@ -145,9 +151,3 @@ void CamOv::decreaseGain()
 {
   if (ovrvision_pro && gain > 0) ovrvision_pro->SetCameraGain(--gain);
 }
-
-// Ovrvision Pro
-OVR::OvrvisionPro *CamOv::ovrvision_pro(nullptr);
-
-// 接続されている Ovrvision Pro の台数
-int CamOv::count(0);

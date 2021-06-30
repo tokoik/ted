@@ -43,6 +43,9 @@
 // ジョイスティック番号の最大値
 constexpr int maxJoystick{ 4 };
 
+// Oculus Rift のセッション
+Oculus* Window::oculus{ nullptr };
+
 //
 // コンストラクタ
 //
@@ -1120,6 +1123,3 @@ void Window::commit(int eye)
 {
   if (oculus) oculus->commit(eye);
 }
-
-// Oculus Rift のセッション
-Oculus* Window::oculus{ nullptr };

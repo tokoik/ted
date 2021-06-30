@@ -91,6 +91,7 @@ config::config()
   , camera_fov_x{ 1.0 }                       // 魚眼カメラの横の画角
   , camera_fov_y{ 1.0 }                       // 魚眼カメラの縦の画角
   , ovrvision_property{ OVR::OV_CAM5MP_FHD }  // Ovrvision Pro の設定 (※3)
+  , leap_motion{ false }                    // Leap Motion の使用
   , vertex_shader{ "fixed.vert" }             // バーテックスシェーダのソースプログラム
   , fragment_shader{ "normal.frag" }          // フラグメントシェーダのソースプログラム
   , role{ STANDALONE }                        // 役割 (※4)
@@ -289,6 +290,11 @@ bool config::read(picojson::value &v)
   const auto &v_ovrvision_property(o.find("ovrvision_property"));
   if (v_ovrvision_property != o.end() && v_ovrvision_property->second.is<double>())
     ovrvision_property = static_cast<int>(v_ovrvision_property->second.get<double>());
+
+  // Leap Motion の使用
+  const auto &v_leap_motion(o.find("leap_motion"));
+  if (v_leap_motion != o.end() && v_leap_motion->second.is<bool>())
+    leap_motion = v_leap_motion->second.get<bool>();
 
   // バーテックスシェーダのソースファイル名
   const auto &v_vertex_shader(o.find("vertex_shader"));
@@ -498,6 +504,9 @@ bool config::save(const std::string &file) const
 
   // Ovrvision Pro のモード
   o.insert(std::make_pair("ovrvision_property", picojson::value(static_cast<double>(ovrvision_property))));
+
+  // Leap Motion の使用
+  o.insert(std::make_pair("leap_motion", picojson::value(leap_motion)));
 
   // バーテックスシェーダのソースファイル名
   o.insert(std::make_pair("vertex_shader", picojson::value(vertex_shader)));

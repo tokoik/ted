@@ -422,7 +422,7 @@ int main(int argc, const char *const *const argv)
   if (defaults.display_mode == OCULUS) window.startOculus();
 
   // メニュー
-  Menu menu(window);
+  Menu menu(window, scene);
 
   // ウィンドウが開いている間くり返し描画する
   while (window)

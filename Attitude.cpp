@@ -9,6 +9,9 @@
 // 姿勢データ
 Attitude attitude;
 
+// カメラ方向の補正ステップ
+GgQuaternion Attitude::eyeOrientationStep[2];
+
 //
 // コンストラクタ
 //
@@ -218,6 +221,3 @@ bool Attitude::save(const std::string &file) const
 Attitude::~Attitude()
 {
 }
-
-// カメラ方向の補正ステップ
-GgQuaternion Attitude::eyeOrientationStep[2];
