@@ -61,8 +61,7 @@ inline int Compare(const ovrGraphicsLuid& lhs, const ovrGraphicsLuid& rhs)
 // コンストラクタ
 //
 Oculus::Oculus()
-  : window{ nullptr }
-  , oculusFbo { 0 }
+  : oculusFbo{ 0 }
   , mirrorFbo{ 0 }
   , mirrorTexture{ nullptr }
 #if OVR_PRODUCT_VERSION >= 1
@@ -74,13 +73,17 @@ Oculus::Oculus()
 {
 }
 
-///
-/// @brief Oculus Rift を初期化する.
-///
-///   @param window Oculus Rift に関連付けるウィンドウ.
-///   @return Oculus Rift の初期化に成功したら true.
-///
-bool Oculus::initialize(Window &window)
+//
+// Oculus Rift を初期化する.
+//
+//   window Oculus Rift に関連付けるウィンドウ.
+//   zoom シーンのズーム率.
+//   aspect Oculus Rift のアスペクト比の格納先のポインタ.
+//   mp 透視投影変換行列.
+//   screen 背景に対するスクリーンのサイズ.
+//   戻り値 Oculus Rift の初期化に成功したらコンテキストのポインタ.
+//
+Oculus* Oculus::initialize(GLfloat zoom, GLfloat* aspect, GgMatrix* mp, GgVector* screen)
 {
   // Oculus Rift のコンテキスト
   static Oculus oculus;
@@ -89,7 +92,7 @@ bool Oculus::initialize(Window &window)
   auto& session{ oculus.session };
 
   // 既に Oculus Rift のセッションが作成されていれば何もしないで戻る
-  if (session) return true;
+  if (session) return &oculus;
 
   // 一度だけ実行する
   static bool firstTime{ true };
@@ -99,7 +102,7 @@ bool Oculus::initialize(Window &window)
     ovrInitParams initParams{ ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0 };
 
     // Oculus Rift の初期化に失敗したら戻る
-    if (OVR_FAILURE(ovr_Initialize(&initParams))) return false;
+    if (OVR_FAILURE(ovr_Initialize(&initParams))) return nullptr;
 
     // プログラム終了時には LibOVR を終了する
     atexit(ovr_Shutdown);
@@ -110,11 +113,11 @@ bool Oculus::initialize(Window &window)
 
   // Oculus Rift のセッションを作成する
   ovrGraphicsLuid luid;
-  if (OVR_FAILURE(ovr_Create(&session, &luid))) return false;
+  if (OVR_FAILURE(ovr_Create(&session, &luid))) return nullptr;
 
 #if OVR_PRODUCT_VERSION >= 1
   // デフォルトのグラフィックスアダプタが使われているか確かめる
-  if (Compare(luid, GetDefaultAdapterLuid())) return false;
+  if (Compare(luid, GetDefaultAdapterLuid())) return nullptr;
 #else
   // (LUID は OpenGL では使っていないらしい)
 #endif
@@ -166,6 +169,9 @@ bool Oculus::initialize(Window &window)
   glGenTextures(ovrEye_Count, oculus.oculusDepth);
 #  endif
 
+  // 前方面が defaults.display_near なのでスクリーンもそれに合わせる
+  const GLfloat zf{ defaults.display_near / zoom };
+
   // Oculus Rift 表示用の FBO を作成する
   for (int eye = 0; eye < ovrEye_Count; ++eye)
   {
@@ -174,7 +180,8 @@ bool Oculus::initialize(Window &window)
 #if OVR_PRODUCT_VERSION >= 1
     layerData.Fov[eye] = eyeFov;
 
-    const auto &fov(eyeFov);
+    // Oculus Rift の実際の視野
+    const auto& fov(eyeFov);
 #else
     layerData.EyeFov.Fov[eye] = eyeFov;
 
@@ -186,24 +193,22 @@ bool Oculus::initialize(Window &window)
     const auto &offset(eyeRenderDesc[eye].HmdToEyeViewOffset);
     mv[eye] = ggTranslate(-offset.x, -offset.y, -offset.z);
 
-    const auto &fov(eyeRenderDesc[eye].Fov);
+    // Oculus Rift の実際の視野
+    const auto &fov(eyeRenderDesc.Fov);
 #endif
 
-    // ズーム率
-    const auto zf(attitude.foreAdjust[0] * defaults.display_near);
-
     // 片目の透視投影変換行列を求める
-    window.mp[eye].loadFrustum(
+    mp[eye].loadFrustum(
       -fov.LeftTan * zf, fov.RightTan * zf,
       -fov.DownTan * zf, fov.UpTan * zf,
       defaults.display_near, defaults.display_far
     );
 
     // 片目のスクリーンのサイズと中心位置
-    window.screen[eye][0] = (fov.RightTan + fov.LeftTan) * 0.5f;
-    window.screen[eye][1] = (fov.UpTan + fov.DownTan) * 0.5f;
-    window.screen[eye][2] = (fov.RightTan - fov.LeftTan) * 0.5f;
-    window.screen[eye][3] = (fov.UpTan - fov.DownTan) * 0.5f;
+    screen[eye][0] = (fov.RightTan + fov.LeftTan) * 0.5f;
+    screen[eye][1] = (fov.UpTan + fov.DownTan) * 0.5f;
+    screen[eye][2] = (fov.RightTan - fov.LeftTan) * 0.5f;
+    screen[eye][3] = (fov.UpTan - fov.DownTan) * 0.5f;
 
     // Oculus Rift 表示用の FBO のサイズ
     const auto size(ovr_GetFovTextureSize(session, ovrEyeType(eye), eyeFov, 1.0f));
@@ -273,26 +278,26 @@ bool Oculus::initialize(Window &window)
 
 #if OVR_PRODUCT_VERSION >= 1
   // Oculus Rift の画面のアスペクト比を求める
-  window.aspect = static_cast<GLfloat>(layerData.Viewport[ovrEye_Left].Size.w)
+  * aspect = static_cast<GLfloat>(layerData.Viewport[ovrEye_Left].Size.w)
     / static_cast<GLfloat>(layerData.Viewport[ovrEye_Left].Size.h);
 
   // ミラー表示用の FBO カラーバッファとして使うテクスチャの特性
   const ovrMirrorTextureDesc mirrorDesc =
   {
-    OVR_FORMAT_R8G8B8A8_UNORM_SRGB,       // Format
-    oculus.mirrorWidth = window.width,    // Width
-    oculus.mirrorHeight = window.height,  // Height
+    OVR_FORMAT_R8G8B8A8_UNORM_SRGB,                 // Format
+    oculus.mirrorWidth = defaults.display_width,    // Width
+    oculus.mirrorHeight = defaults.display_height,  // Height
     0
   };
 
   // ミラー表示用の FBO のカラーバッファとして使うテクスチャを作成する
   if (OVR_FAILURE(ovr_CreateMirrorTextureGL(session,
-    &mirrorDesc, &oculus.mirrorTexture))) return false;
+    &mirrorDesc, &oculus.mirrorTexture))) return nullptr;
 
   // ミラー表示用の FBO のカラーバッファに使うテクスチャを得る
   GLuint texId;
   if (OVR_FAILURE(ovr_GetMirrorTextureBufferGL(session,
-    oculus.mirrorTexture, &texId))) return false;
+    oculus.mirrorTexture, &texId))) return nullptr;
 
   // ミラー表示用の FBO を作成する
   glGenFramebuffers(1, &oculus.mirrorFbo);
@@ -305,7 +310,7 @@ bool Oculus::initialize(Window &window)
   ovr_SetTrackingOriginType(session, ovrTrackingOrigin_FloorLevel);
 #else
   // Oculus Rift の画面のアスペクト比を求める
-  window.aspect = static_cast<GLfloat>(layerData.EyeFov.Viewport[ovrEye_Left].Size.w)
+  *aspect = static_cast<GLfloat>(layerData.EyeFov.Viewport[ovrEye_Left].Size.w)
     / static_cast<GLfloat>(layerData.EyeFov.Viewport[ovrEye_Left].Size.h);
 
   // ミラー表示用の FBO のカラーバッファに使うテクスチャを作成する
@@ -336,17 +341,13 @@ bool Oculus::initialize(Window &window)
   // Oculus Rift への表示ではスワップ間隔を待たない
   glfwSwapInterval(0);
 
-  // Oculus Rift に関連付けられたウィンドウを記録する
-  oculus.window = &window;
-  window.oculus = &oculus;
-
   // Oculus Rift の初期化に成功した
   return &oculus;
 }
 
-///
-/// @brief Oculus Rift を停止する.
-///
+//
+// Oculus Rift を停止する.
+//
 void Oculus::terminate()
 {
   // 既に Oculus Rift のセッションが作成されていないとおかしい
@@ -418,10 +419,6 @@ void Oculus::terminate()
   ovr_Destroy(session);
   session = nullptr;
 
-  // Window と Oculus の関連付けを解除する
-  window->oculus = nullptr;
-  window = nullptr;
-
   // 元のカラースペースに戻す
   glDisable(GL_FRAMEBUFFER_SRGB);
 
@@ -432,13 +429,50 @@ void Oculus::terminate()
   glfwSwapInterval(1);
 }
 
-///
-/// @brief Oculus Rift に表示する図形の描画を開始する.
-///
-///   @param mv それぞれの目の位置に平行移動する GgMatrix 型の変換行列.
-///   @return Oculus Rift への描画が可能なら true.
-///
-bool Oculus::start(GgMatrix *mv)
+//
+// Oculus Rift の透視投影変換行列を求める.
+//
+//   zoom シーンのズーム率.
+//   mp 透視投影変換行列の配列.
+//
+void Oculus::getPerspective(GLfloat zoom, GgMatrix* mp) const
+{
+  // 前方面が defaults.display_near なのでスクリーンもそれに合わせる
+  const GLfloat zf{ defaults.display_near / zoom };
+
+  for (int eye = 0; eye < ovrEye_Count; ++eye)
+  {
+    // Oculus Rift の視野を取得する
+    const auto &eyeFov(hmdDesc.DefaultEyeFov[eye]);
+
+    // Oculus Rift の実際の視野
+#if OVR_PRODUCT_VERSION >= 1
+    const auto& fov(eyeFov);
+#else
+    // Oculus Rift のレンズ補正等の設定値を取得する
+    auto& eyeRenderDesc{ oculus.eyeRenderDesc };
+    eyeRenderDesc[eye] = ovr_GetRenderDesc(session, ovrEyeType(eye), eyeFov);
+
+    // Oculus Rift の実際の視野
+    const auto &fov(eyeRenderDesc.Fov);
+#endif
+
+    // 片目の透視投影変換行列を求める
+    mp[eye].loadFrustum(
+      -fov.LeftTan * zf, fov.RightTan * zf,
+      -fov.DownTan * zf, fov.UpTan * zf,
+      defaults.display_near, defaults.display_far
+    );
+  }
+}
+
+//
+// Oculus Rift に表示する図形の描画を開始する.
+//
+//   mv それぞれの目の位置に平行移動する GgMatrix 型の変換行列.
+//   戻り値 描画が可能なら VISIBLE, 不可能なら INVISIBLE, 終了要求があれば WANTQUIT.
+//
+enum Oculus::OculusStatus Oculus::start(GgMatrix *mv)
 {
   // 既に Oculus Rift のセッションが作成されていないとおかしい
   assert(session != nullptr);
@@ -449,13 +483,13 @@ bool Oculus::start(GgMatrix *mv)
   ovr_GetSessionStatus(session, &sessionStatus);
 
   // アプリケーションが終了を要求しているときはウィンドウのクローズフラグを立てる
-  if (sessionStatus.ShouldQuit) window->setClose();
+  if (sessionStatus.ShouldQuit) return WANTQUIT;
 
   // 現在の状態をトラッキングの原点にする
   if (sessionStatus.ShouldRecenter) ovr_RecenterTrackingOrigin(session);
 
   // Oculus Rift に表示されていないときは戻る
-  if (!sessionStatus.IsVisible) return false;
+  if (!sessionStatus.IsVisible) return INVISIBLE;
 
   // HmdToEyeOffset などは実行時に変化するので毎フレーム ovr_GetRenderDesc() で ovrEyeRenderDesc を取得する
   const ovrEyeRenderDesc eyeRenderDesc[] =
@@ -499,16 +533,16 @@ bool Oculus::start(GgMatrix *mv)
   ovr_CalcEyePoses(hmdState.HeadPose.ThePose, hmdToEyeViewOffset, eyePose);
 #endif
 
-  return true;
+  return VISIBLE;
 }
 
-///
-/// @brief 図形を描画する Oculus Rift の目を選択する.
-///
-///   @param eye 図形を描画する Oculus Rift の目.
-///   @param po GgVecotr 型の変数で eye に指定した目の位置の同次座標が格納される.
-///   @param qo GgQuaternion 型の変数で eye に指定した目の方向が四元数で格納される.
-///
+//
+// 図形を描画する Oculus Rift の目を選択する.
+//
+//   eye 図形を描画する Oculus Rift の目.
+//   po GgVecotr 型の変数で eye に指定した目の位置の同次座標が格納される.
+//   qo GgQuaternion 型の変数で eye に指定した目の方向が四元数で格納される.
+//
 void Oculus::select(int eye, GgVector &po, GgQuaternion &qo)
 {
   // 既に Oculus Rift のセッションが作成されていないとおかしい
@@ -575,11 +609,11 @@ void Oculus::select(int eye, GgVector &po, GgQuaternion &qo)
   glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-///
-/// @brief Oculus Rift に表示する図形の描画を完了する.
-///
-///   @param eye 図形の描画を完了する Oculus Rift の目.
-///
+//
+// Oculus Rift に表示する図形の描画を完了する.
+//
+//   eye 図形の描画を完了する Oculus Rift の目.
+//
 void Oculus::commit(int eye)
 {
   // 既に Oculus Rift のセッションが作成されていないとおかしい
@@ -598,15 +632,12 @@ void Oculus::commit(int eye)
 #endif
 }
 
-///
-/// @brief 描画したフレームを Oculus Rift に転送する.
-///
-///   @param mirror ミラー表示を行うなら true.
-///   @param width ミラー表示を行うフレームバッファ上の領域の幅.
-///   @param height ミラー表示を行うフレームバッファ上の領域の高さ.
-///   @return Oculus Rift への転送が成功したら true.
-///
-bool Oculus::submit(bool mirror, GLsizei width, GLsizei height)
+//
+// 描画したフレームを Oculus Rift に転送する.
+//
+//   戻り値 Oculus Rift への転送が成功したら true.
+//
+bool Oculus::submit()
 {
   // 既に Oculus Rift のセッションが作成されていないとおかしい
   assert(session != nullptr);
@@ -631,41 +662,49 @@ bool Oculus::submit(bool mirror, GLsizei width, GLsizei height)
   if (OVR_FAILURE(ovr_SubmitFrame(session, 0, &viewScaleDesc, &layers, 1))) return false;
 #endif
 
-  // ミラー表示を行うのであれば
-  if (mirror)
-  {
-    // 転送元の FBO の領域
+  // 通常のフレームバッファへの描画に戻す
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+  // Oculus Rift への転送に成功した
+  return true;
+}
+
+//
+// Oculus Rift に描画したフレームをミラー表示する.
+//
+//   width ミラー表示を行うフレームバッファ上の領域の幅.
+//   height ミラー表示を行うフレームバッファ上の領域の高さ.
+//
+void Oculus::submitMirror(GLsizei width, GLsizei height)
+{
+  // 転送元の FBO の領域
 #  if OVR_PRODUCT_VERSION >= 1
-    const auto& sx1{ mirrorWidth };
-    const auto& sy1{ mirrorHeight };
+  const auto& sx1{ mirrorWidth };
+  const auto& sy1{ mirrorHeight };
 #  else
-    const auto& sx1{ mirrorTexture->OGL.Header.TextureSize.w };
-    const auto& sy1{ mirrorTexture->OGL.Header.TextureSize.h };
+  const auto& sx1{ mirrorTexture->OGL.Header.TextureSize.w };
+  const auto& sy1{ mirrorTexture->OGL.Header.TextureSize.h };
 #  endif
 
-    // ミラー表示を行うフレームバッファ上の領域
-    GLint dx0{ 0 }, dx1{ width }, dy0{ 0 }, dy1{ height };
+  // ミラー表示を行うフレームバッファ上の領域
+  GLint dx0{ 0 }, dx1{ width }, dy0{ 0 }, dy1{ height };
 
-    // ミラー表示がウィンドウからはみ出ないようにする
-    if ((width *= sy1) < (height *= sx1))
-    {
-      const GLint ty1{ width / sx1 };
-      dy0 = (dy1 - ty1) / 2;
-      dy1 = dy0 + ty1;
-    }
-    else
-    {
-      const GLint tx1{ height / sy1 };
-      dx0 = (dx1 - tx1) / 2;
-      dx1 = dx0 + tx1;
-    }
-
-    // レンダリング結果をミラー表示用のフレームバッファにも転送する
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFbo);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, sy1, sx1, 0, dx0, dy0, dx1, dy1, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+  // ミラー表示がウィンドウからはみ出ないようにする
+  if ((width *= sy1) < (height *= sx1))
+  {
+    const GLint ty1{ width / sx1 };
+    dy0 = (dy1 - ty1) / 2;
+    dy1 = dy0 + ty1;
+  }
+  else
+  {
+    const GLint tx1{ height / sy1 };
+    dx0 = (dx1 - tx1) / 2;
+    dx1 = dx0 + tx1;
   }
 
-  return true;
+  // レンダリング結果をミラー表示用のフレームバッファにも転送する
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFbo);
+  glBlitFramebuffer(0, sy1, sx1, 0, dx0, dy0, dx1, dy1, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 }

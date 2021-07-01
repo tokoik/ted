@@ -10,6 +10,9 @@
 // シーングラフ
 #include "Scene.h"
 
+// 姿勢
+#include "Attitude.h"
+
 class Menu
 {
 
@@ -19,10 +22,13 @@ class Menu
   // メニューで操作するシーン
   Scene& scene;
 
+  // メニューで操作する姿勢
+  Attitude& attitude;
+
   // サブウィンドウのオン・オフ
   bool showNodataWindow;
   bool showDisplayWindow;
-  bool showCameraWindow;
+  bool showAttitudeWindow;
   bool showStartupWindow;
 
   // 起動時設定のコピー
@@ -40,8 +46,8 @@ class Menu
   // 表示設定ウィンドウ
   void displayWindow();
 
-  // カメラ設定ウィンドウ
-  void cameraWindow();
+  // 姿勢設定ウィンドウ
+  void attitudeWindow();
 
   // 起動時設定ウィンドウ
   void startupWindow();
@@ -49,7 +55,7 @@ class Menu
 public:
 
   // コンストラクタ
-  Menu(Window& window, Scene& scene);
+  Menu(Window& window, Scene& scene, Attitude& attitude);
 
   // デストラクタ
   virtual ~Menu();

@@ -103,6 +103,9 @@ class Window
   // スクリーンの間隔
   GLfloat offset;
 
+  // 背景の描画に使う矩形から参照する
+  friend class Rect;
+
 public:
 
   //
@@ -206,6 +209,11 @@ public:
   // 透視投影変換行列を更新する
   //
   void update();
+
+  //
+  // カメラの画角と中心位置を更新する
+  //
+  void updateCircle();
 
   //
   // このウィンドウで制御するカメラを設定する
@@ -332,6 +340,9 @@ public:
 
   // ミラー表示
   bool showMirror;
+
+  // メニュー表示
+  bool showMenu;
 
   // Oculus Rift のコンテキスト
   friend class Oculus;

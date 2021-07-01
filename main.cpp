@@ -109,7 +109,7 @@ int main(int argc, const char *const *const argv)
   }
 
   // 背景描画用の矩形を作成する
-  Rect rect(defaults.vertex_shader, defaults.fragment_shader);
+  Rect rect(window, defaults.vertex_shader, defaults.fragment_shader);
 
   // シェーダプログラム名を調べる
   if (!rect.get())
@@ -422,13 +422,13 @@ int main(int argc, const char *const *const argv)
   if (defaults.display_mode == OCULUS) window.startOculus();
 
   // メニュー
-  Menu menu(window, scene);
+  Menu menu(window, scene, attitude);
 
   // ウィンドウが開いている間くり返し描画する
   while (window)
   {
     // メニューを表示する
-    menu.show();
+    if (window.showMenu) menu.show();
 
     // 左カメラをロックして画像を転送する
     camera->transmit(camL, texture[camL], size[camL]);
@@ -454,18 +454,6 @@ int main(int argc, const char *const *const argv)
         glDisable(GL_CULL_FACE);
         glDisable(GL_BLEND);
 
-        // スクリーンの格子間隔
-        rect.setGap(window.getGap());
-
-        // スクリーンのサイズと中心位置
-        rect.setScreen(window.getScreen(eye));
-
-        // 焦点距離
-        rect.setFocal(window.getFocal());
-
-        // 背景テクスチャの半径と中心位置
-        rect.setCircle(window.getCircle(), window.getOffset(eye));
-
         // ローカルのヘッドトラッキングの変換行列
         const GgMatrix &&mo(defaults.camera_tracking
           ? window.getMo(eye) * attitude.eyeOrientation[eye].getMatrix()
@@ -475,7 +463,7 @@ int main(int argc, const char *const *const argv)
         const GgMatrix &&mr(mo * Scene::getRemoteAttitude(eye));
 
         // 背景を描く
-        rect.draw(texture[eye], defaults.remote_stabilize ? mr : mo, window.getSamples());
+        rect.draw(eye, texture, defaults.remote_stabilize ? mr : mo, window.getSamples());
 
         // 図形と照準の描画設定
         glEnable(GL_DEPTH_TEST);

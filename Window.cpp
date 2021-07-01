@@ -34,8 +34,13 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   , camera{ nullptr }
   , showScene{ true }
   , showMirror{ true }
+  , showMenu{ true }
   , key{ GLFW_KEY_UNKNOWN }
   , joy{ -1 }
+  , zoom{ 1.0f }
+  , focal{ 1.0f }
+  , parallax{ defaultParallax }
+  , offset{ 0.0f }
 {
   // 最初のインスタンスで一度だけ実行
   static bool firstTime{ true };
@@ -366,11 +371,7 @@ Window::operator bool()
     }
 
     // 設定をリセットする
-    if (btns[7])
-    {
-      reset();
-      update();
-    }
+    if (btns[7]) reset();
   }
 
   //
@@ -382,12 +383,15 @@ Window::operator bool()
 
 #ifdef IMGUI_VERSION
 
-  // ImGui の新規フレームを作成する
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
+  if (showMenu)
+  {
+    // ImGui の新規フレームを作成する
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
 
-  // ImGui がマウスを使うときは Window クラスのマウス位置を更新しない
-  if (ImGui::GetIO().WantCaptureMouse) return true;
+    // ImGui がマウスを使うときは Window クラスのマウス位置を更新しない
+    if (ImGui::GetIO().WantCaptureMouse) return true;
+  }
 
   // マウスの現在位置を調べる
   const ImGuiIO &io(ImGui::GetIO());
@@ -419,6 +423,7 @@ Window::operator bool()
     attitude.orientation.motion(static_cast<float>(x), static_cast<float>(y));
   }
 
+<<<<<<< HEAD
   //
   // キーボードによる操作
   //
@@ -591,6 +596,8 @@ Window::operator bool()
     }
   }
 
+=======
+>>>>>>> 6a7aec8 (add attitude menu)
   return true;
 }
 
@@ -609,12 +616,18 @@ void Window::swapBuffers()
   if (oculus)
   {
     // 描画したフレームを Oculus Rift に転送する
-    oculus->submit(showMirror, width, height);
+    oculus->submit();
+
+    // 描画したフレームを Oculus Rift に転送する
+    if (showMirror) oculus->submitMirror(width, height);
 
 #ifdef IMGUI_VERSION
-    // ユーザインタフェースを描画する
-    ImDrawData *const imDrawData(ImGui::GetDrawData());
-    if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
+    if (showMenu)
+    {
+      // ユーザインタフェースを描画する
+      ImDrawData *const imDrawData(ImGui::GetDrawData());
+      if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
+    }
 #endif
 
     // 残っている OpenGL コマンドを実行する
@@ -623,9 +636,12 @@ void Window::swapBuffers()
   else
   {
 #ifdef IMGUI_VERSION
-    // ユーザインタフェースを描画する
-    ImDrawData *const imDrawData(ImGui::GetDrawData());
-    if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
+    if (showMenu)
+    {
+      // ユーザインタフェースを描画する
+      ImDrawData *const imDrawData(ImGui::GetDrawData());
+      if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
+    }
 #endif
 
     // カラーバッファを入れ替える
@@ -789,7 +805,7 @@ void Window::wheel(GLFWwindow *window, double x, double y)
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
     {
       // ズーム率を調整する
-      instance->zoom = 1.0f / (1.0f - zoomStep * (attitude.foreAdjust[0] += static_cast<int>(y)));
+      attitude.foreAdjust[0] += static_cast<int>(y);
 
       // 透視投影変換行列を更新する
       instance->update();
@@ -820,8 +836,20 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
 
   if (instance)
   {
-    if (action == GLFW_PRESS)
+    if (action != GLFW_RELEASE)
     {
+      // シフトキーの状態
+      const auto shiftKey(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
+        || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT));
+
+      // コントロールキーの状態
+      const auto ctrlKey(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)
+        || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL));
+
+      // オルタネートキーの状態
+      const auto altKey(glfwGetKey(window, GLFW_KEY_LEFT_ALT)
+        || glfwGetKey(window, GLFW_KEY_RIGHT_ALT));
+
       // 最後にタイプしたキーを覚えておく
       instance->key = key;
 
@@ -832,39 +860,182 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
 
         // 設定をリセットする
         instance->reset();
-        instance->update();
-        break;
-
-      case GLFW_KEY_SPACE:
-
-        // 前景の表示を ON/OFF する
-        instance->showScene = !instance->showScene;
         break;
 
       case GLFW_KEY_M:
 
-        // ミラー表示を ON/OFF する
-        instance->showMirror = !instance->showMirror;
+        // メニュー表示を ON/OFF する
+        instance->showMenu = !instance->showMenu;
         break;
 
-      case GLFW_KEY_ESCAPE:
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
+      case GLFW_KEY_Z:
+
+        // ズーム率を調整する
+        if (shiftKey)
+          --attitude.foreAdjust[0];
+        else
+          ++attitude.foreAdjust[0];
+
+        // 透視投影変換行列を更新する
+        instance->update();
         break;
- 
-      case GLFW_KEY_BACKSPACE:
-      case GLFW_KEY_DELETE:
+
+      case GLFW_KEY_P:
+
+        // HMD のときは視差を調整しない
+        if (oculus) break;
+
+        // 視差を調整する
+        if (shiftKey)
+          --attitude.parallax;
+        else
+          ++attitude.parallax;
+
+        // 透視投影変換行列を更新する
+        instance->update();
+        break;
+
+      case GLFW_KEY_E:
+
+        // カメラが有効でなければ露出を調整しない
+        if (!instance->camera) break;
+
+        // 露出を調整する
+        if (shiftKey)
+          instance->camera->decreaseExposure();
+        else
+          instance->camera->increaseExposure();
+        break;
+
+      case GLFW_KEY_G:
+
+        // カメラが有効でなければ露出を調整しない
+        if (!instance->camera) break;
+
+        // 利得を調整する
+        if (shiftKey)
+          instance->camera->decreaseGain();
+        else
+          instance->camera->increaseGain();
         break;
 
       case GLFW_KEY_UP:
+
+        if (ctrlKey)
+        {
+          // 背景に対する縦方向の画角を広げる
+          ++attitude.circleAdjust[1];
+        }
+        else if (shiftKey)
+        {
+          // 背景を上にずらす
+          ++attitude.circleAdjust[3];
+        }
+        else if (altKey)
+        {
+          // 背景を上に回転する
+          attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[1];
+          attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[1].conjugate();
+        }
+        else
+        {
+          // 背景に対する焦点距離を延ばす
+          ++attitude.backAdjust[0];
+        }
+
+        // カメラの画角と中心位置を更新する
+        instance->updateCircle();
         break;
 
       case GLFW_KEY_DOWN:
+
+        if (ctrlKey)
+        {
+          // 背景に対する縦方向の画角を狭める
+          --attitude.circleAdjust[1];
+        }
+        else if (shiftKey)
+        {
+          // 背景を下にずらす
+          --attitude.circleAdjust[3];
+        }
+        else if (altKey)
+        {
+          // 背景を下に回転する
+          attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[1].conjugate();
+          attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[1];
+        }
+        else
+        {
+          // 背景に対する焦点距離を縮める
+          --attitude.backAdjust[0];
+        }
+
+        // カメラの画角と中心位置を更新する
+        instance->updateCircle();
         break;
 
       case GLFW_KEY_RIGHT:
+
+        if (ctrlKey)
+        {
+          // 背景に対する横方向の画角を広げる
+          ++attitude.circleAdjust[0];
+        }
+        else if (shiftKey)
+        {
+          // 背景を右にずらす
+          ++attitude.circleAdjust[2];
+        }
+        else if (altKey)
+        {
+          // 背景を右に回転する
+          attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[0].conjugate();
+          attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[0];
+        }
+        else if (defaults.display_mode != MONOCULAR)
+        {
+          // スクリーンの間隔を拡大する
+          ++attitude.offset;
+        }
+
+        // カメラの画角と中心位置を更新する
+        instance->updateCircle();
         break;
 
       case GLFW_KEY_LEFT:
+
+        if (ctrlKey)
+        {
+          // 背景に対する横方向の画角を狭める
+          --attitude.circleAdjust[0];
+        }
+        else if (shiftKey)
+        {
+          // 背景を左にずらす
+          --attitude.circleAdjust[2];
+        }
+        else if (altKey)
+        {
+          // 背景を左に回転する
+          attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[0];
+          attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[0].conjugate();
+        }
+        else if (defaults.display_mode != MONOCULAR)
+        {
+          // 視差を縮小する
+          --attitude.offset;
+        }
+
+        // カメラの画角と中心位置を更新する
+        instance->updateCircle();
+        break;
+
+      case GLFW_KEY_ESCAPE:
+        break;
+
+      case GLFW_KEY_BACKSPACE:
+      case GLFW_KEY_DELETE:
         break;
 
       default:
@@ -894,26 +1065,20 @@ void Window::reset()
   // 背景に対する焦点距離と中心位置の補正値
   attitude.backAdjust = attitude.initialBackAdjust;
 
+  // 背景の視差
+  attitude.parallax = attitude.initialParallax;
+
+  // 背景のスクリーンの間隔
+  attitude.offset = attitude.initialOffset;
+
+  // 透視投影変換行列を更新する
+  update();
+
   // 背景テクスチャの半径と中心位置の補正値
   attitude.circleAdjust = attitude.initialCircleAdjust;
 
-  // 背景テクスチャの半径と中心位置
-  circle[0] = defaults.camera_fov_x + fovStep * attitude.initialCircleAdjust[0];
-  circle[1] = defaults.camera_fov_y + fovStep * attitude.initialCircleAdjust[1];
-  circle[2] = defaults.camera_center_x + shiftStep * attitude.initialCircleAdjust[2];
-  circle[3] = defaults.camera_center_y + shiftStep * attitude.initialCircleAdjust[3];
-
-  // 焦点距離
-  focal = 1.0f / (1.0f - backFocalStep * attitude.initialBackAdjust[0]);
-
-  // 視差
-  parallax = defaultParallax + parallaxStep * (attitude.parallax = attitude.initialParallax);
-
-  // スクリーンの間隔
-  offset = offsetDefault + offsetStep * (attitude.offset = attitude.initialOffset);
-
-  // ズーム率
-  zoom = 1.0f / (1.0f - zoomStep * (attitude.foreAdjust[0] = attitude.initialForeAdjust[0]));
+  // カメラの画角と中心位置を更新する
+  updateCircle();
 }
 
 //
@@ -921,7 +1086,14 @@ void Window::reset()
 //
 bool Window::startOculus()
 {
-  return Oculus::initialize(*this);
+  // Oculus Rift のコンテキストを作る
+  oculus = Oculus::initialize(zoom, &aspect, mp, screen);
+
+  // 作れなかったらエラー
+  if (oculus == nullptr) return false;
+
+  // Oculus Rift の起動に成功した
+  return true;
 }
 
 //
@@ -1023,6 +1195,7 @@ void Window::select(int eye)
 //
 bool Window::start()
 {
+  // Oculus Rift を使っていなかったら関係ない
   if (!oculus) return true;
 
   // モデル変換行列を設定する
@@ -1032,7 +1205,16 @@ bool Window::start()
   Scene::setup(mm);
 
   // Oculus Rift の描画を開始する
-  return oculus->start(mv);
+  auto status{ oculus->start(mv) };
+
+  // Oculus Rift に表示可能なら true
+  if (status == Oculus::VISIBLE) return true;
+
+  // 終了ようきゅが出ていればウィンドウを閉じる
+  if (status == Oculus::WANTQUIT) setClose();
+
+  // Oculus Rift に表示しない
+  return false;
 }
 
 //
@@ -1042,21 +1224,38 @@ bool Window::start()
 //
 void Window::update()
 {
-  // Oculus Rift 使用時は更新しない
-  if (oculus) return;
+  // 前景のズーム率を更新する
+  zoom = 1.0f / (1.0f - zoomStep * attitude.foreAdjust[0]);
 
-  // ズーム率
-  const auto zf(zoom * defaults.display_near);
+  // 背景の焦点距離を更新する
+  focal = 1.0f / (1.0f - backFocalStep * attitude.backAdjust[0]);
+
+  // 背景の視差を更新する
+  parallax = defaultParallax + parallaxStep * attitude.parallax;
+
+  // 背景のスクリーンの間隔を更新する
+  offset = offsetDefault + offsetStep * attitude.offset;
+
+  // Oculus Rift 使用時は透視投影変換行列だけ更新する
+  if (oculus)
+  {
+    oculus->getPerspective(zoom, mp);
+    return;
+  }
 
   // スクリーンの高さと幅
-  const auto screenHeight(defaults.display_center / defaults.display_distance);
-  const auto screenWidth(screenHeight * aspect);
+  const GLfloat screenHeight{ defaults.display_center / defaults.display_distance };
+  const GLfloat screenWidth{ screenHeight * aspect };
 
   // 視差によるスクリーンのシフト量
-  GLfloat shift(parallax * defaults.display_near / defaults.display_distance);
+  const GLfloat shift{ defaults.display_mode != MONOCULAR
+    ? parallax * defaults.display_near / defaults.display_distance : 0.0f };
+
+  // 前方面が defaults.display_near なのでスクリーンもそれに合わせる
+  const GLfloat zf{ defaults.display_near / zoom };
 
   // 左目の視野
-  const GLfloat fovL[] =
+  const GLfloat fovL[]
   {
     -screenWidth + shift,
     screenWidth + shift,
@@ -1065,14 +1264,14 @@ void Window::update()
   };
 
   // 左目の透視投影変換行列を求める
-  mp[ovrEye_Left].loadFrustum(fovL[0] * zf, fovL[1] * zf, fovL[2] * zf, fovL[3] * zf,
+  mp[0].loadFrustum(fovL[0] * zf, fovL[1] * zf, fovL[2] * zf, fovL[3] * zf,
     defaults.display_near, defaults.display_far);
 
   // 左目のスクリーンのサイズと中心位置
-  screen[ovrEye_Left][0] = (fovL[1] - fovL[0]) * 0.5f;
-  screen[ovrEye_Left][1] = (fovL[3] - fovL[2]) * 0.5f;
-  screen[ovrEye_Left][2] = (fovL[1] + fovL[0]) * 0.5f;
-  screen[ovrEye_Left][3] = (fovL[3] + fovL[2]) * 0.5f;
+  screen[0][0] = (fovL[1] - fovL[0]) * 0.5f;
+  screen[0][1] = (fovL[3] - fovL[2]) * 0.5f;
+  screen[0][2] = (fovL[1] + fovL[0]) * 0.5f;
+  screen[0][3] = (fovL[3] + fovL[2]) * 0.5f;
 
   // Oculus Rift 以外の立体視表示の場合
   if (defaults.display_mode != MONOCULAR)
@@ -1087,15 +1286,27 @@ void Window::update()
     };
 
     // 右の透視投影変換行列を求める
-    mp[ovrEye_Right].loadFrustum(fovR[0] * zf, fovR[1] * zf, fovR[2] * zf, fovR[3] * zf,
+    mp[1].loadFrustum(fovR[0] * zf, fovR[1] * zf, fovR[2] * zf, fovR[3] * zf,
       defaults.display_near, defaults.display_far);
 
     // 右目のスクリーンのサイズと中心位置
-    screen[ovrEye_Right][0] = (fovR[1] - fovR[0]) * 0.5f;
-    screen[ovrEye_Right][1] = (fovR[3] - fovR[2]) * 0.5f;
-    screen[ovrEye_Right][2] = (fovR[1] + fovR[0]) * 0.5f;
-    screen[ovrEye_Right][3] = (fovR[3] + fovR[2]) * 0.5f;
+    screen[1][0] = (fovR[1] - fovR[0]) * 0.5f;
+    screen[1][1] = (fovR[3] - fovR[2]) * 0.5f;
+    screen[1][2] = (fovR[1] + fovR[0]) * 0.5f;
+    screen[1][3] = (fovR[3] + fovR[2]) * 0.5f;
   }
+}
+
+//
+// カメラの画角と中心位置を更新する
+//
+void Window::updateCircle()
+{
+  // 背景テクスチャの半径と中心位置
+  circle[0] = defaults.camera_fov_x + fovStep * attitude.circleAdjust[0];
+  circle[1] = defaults.camera_fov_y + fovStep * attitude.circleAdjust[1];
+  circle[2] = defaults.camera_center_x + shiftStep * attitude.circleAdjust[2];
+  circle[3] = defaults.camera_center_y + shiftStep * attitude.circleAdjust[3];
 }
 
 // 描画を完了する

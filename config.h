@@ -206,19 +206,19 @@ constexpr GLfloat zoomStep{ 0.01f };
 constexpr GLfloat defaultParallax{ 0.032f };
 
 // 視差の変更ステップ (単位 m)
-constexpr GLfloat parallaxStep{ 0.001f };
+constexpr GLfloat parallaxStep{ 0.0001f };
 
 // 前景に対する焦点距離の変更ステップ
-constexpr GLfloat foreFocalStep{ 0.01f };
+constexpr GLfloat foreFocalStep{ 0.001f };
 
 // 前景に対する縦横比の変更ステップ
-constexpr GLfloat foreAspectStep{ 0.01f };
+constexpr GLfloat foreAspectStep{ 0.001f };
 
 // 背景に対する焦点距離の変更ステップ
-constexpr GLfloat backFocalStep{ 0.01f };
+constexpr GLfloat backFocalStep{ 0.001f };
 
 // 背景に対する縦横比の変更ステップ
-constexpr GLfloat backAspectStep{ 0.01f };
+constexpr GLfloat backAspectStep{ 0.001f };
 
 // レンズの画角の変更ステップ
 constexpr GLfloat fovStep{ 0.001f };
