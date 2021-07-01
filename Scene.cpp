@@ -6,9 +6,6 @@
 // 標準ライブラリ
 #include <fstream>
 
-// シェーダ
-const GgSimpleShader *Scene::shader{ nullptr };
-
 // 読み込んだパーツを登録するパーツリスト
 std::map<const std::string, std::unique_ptr<const GgSimpleObj>> Scene::parts;
 
@@ -48,11 +45,8 @@ Scene::~Scene()
 }
 
 // 共有メモリを確保して初期化する
-bool Scene::initialize(const GgSimpleShader *shader, unsigned int local_size, unsigned int remote_size)
+bool Scene::initialize(unsigned int local_size, unsigned int remote_size)
 {
-  // シェーダを設定する
-  Scene::shader = shader;
-
   // ローカルの変換行列を保持する共有メモリを確保する
   localAttitude.reset(new SharedMemory(localMutexName, localShareName, local_size));
 
