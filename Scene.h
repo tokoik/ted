@@ -32,7 +32,7 @@ class Scene
   const GgSimpleObj *obj;
 
   // 使用するシェーダ
-  static const GgSimpleShader *shader;
+  const GgSimpleShader *shader;
 
   // 読み込んだパーツを登録するパーツリスト
   static std::map<const std::string, std::unique_ptr<const GgSimpleObj>> parts;
@@ -63,8 +63,8 @@ public:
   // デストラクタ
   virtual ~Scene();
 
-  // シェーダを設定し共有メモリを確保して初期化する
-  static bool initialize(const GgSimpleShader *shader, unsigned int local_size, unsigned int remote_size);
+  // 共有メモリを確保して初期化する
+  static bool initialize(unsigned int local_size, unsigned int remote_size);
 
   // シーングラフを読み込む
   picojson::object load(const picojson::value& v);
@@ -104,6 +104,12 @@ public:
   {
     // Leap Motion の listener と controller を作る
     listener.closeConnection();
+  }
+
+  // シェーダを設定する
+  void setShader(const GgSimpleShader &shader)
+  {
+    this->shader = &shader;
   }
 
   // このパーツ以下のすべてのパーツを描画する

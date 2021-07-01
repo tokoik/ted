@@ -108,28 +108,8 @@ int main(int argc, const char *const *const argv)
     return EXIT_FAILURE;
   }
 
-  // 背景描画用の矩形を作成する
-  Rect rect(window, defaults.vertex_shader, defaults.fragment_shader);
-
-  // シェーダプログラム名を調べる
-  if (!rect.get())
-  {
-    // シェーダが読み込めなかった
-    NOTIFY("背景描画用のシェーダファイルの読み込みに失敗しました。");
-    return EXIT_FAILURE;
-  }
-
-  // 図形描画用のシェーダプログラムを読み込む
-  GgSimpleShader simple("simple.vert", "simple.frag");
-  if (!simple.get())
-  {
-    // シェーダが読み込めなかった
-    NOTIFY("図形描画用のシェーダファイルの読み込みに失敗しました。");
-    return EXIT_FAILURE;
-  }
-
   // 共有メモリを確保する
-  if (!Scene::initialize(&simple, defaults.local_share_size, defaults.remote_share_size))
+  if (!Scene::initialize(defaults.local_share_size, defaults.remote_share_size))
   {
     // 共有メモリの確保を失敗させたと思われる設定を戻す
     defaults.local_share_size = localShareSize;
@@ -142,6 +122,33 @@ int main(int argc, const char *const *const argv)
     NOTIFY("共有メモリが確保できませんでした。");
     return EXIT_FAILURE;
   }
+
+  // 背景の描画に用いる矩形を作成する
+  Rect rect(window, defaults.vertex_shader, defaults.fragment_shader);
+  if (!rect.get())
+  {
+    // シェーダが読み込めなかった
+    NOTIFY("背景描画用のシェーダファイルの読み込みに失敗しました。");
+    return EXIT_FAILURE;
+  }
+
+  // 前景の描画に用いるシェーダプログラムを読み込む
+  GgSimpleShader simple("simple.vert", "simple.frag");
+  if (!simple.get())
+  {
+    // シェーダが読み込めなかった
+    NOTIFY("図形描画用のシェーダファイルの読み込みに失敗しました。");
+    return EXIT_FAILURE;
+  }
+
+  // シーングラフ
+  Scene scene(defaults.scene);
+
+  // シーンにシェーダを設定する
+  scene.setShader(simple);
+
+  // 光源
+  const GgSimpleShader::LightBuffer light(lightData);
 
   // 背景画像のデータ
   const GLubyte *image[camCount]{ nullptr };
@@ -402,12 +409,6 @@ int main(int argc, const char *const *const argv)
 
   // 通常のフレームバッファに戻す
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-  // シーングラフ
-  Scene scene(defaults.scene);
-
-  // 光源
-  const GgSimpleShader::LightBuffer light(lightData);
 
   // カリングする
   glCullFace(GL_BACK);
