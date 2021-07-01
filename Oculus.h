@@ -21,9 +21,6 @@ class Window;
 //
 class Oculus
 {
-  // Oculus Rift に関連付けられたウィンドウ
-  Window* window;
-
   // Oculus Rift のセッション
   ovrSession session;
 
@@ -83,15 +80,26 @@ public:
   ///
   /// @brief Oculus Rift を初期化する.
   ///
-  ///   @param window Oculus Rift に関連付けるウィンドウ.
-  ///   @return Oculus Rift の初期化に成功したら true.
+  ///   @param zoom シーンのズーム率.
+  ///   @param aspect Oculus Rift のアスペクト比の格納先のポインタ.
+  ///   @param mp 透視投影変換行列の配列.
+  ///   @param screen 背景に対するスクリーンのサイズの配列.
+  ///   @return Oculus Rift の初期化に成功したらコンテキストのポインタ.
   ///
-  static bool initialize(Window& window);
+  static Oculus* initialize(GLfloat zoom, GLfloat* aspect, GgMatrix* mp, GgVector* screen);
 
   ///
   /// @brief Oculus Rift を停止する.
   ///
   void terminate();
+
+  ///
+  /// @brief Oculus Rift の透視投影変換行列を求める.
+  ///
+  ///   @param zoom シーンのズーム率.
+  ///   @param mp 透視投影変換行列の配列.
+  ///
+void getPerspective(GLfloat zoom, GgMatrix* mp) const;
 
   ///
   /// @brief Oculus Rift のセッションが有効かどうか判定する.
@@ -107,9 +115,9 @@ public:
   /// @brief Oculus Rift に表示する図形の描画を開始する.
   ///
   ///   @param mv それぞれの目の位置に平行移動する GgMatrix 型の変換行列.
-  ///   @return Oculus Rift への描画が可能なら true.
+  ///   @return 描画が可能なら VISIBLE, 不可能なら INVISIBLE, 終了要求があれば WANTQUIT.
   ///
-  bool start(GgMatrix* mv);
+  enum OculusStatus { VISIBLE = 0, INVISIBLE, WANTQUIT } start(GgMatrix* mv);
 
   ///
   /// @brief 図形を描画する Oculus Rift の目を選択する.
@@ -130,10 +138,15 @@ public:
   ///
   /// @brief 描画したフレームを Oculus Rift に転送する.
   ///
-  ///   @param mirror ミラー表示を行うなら true.
-  ///   @param width ミラー表示を行うフレームバッファ上の領域の幅.
-  ///   @param height ミラー表示を行うフレームバッファ上の領域の高さ.
   ///   @return Oculus Rift への転送が成功したら true.
   ///
-  bool submit(bool mirror, GLsizei width, GLsizei height);
+  bool submit();
+
+  ///
+  /// @brief Oculus Rift に描画したフレームをミラー表示する.
+  ///
+  ///   @param width ミラー表示を行うフレームバッファ上の領域の幅.
+  ///   @param height ミラー表示を行うフレームバッファ上の領域の高さ.
+  ///
+  void submitMirror(GLsizei width, GLsizei height);
 };

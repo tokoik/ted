@@ -104,7 +104,7 @@ void Menu::nodataWindow()
 void Menu::displayWindow()
 {
   ImGui::SetNextWindowPos(ImVec2(4, 32), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(192, 290), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(192, 418), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
 
   ImGui::Begin(u8"表示設定", &showDisplayWindow);
@@ -123,24 +123,43 @@ void Menu::displayWindow()
     else
       scene.stopLeapMotion();
   }
+  ImGui::Checkbox(u8"ミラー表示", &window.showMirror);
+  ImGui::Checkbox(u8"シーン表示", &window.showScene);
+  if (ImGui::SliderFloat(u8"前方面", &defaults.display_near, 0.01f, defaults.display_far))
+    window.update();
+  if (ImGui::SliderFloat(u8"後方面", &defaults.display_far, defaults.display_near, 10.0f))
+    window.update();
 
   ImGui::End();
 }
 
 //
-// カメラ設定ウィンドウ
+// 姿勢設定ウィンドウ
 //
-void Menu::cameraWindow()
+void Menu::attitudeWindow()
 {
-  ImGui::SetNextWindowPos(ImVec2(4, 326), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(192, 258), ImGuiCond_Once);
+  ImGui::SetNextWindowPos(ImVec2(200, 32), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(248, 348), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
 
-  ImGui::Begin(u8"カメラ設定", &showCameraWindow);
-  if (ImGui::SliderFloat(u8"前方面", &defaults.display_near, 0.01f, defaults.display_far))
+  ImGui::Begin(u8"姿勢設定", &showAttitudeWindow);
+  ImGui::Text(u8"前景");
+  ImGui::InputFloat3(u8"位置", attitude.position.data(), "%6.2f");
+  if (ImGui::SliderInt(u8"ズーム率", attitude.foreAdjust.data(), -99, 99))
     window.update();
-  if (ImGui::SliderFloat(u8"後方面", &defaults.display_far, defaults.display_near, 10.0f))
+  if (ImGui::SliderInt(u8"視差", &attitude.parallax, -99, 99))
     window.update();
+  ImGui::Text(u8"背景");
+  if (ImGui::SliderInt(u8"焦点距離", attitude.backAdjust.data(), -99, 99))
+    window.update();
+  if (ImGui::SliderInt(u8"間隔", &attitude.offset, -99, 99))
+    window.update();
+  if (ImGui::SliderInt2(u8"画角", &attitude.circleAdjust[0], -99, 99))
+    window.updateCircle();
+  if (ImGui::SliderInt2(u8"中心", &attitude.circleAdjust[2], -99, 99))
+    window.updateCircle();
+  if (ImGui::Button(u8"リセット"))
+    window.reset();
   ImGui::End();
 }
 
@@ -428,8 +447,11 @@ void Menu::menuBar()
     // Window メニュー
     else if (ImGui::BeginMenu(u8"ウィンドウ"))
     {
-      // カメラ設定ウィンドウを開くか
-      ImGui::MenuItem(u8"カメラ設定", NULL, &showDisplayWindow);
+      // 表示設定ウィンドウを開くか
+      ImGui::MenuItem(u8"表示設定", NULL, &showDisplayWindow);
+
+      // 姿勢設定ウィンドウを開くか
+      ImGui::MenuItem(u8"姿勢設定", NULL, &showAttitudeWindow);
 
       // Window メニュー終了
       ImGui::EndMenu();
@@ -443,12 +465,13 @@ void Menu::menuBar()
 //
 // コンストラクタ
 //
-Menu::Menu(Window& window, Scene& scene)
+Menu::Menu(Window& window, Scene& scene, Attitude& attitude)
   : window{ window }
   , scene{ scene }
+  , attitude{ attitude }
   , showNodataWindow{ false }
   , showDisplayWindow{ true }
-  , showCameraWindow{ true }
+  , showAttitudeWindow{ true }
   , showStartupWindow{ false }
   , secondary{ 0 }
   , fullscreen{ false }
@@ -475,7 +498,7 @@ void Menu::show()
   menuBar();
   if (showNodataWindow) nodataWindow();
   if (showDisplayWindow) displayWindow();
-  if (showCameraWindow) cameraWindow();
+  if (showAttitudeWindow) attitudeWindow();
   if (showStartupWindow) startupWindow();
   ImGui::Render();
 }

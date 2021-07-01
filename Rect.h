@@ -4,15 +4,17 @@
 // 矩形
 //
 
-// 補助プログラム
-#include "gg.h"
-using namespace gg;
+// ウィンドウ関連の処理
+#include "Window.h"
 
 // 標準ライブラリ
 #include <string>
 
 class Rect
 {
+  // 描画するウィンドウ
+  const Window &window;
+
   // 描画に使うシェーダ
   const GLuint shader;
 
@@ -40,19 +42,19 @@ class Rect
   // 格子間隔
   const GLfloat *gap;
 
+  // 背景テクスチャの半径と中心位置
+  const GLfloat *circle;
+
   // スクリーンのサイズと中心位置
   const GLfloat *screen;
 
   // 焦点距離
   GLfloat focal;
 
-  // 背景テクスチャの半径と中心位置
-  GLfloat circle[4];
-
 public:
 
   // コンストラクタ
-  Rect(const std::string &vert, const std::string &frag);
+  Rect(const Window& window, const std::string &vert, const std::string &frag);
 
   // デストラクタ
   ~Rect();
@@ -60,18 +62,6 @@ public:
   // シェーダプログラム名を得る
   GLuint get() const;
 
-  // 格子間隔を設定する
-  void setGap(const GLfloat *gap);
-
-  // スクリーンのサイズと中心位置を設定する
-  void setScreen(const GLfloat *screen);
-
-  // 焦点距離を設定する
-  void setFocal(GLfloat focal);
-
-  // 背景テクスチャの半径と中心位置を設定する
-  void setCircle(const GLfloat *circle, GLfloat offset);
-
   // 描画
-  void draw(GLint texture, const GgMatrix &rotation, const GLsizei *samples) const;
+  void draw(int eye, const GLuint *texture, const GgMatrix &rotation, const GLsizei *samples) const;
 };
