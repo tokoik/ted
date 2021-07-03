@@ -6,6 +6,9 @@
 // 標準ライブラリ
 #include <fstream>
 
+// シェーダ
+const GgSimpleShader *Scene::shader{ nullptr };
+
 // 読み込んだパーツを登録するパーツリスト
 std::map<const std::string, std::unique_ptr<const GgSimpleObj>> Scene::parts;
 
