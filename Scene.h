@@ -32,7 +32,7 @@ class Scene
   const GgSimpleObj *obj;
 
   // 使用するシェーダ
-  const GgSimpleShader *shader;
+  static const GgSimpleShader *shader;
 
   // 読み込んだパーツを登録するパーツリスト
   static std::map<const std::string, std::unique_ptr<const GgSimpleObj>> parts;
@@ -107,9 +107,9 @@ public:
   }
 
   // シェーダを設定する
-  void setShader(const GgSimpleShader &shader)
+  static void setShader(const GgSimpleShader &shader)
   {
-    this->shader = &shader;
+    Scene::shader = &shader;
   }
 
   // このパーツ以下のすべてのパーツを描画する
