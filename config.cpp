@@ -91,7 +91,8 @@ config::config()
   , camera_fov_x{ 1.0 }                       // 魚眼カメラの横の画角
   , camera_fov_y{ 1.0 }                       // 魚眼カメラの縦の画角
   , ovrvision_property{ OVR::OV_CAM5MP_FHD }  // Ovrvision Pro の設定 (※3)
-  , leap_motion{ false }                    // Leap Motion の使用
+  , use_controller{ false }                   // ゲームコントローラの使用
+  , use_leap_motion{ false }                  // Leap Motion の使用
   , vertex_shader{ "fixed.vert" }             // バーテックスシェーダのソースプログラム
   , fragment_shader{ "normal.frag" }          // フラグメントシェーダのソースプログラム
   , role{ STANDALONE }                        // 役割 (※4)
@@ -291,10 +292,15 @@ bool config::read(picojson::value &v)
   if (v_ovrvision_property != o.end() && v_ovrvision_property->second.is<double>())
     ovrvision_property = static_cast<int>(v_ovrvision_property->second.get<double>());
 
+  // ゲームコントローラの使用
+  const auto &v_use_controller(o.find("leap_motion"));
+  if (v_use_controller != o.end() && v_use_controller->second.is<bool>())
+    use_controller = v_use_controller->second.get<bool>();
+
   // Leap Motion の使用
-  const auto &v_leap_motion(o.find("leap_motion"));
-  if (v_leap_motion != o.end() && v_leap_motion->second.is<bool>())
-    leap_motion = v_leap_motion->second.get<bool>();
+  const auto &v_use_leap_motion(o.find("leap_motion"));
+  if (v_use_leap_motion != o.end() && v_use_leap_motion->second.is<bool>())
+    use_leap_motion = v_use_leap_motion->second.get<bool>();
 
   // バーテックスシェーダのソースファイル名
   const auto &v_vertex_shader(o.find("vertex_shader"));
@@ -505,8 +511,11 @@ bool config::save(const std::string &file) const
   // Ovrvision Pro のモード
   o.insert(std::make_pair("ovrvision_property", picojson::value(static_cast<double>(ovrvision_property))));
 
+  // コントローラの使用
+  o.insert(std::make_pair("controller", picojson::value(use_controller)));
+
   // Leap Motion の使用
-  o.insert(std::make_pair("leap_motion", picojson::value(leap_motion)));
+  o.insert(std::make_pair("leap_motion", picojson::value(use_leap_motion)));
 
   // バーテックスシェーダのソースファイル名
   o.insert(std::make_pair("vertex_shader", picojson::value(vertex_shader)));

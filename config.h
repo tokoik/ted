@@ -112,8 +112,11 @@ struct config
   // Ovrvision Pro の設定
   int ovrvision_property;
 
+  // ゲームコントローラの使用
+  bool use_controller;
+
   // Leap Motion の使用
-  bool leap_motion;
+  bool use_leap_motion;
 
   // バーテックスシェーダのソースプログラム
   std::string vertex_shader;
@@ -206,7 +209,7 @@ constexpr GLfloat zoomStep{ 0.01f };
 constexpr GLfloat defaultParallax{ 0.032f };
 
 // 視差の変更ステップ (単位 m)
-constexpr GLfloat parallaxStep{ 0.0001f };
+constexpr GLfloat parallaxStep{ 0.001f };
 
 // 前景に対する焦点距離の変更ステップ
 constexpr GLfloat foreFocalStep{ 0.001f };
@@ -264,9 +267,6 @@ enum CameraId{ camL = 0, camR, camCount };
 
 // リモートカメラの数
 constexpr int remoteCamCount{ camCount };
-
-// ヘッダの長さ
-constexpr int headLength{ camCount + 1 };
 
 // ローカルの共有メモリのサイズ
 constexpr int localShareSize{ 64 };
