@@ -32,7 +32,7 @@
 int main(int argc, const char *const *const argv)
 {
   // 引数を設定ファイル名に使う（指定されていなければ defaultConfig にする）
-  const char *config_file(argc > 1 ? argv[1] : defaultConfig);
+  const char *config_file{ argc > 1 ? argv[1] : defaultConfig };
 
   // 設定ファイルを読み込む (見つからなかったら作る)
   if (!defaults.load(config_file)) defaults.save(config_file);
@@ -73,7 +73,7 @@ int main(int argc, const char *const *const argv)
     monitor = monitors[mcount > defaults.display_secondary ? defaults.display_secondary : 0];
 
     // モニタのモードを調べる
-    const GLFWvidmode *mode(glfwGetVideoMode(monitor));
+    const GLFWvidmode *mode{ glfwGetVideoMode(monitor) };
 
     // ウィンドウのサイズをディスプレイのサイズにする
     windowWidth = mode->width;
@@ -124,7 +124,7 @@ int main(int argc, const char *const *const argv)
   }
 
   // 背景の描画に用いる矩形を作成する
-  Rect rect(window, defaults.vertex_shader, defaults.fragment_shader);
+  Rect rect{ window, defaults.vertex_shader, defaults.fragment_shader };
   if (!rect.get())
   {
     // シェーダが読み込めなかった
@@ -133,7 +133,7 @@ int main(int argc, const char *const *const argv)
   }
 
   // 前景の描画に用いるシェーダプログラムを読み込む
-  GgSimpleShader simple("simple.vert", "simple.frag");
+  GgSimpleShader simple{ "simple.vert", "simple.frag" };
   if (!simple.get())
   {
     // シェーダが読み込めなかった
@@ -142,13 +142,13 @@ int main(int argc, const char *const *const argv)
   }
 
   // シーングラフ
-  Scene scene(defaults.scene);
+  Scene scene{ defaults.scene };
 
   // シーンにシェーダを設定する
   scene.setShader(simple);
 
   // 光源
-  const GgSimpleShader::LightBuffer light(lightData);
+  const GgSimpleShader::LightBuffer light{ lightData };
 
   // 背景画像のデータ
   const GLubyte *image[camCount]{ nullptr };
@@ -204,7 +204,7 @@ int main(int argc, const char *const *const argv)
     if (defaults.camera_left >= 0 || !defaults.camera_left_movie.empty())
     {
       // 左カメラに OpenCV のキャプチャデバイスを使う
-      CamCv *const cam(new CamCv);
+      CamCv *const cam{ new CamCv };
 
       // 生成したカメラを記録しておく
       camera.reset(cam);
@@ -275,7 +275,7 @@ int main(int argc, const char *const *const argv)
       if (defaults.camera_right >= 0)
       {
         // Ovrvision Pro を使う
-        CamOv *const cam(new CamOv);
+        CamOv *const cam{ new CamOv };
 
         // 生成したカメラを記録しておく
         camera.reset(cam);
@@ -299,7 +299,7 @@ int main(int argc, const char *const *const argv)
       else
       {
         // 左カメラに画像ファイルを使う
-        CamImage *const cam(new CamImage);
+        CamImage *const cam{ new CamImage };
 
         // 生成したカメラを記録しておく
         camera.reset(cam);
@@ -360,7 +360,7 @@ int main(int argc, const char *const *const argv)
   window.setControlCamera(camera.get());
 
   // テクスチャのアスペクト比
-  const GLfloat texture_aspect[] =
+  const GLfloat texture_aspect[]
   {
     (GLfloat(size[camL][0]) / GLfloat(size[camL][1])),
     (GLfloat(size[camR][0]) / GLfloat(size[camR][1]))
@@ -369,45 +369,24 @@ int main(int argc, const char *const *const argv)
   // テクスチャの境界の処理
   const GLenum border(defaults.camera_texture_repeat ? GL_REPEAT : GL_CLAMP_TO_BORDER);
 
-  // 背景画像を保存するテクスチャ
+  // 背景画像を保存するテクスチャを作成する
   GLuint texture[camCount];
+  glGenTextures(camCount, texture);
 
-  // 左のテクスチャを作成する
-  glGenTextures(1, texture + camL);
-
-  // 左の背景画像を保存するテクスチャを準備する
-  glBindTexture(GL_TEXTURE_2D, texture[camL]);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, size[camL][0], size[camL][1], 0,
-    GL_BGR, GL_UNSIGNED_BYTE, image[camL]);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, border);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, border);
-  glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-
-  // 右のカメラに入力するなら
-  if (defaults.camera_right >= 0 || !defaults.camera_right_movie.empty() || defaults.role == OPERATOR)
+  // 背景画像を保存するテクスチャを準備する
+  for (int cam = 0; cam < camCount; ++cam)
   {
-    // 右のテクスチャを作成する
-    glGenTextures(1, texture + camR);
-
-    // 右の背景画像を保存するテクスチャを準備する
-    glBindTexture(GL_TEXTURE_2D, texture[camR]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, size[camR][0], size[camR][1], 0,
-      GL_BGR, GL_UNSIGNED_BYTE, image[camR]);
+    glBindTexture(GL_TEXTURE_2D, texture[cam]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, size[cam][0], size[cam][1], 0,
+      GL_BGR, GL_UNSIGNED_BYTE, image[cam]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, border);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, border);
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
   }
-  else
-  {
-    // 右のテクスチャは左のテクスチャと同じにする
-    texture[camR] = texture[camL];
-  }
 
-  // 通常のフレームバッファに戻す
+  // 通常のフレームバッファに描く
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   // カリングする
@@ -417,13 +396,13 @@ int main(int argc, const char *const *const argv)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // 描画回数は単眼視なら 1、それ以外ならカメラの数
-  const int drawCount(defaults.display_mode == MONOCULAR ? 1 : camCount);
+  int drawCount{ defaults.display_mode == MONOCULAR ? 1 : camCount };
 
   // デフォルトが OCULUS なら Oculus Rift を起動する
   if (defaults.display_mode == OCULUS) window.startOculus();
 
   // メニュー
-  Menu menu(window, scene, attitude);
+  Menu menu{ window, scene, attitude };
 
   // ウィンドウが開いている間くり返し描画する
   while (window)
@@ -464,7 +443,8 @@ int main(int argc, const char *const *const argv)
         const GgMatrix &&mr(mo * Scene::getRemoteAttitude(eye));
 
         // 背景を描く
-        rect.draw(eye, texture, defaults.remote_stabilize ? mr : mo, window.getSamples());
+        rect.draw(eye, texture, defaults.remote_stabilize
+          ? mr : mo, window.getSamples());
 
         // 図形と照準の描画設定
         glEnable(GL_DEPTH_TEST);
@@ -487,6 +467,5 @@ int main(int argc, const char *const *const argv)
   }
 
   // 背景画像用のテクスチャを削除する
-  glDeleteBuffers(1, &texture[camL]);
-  if (texture[camR] != texture[camL]) glDeleteBuffers(1, &texture[camR]);
+  glDeleteBuffers(camCount, texture);
 }

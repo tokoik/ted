@@ -210,6 +210,12 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   IM_ASSERT(font != NULL);
 #endif
 
+  // sRGB カラースペースに切り替える
+  glEnable(GL_FRAMEBUFFER_SRGB);
+
+  // スワップ間隔を待つ
+  glfwSwapInterval(1);
+
   // 投影変換行列・ビューポートを初期化する
   resize(window, width, height);
 }
