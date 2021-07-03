@@ -3552,7 +3552,6 @@ namespace gg
           // 文字の位置
           auto c{ s.begin() };
 
-
           // テクスチャ座標と法線の番号は未定義を表す 0 にしておく
           f.p[i] = f.t[i] = f.n[i] = 0;
 
@@ -3560,7 +3559,6 @@ namespace gg
           while (c != s.end() && isdigit(*c)) f.p[i] = f.p[i] * 10 + *c++ - '0';
           if (c == s.end()) break;
           if (*c++ != '/') continue;
-
 
           // 二つ目の項目はテクスチャ座標
           while (c != s.end() && isdigit(*c)) f.t[i] = f.t[i] * 10 + *c++ - '0';
