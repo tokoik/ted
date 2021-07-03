@@ -197,9 +197,12 @@ Oculus* Oculus::initialize(GLfloat zoom, GLfloat* aspect, GgMatrix* mp, GgVector
     const auto &fov(eyeRenderDesc.Fov);
 #endif
 
+    // 視差の調整値
+    const float p{ static_cast<float>((1 - eye * 2) * attitude.parallax) * parallaxStep };
+
     // 片目の透視投影変換行列を求める
     mp[eye].loadFrustum(
-      -fov.LeftTan * zf, fov.RightTan * zf,
+      (p - fov.LeftTan) * zf, (p + fov.RightTan) * zf,
       -fov.DownTan * zf, fov.UpTan * zf,
       defaults.display_near, defaults.display_far
     );
@@ -457,9 +460,12 @@ void Oculus::getPerspective(GLfloat zoom, GgMatrix* mp) const
     const auto &fov(eyeRenderDesc.Fov);
 #endif
 
+    // 視差の調整値
+    const float p{ static_cast<float>((1 - eye * 2) * attitude.parallax) * parallaxStep };
+
     // 片目の透視投影変換行列を求める
     mp[eye].loadFrustum(
-      -fov.LeftTan * zf, fov.RightTan * zf,
+      (p - fov.LeftTan) * zf, (p + fov.RightTan) * zf,
       -fov.DownTan * zf, fov.UpTan * zf,
       defaults.display_near, defaults.display_far
     );

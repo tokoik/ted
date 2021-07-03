@@ -17,6 +17,9 @@
 #include <thread>
 #include <mutex>
 
+// ヘッダの長さ
+constexpr int headLength{ camCount + 1 };
+
 // 作業用メモリのサイズ
 constexpr int maxFrameSize(1024 * 1024);
 

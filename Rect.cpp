@@ -6,7 +6,7 @@
 // コンストラクタ
 Rect::Rect(const Window &window, const std::string &vert, const std::string &frag)
   : window(window)
-  , shader(ggLoadShader(vert.c_str(), frag.c_str()))
+  , shader(ggLoadShader(vert, frag))
   , gapLoc(glGetUniformLocation(shader, "gap"))
   , screenLoc(glGetUniformLocation(shader, "screen"))
   , focalLoc(glGetUniformLocation(shader, "focal"))
@@ -44,7 +44,7 @@ void Rect::draw(int eye, const GLuint *texture, const GgMatrix &rotation, const 
 
   // スクリーンのサイズと中心位置を設定する
   GgVector screen{ window.screen[eye] };
-  screen[2] += eye == 0 ? window.offset : -window.offset;
+  screen[2] += static_cast<GLfloat>(1 - eye * 2) * window.offset;
   glUniform4fv(screenLoc, 1, screen.data());
 
   // 焦点距離を設定する

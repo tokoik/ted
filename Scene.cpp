@@ -190,7 +190,7 @@ Scene *Scene::read(const picojson::value &v, int level)
     else
     {
       // ファイルから図形を読み込む
-      obj = new GgSimpleObj(model.c_str());
+      obj = new GgSimpleObj(model);
 
       // パーツリストに登録する
       parts.emplace(std::make_pair(model, std::unique_ptr<const GgSimpleObj>(obj)));

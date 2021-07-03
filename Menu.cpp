@@ -104,7 +104,7 @@ void Menu::nodataWindow()
 void Menu::displayWindow()
 {
   ImGui::SetNextWindowPos(ImVec2(4, 32), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(192, 418), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(192, 450), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
 
   ImGui::Begin(u8"ï\é¶ê›íË", &showDisplayWindow);
@@ -116,10 +116,11 @@ void Menu::displayWindow()
   if (ImGui::RadioButton(u8"Quad Buffer", &defaults.display_mode, QUADBUFFER)) window.stopOculus();
   int mode{ defaults.display_mode };
   if (ImGui::RadioButton("Oculus", &mode, OCULUS) && window.startOculus()) defaults.display_mode = mode;
-  if (ImGui::Checkbox("Leap Motion", &defaults.leap_motion))
+  ImGui::Checkbox("Game Pad", &defaults.use_controller);
+  if (ImGui::Checkbox("Leap Motion", &defaults.use_leap_motion))
   {
-    if (defaults.leap_motion)
-      if (!scene.startLeapMotion()) defaults.leap_motion = false;
+    if (defaults.use_leap_motion)
+      if (!scene.startLeapMotion()) defaults.use_leap_motion = false;
     else
       scene.stopLeapMotion();
   }

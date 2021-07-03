@@ -236,7 +236,7 @@ Window::operator bool()
   //
 
   // ジョイスティックが有効なら
-  if (joy >= 0)
+  if (joy >= 0 && defaults.use_controller)
   {
     // ボタン
     int btnsCount;
