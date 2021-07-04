@@ -17,7 +17,9 @@
 
 // Native File Dialog
 #include "nfd.h"
-#pragma comment(lib, "nfd.lib")
+
+// 標準ライブラリ
+#include <cstdlib>
 
 //
 // 設定ファイルの読み込み
@@ -86,11 +88,12 @@ int saveConfig()
 //
 void Menu::nodataWindow()
 {
+  constexpr int w{ 238 }, h{ 92 };
   const auto& size{ window.getSize() };
-  constexpr GLsizei w{ 260 }, h{ 98 };
-  ImGui::SetNextWindowPos(ImVec2((size[0] - w) * 0.5f, (size[1] - h) * 0.5f));
-  ImGui::SetNextWindowSize(ImVec2(w, h));
-  ImGui::SetNextWindowCollapsed(false);
+  const float x{ (size[0] - w) * 0.5f }, y{ (size[1] - h) * 0.5f };
+  ImGui::SetNextWindowPos(ImVec2(x, y), ImGuiCond_Appearing);
+  ImGui::SetNextWindowSize(ImVec2(w, h), ImGuiCond_Appearing);
+  ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"エラー", &showNodataWindow);
   ImGui::Text(u8"ファイルの読み書きに失敗しました");
@@ -103,9 +106,9 @@ void Menu::nodataWindow()
 //
 void Menu::displayWindow()
 {
-  ImGui::SetNextWindowPos(ImVec2(4, 32), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(192, 450), ImGuiCond_Once);
-  ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+  ImGui::SetNextWindowPos(ImVec2(2, 28), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(178, 422), ImGuiCond_Once);
+  ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"表示設定", &showDisplayWindow);
   ImGui::Text("Frame rate: %6.2f fps", ImGui::GetIO().Framerate);
@@ -139,9 +142,9 @@ void Menu::displayWindow()
 //
 void Menu::attitudeWindow()
 {
-  ImGui::SetNextWindowPos(ImVec2(200, 32), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(248, 348), ImGuiCond_Once);
-  ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+  ImGui::SetNextWindowPos(ImVec2(182, 28), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(218, 326), ImGuiCond_Once);
+  ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"姿勢設定", &showAttitudeWindow);
   ImGui::Text(u8"前景");
@@ -170,95 +173,82 @@ void Menu::attitudeWindow()
 void Menu::inputWindow()
 {
   // 入力設定ウィンドウ
-  ImGui::SetNextWindowPos(ImVec2(452, 32), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(452, 336), ImGuiCond_Once);
-  ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+  ImGui::SetNextWindowPos(ImVec2(402, 28), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(334, 496), ImGuiCond_Once);
+  ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
   ImGui::Begin(u8"入力設定", &showInputWindow);
+
+  static constexpr char *camId[]{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
   static int ltype = -1;
   ImGui::RadioButton(u8"左イメージ", &ltype, 0);
   ImGui::SameLine();
-  ImGui::Text("%s", defaults.camera_left_image.c_str());
+  ImGui::Text("%s", defaults.camera_image[camL].c_str());
   ImGui::RadioButton(u8"左ムービー", &ltype, 1);
   ImGui::SameLine();
-  ImGui::Text("%s", defaults.camera_left_movie.c_str());
+  ImGui::Text("%s", defaults.camera_movie[camL].c_str());
   ImGui::RadioButton(u8"左カメラ", &ltype, 2);
-  ImGui::SameLine();
-  ImGui::Text("%1d", defaults.camera_left);
-  ImGui::SameLine();
-  if (ImGui::ArrowButton("##camera_left_left", ImGuiDir_Left) && defaults.camera_left > 0) --defaults.camera_left;
-  ImGui::SameLine();
-  if (ImGui::ArrowButton("##camera_left_right", ImGuiDir_Right) && defaults.camera_left < 9) ++defaults.camera_left;
-  ImGui::SameLine();
+  ImGui::Combo(u8"左カメラの番号", &defaults.camera_id[camL], camId, IM_ARRAYSIZE(camId));
 
   static int lgain = 0;
-  ImGui::Text(u8"利得 %1d", lgain);
-  ImGui::SameLine();
   if (ImGui::ArrowButton("##gain_left_left", ImGuiDir_Left)) --lgain;
   ImGui::SameLine();
   if (ImGui::ArrowButton("##gain_left_right", ImGuiDir_Right)) ++lgain;
-
+  ImGui::SameLine();
+  ImGui::Text(u8"利得 %1d", lgain);
   ImGui::SameLine();
 
   static int lexp = 0;
-  ImGui::Text(u8"露出 %1d", lexp);
-  ImGui::SameLine();
   if (ImGui::ArrowButton("##exp_left_left", ImGuiDir_Left)) --lexp;
   ImGui::SameLine();
   if (ImGui::ArrowButton("##exp_left_right", ImGuiDir_Right)) ++lexp;
-
+  ImGui::SameLine();
+  ImGui::Text(u8"露出 %1d", lexp);
   ImGui::Separator();
 
   static int rtype = -1;
   ImGui::RadioButton(u8"右イメージ", &rtype, 0);
   ImGui::SameLine();
-  ImGui::Text("%s", defaults.camera_right_image.c_str());
+  ImGui::Text("%s", defaults.camera_image[camR].c_str());
   ImGui::RadioButton(u8"右ムービー", &rtype, 1);
   ImGui::SameLine();
-  ImGui::Text("%s", defaults.camera_right_movie.c_str());
+  ImGui::Text("%s", defaults.camera_movie[camR].c_str());
   ImGui::RadioButton(u8"右カメラ", &rtype, 2);
-  ImGui::SameLine();
-  ImGui::Text("%1d", defaults.camera_right);
-  ImGui::SameLine();
-  if (ImGui::ArrowButton("##camera_right_left", ImGuiDir_Left) && defaults.camera_right > 0) --defaults.camera_right;
-  ImGui::SameLine();
-  if (ImGui::ArrowButton("##camera_right_right", ImGuiDir_Right) && defaults.camera_right < 9) ++defaults.camera_right;
-  ImGui::SameLine();
+  ImGui::Combo(u8"右カメラの番号", &defaults.camera_id[camR], camId, IM_ARRAYSIZE(camId));
 
   static int rgain = 0;
-  ImGui::Text(u8"利得 %1d", rgain);
-  ImGui::SameLine();
   if (ImGui::ArrowButton("##gain_right_left", ImGuiDir_Left)) --rgain;
   ImGui::SameLine();
   if (ImGui::ArrowButton("##gain_right_right", ImGuiDir_Right)) ++rgain;
-
+  ImGui::SameLine();
+  ImGui::Text(u8"利得 %1d", rgain);
   ImGui::SameLine();
 
   static int rexp = 0;
-  ImGui::Text(u8"露出 %1d", rexp);
-  ImGui::SameLine();
   if (ImGui::ArrowButton("##exp_right_left", ImGuiDir_Left)) --rexp;
   ImGui::SameLine();
   if (ImGui::ArrowButton("##exp_right_right", ImGuiDir_Right)) ++rexp;
-
+  ImGui::SameLine();
+  ImGui::Text(u8"露出 %1d", rexp);
   ImGui::Separator();
 
+  ImGui::InputInt2(u8"カメラの画素数", defaults.camera_size.data());
+
   if (ImGui::RadioButton(u8"Ovrvison Pro", &ltype, 3)) rtype = ltype;
-  ImGui::SameLine();
 
   static int item_current = 3;
   static constexpr char *items[]{
-    "2560x1920@15fps",
-    "1920x1080@30fps",
-    "1280x960@45fps",
-    "960x950@60fps",
-    "1280x800@60fps",
-    "640x480@90fps",
-    "320x240@120fps",
-    "1280x960@15fps (USB2.0)",
-    "640x480@30fps (USB2.0)"
+    "2560 x 1920 @ 15fps",
+    "1920 x 1080 @ 30fps",
+    "1280 x 960 @ 45fps",
+    "960 x 950 @ 60fps",
+    "1280 x 800 @ 60fps",
+    "640 x 480 @ 90fps",
+    "320 x 240 @ 120fps",
+    "1280 x 960 @ 15fps (USB2.0)",
+    "640 x 480 @ 30fps (USB2.0)"
   };
-  ImGui::Combo("", &item_current, items, IM_ARRAYSIZE(items));
+  ImGui::Combo(u8"プロパティ", &item_current, items, IM_ARRAYSIZE(items));
 
   if (ImGui::RadioButton(u8"RealSense", &ltype, 4)) rtype = ltype;
 
@@ -438,11 +428,12 @@ void Menu::trimWindow()
 //
 void Menu::startupWindow()
 {
+  constexpr GLsizei w{ 212 }, h{ 236 };
   const auto& size{ window.getSize() };
-  constexpr GLsizei w{ 232 }, h{ 252 };
-  ImGui::SetNextWindowPos(ImVec2((size[0] - w) * 0.5f, (size[1] - h) * 0.5f));
-  ImGui::SetNextWindowSize(ImVec2(w, h), ImGuiCond_Once);
-  ImGui::SetNextWindowCollapsed(false);
+  const float x{ (size[0] - w) * 0.5f }, y{ (size[1] - h) * 0.5f };
+  ImGui::SetNextWindowPos(ImVec2(x, y), ImGuiCond_Appearing);
+  ImGui::SetNextWindowSize(ImVec2(w, h), ImGuiCond_Appearing);
+  ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"起動時設定", &showStartupWindow);
   ImGui::Checkbox(u8"クアッドバッファステレオ", &quadbuffer);

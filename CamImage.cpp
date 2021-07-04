@@ -19,7 +19,7 @@ CamImage::~CamImage()
 bool CamImage::open(const std::string &file, int cam)
 {
   // ‰æ‘œ‚ğƒtƒ@ƒCƒ‹‚©‚ç“Ç‚İ‚Ş
-  image[cam] = cv::imread(defaults.camera_left_image);
+  image[cam] = cv::imread(defaults.camera_image[camL]);
 
   // “Ç‚İ‚İ‚É¸”s‚µ‚½‚ç–ß‚é
   if (image[cam].empty()) return false;

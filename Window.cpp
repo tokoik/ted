@@ -3,28 +3,8 @@
 //
 #include "Window.h"
 
-<<<<<<< HEAD
-// Oculus Rift SDK ライブラリ (LibOVR) の組み込み
-#if defined(_WIN32)
-// コンフィギュレーションを調べる
-#  if defined(_DEBUG)
-// デバッグビルドのライブラリをリンクする
-#    pragma comment(lib, "libOVRd.lib")
-#  else
-// リリースビルドのライブラリをリンクする
-#    pragma comment(lib, "libOVR.lib")
-#  endif
-#endif
-
-// Dear ImGui を使うとき
-#ifdef IMGUI_VERSION
-#  include "imgui_impl_glfw.h"
-#  include "imgui_impl_opengl3.h"
-#endif
-=======
 // Oculus Rift 関連の処理
 #include "Oculus.h"
->>>>>>> 3fa99b2 (Separate oculus classes)
 
 // 姿勢
 #include "Attitude.h"
@@ -206,7 +186,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
   //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
   //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-  const ImFont* const font{ io.Fonts->AddFontFromFileTTF("Mplus1-Regular.ttf", 22.0f, NULL, io.Fonts->GetGlyphRangesJapanese()) };
+  const ImFont* const font{ io.Fonts->AddFontFromFileTTF("Mplus1-Regular.ttf", 20.0f, NULL, io.Fonts->GetGlyphRangesJapanese()) };
   IM_ASSERT(font != NULL);
 #endif
 

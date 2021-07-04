@@ -30,6 +30,9 @@ enum HostRole
   WORKER                                    // 作業者
 };
 
+// カメラの識別子と数
+enum CameraId { camL = 0, camR, camCount };
+
 // 設定値
 struct config
 {
@@ -46,8 +49,7 @@ struct config
   int display_secondary;
 
   // 画面の解像度
-  int display_width;
-  int display_height;
+  std::array<int, 2> display_size;
 
   // 画面の縦横比
   GLfloat display_aspect;
@@ -64,23 +66,14 @@ struct config
   // 視点から後方面までの距離
   GLfloat display_far;
 
-  // 左カメラの番号
-  int camera_left;
+  // カメラの番号
+  std::array<int, camCount> camera_id;
 
-  // 左カメラの代わりに使う静止画
-  std::string camera_left_image;
+  // カメラの代わりに使う静止画
+  std::array<std::string, camCount> camera_image;
 
-  // 左カメラの代わりに使う動画
-  std::string camera_left_movie;
-
-  // 右カメラの番号
-  int camera_right;
-
-  // 右カメラの代わりに使う静止画
-  std::string camera_right_image;
-
-  // 右カメラの代わりに使う動画
-  std::string camera_right_movie;
+  // カメラの代わりに使う動画
+  std::array<std::string, camCount> camera_movie;
 
   // 背景画像をマッピングするときのメッシュの分割数
   int camera_texture_samples;
@@ -92,8 +85,7 @@ struct config
   bool camera_tracking;
 
   // カメラの解像度
-  double camera_width;
-  double camera_height;
+  std::array<int, 2> camera_size;
 
   // カメラのフレームレート
   double camera_fps;
@@ -140,7 +132,7 @@ struct config
   bool remote_texture_reshape;
 
   // 相手先の表示に加える遅延
-  unsigned int remote_delay[2];
+  std::array<unsigned int, 2> remote_delay;
 
   // 送信する画像の品質
   int remote_texture_quality;
@@ -261,9 +253,6 @@ constexpr int maxDropPackets{ 1000 };
 
 // フレーム送信の最小間隔
 constexpr long long minDelay{ 10 };
-
-// カメラの識別子と数
-enum CameraId{ camL = 0, camR, camCount };
 
 // リモートカメラの数
 constexpr int remoteCamCount{ camCount };
