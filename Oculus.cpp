@@ -287,9 +287,9 @@ Oculus* Oculus::initialize(GLfloat zoom, GLfloat* aspect, GgMatrix* mp, GgVector
   // ミラー表示用の FBO カラーバッファとして使うテクスチャの特性
   const ovrMirrorTextureDesc mirrorDesc =
   {
-    OVR_FORMAT_R8G8B8A8_UNORM_SRGB,                 // Format
-    oculus.mirrorWidth = defaults.display_width,    // Width
-    oculus.mirrorHeight = defaults.display_height,  // Height
+    OVR_FORMAT_R8G8B8A8_UNORM_SRGB,                   // Format
+    oculus.mirrorWidth = defaults.display_size[0],    // Width
+    oculus.mirrorHeight = defaults.display_size[1],   // Height
     0
   };
 

@@ -186,7 +186,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
   //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
   //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-  const ImFont* const font{ io.Fonts->AddFontFromFileTTF("Mplus1-Regular.ttf", 22.0f, NULL, io.Fonts->GetGlyphRangesJapanese()) };
+  const ImFont* const font{ io.Fonts->AddFontFromFileTTF("Mplus1-Regular.ttf", 20.0f, NULL, io.Fonts->GetGlyphRangesJapanese()) };
   IM_ASSERT(font != NULL);
 #endif
 

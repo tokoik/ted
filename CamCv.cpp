@@ -98,8 +98,8 @@ bool CamCv::start(int cam)
   // カメラのコーデック・解像度・フレームレートを設定する
   if (defaults.camera_fourcc[0] != '\0') camera[cam].set(cv::CAP_PROP_FOURCC,
     cv::VideoWriter::fourcc(defaults.camera_fourcc[0], defaults.camera_fourcc[1], defaults.camera_fourcc[2], defaults.camera_fourcc[3]));
-  if (defaults.camera_width > 0.0) camera[cam].set(cv::CAP_PROP_FRAME_WIDTH, defaults.camera_width);
-  if (defaults.camera_height > 0.0) camera[cam].set(cv::CAP_PROP_FRAME_HEIGHT, defaults.camera_height);
+  if (defaults.camera_size[0] > 0) camera[cam].set(cv::CAP_PROP_FRAME_WIDTH, defaults.camera_size[0]);
+  if (defaults.camera_size[1] > 0) camera[cam].set(cv::CAP_PROP_FRAME_HEIGHT, defaults.camera_size[1]);
   if (defaults.camera_fps > 0.0) camera[cam].set(cv::CAP_PROP_FPS, defaults.camera_fps);
 
   // 左カメラから 1 フレームキャプチャする

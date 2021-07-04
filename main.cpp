@@ -85,8 +85,8 @@ int main(int argc, const char *const *const argv)
     monitor = nullptr;
 
     // ウィンドウのサイズにデフォルト値を設定する
-    windowWidth = defaults.display_width ? defaults.display_width : defaultWindowWidth;
-    windowHeight = defaults.display_height ? defaults.display_height : defaultWindowHeight;
+    windowWidth = defaults.display_size[0] ? defaults.display_size[0] : defaultWindowWidth;
+    windowHeight = defaults.display_size[1] ? defaults.display_size[1] : defaultWindowHeight;
   }
 
   // ウィンドウを開く
@@ -201,7 +201,7 @@ int main(int argc, const char *const *const argv)
   if (!camera)
   {
     // 左カメラから動画を入力するとき
-    if (defaults.camera_left >= 0 || !defaults.camera_left_movie.empty())
+    if (defaults.camera_id[camL] >= 0 || !defaults.camera_movie[camL].empty())
     {
       // 左カメラに OpenCV のキャプチャデバイスを使う
       CamCv *const cam{ new CamCv };
@@ -210,10 +210,10 @@ int main(int argc, const char *const *const argv)
       camera.reset(cam);
 
       // ムービーファイルが指定されていれば
-      if (!defaults.camera_left_movie.empty())
+      if (!defaults.camera_movie[camL].empty())
       {
         // ムービーファイルを開く
-        if (!cam->open(defaults.camera_left_movie, camL))
+        if (!cam->open(defaults.camera_movie[camL], camL))
         {
           NOTIFY("左の動画ファイルが使用できません。");
           return EXIT_FAILURE;
@@ -222,7 +222,7 @@ int main(int argc, const char *const *const argv)
       else
       {
         // カメラデバイスを開く
-        if (!cam->open(defaults.camera_left, camL))
+        if (!cam->open(defaults.camera_id[camL], camL))
         {
           NOTIFY("左のカメラが使用できません。");
           return EXIT_FAILURE;
@@ -241,10 +241,10 @@ int main(int argc, const char *const *const argv)
       if (defaults.display_mode != MONOCULAR)
       {
         // 右カメラに左と異なるムービーファイルが指定されていれば
-        if (!defaults.camera_right_movie.empty() && defaults.camera_right_movie != defaults.camera_left_movie)
+        if (!defaults.camera_movie[camR].empty() && defaults.camera_movie[camR] != defaults.camera_movie[camL])
         {
           // ムービーファイルを開く
-          if (!cam->open(defaults.camera_right_movie, camR))
+          if (!cam->open(defaults.camera_movie[camR], camR))
           {
             NOTIFY("右の動画ファイルが使用できません。");
             return EXIT_FAILURE;
@@ -254,10 +254,10 @@ int main(int argc, const char *const *const argv)
           size[camR][0] = cam->getWidth(camR);
           size[camR][1] = cam->getHeight(camR);
         }
-        else if (defaults.camera_right >= 0 && defaults.camera_right != defaults.camera_left)
+        else if (defaults.camera_id[camR] >= 0 && defaults.camera_id[camR] != defaults.camera_id[camL])
         {
           // カメラデバイスを開く
-          if (!cam->open(defaults.camera_right, camR))
+          if (!cam->open(defaults.camera_id[camR], camR))
           {
             NOTIFY("右のカメラが使用できません。");
             return EXIT_FAILURE;
@@ -272,7 +272,7 @@ int main(int argc, const char *const *const argv)
     else
     {
       // 右カメラだけを使うなら
-      if (defaults.camera_right >= 0)
+      if (defaults.camera_id[camR] >= 0)
       {
         // Ovrvision Pro を使う
         CamOv *const cam{ new CamOv };
@@ -305,7 +305,7 @@ int main(int argc, const char *const *const argv)
         camera.reset(cam);
 
         // 左の画像が使用可能なら
-        if (!cam->open(defaults.camera_left_image, camL))
+        if (!cam->open(defaults.camera_image[camL], camL))
         {
           // 左の画像ファイルが読み込めなかった
           NOTIFY("左の画像ファイルが使用できません。");
@@ -327,10 +327,10 @@ int main(int argc, const char *const *const argv)
         if (defaults.display_mode != MONOCULAR)
         {
           // 右の画像が指定されていれば
-          if (!defaults.camera_right_image.empty())
+          if (!defaults.camera_image[camR].empty())
           {
             // 右の画像が使用可能なら
-            if (!cam->open(defaults.camera_right_image, camR))
+            if (!cam->open(defaults.camera_image[camR], camR))
             {
               // 右の画像ファイルが読み込めなかった
               NOTIFY("右の画像ファイルが使用できません。");
@@ -390,7 +390,7 @@ int main(int argc, const char *const *const argv)
   rect.setTexture(0, texture[0]);
 
   // 右目用の背景画像を貼り付ける矩形にテクスチャを設定する
-  rect.setTexture(1, texture[defaults.camera_right < 0 ? 0 : 1]);
+  rect.setTexture(1, texture[defaults.camera_id[camR] < 0 ? 0 : 1]);
 
 
   // 通常のフレームバッファに描く

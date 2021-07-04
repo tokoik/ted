@@ -66,31 +66,26 @@ config::config()
   , display_quadbuffer{ false }               // クワッドバッファステレオ表示を行うとき true
   , display_fullscreen{ false }               // フルスクリーン表示を行うとき true
   , display_secondary{ 0 }                    // フルスクリーン表示するディスプレイの番号
-  , display_width{ 960 }                      // 画面（ミラー表示）の横の画素数
-  , display_height{ 540 }                     // 画面（ミラー表示）の盾の画素数
+  , display_size{ 960, 540 }                  // 画面（ミラー表示）の画素数
   , display_aspect{ 0.0f }                    // 画面の縦横比
   , display_center{ 0.5f }                    // 画面の中心の高さ
   , display_distance{ 1.5f }                  // 画面までの距離
   , display_near{ 0.1f }                      // 視点から前方面までの距離
   , display_far{ 5.0f }                       // 視点から後方面までの距離
-  , camera_left{ -1 }                         // 左カメラの番号 (※2)
-  , camera_left_image{ "normal_left.jpg" }    // 左カメラの代わりに使う静止画
-  , camera_left_movie{ "" }                   // 左カメラの代わりに使う動画
-  , camera_right{ -1 }                        // 右カメラの番号 (※2)
-  , camera_right_image{ "normal_right.jpg" }  // 右カメラの代わりに使う静止画
-  , camera_right_movie{ "" }                  // 右カメラの代わりに使う動画
+  , camera_id{ -1, -1 }                       // カメラの番号 (※2)
+  , camera_image{ "left.jpg", "right.jpg" }   // カメラの代わりに使う静止画
+  , camera_movie{ "", "" }                    // カメラの代わりに使う動画
   , camera_texture_samples{ 1271 }            // 背景画像をマッピングするときのメッシュの分割数
   , camera_texture_repeat{ false }            // 背景画像を繰り返しでマッピングするとき true
   , camera_tracking{ true }                   // 背景画像をヘッドトラッキングに追従させるとき true
-  , camera_width{ 0.0 }                       // カメラの横の画素数
-  , camera_height{ 0.0 }                      // カメラの縦の画素数
+  , camera_size{ 0, 0 }                       // カメラの横の画素数
   , camera_fps{ 0.0 }                         // カメラのフレームレート
   , camera_fourcc{ '\0', '\0', '\0', '\0' }   // カメラの４文字コーデック
   , camera_center_x{ 0.0 }                    // 魚眼カメラの横の中心位置
   , camera_center_y{ 0.0 }                    // 魚眼カメラの横の中心位置
   , camera_fov_x{ 1.0 }                       // 魚眼カメラの横の画角
   , camera_fov_y{ 1.0 }                       // 魚眼カメラの縦の画角
-  , ovrvision_property{ OVR::OV_CAM5MP_FHD }  // Ovrvision Pro の設定 (※3)
+  , ovrvision_property{ OVR::OV_CAMVR_FULL }  // Ovrvision Pro の設定 (※3)
   , use_controller{ false }                   // ゲームコントローラの使用
   , use_leap_motion{ false }                  // Leap Motion の使用
   , vertex_shader{ "fixed.vert" }             // バーテックスシェーダのソースプログラム
@@ -152,12 +147,12 @@ bool config::read(picojson::value &v)
   // ディスプレイの横の画素数
   const auto &v_display_width(o.find("display_width"));
   if (v_display_width != o.end() && v_display_width->second.is<double>())
-    display_width = static_cast<int>(v_display_width->second.get<double>());
+    display_size[0] = static_cast<int>(v_display_width->second.get<double>());
 
   // ディスプレイの縦の画素数
   const auto &v_display_height(o.find("display_height"));
   if (v_display_height != o.end() && v_display_height->second.is<double>())
-    display_height = static_cast<int>(v_display_height->second.get<double>());
+    display_size[1] = static_cast<int>(v_display_height->second.get<double>());
 
   // ディスプレイの縦横比
   const auto &v_display_aspect(o.find("display_aspect"));
@@ -189,30 +184,30 @@ bool config::read(picojson::value &v)
   if (v_left_camera != o.end())
   {
     if (v_left_camera->second.is<std::string>())
-      camera_left_movie = v_left_camera->second.get<std::string>();
+      camera_movie[camL] = v_left_camera->second.get<std::string>();
     else if (v_left_camera->second.is<double>())
-      camera_left = static_cast<int>(v_left_camera->second.get<double>());
+      camera_id[camL] = static_cast<int>(v_left_camera->second.get<double>());
   }
 
   // 左目のキャプチャデバイス不使用時に表示する静止画像
   const auto &v_left_image(o.find("left_image"));
   if (v_left_image != o.end() && v_left_image->second.is<std::string>())
-    camera_left_image = v_left_image->second.get<std::string>();
+    camera_image[camL] = v_left_image->second.get<std::string>();
 
   // 右目のキャプチャデバイスのデバイス番号もしくはムービーファイル
   const auto &v_right_camera(o.find("right_camera"));
   if (v_right_camera != o.end())
   {
     if (v_right_camera->second.is<std::string>())
-      camera_right_movie = v_right_camera->second.get<std::string>();
+      camera_movie[camR] = v_right_camera->second.get<std::string>();
     else if (v_right_camera->second.is<double>())
-      camera_right = static_cast<int>(v_right_camera->second.get<double>());
+      camera_id[camR] = static_cast<int>(v_right_camera->second.get<double>());
   }
 
   // 右目のキャプチャデバイス不使用時に表示する静止画像
   const auto &v_right_image(o.find("right_image"));
   if (v_right_image != o.end() && v_right_image->second.is<std::string>())
-    camera_right_image = v_right_image->second.get<std::string>();
+    camera_image[camR] = v_right_image->second.get<std::string>();
 
   // スクリーンのサンプル数
   const auto &v_screen_samples(o.find("screen_samples"));
@@ -237,12 +232,12 @@ bool config::read(picojson::value &v)
   // カメラの横の画素数
   const auto &v_capture_width(o.find("capture_width"));
   if (v_capture_width != o.end() && v_capture_width->second.is<double>())
-    camera_width = v_capture_width->second.get<double>();
+    camera_size[0] = static_cast<int>(v_capture_width->second.get<double>());
 
   // カメラの縦の画素数
   const auto &v_capture_height(o.find("capture_height"));
   if (v_capture_height != o.end() && v_capture_height->second.is<double>())
-    camera_height = v_capture_height->second.get<double>();
+    camera_size[1] = static_cast<int>(v_capture_height->second.get<double>());
 
   // カメラのフレームレート
   const auto &v_capture_fps(o.find("capture_fps"));
@@ -436,10 +431,10 @@ bool config::save(const std::string &file) const
   o.insert(std::make_pair("use_secondary", picojson::value(static_cast<double>(display_secondary))));
 
   // ディスプレイの横の画素数
-  o.insert(std::make_pair("display_width", picojson::value(static_cast<double>(display_width))));
+  o.insert(std::make_pair("display_width", picojson::value(static_cast<double>(display_size[0]))));
 
   // ディスプレイの縦の画素数
-  o.insert(std::make_pair("display_height", picojson::value(static_cast<double>(display_height))));
+  o.insert(std::make_pair("display_height", picojson::value(static_cast<double>(display_size[1]))));
 
   // ディスプレイの縦横比
   o.insert(std::make_pair("display_aspect", picojson::value(static_cast<double>(display_aspect))));
@@ -457,20 +452,20 @@ bool config::save(const std::string &file) const
   o.insert(std::make_pair("depth_far", picojson::value(static_cast<double>(display_far))));
 
   // 左目のキャプチャデバイスのデバイス番号もしくはムービーファイル
-  o.insert(std::make_pair("left_camera", camera_left_movie.empty()
-    ? picojson::value(static_cast<double>(camera_left))
-    : picojson::value(camera_left_movie)));
+  o.insert(std::make_pair("left_camera", camera_movie[camL].empty()
+    ? picojson::value(static_cast<double>(camera_id[camL]))
+    : picojson::value(camera_movie[camL])));
 
   // 左目のキャプチャデバイス不使用時に表示する静止画像
-  o.insert(std::make_pair("left_image", picojson::value(camera_left_image)));
+  o.insert(std::make_pair("left_image", picojson::value(camera_image[camL])));
 
   // 右目のキャプチャデバイスのデバイス番号もしくはムービーファイル
-  o.insert(std::make_pair("right_camera", camera_right_movie.empty()
-    ? picojson::value(static_cast<double>(camera_right))
-    : picojson::value(camera_left_movie)));
+  o.insert(std::make_pair("right_camera", camera_movie[camR].empty()
+    ? picojson::value(static_cast<double>(camera_id[camR]))
+    : picojson::value(camera_movie[camL])));
 
   // 右目のキャプチャデバイス不使用時に表示する静止画像
-  o.insert(std::make_pair("right_image", picojson::value(camera_right_image)));
+  o.insert(std::make_pair("right_image", picojson::value(camera_image[camR])));
 
   // スクリーンのサンプル数
   o.insert(std::make_pair("screen_samples", picojson::value(static_cast<double>(camera_texture_samples))));
@@ -485,10 +480,10 @@ bool config::save(const std::string &file) const
   o.insert(std::make_pair("stabilize", picojson::value(remote_stabilize)));
 
   // カメラの横の画素数
-  o.insert(std::make_pair("capture_width", picojson::value(camera_width)));
+  o.insert(std::make_pair("capture_width", picojson::value(static_cast<double>(camera_size[0]))));
 
   // カメラの縦の画素数
-  o.insert(std::make_pair("capture_height", picojson::value(camera_height)));
+  o.insert(std::make_pair("capture_height", picojson::value(static_cast<double>(camera_size[1]))));
 
   // カメラのフレームレート
   o.insert(std::make_pair("capture_fps", picojson::value(camera_fps)));
