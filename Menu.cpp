@@ -164,67 +164,107 @@ void Menu::attitudeWindow()
   ImGui::End();
 }
 
-#if 0
-//
-// 前景設定ウィンドウ
-//
-void Menu::objectWindow()
-{
-  // Object 設定ウィンドウ
-  ImGui::SetNextWindowPos(ImVec2(4, 30), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(336, 168), ImGuiCond_Once);
-  ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
-  ImGui::Begin(u8"表示設定", &showObjectWindow);
-
-  // 表示方式
-  int* type{ const_cast<int*>(&develop->type) };
-  ImGui::RadioButton(u8"縦置き", type, octatech::DevelopShader::PORTRAIT);
-  ImGui::SameLine();
-  ImGui::RadioButton(u8"天板・地板", type, octatech::DevelopShader::TOP_BOTTOM);
-  ImGui::SameLine();
-  ImGui::RadioButton(u8"横置き", type, octatech::DevelopShader::LANDSCAPE);
-  ImGui::RadioButton(u8"天板", type, octatech::DevelopShader::TOP);
-  ImGui::SameLine();
-  ImGui::RadioButton(u8"側板", type, octatech::DevelopShader::BODY);
-  ImGui::SameLine();
-  ImGui::RadioButton(u8"地板", type, octatech::DevelopShader::BOTTOM);
-  window.selectInterface(*type);
-
-  // テクスチャをリピートするか
-  ImGui::SameLine();
-  if (ImGui::Checkbox(u8"画像反復", &repeat)) image.setRepeat(repeat);
-
-  // 図形のスケール
-  auto& scale{ image.config.scale };
-  if (ImGui::DragFloat2(u8"ドラムサイズ", scale.data(), 0.01f, 0.0f, 20.0f, "%.3f"))
-    develop->setScale(scale[0], scale[1], scale[2] = scale[0]);
-
-  // 図形に投影するテクスチャの投影中心
-  auto& origin{ image.config.origin };
-  if (ImGui::DragFloat2(u8"カメラ位置", origin.data(), 0.01f, -10.0f, 10.0f, "%.3f"))
-    origin[2] = 0.0f;
-
-  // Object 設定ウィンドウの設定終了
-  ImGui::End();
-}
-
 //
 // 入力設定ウィンドウ
 //
-void Menu::inputWindow(const ShaderList& list, std::vector<DeviceData>::const_iterator& device)
+void Menu::inputWindow()
 {
   // 入力設定ウィンドウ
-  ImGui::SetNextWindowPos(ImVec2(4, 470), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(336, 296), ImGuiCond_Once);
+  ImGui::SetNextWindowPos(ImVec2(452, 32), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(452, 336), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
   ImGui::Begin(u8"入力設定", &showInputWindow);
 
-  // カメラの設定の別名を作っておく
-  auto& size(image.config.size);
-  auto& rate(image.config.rate);
-  auto& fourcc(image.config.fourcc);
+  static int ltype = -1;
+  ImGui::RadioButton(u8"左イメージ", &ltype, 0);
+  ImGui::SameLine();
+  ImGui::Text("%s", defaults.camera_left_image.c_str());
+  ImGui::RadioButton(u8"左ムービー", &ltype, 1);
+  ImGui::SameLine();
+  ImGui::Text("%s", defaults.camera_left_movie.c_str());
+  ImGui::RadioButton(u8"左カメラ", &ltype, 2);
+  ImGui::SameLine();
+  ImGui::Text("%1d", defaults.camera_left);
+  ImGui::SameLine();
+  if (ImGui::ArrowButton("##camera_left_left", ImGuiDir_Left) && defaults.camera_left > 0) --defaults.camera_left;
+  ImGui::SameLine();
+  if (ImGui::ArrowButton("##camera_left_right", ImGuiDir_Right) && defaults.camera_left < 9) ++defaults.camera_left;
+  ImGui::SameLine();
 
-  // デバイス番号の選択
+  static int lgain = 0;
+  ImGui::Text(u8"利得 %1d", lgain);
+  ImGui::SameLine();
+  if (ImGui::ArrowButton("##gain_left_left", ImGuiDir_Left)) --lgain;
+  ImGui::SameLine();
+  if (ImGui::ArrowButton("##gain_left_right", ImGuiDir_Right)) ++lgain;
+
+  ImGui::SameLine();
+
+  static int lexp = 0;
+  ImGui::Text(u8"露出 %1d", lexp);
+  ImGui::SameLine();
+  if (ImGui::ArrowButton("##exp_left_left", ImGuiDir_Left)) --lexp;
+  ImGui::SameLine();
+  if (ImGui::ArrowButton("##exp_left_right", ImGuiDir_Right)) ++lexp;
+
+  ImGui::Separator();
+
+  static int rtype = -1;
+  ImGui::RadioButton(u8"右イメージ", &rtype, 0);
+  ImGui::SameLine();
+  ImGui::Text("%s", defaults.camera_right_image.c_str());
+  ImGui::RadioButton(u8"右ムービー", &rtype, 1);
+  ImGui::SameLine();
+  ImGui::Text("%s", defaults.camera_right_movie.c_str());
+  ImGui::RadioButton(u8"右カメラ", &rtype, 2);
+  ImGui::SameLine();
+  ImGui::Text("%1d", defaults.camera_right);
+  ImGui::SameLine();
+  if (ImGui::ArrowButton("##camera_right_left", ImGuiDir_Left) && defaults.camera_right > 0) --defaults.camera_right;
+  ImGui::SameLine();
+  if (ImGui::ArrowButton("##camera_right_right", ImGuiDir_Right) && defaults.camera_right < 9) ++defaults.camera_right;
+  ImGui::SameLine();
+
+  static int rgain = 0;
+  ImGui::Text(u8"利得 %1d", rgain);
+  ImGui::SameLine();
+  if (ImGui::ArrowButton("##gain_right_left", ImGuiDir_Left)) --rgain;
+  ImGui::SameLine();
+  if (ImGui::ArrowButton("##gain_right_right", ImGuiDir_Right)) ++rgain;
+
+  ImGui::SameLine();
+
+  static int rexp = 0;
+  ImGui::Text(u8"露出 %1d", rexp);
+  ImGui::SameLine();
+  if (ImGui::ArrowButton("##exp_right_left", ImGuiDir_Left)) --rexp;
+  ImGui::SameLine();
+  if (ImGui::ArrowButton("##exp_right_right", ImGuiDir_Right)) ++rexp;
+
+  ImGui::Separator();
+
+  if (ImGui::RadioButton(u8"Ovrvison Pro", &ltype, 3)) rtype = ltype;
+  ImGui::SameLine();
+
+  static int item_current = 3;
+  static constexpr char *items[]{
+    "2560x1920@15fps",
+    "1920x1080@30fps",
+    "1280x960@45fps",
+    "960x950@60fps",
+    "1280x800@60fps",
+    "640x480@90fps",
+    "320x240@120fps",
+    "1280x960@15fps (USB2.0)",
+    "640x480@30fps (USB2.0)"
+  };
+  ImGui::Combo("", &item_current, items, IM_ARRAYSIZE(items));
+
+  if (ImGui::RadioButton(u8"RealSense", &ltype, 4)) rtype = ltype;
+
+  ImGui::Button(u8"設定");
+
+#if 0
   if (ImGui::BeginCombo(u8"入力源", devName))
   {
     for (auto d = list.getDevice().begin(); d != list.getDevice().end(); ++d)
@@ -308,7 +348,53 @@ void Menu::inputWindow(const ShaderList& list, std::vector<DeviceData>::const_it
     ImGui::TextColored(ImVec4(1.0f, 0.2f, 0.0f, 1.0f), u8"入力源が使用できません");
   }
 
+#endif
+
   // 入力設定ウィンドウの設定終了
+  ImGui::End();
+}
+
+#if 0
+//
+// 前景設定ウィンドウ
+//
+void Menu::objectWindow()
+{
+  // Object 設定ウィンドウ
+  ImGui::SetNextWindowPos(ImVec2(4, 30), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(336, 168), ImGuiCond_Once);
+  ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+  ImGui::Begin(u8"表示設定", &showObjectWindow);
+
+  // 表示方式
+  int* type{ const_cast<int*>(&develop->type) };
+  ImGui::RadioButton(u8"縦置き", type, octatech::DevelopShader::PORTRAIT);
+  ImGui::SameLine();
+  ImGui::RadioButton(u8"天板・地板", type, octatech::DevelopShader::TOP_BOTTOM);
+  ImGui::SameLine();
+  ImGui::RadioButton(u8"横置き", type, octatech::DevelopShader::LANDSCAPE);
+  ImGui::RadioButton(u8"天板", type, octatech::DevelopShader::TOP);
+  ImGui::SameLine();
+  ImGui::RadioButton(u8"側板", type, octatech::DevelopShader::BODY);
+  ImGui::SameLine();
+  ImGui::RadioButton(u8"地板", type, octatech::DevelopShader::BOTTOM);
+  window.selectInterface(*type);
+
+  // テクスチャをリピートするか
+  ImGui::SameLine();
+  if (ImGui::Checkbox(u8"画像反復", &repeat)) image.setRepeat(repeat);
+
+  // 図形のスケール
+  auto& scale{ image.config.scale };
+  if (ImGui::DragFloat2(u8"ドラムサイズ", scale.data(), 0.01f, 0.0f, 20.0f, "%.3f"))
+    develop->setScale(scale[0], scale[1], scale[2] = scale[0]);
+
+  // 図形に投影するテクスチャの投影中心
+  auto& origin{ image.config.origin };
+  if (ImGui::DragFloat2(u8"カメラ位置", origin.data(), 0.01f, -10.0f, 10.0f, "%.3f"))
+    origin[2] = 0.0f;
+
+  // Object 設定ウィンドウの設定終了
   ImGui::End();
 }
 
@@ -454,6 +540,9 @@ void Menu::menuBar()
       // 姿勢設定ウィンドウを開くか
       ImGui::MenuItem(u8"姿勢設定", NULL, &showAttitudeWindow);
 
+      // 入力設定ウィンドウを開くか
+      ImGui::MenuItem(u8"入力設定", NULL, &showInputWindow);
+
       // Window メニュー終了
       ImGui::EndMenu();
     }
@@ -473,6 +562,7 @@ Menu::Menu(Window& window, Scene& scene, Attitude& attitude)
   , showNodataWindow{ false }
   , showDisplayWindow{ true }
   , showAttitudeWindow{ true }
+  , showInputWindow{ true }
   , showStartupWindow{ false }
   , secondary{ 0 }
   , fullscreen{ false }
@@ -500,6 +590,7 @@ void Menu::show()
   if (showNodataWindow) nodataWindow();
   if (showDisplayWindow) displayWindow();
   if (showAttitudeWindow) attitudeWindow();
+  if (showInputWindow) inputWindow();
   if (showStartupWindow) startupWindow();
   ImGui::Render();
 }

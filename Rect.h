@@ -51,6 +51,9 @@ class Rect
   // 焦点距離
   GLfloat focal;
 
+  // 貼り付けるテクスチャ
+  GLuint texture[camCount];
+
 public:
 
   // コンストラクタ
@@ -59,9 +62,15 @@ public:
   // デストラクタ
   ~Rect();
 
+  // テクスチャを設定する
+  void setTexture(int eye, GLuint eyeTexture)
+  {
+    texture[eye] = eyeTexture;
+  }
+
   // シェーダプログラム名を得る
   GLuint get() const;
 
   // 描画
-  void draw(int eye, const GLuint *texture, const GgMatrix &rotation, const GLsizei *samples) const;
+  void draw(int eye, const GgMatrix &rotation, const GLsizei *samples) const;
 };
