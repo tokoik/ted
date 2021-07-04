@@ -386,6 +386,13 @@ int main(int argc, const char *const *const argv)
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
   }
 
+  // 左目用の背景画像を貼り付ける矩形にテクスチャを設定する
+  rect.setTexture(0, texture[0]);
+
+  // 右目用の背景画像を貼り付ける矩形にテクスチャを設定する
+  rect.setTexture(1, texture[defaults.camera_right < 0 ? 0 : 1]);
+
+
   // 通常のフレームバッファに描く
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -443,8 +450,7 @@ int main(int argc, const char *const *const argv)
         const GgMatrix &&mr(mo * Scene::getRemoteAttitude(eye));
 
         // 背景を描く
-        rect.draw(eye, texture, defaults.remote_stabilize
-          ? mr : mo, window.getSamples());
+        rect.draw(eye, defaults.remote_stabilize ? mr : mo, window.getSamples());
 
         // 図形と照準の描画設定
         glEnable(GL_DEPTH_TEST);

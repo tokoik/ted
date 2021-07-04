@@ -429,181 +429,6 @@ Window::operator bool()
     attitude.orientation.motion(static_cast<float>(x), static_cast<float>(y));
   }
 
-<<<<<<< HEAD
-  //
-  // ƒL[ƒ{[ƒh‚É‚æ‚é‘€ì
-  //
-
-  // ƒVƒtƒgƒL[‚Ìó‘Ô
-  const auto shiftKey(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT));
-
-  // ƒRƒ“ƒgƒ[ƒ‹ƒL[‚Ìó‘Ô
-  const auto ctrlKey(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL));
-
-  // ƒIƒ‹ƒ^ƒl[ƒgƒL[‚Ìó‘Ô
-  const auto altKey(glfwGetKey(window, GLFW_KEY_LEFT_ALT) || glfwGetKey(window, GLFW_KEY_RIGHT_ALT));
-
-  // ‰E–îˆóƒL[‘€ì
-  if (glfwGetKey(window, GLFW_KEY_RIGHT))
-  {
-    if (altKey)
-    {
-      // ”wŒi‚ğ‰E‚É‰ñ“]‚·‚é
-      if (!ctrlKey) attitude.eyeOrientation[camL] *= qrStep[0].conjugate();
-      if (!shiftKey) attitude.eyeOrientation[camR] *= qrStep[0].conjugate();
-    }
-    else if (ctrlKey)
-    {
-      // ”wŒi‚É‘Î‚·‚é‰¡•ûŒü‚Ì‰æŠp‚ğL‚°‚é
-      circle[0] = defaults.camera_fov_x + fovStep * ++attitude.circleAdjust[0];
-    }
-    else if (shiftKey)
-    {
-      // ”wŒi‚ğ‰E‚É‚¸‚ç‚·
-      circle[2] = defaults.camera_center_x + shiftStep * ++attitude.circleAdjust[2];
-    }
-    else if (defaults.display_mode != MONOCULAR)
-    {
-      // ƒXƒNƒŠ[ƒ“‚ÌŠÔŠu‚ğŠg‘å‚·‚é
-      offset = offsetDefault + offsetStep * ++attitude.offset;
-    }
-  }
-
-  // ¶–îˆóƒL[‘€ì
-  if (glfwGetKey(window, GLFW_KEY_LEFT))
-  {
-    if (altKey)
-    {
-      // ”wŒi‚ğ¶‚É‰ñ“]‚·‚é
-      if (!ctrlKey) attitude.eyeOrientation[camL] *= qrStep[0];
-      if (!shiftKey) attitude.eyeOrientation[camR] *= qrStep[0];
-    }
-    else if (ctrlKey)
-    {
-      // ”wŒi‚É‘Î‚·‚é‰¡•ûŒü‚Ì‰æŠp‚ğ‹·‚ß‚é
-      circle[0] = defaults.camera_fov_x + fovStep * --attitude.circleAdjust[0];
-    }
-    else if (shiftKey)
-    {
-      // ”wŒi‚ğ¶‚É‚¸‚ç‚·
-      circle[2] = defaults.camera_center_x + shiftStep * --attitude.circleAdjust[2];
-    }
-    else if (defaults.display_mode != MONOCULAR)
-    {
-      // ‹·‚ğk¬‚·‚é
-      offset = offsetDefault + offsetStep * --attitude.offset;
-    }
-  }
-
-  // ã–îˆóƒL[‘€ì
-  if (glfwGetKey(window, GLFW_KEY_UP))
-  {
-    if (altKey)
-    {
-      // ”wŒi‚ğã‚É‰ñ“]‚·‚é
-      if (!ctrlKey) attitude.eyeOrientation[camL] *= qrStep[1];
-      if (!shiftKey) attitude.eyeOrientation[camR] *= qrStep[1];
-    }
-    else if (ctrlKey)
-    {
-      // ”wŒi‚É‘Î‚·‚éc•ûŒü‚Ì‰æŠp‚ğL‚°‚é
-      circle[1] = defaults.camera_fov_y + fovStep * ++attitude.circleAdjust[1];
-    }
-    else if (shiftKey)
-    {
-      // ”wŒi‚ğã‚É‚¸‚ç‚·
-      circle[3] = defaults.camera_center_y + shiftStep * ++attitude.circleAdjust[3];
-    }
-    else
-    {
-      // Å“_‹——£‚ğ‰„‚Î‚·
-      focal = 1.0f / (1.0f - backFocalStep * ++attitude.backAdjust[0]);
-    }
-  }
-
-  // ‰º–îˆóƒL[‘€ì
-  if (glfwGetKey(window, GLFW_KEY_DOWN))
-  {
-    if (altKey)
-    {
-      // ”wŒi‚ğ‰º‚É‰ñ“]‚·‚é
-      if (!ctrlKey) attitude.eyeOrientation[camL] *= qrStep[1].conjugate();
-      if (!shiftKey) attitude.eyeOrientation[camR] *= qrStep[1].conjugate();
-    }
-    else if (ctrlKey)
-    {
-      // ”wŒi‚É‘Î‚·‚éc•ûŒü‚Ì‰æŠp‚ğ‹·‚ß‚é
-      circle[1] = defaults.camera_fov_y + fovStep * --attitude.circleAdjust[1];
-    }
-    else if (shiftKey)
-    {
-      // ”wŒi‚ğ‰º‚É‚¸‚ç‚·
-      circle[3] = defaults.camera_center_y + shiftStep * --attitude.circleAdjust[3];
-    }
-    else
-    {
-      // Å“_‹——£‚ğk‚ß‚é
-      focal = 1.0f / (1.0f - backFocalStep * --attitude.backAdjust[0]);
-    }
-  }
-
-  // 'P' ƒL[‚Ì‘€ì
-  if (glfwGetKey(window, GLFW_KEY_P))
-  {
-    // 'P' ƒL[‚Ì‘€ì
-    if (glfwGetKey(window, GLFW_KEY_P))
-    {
-      // ‹·‚ğ’²®‚·‚é
-      parallax = defaultParallax + parallaxStep * (shiftKey ? --attitude.parallax : ++attitude.parallax);
-    }
-
-    // 'Z' ƒL[‚Ì‘€ì
-    else if (glfwGetKey(window, GLFW_KEY_Z))
-    {
-      // ƒY[ƒ€—¦‚ğ’²®‚·‚é
-      zoom = 1.0f / (1.0f - zoomStep * (shiftKey ? --attitude.foreAdjust[0] : ++attitude.foreAdjust[0]));
-    }
-
-    // “§‹“Š‰e•ÏŠ·s—ñ‚ğXV‚·‚é
-    update();
-  }
-
-  // ƒJƒƒ‰‚Ì§Œä
-  if (camera)
-  {
-    // 'E' ƒL[‚Ì‘€ì
-    if (glfwGetKey(window, GLFW_KEY_E))
-    {
-      if (shiftKey)
-      {
-        // ˜Io‚ğ‰º‚°‚é
-        camera->decreaseExposure();
-      }
-      else
-      {
-        // ˜Io‚ğã‚°‚é
-        camera->increaseExposure();
-      }
-    }
-
-    // 'G' ƒL[‚Ì‘€ì
-    if (glfwGetKey(window, GLFW_KEY_G))
-    {
-      if (shiftKey)
-      {
-        // —˜“¾‚ğ‰º‚°‚é
-        camera->decreaseGain();
-      }
-      else
-      {
-        // —˜“¾‚ğã‚°‚é
-        camera->increaseGain();
-      }
-    }
-  }
-
-=======
->>>>>>> 6a7aec8 (add attitude menu)
   return true;
 }
 
@@ -845,16 +670,16 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
     if (action != GLFW_RELEASE)
     {
       // ƒVƒtƒgƒL[‚Ìó‘Ô
-      const auto shiftKey(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
-        || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT));
+      const auto shiftKey{ glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)
+        || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) };
 
       // ƒRƒ“ƒgƒ[ƒ‹ƒL[‚Ìó‘Ô
-      const auto ctrlKey(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)
-        || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL));
+      const auto ctrlKey{ glfwGetKey(window, GLFW_KEY_LEFT_CONTROL)
+        || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) };
 
       // ƒIƒ‹ƒ^ƒl[ƒgƒL[‚Ìó‘Ô
-      const auto altKey(glfwGetKey(window, GLFW_KEY_LEFT_ALT)
-        || glfwGetKey(window, GLFW_KEY_RIGHT_ALT));
+      const auto altKey{ glfwGetKey(window, GLFW_KEY_LEFT_ALT)
+        || glfwGetKey(window, GLFW_KEY_RIGHT_ALT) };
 
       // ÅŒã‚Éƒ^ƒCƒv‚µ‚½ƒL[‚ğŠo‚¦‚Ä‚¨‚­
       instance->key = key;
@@ -927,7 +752,13 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
 
       case GLFW_KEY_UP:
 
-        if (ctrlKey)
+        if (altKey)
+        {
+          // ”wŒi‚ğã‚É‰ñ“]‚·‚é
+          if (!ctrlKey) attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[1];
+          if (!shiftKey) attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[1];
+        }
+        else if (ctrlKey)
         {
           // ”wŒi‚É‘Î‚·‚éc•ûŒü‚Ì‰æŠp‚ğL‚°‚é
           ++attitude.circleAdjust[1];
@@ -936,12 +767,6 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
         {
           // ”wŒi‚ğã‚É‚¸‚ç‚·
           ++attitude.circleAdjust[3];
-        }
-        else if (altKey)
-        {
-          // ”wŒi‚ğã‚É‰ñ“]‚·‚é
-          attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[1];
-          attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[1].conjugate();
         }
         else
         {
@@ -955,7 +780,13 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
 
       case GLFW_KEY_DOWN:
 
-        if (ctrlKey)
+        if (altKey)
+        {
+          // ”wŒi‚ğ‰º‚É‰ñ“]‚·‚é
+          if (!ctrlKey) attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[1].conjugate();
+          if (!shiftKey) attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[1].conjugate();
+        }
+        else if (ctrlKey)
         {
           // ”wŒi‚É‘Î‚·‚éc•ûŒü‚Ì‰æŠp‚ğ‹·‚ß‚é
           --attitude.circleAdjust[1];
@@ -964,12 +795,6 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
         {
           // ”wŒi‚ğ‰º‚É‚¸‚ç‚·
           --attitude.circleAdjust[3];
-        }
-        else if (altKey)
-        {
-          // ”wŒi‚ğ‰º‚É‰ñ“]‚·‚é
-          attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[1].conjugate();
-          attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[1];
         }
         else
         {
@@ -983,7 +808,13 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
 
       case GLFW_KEY_RIGHT:
 
-        if (ctrlKey)
+        if (altKey)
+        {
+          // ”wŒi‚ğ‰E‚É‰ñ“]‚·‚é
+          if (!ctrlKey) attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[0].conjugate();
+          if (!shiftKey) attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[0].conjugate();
+        }
+        else if (ctrlKey)
         {
           // ”wŒi‚É‘Î‚·‚é‰¡•ûŒü‚Ì‰æŠp‚ğL‚°‚é
           ++attitude.circleAdjust[0];
@@ -992,12 +823,6 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
         {
           // ”wŒi‚ğ‰E‚É‚¸‚ç‚·
           ++attitude.circleAdjust[2];
-        }
-        else if (altKey)
-        {
-          // ”wŒi‚ğ‰E‚É‰ñ“]‚·‚é
-          attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[0].conjugate();
-          attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[0];
         }
         else if (defaults.display_mode != MONOCULAR)
         {
@@ -1011,7 +836,13 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
 
       case GLFW_KEY_LEFT:
 
-        if (ctrlKey)
+        if (altKey)
+        {
+          // ”wŒi‚ğ¶‚É‰ñ“]‚·‚é
+          if (!ctrlKey) attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[0];
+          if (!shiftKey) attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[0];
+        }
+        else if (ctrlKey)
         {
           // ”wŒi‚É‘Î‚·‚é‰¡•ûŒü‚Ì‰æŠp‚ğ‹·‚ß‚é
           --attitude.circleAdjust[0];
@@ -1020,12 +851,6 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
         {
           // ”wŒi‚ğ¶‚É‚¸‚ç‚·
           --attitude.circleAdjust[2];
-        }
-        else if (altKey)
-        {
-          // ”wŒi‚ğ¶‚É‰ñ“]‚·‚é
-          attitude.eyeOrientation[camL] *= attitude.eyeOrientationStep[0];
-          attitude.eyeOrientation[camR] *= attitude.eyeOrientationStep[0].conjugate();
         }
         else if (defaults.display_mode != MONOCULAR)
         {
@@ -1193,7 +1018,7 @@ void Window::select(int eye)
   }
 
   // –Ú‚ğ‚¸‚ç‚·‘ã‚í‚è‚É‘OŒi‚ğ“®‚©‚·
-  mv[eye] = ggTranslate(eye == camL ? parallax : -parallax, 0.0f, 0.0f);
+  mv[eye] = ggTranslate(static_cast<GLfloat>(1 - eye * 2) * parallax, 0.0f, 0.0f);
 }
 
 //
@@ -1236,9 +1061,6 @@ void Window::update()
   // ”wŒi‚ÌÅ“_‹——£‚ğXV‚·‚é
   focal = 1.0f / (1.0f - backFocalStep * attitude.backAdjust[0]);
 
-  // ”wŒi‚Ì‹·‚ğXV‚·‚é
-  parallax = defaultParallax + parallaxStep * attitude.parallax;
-
   // ”wŒi‚ÌƒXƒNƒŠ[ƒ“‚ÌŠÔŠu‚ğXV‚·‚é
   offset = offsetDefault + offsetStep * attitude.offset;
 
@@ -1248,6 +1070,9 @@ void Window::update()
     oculus->getPerspective(zoom, mp);
     return;
   }
+
+  // ‘OŒi‚Ì‹·‚ğXV‚·‚é
+  parallax = (defaults.display_mode == MONOCULAR ? 0.0f : defaultParallax) + parallaxStep * attitude.parallax;
 
   // ƒXƒNƒŠ[ƒ“‚Ì‚‚³‚Æ•
   const GLfloat screenHeight{ defaults.display_center / defaults.display_distance };

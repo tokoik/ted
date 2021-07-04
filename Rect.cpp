@@ -31,7 +31,7 @@ GLuint Rect::get() const
 }
 
 // 描画
-void Rect::draw(int eye, const GLuint *texture, const GgMatrix &rotation, const GLsizei *samples) const
+void Rect::draw(int eye, const GgMatrix &rotation, const GLsizei *samples) const
 {
   // シェーダプログラムを選択する
   glUseProgram(shader);

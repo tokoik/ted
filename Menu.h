@@ -29,6 +29,7 @@ class Menu
   bool showNodataWindow;
   bool showDisplayWindow;
   bool showAttitudeWindow;
+  bool showInputWindow;
   bool showStartupWindow;
 
   // 起動時設定のコピー
@@ -49,6 +50,9 @@ class Menu
   // 姿勢設定ウィンドウ
   void attitudeWindow();
 
+  // 入力設定ウィンドウ
+  void Menu::inputWindow();
+    
   // 起動時設定ウィンドウ
   void startupWindow();
 
