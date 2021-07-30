@@ -1017,30 +1017,26 @@ Window::operator bool()
     }
   }
 
-  // HMD 以外のディスプレイの制御
-  if (!session)
+  // 'P' キーの操作
+  if (glfwGetKey(window, GLFW_KEY_P))
   {
-    // 'P' キーの操作
-    if (glfwGetKey(window, GLFW_KEY_P))
-    {
-      // 視差を調整する
-      parallax += shiftKey ? -parallaxStep : parallaxStep;
+    // 視差を調整する
+    parallax += shiftKey ? -parallaxStep : parallaxStep;
 
-      // 透視投影変換行列を更新する
-      updateProjectionMatrix();
-    }
+    // 透視投影変換行列を更新する
+    updateProjectionMatrix();
+  }
 
-    // 'Z' キーの操作
-    if (glfwGetKey(window, GLFW_KEY_Z))
-    {
-      // ズーム率を調整する
-      if (shiftKey) ++zoomChange; else --zoomChange;
-      zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
-        + zoomChange * zoomStep;
+  // 'Z' キーの操作
+  if (glfwGetKey(window, GLFW_KEY_Z))
+  {
+    // ズーム率を調整する
+    if (shiftKey) ++zoomChange; else --zoomChange;
+    zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
+      + zoomChange * zoomStep;
 
-      // 透視投影変換行列を更新する
-      updateProjectionMatrix();
-    }
+    // 透視投影変換行列を更新する
+    updateProjectionMatrix();
   }
 
   // カメラの制御
@@ -1678,8 +1674,39 @@ void Window::reset()
 //
 void Window::updateProjectionMatrix()
 {
-  // Oculus Rift 非使用時
-  if (!session)
+  if (session)
+  {
+    // Oculus Rift 表示用の FBO を作成する
+    for (int eye = 0; eye < eyeCount; ++eye)
+    {
+      // Oculus Rift の視野を取得する
+      const auto &eyeFov(hmdDesc.DefaultEyeFov[eye]);
+#if OVR_PRODUCT_VERSION > 0
+      layerData.Fov[eye] = eyeFov;
+
+      const auto &fov(eyeFov);
+#else
+      layerData.EyeFov.Fov[eye] = eyeFov;
+
+      // Oculus Rift のレンズ補正等の設定値を取得する
+      eyeRenderDesc[eye] = ovr_GetRenderDesc(session, ovrEyeType(eye), eyeFov);
+
+      // Oculus Rift の片目の頭の位置からの変位を求める
+      const auto &offset(eyeRenderDesc[eye].HmdToEyeViewOffset);
+      mv[eye] = ggTranslate(-offset.x, -offset.y, -offset.z);
+
+      const auto &fov(eyeRenderDesc[eye].Fov);
+#endif
+
+      // ズーム率
+      const auto zf(zoom * defaults.display_near);
+
+      // 片目の透視投影変換行列を求める
+      mp[eye].loadFrustum(-fov.LeftTan * zf, fov.RightTan * zf, -fov.DownTan * zf, fov.UpTan * zf,
+        defaults.display_near, defaults.display_far);
+    }
+  }
+  else
   {
     // ズーム率
     const auto zf(zoom * defaults.display_near);
