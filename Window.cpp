@@ -166,7 +166,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   //
   // ユーザインタフェースの準備
   //
-  ImGuiIO& io = ImGui::GetIO(); (void)io;
+  ImGuiIO& io = ImGui::GetIO();
   //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
   //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 

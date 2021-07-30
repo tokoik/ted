@@ -159,6 +159,43 @@ int main(int argc, const char *const *const argv)
   // 背景画像を取得するカメラ
   std::shared_ptr<Camera> camera;
 
+
+  switch (defaults.display_mode)
+  {
+  case MONOCULAR:
+    // 単眼視
+  case INTERLACE:
+    // インターレース（未実装）
+  case TOP_AND_BOTTOM:
+    // 上下２分割
+  case SIDE_BY_SIDE:
+    // 左右２分割
+  case QUADBUFFER:
+    // クワッドバッファステレオ
+  case OCULUS:
+    // Oculus Rift (HMD)
+  default:
+    // 変更なし
+    break;
+  }
+
+  switch (defaults.input_mode)
+  {
+  case IMAGE:
+    // 静止画
+  case MOVIE:
+    // 動画
+  case CAMERA:
+    // Web カメラ
+  case OVRVISON:
+    // Ovrvision Pro
+  case REMOTE:
+    // リモートの TED
+  default:
+    // 変更なし
+    break;
+  }
+
   // ネットワークを使用する場合
   if (defaults.role != STANDALONE)
   {
