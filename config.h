@@ -11,23 +11,25 @@ using namespace gg;
 // JSON
 #include "picojson.h"
 
-// 立体視の設定
-enum StereoMode
+// 表示の設定
+enum DisplayMode
 {
-  MONOCULAR = 0,                            // 単眼視
-  INTERLACE,                                // インターレース（未実装）
-  TOP_AND_BOTTOM,                           // 上下２分割
-  SIDE_BY_SIDE,                             // 左右２分割
-  QUADBUFFER,                               // クワッドバッファステレオ
-  OCULUS                                    // Oculus Rift (HMD)
+  MONOCULAR = 0,            // 単眼視
+  INTERLACE,                // インターレース（未実装）
+  TOP_AND_BOTTOM,           // 上下２分割
+  SIDE_BY_SIDE,             // 左右２分割
+  QUADBUFFER,               // クワッドバッファステレオ
+  OCULUS                    // Oculus Rift (HMD)
 };
 
-// 役割
-enum HostRole
+// 入力の設定
+enum InputMode
 {
-  STANDALONE = 0,                           // 単独
-  OPERATOR,                                 // 操縦者
-  WORKER                                    // 作業者
+  IMAGE = 0,                // 静止画
+  MOVIE,                    // 動画
+  CAMERA,                   // Web カメラ
+  OVRVISON,                 // Ovrvision Pro
+  REMOTE                    // リモートの TED
 };
 
 // カメラの識別子と数
@@ -65,6 +67,9 @@ struct config
 
   // 視点から後方面までの距離
   GLfloat display_far;
+
+  // 入力デバイスのモード
+  int input_mode;
 
   // カメラの番号
   std::array<int, camCount> camera_id;
@@ -117,7 +122,7 @@ struct config
   std::string fragment_shader;
 
   // 役割
-  int role;
+  bool server;
 
   // 通信に使うポート番号
   int port;

@@ -15,7 +15,7 @@
 config defaults;
 
 //
-// ※1 立体視の設定 (StereoMode)
+// ※1 表示の設定 (DisplayMode)
 //
 //    MONOCULAR = 0,            // 単眼視
 //    INTERLACE,                // インターレース（未実装）
@@ -26,14 +26,13 @@ config defaults;
 //
 
 //
-// ※2 カメラ番号の設定
+// ※2 入力の設定 (InputMode)
 //
-//    left_camera <  0 && right_camera <  0 : 画像ファイルを使う
-//    left_camera >= 0 && right_camera <  0 : 左カメラだけを使う (単眼)
-//    left_camera <  0 && right_camera >= 0 : Ovrvision Pro を使う
-//    left_camera >  0 && right_camera >  0 : 左右のカメラを使う
-//
-//    注: (left_camera == right_camera) >= 0 にしないでください
+//    IMAGE = 0,                // 静止画
+//    MOVIE,                    // 動画
+//    CAMERA,                   // Web カメラ
+//    OVRVISON,                 // Ovrvision Pro
+//    REMOTE                    // リモートの TED
 //
 
 //
@@ -72,7 +71,8 @@ config::config()
   , display_distance{ 1.5f }                  // 画面までの距離
   , display_near{ 0.1f }                      // 視点から前方面までの距離
   , display_far{ 5.0f }                       // 視点から後方面までの距離
-  , camera_id{ -1, -1 }                       // カメラの番号 (※2)
+  , input_mode { IMAGE }                      // 入力モード (※2)
+  , camera_id{ -1, -1 }                       // カメラの番号
   , camera_image{ "left.jpg", "right.jpg" }   // カメラの代わりに使う静止画
   , camera_movie{ "", "" }                    // カメラの代わりに使う動画
   , camera_texture_samples{ 1271 }            // 背景画像をマッピングするときのメッシュの分割数
@@ -90,7 +90,7 @@ config::config()
   , use_leap_motion{ false }                  // Leap Motion の使用
   , vertex_shader{ "fixed.vert" }             // バーテックスシェーダのソースプログラム
   , fragment_shader{ "normal.frag" }          // フラグメントシェーダのソースプログラム
-  , role{ STANDALONE }                        // 役割 (※4)
+  , server{ false }                           // サーバなら true
   , port{ 0 }                                 // 通信に使うポート番号
   , address{ "" }                             // 相手先の IP アドレス
   , remote_stabilize{ true }                  // 相手先の映像を安定化するとき true
