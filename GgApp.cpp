@@ -60,6 +60,9 @@ bool GgApp::useImage()
   // 左カメラに画像ファイルを使う
   CamImage *const cam{ new CamImage };
 
+  // 生成したカメラを記録しておく
+  camera.reset(cam);
+
   // 左の画像が使用できなければ戻る
   if (!cam->open(defaults.camera_image[camL], camL))
   {
@@ -69,9 +72,6 @@ bool GgApp::useImage()
 
   // 左の画像を保存しておく
   image[camL] = cam->getImage(camL);
-
-  // 生成したカメラを記録しておく
-  camera.reset(cam);
 
   // 右の画像が指定されていて右の画像と同じでなければ
   if (!defaults.camera_image[camR].empty() && defaults.camera_image[camR] != defaults.camera_image[camL])
@@ -109,15 +109,15 @@ bool GgApp::useMovie()
   // 左カメラに OpenCV のキャプチャデバイスを使う
   CamCv *const cam{ new CamCv };
 
+  // 生成したカメラを記録しておく
+  camera.reset(cam);
+
   // 左の動画像ファイルが開けなければ戻る
   if (!cam->open(defaults.camera_movie[camL], camL))
   {
     NOTIFY("左の動画像ファイルが使用できません。");
     return false;
   }
-
-  // 生成したカメラを記録しておく
-  camera.reset(cam);
 
   // 右カメラに左と異なるムービーファイルが指定されていれば
   if (!defaults.camera_movie[camR].empty() && defaults.camera_movie[camR] != defaults.camera_movie[camL])
@@ -152,15 +152,15 @@ bool GgApp::useCamera()
   // 左カメラに OpenCV のキャプチャデバイスを使う
   CamCv *const cam{ new CamCv };
 
+  // 生成したカメラを記録しておく
+  camera.reset(cam);
+
   // 左カメラのデバイスが開けなければ戻る
   if (!cam->open(defaults.camera_id[camL], camL))
   {
     NOTIFY("左のカメラが使用できません。");
     return false;
   }
-
-  // 生成したカメラを記録しておく
-  camera.reset(cam);
 
   // 右カメラが指定されていて左と異なるカメラが指定されていれば
   if (defaults.camera_id[camR] >= 0 && defaults.camera_id[camR] != defaults.camera_id[camL])
@@ -188,6 +188,9 @@ bool GgApp::useOvervision()
   // Ovrvision Pro を使う
   CamOv *const cam{ new CamOv };
 
+  // 生成したカメラを記録しておく
+  camera.reset(cam);
+
   // Ovrvision Pro が開けなければ戻る
   if (!cam->open(static_cast<OVR::Camprop>(defaults.ovrvision_property)))
   {
@@ -195,9 +198,6 @@ bool GgApp::useOvervision()
     NOTIFY("Ovrvision Pro が使えません。");
     return false;
   }
-
-  // 生成したカメラを記録しておく
-  camera.reset(cam);
 
   // ステレオ入力
   stereo = true;
@@ -221,15 +221,15 @@ bool GgApp::useRemote()
   // リモートカメラからキャプチャするためのダミーカメラを使う
   CamRemote *const cam(new CamRemote(defaults.remote_texture_reshape));
 
+  // 生成したカメラを記録しておく
+  camera.reset(cam);
+
   // 指示者側を起動する
   if (cam->open(defaults.port, defaults.address.c_str()) < 0)
   {
     NOTIFY("作業者側のデータを受け取れません。");
     return false;
   }
-
-  // 生成したカメラを記録しておく
-  camera.reset(cam);
 
   // ステレオ入力
   stereo = true;
@@ -242,6 +242,8 @@ bool GgApp::useRemote()
 //
 bool GgApp::selectInput()
 {
+  std::fill(image, image + camCount, nullptr);
+
   switch (defaults.input_mode)
   {
   case InputMode::IMAGE:

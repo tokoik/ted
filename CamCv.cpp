@@ -5,6 +5,7 @@
 
 // コンストラクタ
 CamCv::CamCv()
+  : startTime{}
 {
 }
 
@@ -13,6 +14,10 @@ CamCv::~CamCv()
 {
   // スレッドを停止する
   stop();
+
+  // カメラを停止する
+  for (int cam = 0; cam < camCount; ++cam)
+    if (opened(cam)) camera[cam].release();
 }
 
 // カメラから入力する
