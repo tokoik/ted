@@ -5,7 +5,7 @@
 //
 
 // ウィンドウ関連の処理
-#include "Window.h"
+#include "GgApp.h"
 
 // シーングラフ
 #include "Scene.h"
@@ -15,6 +15,8 @@
 
 class Menu
 {
+  // このアプリケーション
+  GgApp* app;
 
   // メニューを表示するウィンドウ
   Window& window;
@@ -59,7 +61,7 @@ class Menu
 public:
 
   // コンストラクタ
-  Menu(Window& window, Scene& scene, Attitude& attitude);
+  Menu(GgApp* app, Window& window, Scene& scene, Attitude& attitude);
 
   // デストラクタ
   virtual ~Menu();

@@ -25,8 +25,11 @@
     <ClInclude Include="CamImage.h" />
     <ClInclude Include="CamOv.h" />
     <ClInclude Include="CamRemote.h" />
+    <ClInclude Include="Compute.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="DepthCamera.h" />
     <ClInclude Include="gg.h" />
+    <ClInclude Include="GgApp.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
     <ClInclude Include="imgui_impl_glfw.h" />
@@ -37,11 +40,13 @@
     <ClInclude Include="imstb_truetype.h" />
     <ClInclude Include="LeapListener.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Oculus.h" />
     <ClInclude Include="picojson.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Rs400.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SharedMemory.h" />
     <ClInclude Include="Window.h" />
@@ -54,6 +59,7 @@
     <ClCompile Include="CamOv.cpp" />
     <ClCompile Include="CamRemote.cpp" />
     <ClCompile Include="config.cpp" />
+    <ClCompile Include="DepthCamera.cpp" />
     <ClCompile Include="gg.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
@@ -63,10 +69,12 @@
     <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="LeapListener.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="GgApp.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Oculus.cpp" />
     <ClCompile Include="Rect.cpp" />
+    <ClCompile Include="Rs400.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SharedMemory.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -171,7 +179,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\lib\$(Platform)\$(Configuration);C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x86\vc16\lib;C:\LeapSDK\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\$(Platform)\vc15\lib;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x86\vc16\lib;C:\LeapSDK\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -185,7 +193,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\lib\$(Platform)\$(Configuration);C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc16\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\$(Platform)\vc15\lib;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc16\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -203,7 +211,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\lib\$(Platform)\$(Configuration);C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x86\vc16\lib;C:\LeapSDK\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\$(Platform)\vc15\lib;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x86\vc16\lib;C:\LeapSDK\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -221,7 +229,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\lib\$(Platform)\$(Configuration);C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc16\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\$(Platform)\vc15\lib;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc16\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

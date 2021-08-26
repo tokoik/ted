@@ -53,14 +53,14 @@ CamRemote::~CamRemote()
   }
 }
 
-// 操縦者側の起動
+// 指示者側の起動
 int CamRemote::open(unsigned short port, const char *address)
 {
   // すでに確保されている作業用メモリを破棄する
   delete[] sendbuf, recvbuf;
   sendbuf = recvbuf = nullptr;
 
-  // 操縦者として初期化する
+  // 指示者として初期化する
   const int ret(network.initialize(1, port, address));
   if (ret != 0) return ret;
 

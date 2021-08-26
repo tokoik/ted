@@ -53,7 +53,7 @@ config defaults;
 // ※4 ホストの役割
 //
 //    STANDALONE = 0,           // 単独
-//    OPERATOR,                 // 操縦者
+//    INSTRUCTOR,               // 指示者
 //    WORKER                    // 作業者
 //
 
@@ -90,7 +90,7 @@ config::config()
   , use_leap_motion{ false }                  // Leap Motion の使用
   , vertex_shader{ "fixed.vert" }             // バーテックスシェーダのソースプログラム
   , fragment_shader{ "normal.frag" }          // フラグメントシェーダのソースプログラム
-  , server{ false }                           // サーバなら true
+  , role{ STANDALONE }                        // ホストの役割 (※4)
   , port{ 0 }                                 // 通信に使うポート番号
   , address{ "" }                             // 相手先の IP アドレス
   , remote_stabilize{ true }                  // 相手先の映像を安定化するとき true
@@ -178,6 +178,11 @@ bool config::read(picojson::value &v)
   const auto &v_depth_far(o.find("depth_far"));
   if (v_depth_far != o.end() && v_depth_far->second.is<double>())
     display_far = static_cast<GLfloat>(v_depth_far->second.get<double>());
+
+  // ニュー力ソース
+  const auto &v_input_mode(o.find("input_mode"));
+  if (v_input_mode != o.end() && v_input_mode->second.is<double>())
+    input_mode = static_cast<int>(v_input_mode->second.get<double>());
 
   // 左目のキャプチャデバイスのデバイス番号もしくはムービーファイル
   const auto &v_left_camera(o.find("left_camera"));

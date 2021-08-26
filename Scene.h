@@ -17,7 +17,7 @@
 #include <map>
 #include <queue>
 
-// 共有メモリ上に置く操縦者の変換行列
+// 共有メモリ上に置く指示者の変換行列
 extern std::unique_ptr<SharedMemory> localAttitude;
 
 // 共有メモリ上に置く作業者の変換行列

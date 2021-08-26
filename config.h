@@ -28,8 +28,17 @@ enum InputMode
   IMAGE = 0,                // 静止画
   MOVIE,                    // 動画
   CAMERA,                   // Web カメラ
-  OVRVISON,                 // Ovrvision Pro
+  OVRVISION,                // Ovrvision Pro
+  REALSENSE,                // RealSense
   REMOTE                    // リモートの TED
+};
+
+// 役割
+enum Role
+{
+  STANDALONE = 0,           // 単独
+  INSTRUCTOR,               // 指示者
+  WORKER                    // 作業者
 };
 
 // カメラの識別子と数
@@ -122,7 +131,7 @@ struct config
   std::string fragment_shader;
 
   // 役割
-  bool server;
+  int role;
 
   // 通信に使うポート番号
   int port;
@@ -261,6 +270,9 @@ constexpr long long minDelay{ 10 };
 
 // リモートカメラの数
 constexpr int remoteCamCount{ camCount };
+
+// 目の数
+constexpr int eyeCount{ camCount };
 
 // ローカルの共有メモリのサイズ
 constexpr int localShareSize{ 64 };

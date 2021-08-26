@@ -22,13 +22,10 @@
 
 // コンストラクタ
 Camera::Camera()
+  : recvbuf{ nullptr }
+  , sendbuf{ nullptr }
+  , format{ GL_BGR }
 {
-  // 作業用のメモリ領域
-  recvbuf = sendbuf = nullptr;
-
-  // キャプチャされる画像のフォーマット
-  format = GL_BGR;
-
   // 圧縮設定
   param.push_back(cv::IMWRITE_JPEG_QUALITY);
   param.push_back(defaults.remote_texture_quality);
@@ -48,7 +45,6 @@ Camera::~Camera()
 {
   // 作業用のメモリを開放する
   delete[] recvbuf, sendbuf;
-  recvbuf = sendbuf = nullptr;
 }
 
 // スレッドを停止する

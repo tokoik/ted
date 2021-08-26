@@ -12,7 +12,7 @@ const GgSimpleShader *Scene::shader{ nullptr };
 // 読み込んだパーツを登録するパーツリスト
 std::map<const std::string, std::unique_ptr<const GgSimpleObj>> Scene::parts;
 
-// 共有メモリ上に置く操縦者の変換行列
+// 共有メモリ上に置く指示者の変換行列
 std::unique_ptr<SharedMemory> localAttitude;
 
 // 共有メモリ上に置く作業者の変換行列
