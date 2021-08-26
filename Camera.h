@@ -28,12 +28,6 @@ constexpr int maxFrameSize(1024 * 1024);
 //
 class Camera
 {
-  // コピーコンストラクタを封じる
-  Camera(const Camera &c);
-
-  // 代入を封じる
-  Camera &operator=(const Camera &w);
-
 protected:
 
   // カメラスレッド
@@ -67,6 +61,12 @@ public:
 
   // コンストラクタ
   Camera();
+
+  // コピーコンストラクタを封じる
+  Camera(const Camera &c) = delete;
+
+  // 代入を封じる
+  Camera &operator=(const Camera &w) = delete;
 
   // デストラクタ
   virtual ~Camera();
@@ -150,9 +150,9 @@ public:
     return network.isWorker();
   }
 
-  // 操縦者かかどうか
-  bool isOperator() const
+  // 指示者かかどうか
+  bool isInstructor() const
   {
-    return network.isOperator();
+    return network.isInstructor();
   }
 };

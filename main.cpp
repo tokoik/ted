@@ -1,514 +1,67 @@
+ï»¿//
+// ã‚²ãƒ¼ãƒ ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯ã‚¹ç‰¹è«–å®¿é¡Œã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³
 //
-// TelExistence Display System
-//
 
-// ƒEƒBƒ“ƒhƒEŠÖ˜A‚Ìˆ—
-#include "Window.h"
+// ã‚²ãƒ¼ãƒ ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯ã‚¹ç‰¹è«–å®¿é¡Œã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã‚¯ãƒ©ã‚¹
+#include "GgApp.h"
 
-// ƒlƒbƒgƒ[ƒNŠÖ˜A‚Ìˆ—
-#include "Network.h"
-
-// ƒJƒƒ‰ŠÖ˜A‚Ìˆ—
-#include "CamCv.h"
-#include "CamOv.h"
-#include "CamImage.h"
-#include "CamRemote.h"
-
-// ƒV[ƒ“ƒOƒ‰ƒt
-#include "Scene.h"
-
-// p¨
-#include "Attitude.h"
-
-// ‹éŒ`
-#include "Rect.h"
-
-// ƒƒjƒ…[
-#include "Menu.h"
+// MessageBox ã®æº–å‚™
+#if defined(_MSC_VER)
+#  define NOMINMAX
+#  include <Windows.h>
+#  include <atlstr.h>
+#elif defined(__APPLE__)
+#  include <CoreFoundation/CoreFoundation.h>
+#else
+#  include <iostream>
+#endif
+#define HEADER_STR "ã‚²ãƒ¼ãƒ ã‚°ãƒ©ãƒ•ã‚£ãƒƒã‚¯ã‚¹ç‰¹è«–"
 
 //
-// ƒƒCƒ“ƒvƒƒOƒ‰ƒ€
+// ãƒ¡ã‚¤ãƒ³ãƒ—ãƒ­ã‚°ãƒ©ãƒ 
 //
-int main(int argc, const char *const *const argv)
+int main(int argc, const char* const* argv) try
 {
-  // ˆø”‚ğİ’èƒtƒ@ƒCƒ‹–¼‚Ég‚¤iw’è‚³‚ê‚Ä‚¢‚È‚¯‚ê‚Î defaultConfig ‚É‚·‚éj
-  const char *config_file{ argc > 1 ? argv[1] : defaultConfig };
-
-  // İ’èƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚Ş (Œ©‚Â‚©‚ç‚È‚©‚Á‚½‚çì‚é)
-  if (!defaults.load(config_file)) defaults.save(config_file);
-
-  // p¨ƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚ŞiŒ©‚Â‚©‚ç‚È‚©‚Á‚½‚çì‚éj
-  if (!attitude.load(defaultAttitude)) attitude.save(defaultAttitude);
-
-  // GLFW ‚ğ‰Šú‰»‚·‚é
-  if (glfwInit() == GLFW_FALSE)
-  {
-    // GLFW ‚Ì‰Šú‰»‚É¸”s‚µ‚½
-    NOTIFY("GLFW ‚Ì‰Šú‰»‚É¸”s‚µ‚Ü‚µ‚½B");
-    return EXIT_FAILURE;
-  }
-
-  // ƒvƒƒOƒ‰ƒ€I—¹‚É‚Í GLFW ‚ğI—¹‚·‚é
-  atexit(glfwTerminate);
-
-  // ƒfƒBƒXƒvƒŒƒC‚Ìî•ñ
-  GLFWmonitor *monitor;
-  int windowWidth, windowHeight;
-
-  // ƒtƒ‹ƒXƒNƒŠ[ƒ“•\¦
-  if (defaults.display_fullscreen)
-  {
-    // Ú‘±‚³‚ê‚Ä‚¢‚éƒ‚ƒjƒ^‚Ì”‚ğ”‚¦‚é
-    int mcount;
-    GLFWmonitor **const monitors(glfwGetMonitors(&mcount));
-
-    // ƒ‚ƒjƒ^‚Ì‘¶İƒ`ƒFƒbƒN
-    if (mcount == 0)
-    {
-      NOTIFY("•\¦‰Â”\‚ÈƒfƒBƒXƒvƒŒƒC‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB");
-      return EXIT_FAILURE;
-    }
-
-    // ƒZƒJƒ“ƒ_ƒŠƒ‚ƒjƒ^‚ª‚ ‚ê‚Î‚»‚ê‚ğg‚¤
-    monitor = monitors[mcount > defaults.display_secondary ? defaults.display_secondary : 0];
-
-    // ƒ‚ƒjƒ^‚Ìƒ‚[ƒh‚ğ’²‚×‚é
-    const GLFWvidmode *mode{ glfwGetVideoMode(monitor) };
-
-    // ƒEƒBƒ“ƒhƒE‚ÌƒTƒCƒY‚ğƒfƒBƒXƒvƒŒƒC‚ÌƒTƒCƒY‚É‚·‚é
-    windowWidth = mode->width;
-    windowHeight = mode->height;
-  }
-  else
-  {
-    // ƒvƒ‰ƒCƒ}ƒŠƒ‚ƒjƒ^‚ğƒEƒBƒ“ƒhƒEƒ‚[ƒh‚Åg‚¤
-    monitor = nullptr;
-
-    // ƒEƒBƒ“ƒhƒE‚ÌƒTƒCƒY‚ÉƒfƒtƒHƒ‹ƒg’l‚ğİ’è‚·‚é
-    windowWidth = defaults.display_size[0] ? defaults.display_size[0] : defaultWindowWidth;
-    windowHeight = defaults.display_size[1] ? defaults.display_size[1] : defaultWindowHeight;
-  }
-
-  // ƒEƒBƒ“ƒhƒE‚ğŠJ‚­
-  Window window(windowWidth, windowHeight, windowTitle, monitor);
-
-  // ƒEƒBƒ“ƒhƒEƒIƒuƒWƒFƒNƒg‚ª¶¬‚³‚ê‚È‚¯‚ê‚ÎI—¹‚·‚é
-  if (!window.get())
-  {
-    // ƒEƒCƒ“ƒhƒE‚Ìì¬‚ğ¸”s‚³‚¹‚½‚Æv‚í‚ê‚éİ’è‚ğ–ß‚·
-    defaults.display_secondary = 0;
-    defaults.display_fullscreen = false;
-    defaults.display_quadbuffer = false;
-
-    // İ’èƒtƒ@ƒCƒ‹‚ğ•Û‘¶‚·‚é
-    defaults.save(config_file);
-
-    // ƒEƒBƒ“ƒhƒE‚ªŠJ‚¯‚È‚©‚Á‚½‚Ì‚ÅI—¹‚·‚é
-    NOTIFY("•\¦—p‚ÌƒEƒBƒ“ƒhƒE‚ğì¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B");
-    return EXIT_FAILURE;
-  }
-
-  // ‹¤—Lƒƒ‚ƒŠ‚ğŠm•Û‚·‚é
-  if (!Scene::initialize(defaults.local_share_size, defaults.remote_share_size))
-  {
-    // ‹¤—Lƒƒ‚ƒŠ‚ÌŠm•Û‚ğ¸”s‚³‚¹‚½‚Æv‚í‚ê‚éİ’è‚ğ–ß‚·
-    defaults.local_share_size = localShareSize;
-    defaults.remote_share_size = remoteShareSize;
-
-    // İ’èƒtƒ@ƒCƒ‹‚ğ•Û‘¶‚·‚é
-    defaults.save(config_file);
-
-    // ‹¤—Lƒƒ‚ƒŠ‚ÌŠm•Û‚É¸”s‚µ‚½‚Ì‚ÅI—¹‚·‚é
-    NOTIFY("‹¤—Lƒƒ‚ƒŠ‚ªŠm•Û‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B");
-    return EXIT_FAILURE;
-  }
-
-  // ”wŒi‚Ì•`‰æ‚É—p‚¢‚é‹éŒ`‚ğì¬‚·‚é
-  Rect rect{ window, defaults.vertex_shader, defaults.fragment_shader };
-  if (!rect.get())
-  {
-    // ƒVƒF[ƒ_‚ª“Ç‚İ‚ß‚È‚©‚Á‚½
-    NOTIFY("”wŒi•`‰æ—p‚ÌƒVƒF[ƒ_ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½B");
-    return EXIT_FAILURE;
-  }
-
-  // ‘OŒi‚Ì•`‰æ‚É—p‚¢‚éƒVƒF[ƒ_ƒvƒƒOƒ‰ƒ€‚ğ“Ç‚İ‚Ş
-  GgSimpleShader simple{ "simple.vert", "simple.frag" };
-  if (!simple.get())
-  {
-    // ƒVƒF[ƒ_‚ª“Ç‚İ‚ß‚È‚©‚Á‚½
-    NOTIFY("}Œ`•`‰æ—p‚ÌƒVƒF[ƒ_ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½B");
-    return EXIT_FAILURE;
-  }
-
-  // ƒV[ƒ“ƒOƒ‰ƒt
-  Scene scene{ defaults.scene };
-
-  // ƒV[ƒ“‚ÉƒVƒF[ƒ_‚ğİ’è‚·‚é
-  scene.setShader(simple);
-
-  // ŒõŒ¹
-  const GgSimpleShader::LightBuffer light{ lightData };
-
-  // ”wŒi‰æ‘œ‚Ìƒf[ƒ^
-  const GLubyte *image[camCount]{ nullptr };
-
-  // ”wŒi‰æ‘œ‚ÌƒTƒCƒY
-  GLsizei size[camCount][2];
-
-  // ”wŒi‰æ‘œ‚ğæ“¾‚·‚éƒJƒƒ‰
-  std::shared_ptr<Camera> camera;
-
-
-  switch (defaults.display_mode)
-  {
-  case MONOCULAR:
-    // ’PŠá‹
-  case INTERLACE:
-    // ƒCƒ“ƒ^[ƒŒ[ƒXi–¢À‘•j
-  case TOP_AND_BOTTOM:
-    // ã‰º‚Q•ªŠ„
-  case SIDE_BY_SIDE:
-    // ¶‰E‚Q•ªŠ„
-  case QUADBUFFER:
-    // ƒNƒƒbƒhƒoƒbƒtƒ@ƒXƒeƒŒƒI
-  case OCULUS:
-    // Oculus Rift (HMD)
-  default:
-    // •ÏX‚È‚µ
-    break;
-  }
-
-  switch (defaults.input_mode)
-  {
-  case IMAGE:
-    // Ã~‰æ
-  case MOVIE:
-    // “®‰æ
-  case CAMERA:
-    // Web ƒJƒƒ‰
-  case OVRVISON:
-    // Ovrvision Pro
-  case REMOTE:
-    // ƒŠƒ‚[ƒg‚Ì TED
-  default:
-    // •ÏX‚È‚µ
-    break;
-  }
-
-  // ƒlƒbƒgƒ[ƒN‚ğg—p‚·‚éê‡
-  if (defaults.role != STANDALONE)
-  {
-    // winsock2 ‚ğ‰Šú‰»‚·‚é
-    WSAData wsaData;
-    if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0)
-    {
-      NOTIFY("Windows Sockets 2 ‚Ì‰Šú‰»‚É¸”s‚µ‚Ü‚µ‚½B");
-      return EXIT_FAILURE;
-    }
-
-    // winsock2 ‚ÌI—¹ˆ—‚ğ“o˜^‚·‚é
-    atexit(reinterpret_cast<void(*)()>(WSACleanup));
-
-    // ‘€cÒ‚Æ‚µ‚Ä“®ì‚·‚éê‡
-    if (defaults.role == OPERATOR)
-    {
-      // ƒŠƒ‚[ƒgƒJƒƒ‰‚©‚çƒLƒƒƒvƒ`ƒƒ‚·‚é‚½‚ß‚Ìƒ_ƒ~[ƒJƒƒ‰‚ğg‚¤
-      CamRemote *const cam(new CamRemote(defaults.remote_texture_reshape));
-
-      // ¶¬‚µ‚½ƒJƒƒ‰‚ğ‹L˜^‚µ‚Ä‚¨‚­
-      camera.reset(cam);
-
-      // ‘€cÒ‘¤‚ğ‹N“®‚·‚é
-      if (cam->open(defaults.port, defaults.address.c_str()) < 0)
-      {
-        NOTIFY("ì‹ÆÒ‘¤‚Ìƒf[ƒ^‚ğó‚¯æ‚ê‚Ü‚¹‚ñB");
-        return EXIT_FAILURE;
-      }
-
-      // ‰æ‘œƒTƒCƒY‚ğİ’è‚·‚é
-      size[camL][0] = cam->getWidth(camL);
-      size[camL][1] = cam->getHeight(camL);
-      size[camR][0] = cam->getWidth(camR);
-      size[camR][1] = cam->getHeight(camR);
-    }
-  }
-
-  // ƒ_ƒ~[ƒJƒƒ‰‚ªİ’è‚³‚ê‚Ä‚¢‚È‚¯‚ê‚Î
-  if (!camera)
-  {
-    // ¶ƒJƒƒ‰‚©‚ç“®‰æ‚ğ“ü—Í‚·‚é‚Æ‚«
-    if (defaults.camera_id[camL] >= 0 || !defaults.camera_movie[camL].empty())
-    {
-      // ¶ƒJƒƒ‰‚É OpenCV ‚ÌƒLƒƒƒvƒ`ƒƒƒfƒoƒCƒX‚ğg‚¤
-      CamCv *const cam{ new CamCv };
-
-      // ¶¬‚µ‚½ƒJƒƒ‰‚ğ‹L˜^‚µ‚Ä‚¨‚­
-      camera.reset(cam);
-
-      // ƒ€[ƒr[ƒtƒ@ƒCƒ‹‚ªw’è‚³‚ê‚Ä‚¢‚ê‚Î
-      if (!defaults.camera_movie[camL].empty())
-      {
-        // ƒ€[ƒr[ƒtƒ@ƒCƒ‹‚ğŠJ‚­
-        if (!cam->open(defaults.camera_movie[camL], camL))
-        {
-          NOTIFY("¶‚Ì“®‰æƒtƒ@ƒCƒ‹‚ªg—p‚Å‚«‚Ü‚¹‚ñB");
-          return EXIT_FAILURE;
-        }
-      }
-      else
-      {
-        // ƒJƒƒ‰ƒfƒoƒCƒX‚ğŠJ‚­
-        if (!cam->open(defaults.camera_id[camL], camL))
-        {
-          NOTIFY("¶‚ÌƒJƒƒ‰‚ªg—p‚Å‚«‚Ü‚¹‚ñB");
-          return EXIT_FAILURE;
-        }
-      }
-
-      // ¶ƒJƒƒ‰‚ÌƒTƒCƒY‚ğ“¾‚é
-      size[camL][0] = cam->getWidth(camL);
-      size[camL][1] = cam->getHeight(camL);
-
-      // ‰EƒJƒƒ‰‚ÌƒTƒCƒY‚Í¶‚Æ“¯‚¶‚É‚µ‚Ä‚¨‚­
-      size[camR][0] = size[camL][0];
-      size[camR][1] = size[camL][1];
-
-      // —§‘Ì‹•\¦‚ğs‚¤‚Æ‚«
-      if (defaults.display_mode != MONOCULAR)
-      {
-        // ‰EƒJƒƒ‰‚É¶‚ÆˆÙ‚È‚éƒ€[ƒr[ƒtƒ@ƒCƒ‹‚ªw’è‚³‚ê‚Ä‚¢‚ê‚Î
-        if (!defaults.camera_movie[camR].empty() && defaults.camera_movie[camR] != defaults.camera_movie[camL])
-        {
-          // ƒ€[ƒr[ƒtƒ@ƒCƒ‹‚ğŠJ‚­
-          if (!cam->open(defaults.camera_movie[camR], camR))
-          {
-            NOTIFY("‰E‚Ì“®‰æƒtƒ@ƒCƒ‹‚ªg—p‚Å‚«‚Ü‚¹‚ñB");
-            return EXIT_FAILURE;
-          }
-
-          // ‰EƒJƒƒ‰‚ÌƒTƒCƒY‚ğ“¾‚é
-          size[camR][0] = cam->getWidth(camR);
-          size[camR][1] = cam->getHeight(camR);
-        }
-        else if (defaults.camera_id[camR] >= 0 && defaults.camera_id[camR] != defaults.camera_id[camL])
-        {
-          // ƒJƒƒ‰ƒfƒoƒCƒX‚ğŠJ‚­
-          if (!cam->open(defaults.camera_id[camR], camR))
-          {
-            NOTIFY("‰E‚ÌƒJƒƒ‰‚ªg—p‚Å‚«‚Ü‚¹‚ñB");
-            return EXIT_FAILURE;
-          }
-
-          // ‰EƒJƒƒ‰‚ÌƒTƒCƒY‚ğ“¾‚é
-          size[camR][0] = cam->getWidth(camR);
-          size[camR][1] = cam->getHeight(camR);
-        }
-      }
-    }
-    else
-    {
-      // ‰EƒJƒƒ‰‚¾‚¯‚ğg‚¤‚È‚ç
-      if (defaults.camera_id[camR] >= 0)
-      {
-        // Ovrvision Pro ‚ğg‚¤
-        CamOv *const cam{ new CamOv };
-
-        // ¶¬‚µ‚½ƒJƒƒ‰‚ğ‹L˜^‚µ‚Ä‚¨‚­
-        camera.reset(cam);
-
-        // Ovrvision Pro ‚ğŠJ‚­
-        if (cam->open(static_cast<OVR::Camprop>(defaults.ovrvision_property)))
-        {
-          // Ovrvision Pro ‚Ì‰æ‘œƒTƒCƒY‚ğ“¾‚é
-          size[camL][0] = cam->getWidth(camL);
-          size[camL][1] = cam->getHeight(camL);
-          size[camR][0] = cam->getWidth(camR);
-          size[camR][1] = cam->getHeight(camR);
-        }
-        else
-        {
-          // Ovrvision Pro ‚ªg‚¦‚È‚©‚Á‚½
-          NOTIFY("Ovrvision Pro ‚ªg‚¦‚Ü‚¹‚ñB");
-          return EXIT_FAILURE;
-        }
-      }
-      else
-      {
-        // ¶ƒJƒƒ‰‚É‰æ‘œƒtƒ@ƒCƒ‹‚ğg‚¤
-        CamImage *const cam{ new CamImage };
-
-        // ¶¬‚µ‚½ƒJƒƒ‰‚ğ‹L˜^‚µ‚Ä‚¨‚­
-        camera.reset(cam);
-
-        // ¶‚Ì‰æ‘œ‚ªg—p‰Â”\‚È‚ç
-        if (!cam->open(defaults.camera_image[camL], camL))
-        {
-          // ¶‚Ì‰æ‘œƒtƒ@ƒCƒ‹‚ª“Ç‚İ‚ß‚È‚©‚Á‚½
-          NOTIFY("¶‚Ì‰æ‘œƒtƒ@ƒCƒ‹‚ªg—p‚Å‚«‚Ü‚¹‚ñB");
-          return EXIT_FAILURE;
-        }
-
-        // ¶‚Ì‰æ‘œ‚ğg—p‚·‚é
-        image[camL] = cam->getImage(camL);
-
-        // ¶ƒJƒƒ‰‚ÌƒTƒCƒY‚ğ“¾‚é
-        size[camL][0] = camera->getWidth(camL);
-        size[camL][1] = camera->getHeight(camL);
-
-        // ‰EƒJƒƒ‰‚ÌƒTƒCƒY‚Í¶‚Æ“¯‚¶‚É‚µ‚Ä‚¨‚­
-        size[camR][0] = size[camL][0];
-        size[camR][1] = size[camL][1];
-
-        // —§‘Ì‹•\¦‚ğs‚¤‚Æ‚«
-        if (defaults.display_mode != MONOCULAR)
-        {
-          // ‰E‚Ì‰æ‘œ‚ªw’è‚³‚ê‚Ä‚¢‚ê‚Î
-          if (!defaults.camera_image[camR].empty())
-          {
-            // ‰E‚Ì‰æ‘œ‚ªg—p‰Â”\‚È‚ç
-            if (!cam->open(defaults.camera_image[camR], camR))
-            {
-              // ‰E‚Ì‰æ‘œƒtƒ@ƒCƒ‹‚ª“Ç‚İ‚ß‚È‚©‚Á‚½
-              NOTIFY("‰E‚Ì‰æ‘œƒtƒ@ƒCƒ‹‚ªg—p‚Å‚«‚Ü‚¹‚ñB");
-              return EXIT_FAILURE;
-            }
-
-            // ‰E‚Ì‰æ‘œ‚ğg—p‚·‚é
-            image[camR] = cam->getImage(camR);
-
-            // ‰E‚Ì‰æ‘œ‚ÌƒTƒCƒY‚ğ“¾‚é
-            size[camR][0] = cam->getWidth(camR);
-            size[camR][1] = cam->getHeight(camR);
-          }
-        }
-      }
-    }
-
-    // ì‹ÆÒ‚Æ‚µ‚Ä“®ì‚·‚éê‡
-    if (defaults.role == WORKER && defaults.port > 0 && !defaults.address.empty())
-    {
-      // ’ÊMƒXƒŒƒbƒh‚ğ‹N“®‚·‚é
-      camera->startWorker(defaults.port, defaults.address.c_str());
-    }
-  }
-
-  // ƒEƒBƒ“ƒhƒE‚É‚»‚ÌƒJƒƒ‰‚ğŒ‹‚Ñ•t‚¯‚é
-  window.setControlCamera(camera.get());
-
-  // ƒeƒNƒXƒ`ƒƒ‚ÌƒAƒXƒyƒNƒg”ä
-  const GLfloat texture_aspect[]
-  {
-    (GLfloat(size[camL][0]) / GLfloat(size[camL][1])),
-    (GLfloat(size[camR][0]) / GLfloat(size[camR][1]))
-  };
-
-  // ƒeƒNƒXƒ`ƒƒ‚Ì‹«ŠE‚Ìˆ—
-  const GLenum border(defaults.camera_texture_repeat ? GL_REPEAT : GL_CLAMP_TO_BORDER);
-
-  // ”wŒi‰æ‘œ‚ğ•Û‘¶‚·‚éƒeƒNƒXƒ`ƒƒ‚ğì¬‚·‚é
-  GLuint texture[camCount];
-  glGenTextures(camCount, texture);
-
-  // ”wŒi‰æ‘œ‚ğ•Û‘¶‚·‚éƒeƒNƒXƒ`ƒƒ‚ğ€”õ‚·‚é
-  for (int cam = 0; cam < camCount; ++cam)
-  {
-    glBindTexture(GL_TEXTURE_2D, texture[cam]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, size[cam][0], size[cam][1], 0,
-      GL_BGR, GL_UNSIGNED_BYTE, image[cam]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, border);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, border);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-  }
-
-  // ¶–Ú—p‚Ì”wŒi‰æ‘œ‚ğ“\‚è•t‚¯‚é‹éŒ`‚ÉƒeƒNƒXƒ`ƒƒ‚ğİ’è‚·‚é
-  rect.setTexture(0, texture[0]);
-
-  // ‰E–Ú—p‚Ì”wŒi‰æ‘œ‚ğ“\‚è•t‚¯‚é‹éŒ`‚ÉƒeƒNƒXƒ`ƒƒ‚ğİ’è‚·‚é
-  rect.setTexture(1, texture[defaults.camera_id[camR] < 0 ? 0 : 1]);
-
-
-  // ’Êí‚ÌƒtƒŒ[ƒ€ƒoƒbƒtƒ@‚É•`‚­
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-  // ƒJƒŠƒ“ƒO‚·‚é
-  glCullFace(GL_BACK);
-
-  // ƒAƒ‹ƒtƒ@ƒuƒŒƒ“ƒfƒBƒ“ƒO‚·‚é
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  // •`‰æ‰ñ”‚Í’PŠá‹‚È‚ç 1A‚»‚êˆÈŠO‚È‚çƒJƒƒ‰‚Ì”
-  int drawCount{ defaults.display_mode == MONOCULAR ? 1 : camCount };
-
-  // ƒfƒtƒHƒ‹ƒg‚ª OCULUS ‚È‚ç Oculus Rift ‚ğ‹N“®‚·‚é
-  if (defaults.display_mode == OCULUS) window.startOculus();
-
-  // ƒƒjƒ…[
-  Menu menu{ window, scene, attitude };
-
-  // ƒEƒBƒ“ƒhƒE‚ªŠJ‚¢‚Ä‚¢‚éŠÔ‚­‚è•Ô‚µ•`‰æ‚·‚é
-  while (window)
-  {
-    // ƒƒjƒ…[‚ğ•\¦‚·‚é
-    if (window.showMenu) menu.show();
-
-    // ¶ƒJƒƒ‰‚ğƒƒbƒN‚µ‚Ä‰æ‘œ‚ğ“]‘—‚·‚é
-    camera->transmit(camL, texture[camL], size[camL]);
-
-    // ‰E‚ÌƒeƒNƒXƒ`ƒƒ‚ª—LŒø‚É‚È‚Á‚Ä‚¢‚ê‚Î
-    if (texture[camR] != texture[camL])
-    {
-      // ‰EƒJƒƒ‰‚ğƒƒbƒN‚µ‚Ä‰æ‘œ‚ğ“]‘—‚·‚é
-      camera->transmit(camR, texture[camR], size[camR]);
-    }
-
-    // •`‰æŠJn
-    if (window.start())
-    {
-      // ‚·‚×‚Ä‚Ì–Ú‚É‚Â‚¢‚Ä
-      for (int eye = 0; eye < drawCount; ++eye)
-      {
-        // }Œ`‚ğŒ©‚¹‚é–Ú‚ğ‘I‘ğ‚·‚é
-        window.select(eye);
-
-        // ”wŒi‚Ì•`‰æİ’è
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_CULL_FACE);
-        glDisable(GL_BLEND);
-
-        // ƒ[ƒJƒ‹‚Ìƒwƒbƒhƒgƒ‰ƒbƒLƒ“ƒO‚Ì•ÏŠ·s—ñ
-        const GgMatrix &&mo(defaults.camera_tracking
-          ? window.getMo(eye) * attitude.eyeOrientation[eye].getMatrix()
-          : attitude.eyeOrientation[eye].getMatrix());
-
-        // ƒŠƒ‚[ƒg‚Ìƒwƒbƒhƒgƒ‰ƒbƒLƒ“ƒO‚Ì•ÏŠ·s—ñ
-        const GgMatrix &&mr(mo * Scene::getRemoteAttitude(eye));
-
-        // ”wŒi‚ğ•`‚­
-        rect.draw(eye, defaults.remote_stabilize ? mr : mo, window.getSamples());
-
-        // }Œ`‚ÆÆ€‚Ì•`‰æİ’è
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glEnable(GL_BLEND);
-
-        // •`‰æ—p‚ÌƒVƒF[ƒ_ƒvƒƒOƒ‰ƒ€‚Ìg—pŠJn
-        simple.use(light);
-
-        // }Œ`‚ğ•`‰æ‚·‚é
-        if (window.showScene) scene.draw(window.getMp(eye), window.getMv(eye) * window.getMo(eye));
-
-        // •Ğ–Ú‚Ìˆ—‚ğŠ®—¹‚·‚é
-        window.commit(eye);
-      }
-    }
-
-    // ƒoƒbƒtƒ@‚ğ“ü‚ê‘Ö‚¦‚é
-    window.swapBuffers();
-  }
-
-  // ”wŒi‰æ‘œ—p‚ÌƒeƒNƒXƒ`ƒƒ‚ğíœ‚·‚é
-  glDeleteBuffers(camCount, texture);
+  // ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã™ã‚‹
+  GgApp app;
+
+  // ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã‚’å®Ÿè¡Œã™ã‚‹
+  return app.main(argc, argv);
+}
+catch (const std::runtime_error &e)
+{
+  // ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’è¡¨ç¤ºã™ã‚‹
+#if defined(_MSC_VER)
+  MessageBox(NULL, CString(e.what()), TEXT(HEADER_STR), MB_ICONERROR);
+#elif defined(__APPLE__)
+  // the following code is copied from http://blog.jorgearimany.com/2010/05/messagebox-from-windows-to-mac.html
+  // convert the strings from char* to CFStringRef
+  CFStringRef msg_ref = CFStringCreateWithCString(NULL, e.what(), kCFStringEncodingUTF8);
+
+  // result code from the message box
+  CFOptionFlags result;
+
+  //launch the message box
+  CFUserNotificationDisplayAlert(
+    0,                                 // no timeout
+    kCFUserNotificationNoteAlertLevel, // change it depending message_type flags ( MB_ICONASTERISK.... etc.)
+    NULL,                              // icon url, use default, you can change it depending message_type flags
+    NULL,                              // not used
+    NULL,                              // localization of strings
+    CFSTR(HEADER_STR),                 // header text
+    msg_ref,                           // message text
+    NULL,                              // default "ok" text in button
+    NULL,                              // alternate button title
+    NULL,                              // other button title, null--> no other button
+    &result                            // response flags
+  );
+
+  // Clean up the strings
+  CFRelease(msg_ref);
+#else
+  std::cerr << HEADER_STR << ": " << e.what() << '\n';
+#endif
+
+  // ãƒ–ãƒ­ã‚°ãƒ©ãƒ ã‚’çµ‚äº†ã™ã‚‹
+  return EXIT_FAILURE;
 }

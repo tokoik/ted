@@ -43,7 +43,7 @@ public:
   bool isStandalone() const;
 
   // OPERATOR Ç»ÇÁê^
-  bool isOperator() const;
+  bool isInstructor() const;
 
   // WORKDER Ç»ÇÁê^
   bool isWorker() const;

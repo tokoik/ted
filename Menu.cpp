@@ -84,6 +84,18 @@ int saveConfig()
 }
 
 //
+// ファイルパスの取得
+//
+void getFilePath(std::string& path, const nfdfilteritem_t* filter)
+{
+  // ファイルダイアログから得るパス
+  nfdchar_t* filepath{ nullptr };
+
+  // ファイルダイアログを開く
+  if (NFD_OpenDialog(&filepath, filter, 1, nullptr) == NFD_OKAY) path = filepath;
+}
+
+//
 // データ読み込みエラー表示ウィンドウ
 //
 void Menu::nodataWindow()
@@ -162,7 +174,7 @@ void Menu::attitudeWindow()
     window.updateCircle();
   if (ImGui::SliderInt2(u8"中心", &attitude.circleAdjust[2], -99, 99))
     window.updateCircle();
-  if (ImGui::Button(u8"リセット"))
+  if (ImGui::Button(u8"回復"))
     window.reset();
   ImGui::End();
 }
@@ -174,69 +186,38 @@ void Menu::inputWindow()
 {
   // 入力設定ウィンドウ
   ImGui::SetNextWindowPos(ImVec2(402, 28), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(334, 496), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(294, 488), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
   ImGui::Begin(u8"入力設定", &showInputWindow);
 
-  static constexpr char *camId[]{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+  ImGui::RadioButton(u8"静止画像", &defaults.input_mode, InputMode::IMAGE);
+  static const nfdfilteritem_t image_filter[]{ "Images", "png,jpg,jpeg,jfif,bmp,dib" };
+  if (ImGui::Button(u8"左画像ファイル"))
+    getFilePath(defaults.camera_image[camL], image_filter);
+  ImGui::SameLine();
+  ImGui::Text(defaults.camera_image[camL].c_str());
+  if (ImGui::Button(u8"右画像ファイル"))
+    getFilePath(defaults.camera_image[camR], image_filter);
+  ImGui::SameLine();
+  ImGui::Text(defaults.camera_image[camR].c_str());
 
-  static int ltype = -1;
-  ImGui::RadioButton(u8"左イメージ", &ltype, 0);
+  ImGui::RadioButton(u8"動画像", &defaults.input_mode, InputMode::MOVIE);
+  static const nfdfilteritem_t movie_filter[]{ "Movies", "mp4,m4v,mov,avi,wmv,ogg" };
+  if (ImGui::Button(u8"左動画ファイル"))
+    getFilePath(defaults.camera_movie[camL], movie_filter);
   ImGui::SameLine();
-  ImGui::Text("%s", defaults.camera_image[camL].c_str());
-  ImGui::RadioButton(u8"左ムービー", &ltype, 1);
+  ImGui::Text(defaults.camera_movie[camL].c_str());
+  if (ImGui::Button(u8"右動画ファイル"))
+    getFilePath(defaults.camera_movie[camR], movie_filter);
   ImGui::SameLine();
-  ImGui::Text("%s", defaults.camera_movie[camL].c_str());
-  ImGui::RadioButton(u8"左カメラ", &ltype, 2);
-  ImGui::Combo(u8"左カメラの番号", &defaults.camera_id[camL], camId, IM_ARRAYSIZE(camId));
+  ImGui::Text(defaults.camera_movie[camR].c_str());
 
-  static int lgain = 0;
-  if (ImGui::ArrowButton("##gain_left_left", ImGuiDir_Left)) --lgain;
-  ImGui::SameLine();
-  if (ImGui::ArrowButton("##gain_left_right", ImGuiDir_Right)) ++lgain;
-  ImGui::SameLine();
-  ImGui::Text(u8"利得 %1d", lgain);
-  ImGui::SameLine();
+  ImGui::RadioButton(u8"カメラ", &defaults.input_mode, InputMode::CAMERA);
+  ImGui::InputInt(u8"左カメラ番号", &defaults.camera_id[camL]);
+  ImGui::InputInt(u8"右カメラ番号", &defaults.camera_id[camR]);
+  ImGui::InputInt2(u8"カメラ画素数", defaults.camera_size.data());
 
-  static int lexp = 0;
-  if (ImGui::ArrowButton("##exp_left_left", ImGuiDir_Left)) --lexp;
-  ImGui::SameLine();
-  if (ImGui::ArrowButton("##exp_left_right", ImGuiDir_Right)) ++lexp;
-  ImGui::SameLine();
-  ImGui::Text(u8"露出 %1d", lexp);
-  ImGui::Separator();
-
-  static int rtype = -1;
-  ImGui::RadioButton(u8"右イメージ", &rtype, 0);
-  ImGui::SameLine();
-  ImGui::Text("%s", defaults.camera_image[camR].c_str());
-  ImGui::RadioButton(u8"右ムービー", &rtype, 1);
-  ImGui::SameLine();
-  ImGui::Text("%s", defaults.camera_movie[camR].c_str());
-  ImGui::RadioButton(u8"右カメラ", &rtype, 2);
-  ImGui::Combo(u8"右カメラの番号", &defaults.camera_id[camR], camId, IM_ARRAYSIZE(camId));
-
-  static int rgain = 0;
-  if (ImGui::ArrowButton("##gain_right_left", ImGuiDir_Left)) --rgain;
-  ImGui::SameLine();
-  if (ImGui::ArrowButton("##gain_right_right", ImGuiDir_Right)) ++rgain;
-  ImGui::SameLine();
-  ImGui::Text(u8"利得 %1d", rgain);
-  ImGui::SameLine();
-
-  static int rexp = 0;
-  if (ImGui::ArrowButton("##exp_right_left", ImGuiDir_Left)) --rexp;
-  ImGui::SameLine();
-  if (ImGui::ArrowButton("##exp_right_right", ImGuiDir_Right)) ++rexp;
-  ImGui::SameLine();
-  ImGui::Text(u8"露出 %1d", rexp);
-  ImGui::Separator();
-
-  ImGui::InputInt2(u8"カメラの画素数", defaults.camera_size.data());
-
-  if (ImGui::RadioButton(u8"Ovrvison Pro", &ltype, 3)) rtype = ltype;
-
-  static int item_current = 3;
+  ImGui::RadioButton(u8"Ovrvision", &defaults.input_mode, InputMode::OVRVISION);
   static constexpr char *items[]{
     "2560 x 1920 @ 15fps",
     "1920 x 1080 @ 30fps",
@@ -248,97 +229,12 @@ void Menu::inputWindow()
     "1280 x 960 @ 15fps (USB2.0)",
     "640 x 480 @ 30fps (USB2.0)"
   };
-  ImGui::Combo(u8"プロパティ", &item_current, items, IM_ARRAYSIZE(items));
+  ImGui::Combo(u8"プロパティ", &defaults.ovrvision_property, items, IM_ARRAYSIZE(items));
 
-  if (ImGui::RadioButton(u8"RealSense", &ltype, 4)) rtype = ltype;
+  ImGui::RadioButton(u8"RealSense", &defaults.input_mode, InputMode::REALSENSE);
+  ImGui::RadioButton(u8"リモート", &defaults.input_mode, InputMode::REMOTE);
 
-  ImGui::Button(u8"設定");
-
-#if 0
-  if (ImGui::BeginCombo(u8"入力源", devName))
-  {
-    for (auto d = list.getDevice().begin(); d != list.getDevice().end(); ++d)
-    {
-      const bool selected(d == device);
-      if (ImGui::Selectable(d->name.c_str(), selected))
-        devName = (device = d)->name.c_str();
-      if (selected)
-        ImGui::SetItemDefaultFocus();
-    }
-    ImGui::EndCombo();
-  }
-
-  // キャプチャするサイズとフレームレート
-  ImGui::InputInt2(u8"サイズ", size.data());
-  ImGui::InputInt(u8"レート", &rate);
-
-  // 利得と露光
-  if (ImGui::InputInt(u8"利得", &gain)) camera.setGain(gain);
-  if (ImGui::InputInt(u8"露光", &exposure)) camera.setExposure(exposure);
-
-  // 現在のコーデックの見出しを作る
-  char defaultCodec[sizeof fourcc + 3];
-  memcpy(defaultCodec + 1, fourcc.data(), sizeof fourcc);
-  defaultCodec[0] = isprint(defaultCodec[1]) ? '(' : 0;
-  defaultCodec[sizeof fourcc + 1] = ')';
-  defaultCodec[sizeof fourcc + 2] = 0;
-
-  // 現在のコーデックの見出しを加えたコーデックの一覧
-  static const char* const codecs[]{ defaultCodec, "MJPG", "H264", "YUY2", "NV12" };
-
-  // コーデックを選択する
-  int encode(0);
-  if (ImGui::Combo(u8"符号化", &encode, codecs, sizeof codecs / sizeof codecs[0]) && encode > 0)
-  {
-    // 選択したコーデックを保存する
-    memcpy(fourcc.data(), codecs[encode], sizeof fourcc);
-  }
-
-  // デバイスプリファレンスを選択する
-  ImGui::RadioButton("ANY", &pref, cv::CAP_ANY);
-  ImGui::SameLine();
-  ImGui::RadioButton("DSHOW", &pref, cv::CAP_DSHOW);
-  ImGui::SameLine();
-  ImGui::RadioButton("MSMF", &pref, cv::CAP_MSMF);
-
-  // デバイス設定の変更
-  if (ImGui::Button(u8"設定"))
-  {
-    // キャプチャを停止
-    camera.stop();
-
-    // カメラを閉じる
-    camera.close();
-
-    // 新しい設定でデバイスを開く
-    if (
-      (device->id >= 0 && camera.open(device->id, size[0], size[1], rate, fourcc.data(), pref))
-      ||
-      (!device->name.empty() && camera.open(device->name, size[0], size[1], rate, fourcc.data(), pref))
-      )
-    {
-      // 切り替えたデバイスの特性を取り出す
-      size[0] = camera.getWidth();
-      size[1] = camera.getHeight();
-      rate = static_cast<int>(camera.getFps());
-      camera.getCodec(fourcc.data());
-
-      // 今まで使っていたテクスチャを捨てて新しいテクスチャを作る
-      image.create(camera.getWidth(), camera.getHeight());
-
-      // キャプチャを再開
-      camera.start();
-    }
-  }
-
-  // デバイスの状態表示
-  if (!camera.running())
-  {
-    ImGui::SameLine();
-    ImGui::TextColored(ImVec4(1.0f, 0.2f, 0.0f, 1.0f), u8"入力源が使用できません");
-  }
-
-#endif
+  if (ImGui::Button(u8"設定")) app->selectInput();
 
   // 入力設定ウィンドウの設定終了
   ImGui::End();
@@ -546,8 +442,9 @@ void Menu::menuBar()
 //
 // コンストラクタ
 //
-Menu::Menu(Window& window, Scene& scene, Attitude& attitude)
-  : window{ window }
+Menu::Menu(GgApp* app, Window& window, Scene& scene, Attitude& attitude)
+  : app{ app }
+  , window { window }
   , scene{ scene }
   , attitude{ attitude }
   , showNodataWindow{ false }

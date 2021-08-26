@@ -193,7 +193,7 @@ bool Network::isStandalone() const
 }
 
 // OPERATOR Ç»ÇÁê^
-bool Network::isOperator() const
+bool Network::isInstructor() const
 {
   return role == OPERATOR;
 }
