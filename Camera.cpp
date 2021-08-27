@@ -25,6 +25,10 @@ Camera::Camera()
   : recvbuf{ nullptr }
   , sendbuf{ nullptr }
   , format{ GL_BGR }
+  , size{}
+  , interval{}
+  , exposure{ 0 }
+  , gain{ 0 }
 {
   // à≥èkê›íË
   param.push_back(cv::IMWRITE_JPEG_QUALITY);

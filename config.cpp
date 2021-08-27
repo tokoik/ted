@@ -184,30 +184,30 @@ bool config::read(picojson::value &v)
   if (v_input_mode != o.end() && v_input_mode->second.is<double>())
     input_mode = static_cast<int>(v_input_mode->second.get<double>());
 
-  // 左目のキャプチャデバイスのデバイス番号もしくはムービーファイル
+  // 左目のキャプチャデバイスのデバイス番号
   const auto &v_left_camera(o.find("left_camera"));
-  if (v_left_camera != o.end())
-  {
-    if (v_left_camera->second.is<std::string>())
-      camera_movie[camL] = v_left_camera->second.get<std::string>();
-    else if (v_left_camera->second.is<double>())
-      camera_id[camL] = static_cast<int>(v_left_camera->second.get<double>());
-  }
+  if (v_left_camera != o.end() && v_left_camera->second.is<double>())
+    camera_id[camL] = static_cast<int>(v_left_camera->second.get<double>());
+
+  // 左目のムービーファイル
+  const auto& v_left_movie(o.find("left_movie"));
+  if (v_left_movie != o.end() && v_left_movie->second.is<std::string>())
+    camera_movie[camL] = v_left_movie->second.get<std::string>();
 
   // 左目のキャプチャデバイス不使用時に表示する静止画像
   const auto &v_left_image(o.find("left_image"));
   if (v_left_image != o.end() && v_left_image->second.is<std::string>())
     camera_image[camL] = v_left_image->second.get<std::string>();
 
-  // 右目のキャプチャデバイスのデバイス番号もしくはムービーファイル
-  const auto &v_right_camera(o.find("right_camera"));
-  if (v_right_camera != o.end())
-  {
-    if (v_right_camera->second.is<std::string>())
-      camera_movie[camR] = v_right_camera->second.get<std::string>();
-    else if (v_right_camera->second.is<double>())
-      camera_id[camR] = static_cast<int>(v_right_camera->second.get<double>());
-  }
+  // 右目のキャプチャデバイスのデバイス番号
+  const auto& v_right_camera(o.find("right_camera"));
+  if (v_right_camera != o.end() && v_right_camera->second.is<double>())
+    camera_id[camR] = static_cast<int>(v_right_camera->second.get<double>());
+
+  // 右目のムービーファイル
+  const auto& v_right_movie(o.find("right_movie"));
+  if (v_right_movie != o.end() && v_right_movie->second.is<std::string>())
+    camera_movie[camR] = v_right_movie->second.get<std::string>();
 
   // 右目のキャプチャデバイス不使用時に表示する静止画像
   const auto &v_right_image(o.find("right_image"));
@@ -456,18 +456,20 @@ bool config::save(const std::string &file) const
   // 視点から後方面までの距離
   o.insert(std::make_pair("depth_far", picojson::value(static_cast<double>(display_far))));
 
-  // 左目のキャプチャデバイスのデバイス番号もしくはムービーファイル
-  o.insert(std::make_pair("left_camera", camera_movie[camL].empty()
-    ? picojson::value(static_cast<double>(camera_id[camL]))
-    : picojson::value(camera_movie[camL])));
+  // 左目のキャプチャデバイスのデバイス番号
+  o.insert(std::make_pair("left_camera", picojson::value(static_cast<double>(camera_id[camL]))));
+
+  // 左目のムービーファイル
+  o.insert(std::make_pair("left_movie", picojson::value(camera_movie[camL])));
 
   // 左目のキャプチャデバイス不使用時に表示する静止画像
   o.insert(std::make_pair("left_image", picojson::value(camera_image[camL])));
 
-  // 右目のキャプチャデバイスのデバイス番号もしくはムービーファイル
-  o.insert(std::make_pair("right_camera", camera_movie[camR].empty()
-    ? picojson::value(static_cast<double>(camera_id[camR]))
-    : picojson::value(camera_movie[camL])));
+  // 右目のキャプチャデバイスのデバイス番号
+  o.insert(std::make_pair("right_camera", picojson::value(static_cast<double>(camera_id[camR]))));
+
+  // 右目のムービーファイル
+  o.insert(std::make_pair("right_camera", picojson::value(camera_movie[camL])));
 
   // 右目のキャプチャデバイス不使用時に表示する静止画像
   o.insert(std::make_pair("right_image", picojson::value(camera_image[camR])));
