@@ -187,7 +187,7 @@ void Menu::inputWindow()
 {
   // 入力設定ウィンドウ
   ImGui::SetNextWindowPos(ImVec2(402, 28), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(294, 488), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(294, 632), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
   ImGui::Begin(u8"入力設定", &showInputWindow);
 
@@ -233,7 +233,23 @@ void Menu::inputWindow()
   ImGui::Combo(u8"プロパティ", &defaults.ovrvision_property, items, IM_ARRAYSIZE(items));
 
   ImGui::RadioButton(u8"RealSense", &defaults.input_mode, InputMode::REALSENSE);
+
   ImGui::RadioButton(u8"リモート", &defaults.input_mode, InputMode::REMOTE);
+  char address[16]{ "0.0.0.0" };
+  strcpy(address, defaults.address.c_str());
+  if (ImGui::InputText(u8"IP Address", address, sizeof address))
+    defaults.address = address;
+  ImGui::InputInt(u8"Port", &defaults.port);
+
+  ImGui::Text(u8"シェーダ");
+  char vertex_shader[MAX_PATH]{ "" };
+  strcpy(vertex_shader, defaults.vertex_shader.c_str());
+  if (ImGui::InputText(u8"Vertex", vertex_shader, sizeof vertex_shader))
+    defaults.vertex_shader = vertex_shader;
+  char fragment_shader[MAX_PATH]{ "" };
+  strcpy(fragment_shader, defaults.fragment_shader.c_str());
+  if (ImGui::InputText(u8"Fragment", fragment_shader, sizeof fragment_shader))
+    defaults.fragment_shader = fragment_shader;
 
   if (ImGui::Button(u8"設定")) app->selectInput();
 
