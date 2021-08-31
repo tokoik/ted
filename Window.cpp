@@ -916,7 +916,13 @@ Window::operator bool()
   // ‰E–îˆóƒL[‘€ì
   if (glfwGetKey(window, GLFW_KEY_RIGHT))
   {
-    if (ctrlKey)
+    if (altKey)
+    {
+      // ”wŒi‚ğ‰E‚É‰ñ“]‚·‚é
+      if (!ctrlKey) qa[camL] *= qrStep[0].conjugate();
+      if (!shiftKey) qa[camR] *= qrStep[0].conjugate();
+    }
+    else if (ctrlKey)
     {
       // ”wŒi‚É‘Î‚·‚é‰¡•ûŒü‚Ì‰æŠp‚ğL‚°‚é
       circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(++circleChange[0]) * shiftStep;
@@ -925,12 +931,6 @@ Window::operator bool()
     {
       // ”wŒi‚ğ‰E‚É‚¸‚ç‚·
       circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(++circleChange[2]) * shiftStep;
-    }
-    else if (altKey)
-    {
-      // ”wŒi‚ğ‰E‚É‰ñ“]‚·‚é
-      qa[camL] *= qrStep[0].conjugate();
-      qa[camR] *= qrStep[0];
     }
     else if (defaults.display_mode != MONO)
     {
@@ -942,7 +942,13 @@ Window::operator bool()
   // ¶–îˆóƒL[‘€ì
   if (glfwGetKey(window, GLFW_KEY_LEFT))
   {
-    if (ctrlKey)
+    if (altKey)
+    {
+      // ”wŒi‚ğ¶‚É‰ñ“]‚·‚é
+      if (!ctrlKey) qa[camL] *= qrStep[0];
+      if (!shiftKey) qa[camR] *= qrStep[0];
+    }
+    else if (ctrlKey)
     {
       // ”wŒi‚É‘Î‚·‚é‰¡•ûŒü‚Ì‰æŠp‚ğ‹·‚ß‚é
       circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(--circleChange[0]) * shiftStep;
@@ -951,12 +957,6 @@ Window::operator bool()
     {
       // ”wŒi‚ğ¶‚É‚¸‚ç‚·
       circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(--circleChange[2]) * shiftStep;
-    }
-    else if (altKey)
-    {
-      // ”wŒi‚ğ¶‚É‰ñ“]‚·‚é
-      qa[camL] *= qrStep[0];
-      qa[camR] *= qrStep[0].conjugate();
     }
     else if (defaults.display_mode != MONO)
     {
@@ -968,7 +968,13 @@ Window::operator bool()
   // ã–îˆóƒL[‘€ì
   if (glfwGetKey(window, GLFW_KEY_UP))
   {
-    if (ctrlKey)
+    if (altKey)
+    {
+      // ”wŒi‚ğã‚É‰ñ“]‚·‚é
+      if (!ctrlKey) qa[camL] *= qrStep[1];
+      if (!shiftKey) qa[camR] *= qrStep[1];
+    }
+    else if (ctrlKey)
     {
       // ”wŒi‚É‘Î‚·‚éc•ûŒü‚Ì‰æŠp‚ğL‚°‚é
       circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(++circleChange[1]) * shiftStep;
@@ -977,12 +983,6 @@ Window::operator bool()
     {
       // ”wŒi‚ğã‚É‚¸‚ç‚·
       circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(++circleChange[3]) * shiftStep;
-    }
-    else if (altKey)
-    {
-      // ”wŒi‚ğã‚É‰ñ“]‚·‚é
-      qa[camL] *= qrStep[1];
-      qa[camR] *= qrStep[1].conjugate();
     }
     else
     {
@@ -994,7 +994,13 @@ Window::operator bool()
   // ‰º–îˆóƒL[‘€ì
   if (glfwGetKey(window, GLFW_KEY_DOWN))
   {
-    if (ctrlKey)
+    if (altKey)
+    {
+      // ”wŒi‚ğ‰º‚É‰ñ“]‚·‚é
+      if (!ctrlKey) qa[camL] *= qrStep[1].conjugate();
+      if (!shiftKey) qa[camR] *= qrStep[1].conjugate();
+    }
+    else if (ctrlKey)
     {
       // ”wŒi‚É‘Î‚·‚éc•ûŒü‚Ì‰æŠp‚ğ‹·‚ß‚é
       circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(--circleChange[1]) * shiftStep;
@@ -1003,12 +1009,6 @@ Window::operator bool()
     {
       // ”wŒi‚ğ‰º‚É‚¸‚ç‚·
       circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(--circleChange[3]) * shiftStep;
-    }
-    else if (altKey)
-    {
-      // ”wŒi‚ğ‰º‚É‰ñ“]‚·‚é
-      qa[camL] *= qrStep[1].conjugate();
-      qa[camR] *= qrStep[1];
     }
     else
     {

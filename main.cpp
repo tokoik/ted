@@ -429,6 +429,8 @@ int main(int argc, const char *const *const argv)
     // ユーザインタフェース
     //
     ImGui::NewFrame();
+    ImGui::SetNextWindowPos(ImVec2(4, 4), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(170, 71), ImGuiCond_Once);
     ImGui::Begin("Control panel");
     ImGui::Text("Frame rate: %6.2f fps", ImGui::GetIO().Framerate);
     if (ImGui::Button("Quit")) window.setClose(GLFW_TRUE);
@@ -474,7 +476,7 @@ int main(int argc, const char *const *const argv)
         rect.setCircle(window.getCircle(), window.getOffset(eye));
 
         // ローカルのヘッドトラッキングの変換行列
-        const GgMatrix &mo(defaults.camera_tracking ? window.getMo(eye) : window.getQa(eye).getMatrix());
+        const GgMatrix &&mo(defaults.camera_tracking ? window.getMo(eye) * window.getQa(eye).getMatrix() : window.getQa(eye).getMatrix());
 
         // リモートのヘッドトラッキングの変換行列
         const GgMatrix &&mr(mo * Scene::getRemoteAttitude(eye));

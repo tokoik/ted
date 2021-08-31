@@ -15,12 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_00581182DDD44E19B277F54984FF3E3F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_00E7C7347A72430A88747E5B0F7F3901"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -33,13 +27,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_03338E69CFCA4DA985A2A12D3266C130"
+        "MsmKey" = "8:_02C56FDAEBE7485E970805B0B6B4AC7D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_05329905E1554BC6ADAB278C56C744C5"
+        "MsmKey" = "8:_03338E69CFCA4DA985A2A12D3266C130"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -52,6 +46,12 @@
         "Entry"
         {
         "MsmKey" = "8:_05EEFE58B53B4DF6B1D738BB725FB217"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_060B68C239274378886F05A2C351755D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -75,6 +75,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_0A04F8630C6D40D2A5F61B3FE1551949"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_0ACBFAA747944D108628A6C95E3B4796"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -87,19 +93,25 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0B819B7B93A347F29ADA9E1BA1347B7B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0C9A3F7329A24ABBA913D306EB67EF44"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
+        "MsmKey" = "8:_0D7CAA39F4834684BECCE4E83E80B4CF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_0E19E53E91FF471F9FC9F2EE431464BD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0EBDE0241B0F4205A0B30DD1CA53CCF8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -177,6 +189,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_1DDBB2B31C934567957C47C60B7D8896"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_20A5118FD9D04602B00AA2A88F2EF907"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -214,12 +232,6 @@
         "Entry"
         {
         "MsmKey" = "8:_260F8F68D71142AB8B1A8FAF5F96677B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_262BD680817D4CB98572A93A92B1B22B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -273,6 +285,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2C52DF388BF84A69AB46835B262B60AA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_2D4814795FE34C4CAF0D1B955CE5F346"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -315,18 +333,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_35CB8CFBB2024F95AD1D01C338D5FDCA"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_380EE88F696C408A9B8AA5D11C1DFEC8"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_38314BEAC87F4C82BC91F91D565101DC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -334,6 +340,12 @@
         "Entry"
         {
         "MsmKey" = "8:_39F9EFAD880849C8B7EF5BB80DD8DB00"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_41C0407E109545ABBD900FAD32C1B629"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -357,13 +369,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_463C8E4416084F55991DD803F5CE9686"
+        "MsmKey" = "8:_4701CFD404FF412AA89AD0202F01906C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_4701CFD404FF412AA89AD0202F01906C"
+        "MsmKey" = "8:_470B65384D3C4414977189FCB3034970"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -394,6 +406,12 @@
         "Entry"
         {
         "MsmKey" = "8:_4B58B26422264DB0A604B5F0EF17682A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4C2B50A379C94A10995FC5EEE56991BE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -459,12 +477,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_587290F81D4344989A4A65B07303DE93"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_5875ABB8DEF74B9EBA4E7402D59C8371"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -472,6 +484,12 @@
         "Entry"
         {
         "MsmKey" = "8:_5987F1B846A7423899292F3702313129"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5A9B9639AF4E40ABB49305DC4AC0CFAC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -507,12 +525,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_61E8EB264D4D4FC8B9412AFB5D3504D7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_62F6522643324EDDB0682DB937CC30F7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -520,12 +532,6 @@
         "Entry"
         {
         "MsmKey" = "8:_652A38AFA765453DAE01304F99C0102D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_67390C8ED4E543FD905BBC9831603FE0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -555,13 +561,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_6A4CBC25B4264E7DB60A8F05AC84895D"
+        "MsmKey" = "8:_6B4E65320D514BF484358F1CBC74FA9C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_6B4E65320D514BF484358F1CBC74FA9C"
+        "MsmKey" = "8:_6D5936DA50094492BFD94CC6D2F9CB55"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -687,19 +693,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_7E5382AF42AB416E99540FD603FFF5FE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_7F796C42633F4211AB200CC6E80B3875"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_80CBFB6D40AE4D64B6E015CD0B6E230B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -736,12 +730,6 @@
         "Entry"
         {
         "MsmKey" = "8:_86B5F549CA6F42B184B8AFA110D2EEEC"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_8700F00DCC1A41088770DC629A98E0D2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -831,12 +819,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_91FC2C9502814278824EB3BB278E0074"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_921C8CB9D8174CA69BD21A944816C219"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -916,12 +898,6 @@
         "Entry"
         {
         "MsmKey" = "8:_9D969FFCB0234CCE933C973FB7558FC9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9DAC552285FD4EADA06285E000ADAC3A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1011,6 +987,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_B4740C5C0F8342489DC33412C4AAE131"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B66AE3C6C0674AF7A30C6B87193336CC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1030,6 +1012,12 @@
         "Entry"
         {
         "MsmKey" = "8:_B86FA1C4ABDE4E9AA23ABCABDD74B970"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B8B251A4105C477BB1E0E745412E764F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1089,13 +1077,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_C33EFD38ED4549F9B2E0CD55119D853C"
+        "MsmKey" = "8:_C47A2DF479BB4A34AC3EF99C87C3F96F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_C8B4180AD9E3469CA6C05F77067A81D4"
+        "MsmKey" = "8:_C596F4AF65D04A8E81037A0D6ED1DF30"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1126,6 +1114,12 @@
         "Entry"
         {
         "MsmKey" = "8:_CDE1AFDCE02542D98775783B368D94D8"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D1A8239641DB493CA2BE9A29F4B1C2F7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1299,6 +1293,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_F76FCC830707410FBD2A8E2B297066F7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_FB887E0B825A4C5BA855F6A26BE4834E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1410,26 +1410,6 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_00581182DDD44E19B277F54984FF3E3F"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_dnn452.dll"
-            "TargetName" = "8:opencv_dnn452.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_00E7C7347A72430A88747E5B0F7F3901"
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstbase-1.0-0.dll"
@@ -1470,10 +1450,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_03338E69CFCA4DA985A2A12D3266C130"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_02C56FDAEBE7485E970805B0B6B4AC7D"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\avutil-56.dll"
-            "TargetName" = "8:avutil-56.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_photo453.dll"
+            "TargetName" = "8:opencv_photo453.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1490,10 +1470,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_05329905E1554BC6ADAB278C56C744C5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_03338E69CFCA4DA985A2A12D3266C130"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_videoio452.dll"
-            "TargetName" = "8:opencv_videoio452.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\avutil-56.dll"
+            "TargetName" = "8:avutil-56.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1534,6 +1514,26 @@
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstrtspserver-1.0-0.dll"
             "TargetName" = "8:gstrtspserver-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_060B68C239274378886F05A2C351755D"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_flann453.dll"
+            "TargetName" = "8:opencv_flann453.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1610,6 +1610,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0A04F8630C6D40D2A5F61B3FE1551949"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_imgproc453.dll"
+            "TargetName" = "8:opencv_imgproc453.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0ACBFAA747944D108628A6C95E3B4796"
             {
             "SourcePath" = "8:..\\r-upper-arm.obj"
@@ -1650,26 +1670,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0B819B7B93A347F29ADA9E1BA1347B7B"
-            {
-            "SourcePath" = "8:C:\\librealsense2\\x64\\vc15\\bin\\realsense2-gl.dll"
-            "TargetName" = "8:realsense2-gl.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0C9A3F7329A24ABBA913D306EB67EF44"
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstisoff-1.0-0.dll"
@@ -1690,10 +1690,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0D7CAA39F4834684BECCE4E83E80B4CF"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_video453.dll"
+            "TargetName" = "8:opencv_video453.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0E19E53E91FF471F9FC9F2EE431464BD"
             {
             "SourcePath" = "8:..\\mesh.frag"
             "TargetName" = "8:mesh.frag"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0EBDE0241B0F4205A0B30DD1CA53CCF8"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_objdetect453.dll"
+            "TargetName" = "8:opencv_objdetect453.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1950,6 +1990,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1DDBB2B31C934567957C47C60B7D8896"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_calib3d453.dll"
+            "TargetName" = "8:opencv_calib3d453.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20A5118FD9D04602B00AA2A88F2EF907"
             {
             "SourcePath" = "8:..\\fisheye.json"
@@ -2074,26 +2134,6 @@
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\avfilter-7.dll"
             "TargetName" = "8:avfilter-7.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_262BD680817D4CB98572A93A92B1B22B"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_video452.dll"
-            "TargetName" = "8:opencv_video452.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2270,6 +2310,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2C52DF388BF84A69AB46835B262B60AA"
+            {
+            "SourcePath" = "8:C:\\librealsense2\\x64\\bin\\realsense2-gl.dll"
+            "TargetName" = "8:realsense2-gl.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2D4814795FE34C4CAF0D1B955CE5F346"
             {
             "SourcePath" = "8:..\\arm.mtl"
@@ -2410,46 +2470,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_35CB8CFBB2024F95AD1D01C338D5FDCA"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_imgcodecs452.dll"
-            "TargetName" = "8:opencv_imgcodecs452.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_380EE88F696C408A9B8AA5D11C1DFEC8"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_stitching452.dll"
-            "TargetName" = "8:opencv_stitching452.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_38314BEAC87F4C82BC91F91D565101DC"
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstadaptivedemux-1.0-0.dll"
@@ -2474,6 +2494,26 @@
             {
             "SourcePath" = "8:..\\hand.json"
             "TargetName" = "8:hand.json"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_41C0407E109545ABBD900FAD32C1B629"
+            {
+            "SourcePath" = "8:C:\\librealsense2\\x64\\bin\\realsense2.dll"
+            "TargetName" = "8:realsense2.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2550,10 +2590,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_463C8E4416084F55991DD803F5CE9686"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4701CFD404FF412AA89AD0202F01906C"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_highgui452.dll"
-            "TargetName" = "8:opencv_highgui452.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libsrt.dll"
+            "TargetName" = "8:libsrt.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2570,10 +2610,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4701CFD404FF412AA89AD0202F01906C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_470B65384D3C4414977189FCB3034970"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libsrt.dll"
-            "TargetName" = "8:libsrt.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_dnn453.dll"
+            "TargetName" = "8:opencv_dnn453.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2674,6 +2714,26 @@
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstsctp-1.0-0.dll"
             "TargetName" = "8:gstsctp-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4C2B50A379C94A10995FC5EEE56991BE"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_videoio_ffmpeg453_64.dll"
+            "TargetName" = "8:opencv_videoio_ffmpeg453_64.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2890,26 +2950,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_587290F81D4344989A4A65B07303DE93"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_calib3d452.dll"
-            "TargetName" = "8:opencv_calib3d452.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5875ABB8DEF74B9EBA4E7402D59C8371"
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\graphene-1.0-0.dll"
@@ -2934,6 +2974,26 @@
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\opus-0.dll"
             "TargetName" = "8:opus-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5A9B9639AF4E40ABB49305DC4AC0CFAC"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_ml453.dll"
+            "TargetName" = "8:opencv_ml453.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3050,26 +3110,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_61E8EB264D4D4FC8B9412AFB5D3504D7"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_features2d452.dll"
-            "TargetName" = "8:opencv_features2d452.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_62F6522643324EDDB0682DB937CC30F7"
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libopenjp2.dll"
@@ -3094,26 +3134,6 @@
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstpbutils-1.0-0.dll"
             "TargetName" = "8:gstpbutils-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_67390C8ED4E543FD905BBC9831603FE0"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_gapi452.dll"
-            "TargetName" = "8:opencv_gapi452.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3210,10 +3230,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6A4CBC25B4264E7DB60A8F05AC84895D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B4E65320D514BF484358F1CBC74FA9C"
             {
-            "SourcePath" = "8:C:\\librealsense2\\x64\\vc15\\bin\\realsense2.dll"
-            "TargetName" = "8:realsense2.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libzbar-0.dll"
+            "TargetName" = "8:libzbar-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3230,10 +3250,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B4E65320D514BF484358F1CBC74FA9C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6D5936DA50094492BFD94CC6D2F9CB55"
             {
-            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\libzbar-0.dll"
-            "TargetName" = "8:libzbar-0.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_highgui453.dll"
+            "TargetName" = "8:opencv_highgui453.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3650,50 +3670,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7E5382AF42AB416E99540FD603FFF5FE"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_ml452.dll"
-            "TargetName" = "8:opencv_ml452.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7F796C42633F4211AB200CC6E80B3875"
             {
             "SourcePath" = "8:..\\server.json"
             "TargetName" = "8:server.json"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_80CBFB6D40AE4D64B6E015CD0B6E230B"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_core452.dll"
-            "TargetName" = "8:opencv_core452.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -3814,26 +3794,6 @@
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\ffi-7.dll"
             "TargetName" = "8:ffi-7.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8700F00DCC1A41088770DC629A98E0D2"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_imgproc452.dll"
-            "TargetName" = "8:opencv_imgproc452.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4130,26 +4090,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_91FC2C9502814278824EB3BB278E0074"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_objdetect452.dll"
-            "TargetName" = "8:opencv_objdetect452.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_921C8CB9D8174CA69BD21A944816C219"
             {
             "SourcePath" = "8:..\\panorama_right.jpg"
@@ -4414,26 +4354,6 @@
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gsttag-1.0-0.dll"
             "TargetName" = "8:gsttag-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9DAC552285FD4EADA06285E000ADAC3A"
-            {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_videoio_ffmpeg452_64.dll"
-            "TargetName" = "8:opencv_videoio_ffmpeg452_64.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4730,6 +4650,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B4740C5C0F8342489DC33412C4AAE131"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_imgcodecs453.dll"
+            "TargetName" = "8:opencv_imgcodecs453.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B66AE3C6C0674AF7A30C6B87193336CC"
             {
             "SourcePath" = "8:..\\theta_right.jpg"
@@ -4794,6 +4734,26 @@
             {
             "SourcePath" = "8:..\\README.md"
             "TargetName" = "8:README.md"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B8B251A4105C477BB1E0E745412E764F"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_core453.dll"
+            "TargetName" = "8:opencv_core453.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -4990,10 +4950,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C33EFD38ED4549F9B2E0CD55119D853C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C47A2DF479BB4A34AC3EF99C87C3F96F"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_photo452.dll"
-            "TargetName" = "8:opencv_photo452.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_stitching453.dll"
+            "TargetName" = "8:opencv_stitching453.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5010,10 +4970,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C8B4180AD9E3469CA6C05F77067A81D4"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C596F4AF65D04A8E81037A0D6ED1DF30"
             {
-            "SourcePath" = "8:C:\\OpenCV\\x64\\vc15\\bin\\opencv_flann452.dll"
-            "TargetName" = "8:opencv_flann452.dll"
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_features2d453.dll"
+            "TargetName" = "8:opencv_features2d453.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5114,6 +5074,26 @@
             {
             "SourcePath" = "8:..\\finger.mtl"
             "TargetName" = "8:finger.mtl"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D1A8239641DB493CA2BE9A29F4B1C2F7"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_gapi453.dll"
+            "TargetName" = "8:opencv_gapi453.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -5690,6 +5670,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F76FCC830707410FBD2A8E2B297066F7"
+            {
+            "SourcePath" = "8:C:\\OpenCV\\x64\\vc16\\bin\\opencv_videoio453.dll"
+            "TargetName" = "8:opencv_videoio453.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FB887E0B825A4C5BA855F6A26BE4834E"
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\librsvg-2-2.dll"
@@ -5877,15 +5877,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TelExistence Display"
-        "ProductCode" = "8:{E852B5E5-9A00-4E86-BBF5-AF368FB224F7}"
-        "PackageCode" = "8:{DC4778D4-3015-4B7A-9B35-BB7BF9577013}"
+        "ProductCode" = "8:{F6081E41-A3B1-446B-99C2-6838BFEF753F}"
+        "PackageCode" = "8:{562A1204-0089-4EA7-9D99-271CF7754CCF}"
         "UpgradeCode" = "8:{7A39854F-F010-495F-856C-E53FA8330919}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:0.1.8"
+        "ProductVersion" = "8:0.1.9"
         "Manufacturer" = "8:tokoi"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/tokoik/ted/"
