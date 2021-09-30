@@ -206,6 +206,14 @@ public:
   void reset();
 
   //
+  // ビューポートの初期化
+  // 
+  void resetViewport()
+  {
+    resize(window, size[0], size[1]);
+  }
+
+  //
   // 透視投影変換行列を更新する
   //
   void update();

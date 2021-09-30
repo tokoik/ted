@@ -29,13 +29,16 @@ LeapListener Scene::listener;
 
 // コンストラクタ
 Scene::Scene(const GgSimpleObj *obj)
-  : obj(obj)
+  : obj{ obj }
+  , me{ nullptr }
 {
+  if (defaults.use_leap_motion && !startLeapMotion())
+    defaults.use_leap_motion = false;
 }
 
 // シーングラフからシーンのオブジェクトを作成するコンストラクタ
 Scene::Scene(const picojson::value &v, int level)
-  : obj(nullptr)
+  : obj{ nullptr }
 {
   read(v, level);
 }
