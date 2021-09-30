@@ -2,18 +2,18 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerEnvironment>Path="$(Path);$(ProjectDir)bin\$(Platform);$(ProjectDir)bin\$(Platform)\$(Configuration);C:\librealsense2\x64\bin;C:\OpenCV\x64\vc16\bin;C:\gstreamer\1.0\x86_64\bin;C:\LeapSDK\lib\x64;" $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <LocalDebuggerEnvironment>Path="$(Path);$(ProjectDir)bin\$(Platform);$(ProjectDir)bin\$(Platform)\$(Configuration);C:\Program Files (x86)\Intel RealSense SDK 2.0\bin\x64;C:\OpenCV\x64\vc16\bin;C:\gstreamer\1.0\x86_64\bin;C:\LeapSDK\lib\x64;" $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerEnvironment>Path="$(Path);$(ProjectDir)bin\$(Platform);$(ProjectDir)bin\$(Platform)\$(Configuration);C:\librealsense2\x64\bin;C:\OpenCV\x64\vc16\bin;C:\gstreamer\1.0\x86_64\bin;C:\LeapSDK\lib\x64;" $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <LocalDebuggerEnvironment>Path="$(Path);$(ProjectDir)bin\$(Platform);$(ProjectDir)bin\$(Platform)\$(Configuration);C:\Program Files (x86)\Intel RealSense SDK 2.0\bin\x64;C:\OpenCV\x64\vc16\bin;C:\gstreamer\1.0\x86_64\bin;C:\LeapSDK\lib\x64;" $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerEnvironment>Path="$(Path);$(ProjectDir)bin\$(Platform);$(ProjectDir)bin\$(Platform)\$(Configuration);C:\librealsense2\Win32\bin;C:\OpenCV\x86\vc16\bin;C:\LeapSDK\lib\x86;" $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <LocalDebuggerEnvironment>Path="$(Path);$(ProjectDir)bin\$(Platform);$(ProjectDir)bin\$(Platform)\$(Configuration);C:\Program Files (x86)\Intel RealSense SDK 2.0\bin\x86;C:\OpenCV\x86\vc16\bin;C:\LeapSDK\lib\x86;" $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerEnvironment>Path="$(Path);$(ProjectDir)bin\$(Platform);$(ProjectDir)bin\$(Platform)\$(Configuration);C:\librealsense2\Win32\bin;C:\OpenCV\x86\vc16\bin;C:\LeapSDK\lib\x86;" $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <LocalDebuggerEnvironment>Path="$(Path);$(ProjectDir)bin\$(Platform);$(ProjectDir)bin\$(Platform)\$(Configuration);C:\Program Files (x86)\Intel RealSense SDK 2.0\bin\x86;C:\OpenCV\x86\vc16\bin;C:\LeapSDK\lib\x86;" $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
   </PropertyGroup>
 </Project>

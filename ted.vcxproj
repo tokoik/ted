@@ -174,12 +174,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;C:\OpenCV\Include;C:\LeapSDK\include;C:\LibOVR\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;C:\Program Files (x86)\Intel RealSense SDK 2.0\include;C:\OpenCV\Include;C:\LeapSDK\include;C:\LibOVR\Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\$(Platform)\lib;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x86\vc16\lib;C:\LeapSDK\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\Program Files (x86)\Intel RealSense SDK 2.0\lib\x86;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x86\vc16\lib;C:\LeapSDK\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -188,12 +188,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;C:\librealsense2\include;C:\LibOVR\Include;C:\OpenCV\Include;C:\LeapSDK\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;C:\Program Files (x86)\Intel RealSense SDK 2.0\include;C:\LibOVR\Include;C:\OpenCV\Include;C:\LeapSDK\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\$(Platform)\lib;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc16\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\Program Files (x86)\Intel RealSense SDK 2.0\lib\x64;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc16\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -204,14 +204,14 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;C:\OpenCV\Include;C:\LeapSDK\include;C:\LibOVR\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;C:\Program Files (x86)\Intel RealSense SDK 2.0\include;C:\OpenCV\Include;C:\LeapSDK\include;C:\LibOVR\Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\$(Platform)\lib;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x86\vc16\lib;C:\LeapSDK\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\Program Files (x86)\Intel RealSense SDK 2.0\lib\x86;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x86\vc16\lib;C:\LeapSDK\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -222,14 +222,14 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;C:\librealsense2\include;C:\LibOVR\Include;C:\OpenCV\Include;C:\LeapSDK\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;C:\Program Files (x86)\Intel RealSense SDK 2.0\include;C:\LibOVR\Include;C:\OpenCV\Include;C:\LeapSDK\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\librealsense2\$(Platform)\lib;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc16\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Platform)\lib;$(ProjectDir)lib\$(Platform)\$(Configuration);C:\Program Files (x86)\Intel RealSense SDK 2.0\lib\x64;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2017;C:\LibOVR\Lib\Windows\$(Platform)\$(Configuration)\VS2015;C:\OpenCV\x64\vc16\lib;C:\LeapSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
