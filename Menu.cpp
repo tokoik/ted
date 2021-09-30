@@ -125,21 +125,67 @@ void Menu::displayWindow()
 
   ImGui::Begin(u8"表示設定", &showDisplayWindow);
   ImGui::Text("Frame rate: %6.2f fps", ImGui::GetIO().Framerate);
-  if (ImGui::RadioButton(u8"Monocular", &defaults.display_mode, MONOCULAR)) window.stopOculus();
-  if (ImGui::RadioButton(u8"Interlace", &defaults.display_mode, INTERLACE)) window.stopOculus();
-  if (ImGui::RadioButton(u8"Top and Bottom", &defaults.display_mode, TOP_AND_BOTTOM)) window.stopOculus();
-  if (ImGui::RadioButton(u8"Side by Side", &defaults.display_mode, SIDE_BY_SIDE)) window.stopOculus();
-  if (ImGui::RadioButton(u8"Quad Buffer", &defaults.display_mode, QUADBUFFER)) window.stopOculus();
-  int mode{ defaults.display_mode };
-  if (ImGui::RadioButton("Oculus", &mode, OCULUS) && window.startOculus()) defaults.display_mode = mode;
-  ImGui::Checkbox("Game Pad", &defaults.use_controller);
-  if (ImGui::Checkbox("Leap Motion", &defaults.use_leap_motion))
+
+  // 表示モードの選択
+  int display_mode{ defaults.display_mode };
+  ImGui::RadioButton("Monocular", &display_mode, MONOCULAR);
+  ImGui::RadioButton("Interlace", &display_mode, INTERLACE);
+  ImGui::RadioButton("Top and Bottom", &display_mode, TOP_AND_BOTTOM);
+  ImGui::RadioButton("Side by Side", &display_mode, SIDE_BY_SIDE);
+  ImGui::RadioButton("Quad Buffer", &display_mode, QUADBUFFER);
+  ImGui::RadioButton("Oculus", &display_mode, OCULUS);
+
+  // 表示モードが変更されたとき
+  if (display_mode != defaults.display_mode)
   {
-    if (defaults.use_leap_motion)
-      if (!scene.startLeapMotion()) defaults.use_leap_motion = false;
+    // Oculus Rift に切り替えたなら
+    if (display_mode == OCULUS)
+    {
+      // Oculus Rift を起動して表示モードをそれに切り替える
+      if (window.startOculus()) defaults.display_mode = display_mode;
+    }
+    // Oculus Rift 以外に切り替えたなら
     else
-      scene.stopLeapMotion();
+    {
+      // Quadbuffer Stereo が使えないのにそれに切り替えようとしていないなら
+      if (display_mode != QUADBUFFER || defaults.display_quadbuffer)
+      {
+        // それまで Oculus Rift を使っていたなら止める
+        if (defaults.display_mode == OCULUS) window.stopOculus();
+
+        // 表示モードを切り替える
+        defaults.display_mode = display_mode;
+
+        // ビューポートを更新する
+        window.resetViewport();
+      }
+    }
   }
+
+  // ゲームパッドを有効にするかどうか
+  ImGui::Checkbox("Game Pad", &defaults.use_controller);
+
+  // Leap Motion を有効にするかどうか
+  bool use_leap_motion{ defaults.use_leap_motion };
+  if (ImGui::Checkbox("Leap Motion", &use_leap_motion))
+  {
+    // それまで LeapMotion を使っていないとき
+    if (!defaults.use_leap_motion)
+    {
+      // Leap Motion を使うなら起動する
+      if (use_leap_motion && scene.startLeapMotion())
+        defaults.use_leap_motion = true;
+    }
+    // それまで使っていた Leap Motion を止めるとき
+    else if (!use_leap_motion)
+    {
+      // Leap Motion を止める
+      scene.stopLeapMotion();
+      defaults.use_leap_motion = false;
+    }
+  }
+
+  // 表示関係
   ImGui::Checkbox(u8"ミラー表示", &window.showMirror);
   ImGui::Checkbox(u8"シーン表示", &window.showScene);
   if (ImGui::SliderFloat(u8"前方面", &defaults.display_near, 0.01f, defaults.display_far))
