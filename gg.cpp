@@ -46,22 +46,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // Windows のとき
 #if defined(_WIN32)
-// プラットフォームを調べる
-#  if defined(_WIN64)
-#    define GLFW3_PLATFORM "x64"
-#  else
-#    define GLFW3_PLATFORM "Win32"
-#  endif
 // コンフィギュレーションを調べる
 #  if defined(_DEBUG)
-#    define GLFW3_CONFIGURATION "Debug"
+// デバッグビルドのライブラリをリンクする
+#    pragma comment(lib, "glfw3d.lib")
 #  else
-#    define GLFW3_CONFIGURATION "Release"
+// リリースビルドのライブラリをリンクする
+#    pragma comment(lib, "glfw3.lib")
 // Visual Studio のリリースビルドではコンソールを出さない
 #    pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
 #  endif
-// リンクするライブラリ
-#  pragma comment(lib, "lib\\" GLFW3_PLATFORM "\\" GLFW3_CONFIGURATION "\\glfw3.lib")
 #endif
 
 // OpenGL 3.2 の API のエントリポイント

@@ -3,6 +3,18 @@
 //
 #include "Window.h"
 
+// Oculus Rift SDK ライブラリ (LibOVR) の組み込み
+#if defined(_WIN32)
+// コンフィギュレーションを調べる
+#  if defined(_DEBUG)
+// デバッグビルドのライブラリをリンクする
+#    pragma comment(lib, "libOVRd.lib")
+#  else
+// リリースビルドのライブラリをリンクする
+#    pragma comment(lib, "libOVR.lib")
+#  endif
+#endif
+
 // Dear ImGui を使うとき
 #ifdef IMGUI_VERSION
 #  include "imgui_impl_glfw.h"
@@ -11,11 +23,6 @@
 
 // シーングラフ
 #include "Scene.h"
-
-// Oculus Rift SDK ライブラリ (LibOVR) の組み込み
-#if defined(_WIN32)
-#  pragma comment(lib, "libOVR.lib")
-#endif
 
 // 標準ライブラリ
 #include <fstream>
