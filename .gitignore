@@ -2,6 +2,8 @@
 /config.json
 /attitude.json
 /imgui.ini
+/libs
+/libs/*
 
 ## Ignore local development library
 /libs/
