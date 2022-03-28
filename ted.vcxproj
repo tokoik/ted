@@ -39,6 +39,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Rs400.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="ShaderList.h" />
     <ClInclude Include="SharedMemory.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
@@ -68,6 +69,7 @@
     <ClCompile Include="Rect.cpp" />
     <ClCompile Include="Rs400.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="ShaderList.cpp" />
     <ClCompile Include="SharedMemory.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>

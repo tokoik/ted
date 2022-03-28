@@ -116,6 +116,138 @@ config::~config()
 }
 
 //
+// 値の取得
+//
+template <typename T>
+static bool getValue(T& scalar, const picojson::object& object, const char* name)
+{
+    const auto&& value(object.find(name));
+    if (value == object.end() || !value->second.is<double>()) return false;
+    scalar = static_cast<T>(value->second.get<double>());
+    return true;
+}
+
+//
+// 値の設定
+//
+template <typename T>
+static void setValue(const T& scalar, picojson::object& object, const char* name)
+{
+    object.insert(std::make_pair(name, picojson::value(static_cast<double>(scalar))));
+}
+
+//
+// ４要素以下のベクトルの取得
+//
+template <typename T, std::size_t U>
+static bool getVector(std::array<T, U>& vector, const picojson::object& object, const char* name)
+{
+    const auto&& value(object.find(name));
+    if (value == object.end() || !value->second.is<picojson::array>()) return false;
+
+    // 配列を取り出す
+    const auto& array(value->second.get<picojson::array>());
+
+    // 配列の要素数の上限は４
+    const auto n(std::min(static_cast<decltype(array.size())>(U), array.size()));
+
+    // 配列のすべての要素について
+    for (decltype(array.size()) i = 0; i < n; ++i)
+    {
+        // 要素が数値なら保存する
+        if (array[i].is<double>()) vector[i] = static_cast<T>(array[i].get<double>());
+    }
+
+    return true;
+}
+
+//
+// ４要素以下のベクトルの設定
+//
+template <typename T, std::size_t U>
+static void setVector(const std::array<T, U>& vector, picojson::object& object, const char* name)
+{
+    // picojson の配列
+    picojson::array array;
+
+    // 配列のすべての要素について
+    for (std::size_t i = 0; i < U; ++i)
+    {
+        // 要素を picojson::array に追加する
+        array.emplace_back(picojson::value(static_cast<double>(vector[i])));
+    }
+
+    // オブジェクトに追加する
+    object.insert(std::make_pair(name, array));
+}
+
+//
+// 文字列の取得
+//
+static bool getString(std::string& string, const picojson::object& object, const char* name)
+{
+    const auto&& value(object.find(name));
+    if (value == object.end() || !value->second.is<std::string>()) return false;
+    string = value->second.get<std::string>();
+    return true;
+}
+
+//
+// 文字列の設定
+//
+static void setString(const std::string& string, picojson::object& object, const char* name)
+{
+    object.insert(std::make_pair(name, picojson::value(string)));
+}
+
+//
+// 文字列のベクトルの取得
+//
+template <std::size_t U>
+static bool getSource(std::array<std::string, U>& source, const picojson::object& object,
+    const char* name)
+{
+    const auto& v_shader(object.find(name));
+    if (v_shader == object.end() || !v_shader->second.is<picojson::array>()) return false;
+
+    // 配列を取り出す
+    const auto& array(v_shader->second.get<picojson::array>());
+
+    // 配列の要素数の上限は４
+    const auto n(std::min(static_cast<decltype(array.size())>(U), array.size()));
+
+    // 配列のすべての要素について
+    for (decltype(array.size()) i = 0; i < n; ++i)
+    {
+        // 要素が文字列なら保存する
+        if (array[i].is<std::string>()) source[i] = array[i].get<std::string>();
+    }
+
+    return true;
+}
+
+//
+// 文字列のベクトルの設定
+//
+template <std::size_t U>
+static void setSource(const std::array<std::string, U>& source, picojson::object& object,
+    const char* name)
+{
+    // picojson の配列
+    picojson::array array;
+
+    // 配列のすべての要素について
+    for (std::size_t i = 0; i < U; ++i)
+    {
+        // 要素を picojson::array に追加する
+        array.emplace_back(picojson::value(source[i]));
+    }
+
+    // オブジェクトに追加する
+    object.insert(std::make_pair(name, array));
+}
+
+//
 // JSON の読み取り
 //
 bool config::read(picojson::value &v)
