@@ -36,9 +36,9 @@ void Rect::setGap(const GLfloat *gap)
 }
 
 // スクリーンのサイズと中心位置を設定する
-void Rect::setScreen(const GLfloat *screen)
+void Rect::setScreen(const GgVector& screen)
 {
-  this->screen = screen;
+  this->screen = screen.data();
 }
 
 // 焦点距離を設定する
@@ -48,7 +48,7 @@ void Rect::setFocal(GLfloat focal)
 }
 
 // 背景テクスチャの半径と中心位置を設定する
-void Rect::setCircle(const GLfloat *circle, GLfloat offset)
+void Rect::setCircle(const GgVector& circle, GLfloat offset)
 {
   this->circle[0] = circle[0];
   this->circle[1] = circle[1];
@@ -57,7 +57,7 @@ void Rect::setCircle(const GLfloat *circle, GLfloat offset)
 }
 
 // 描画
-void Rect::draw(GLint texture, const GgMatrix &rotation, const GLsizei *samples) const
+void Rect::draw(GLint texture, const GgMatrix &rotation, const GLsizei* samples) const
 {
   // シェーダプログラムを選択する
   glUseProgram(shader);
@@ -72,7 +72,7 @@ void Rect::draw(GLint texture, const GgMatrix &rotation, const GLsizei *samples)
   glUniform1f(focalLoc, focal);
 
   // 背景テクスチャの半径と中心位置を設定する
-  glUniform4fv(circleLoc, 1, circle);
+  glUniform4fv(circleLoc, 1, circle.data());
 
   // 視線の回転行列を設定する
   glUniformMatrix4fv(rotationLoc, 1, GL_TRUE, rotation.get());

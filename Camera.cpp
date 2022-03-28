@@ -29,10 +29,6 @@ Camera::Camera()
   // キャプチャされる画像のフォーマット
   format = GL_BGR;
 
-  // 圧縮設定
-  param.push_back(cv::IMWRITE_JPEG_QUALITY);
-  param.push_back(defaults.remote_texture_quality);
-
   for (int cam = 0; cam < camCount; ++cam)
   {
     // 画像がまだ取得されていないことを記録しておく
@@ -49,6 +45,14 @@ Camera::~Camera()
   // 作業用のメモリを開放する
   delete[] recvbuf, sendbuf;
   recvbuf = sendbuf = nullptr;
+}
+
+// 圧縮設定
+void Camera::setQuality(int quality)
+{
+  // 圧縮設定
+  param.push_back(cv::IMWRITE_JPEG_QUALITY);
+  param.push_back(quality);
 }
 
 // スレッドを停止する
@@ -141,9 +145,6 @@ void Camera::recv()
 // ローカルの映像と姿勢を送信する
 void Camera::send()
 {
-  // キャプチャ間隔
-  const double capture_interval(defaults.capture_fps > 0.0 ? 1000.0 / defaults.capture_fps : minDelay);
-
   // 直前のフレームの送信時刻
   double last(glfwGetTime());
 

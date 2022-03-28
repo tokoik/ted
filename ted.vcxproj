@@ -24,7 +24,7 @@
     <ClInclude Include="CamImage.h" />
     <ClInclude Include="CamOv.h" />
     <ClInclude Include="CamRemote.h" />
-    <ClInclude Include="config.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="gg.h" />
     <ClInclude Include="LeapListener.h" />
     <ClInclude Include="Network.h" />
@@ -36,21 +36,21 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="C:\libs\ImGui\imgui.cpp" />
+    <ClCompile Include="C:\libs\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="C:\libs\ImGui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="C:\libs\ImGui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="C:\libs\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="C:\libs\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="C:\libs\ImGui\nfd_win.cpp" />
     <ClCompile Include="CamCv.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CamImage.cpp" />
     <ClCompile Include="CamOv.cpp" />
     <ClCompile Include="CamRemote.cpp" />
-    <ClCompile Include="config.cpp" />
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="gg.cpp" />
     <ClCompile Include="LeapListener.cpp" />
-    <ClCompile Include="libs\ImGui\imgui.cpp" />
-    <ClCompile Include="libs\ImGui\imgui_draw.cpp" />
-    <ClCompile Include="libs\ImGui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="libs\ImGui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="libs\ImGui\imgui_tables.cpp" />
-    <ClCompile Include="libs\ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="libs\ImGui\nfd_win.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Rect.cpp" />

@@ -38,21 +38,21 @@ class Rect
   const GLuint vao;
 
   // 格子間隔
-  const GLfloat *gap;
+  const GLfloat* gap;
 
   // スクリーンのサイズと中心位置
-  const GLfloat *screen;
+  const GLfloat* screen;
 
   // 焦点距離
   GLfloat focal;
 
   // 背景テクスチャの半径と中心位置
-  GLfloat circle[4];
+  GgVector circle;
 
 public:
 
   // コンストラクタ
-  Rect(const std::string &vert, const std::string &frag);
+  Rect(const std::string& vert, const std::string& frag);
 
   // デストラクタ
   ~Rect();
@@ -61,17 +61,17 @@ public:
   GLuint get() const;
 
   // 格子間隔を設定する
-  void setGap(const GLfloat *gap);
+  void setGap(const GLfloat* gap);
 
   // スクリーンのサイズと中心位置を設定する
-  void setScreen(const GLfloat *screen);
+  void setScreen(const GgVector& screen);
 
   // 焦点距離を設定する
   void setFocal(GLfloat focal);
 
   // 背景テクスチャの半径と中心位置を設定する
-  void setCircle(const GLfloat *circle, GLfloat offset);
+  void setCircle(const GgVector& circle, GLfloat offset);
 
   // 描画
-  void draw(GLint texture, const GgMatrix &rotation, const GLsizei *samples) const;
+  void draw(GLint texture, const GgMatrix& rotation, const GLsizei* samples) const;
 };

@@ -3156,7 +3156,14 @@ namespace gg
     {
       return operator/(q.quaternion.data());
     }
-
+    const GLfloat &operator[](std::size_t i) const
+    {
+      return quaternion[i];
+    }
+    GLfloat& operator[](std::size_t i)
+    {
+      return quaternion[i];
+    }
     //! \brief 回転の変換行列を表す四元数を格納する.
     //!   \param a GLfloat 型の 16 要素の変換行列.
     //!   \return a による回転の変換に相当する四元数.
@@ -3696,12 +3703,12 @@ namespace gg
   */
   class GgTrackball
   {
-    bool drag;        // ドラッグ中か否か
-    float start[2];   // ドラッグ開始位置
-    float scale[2];   // マウスの絶対位置→ウィンドウ内での相対位置の換算係数
-    GgQuaternion cq;  // 回転の初期値 (四元数)
-    GgQuaternion tq;  // ドラッグ中の回転 (四元数)
-    GgMatrix rt;      // 回転の変換行列
+    bool drag;          // ドラッグ中か否か
+    GLfloat start[2];   // ドラッグ開始位置
+    GLfloat scale[2];   // マウスの絶対位置→ウィンドウ内での相対位置の換算係数
+    GgQuaternion cq;    // 回転の初期値 (四元数)
+    GgQuaternion tq;    // ドラッグ中の回転 (四元数)
+    GgMatrix rt;        // 回転の変換行列
 
   public:
 
@@ -3752,20 +3759,20 @@ namespace gg
     void end(float x, float y);
 
     //! \brief トラックボールをリセットする
-    void reset();
+    void reset(const GgQuaternion& quaternion = ggIdentityQuaternion());
 
     //! \brief トラックボール処理の開始位置を取り出す.
     //!   \return トラックボールの開始位置のポインタ.
     const GLfloat *getStart() const
     {
-      return static_cast<const GLfloat *>(start);
+      return start;
     }
 
     //! \brief トラックボール処理の開始位置を取り出す.
     //!   \param direction 0 なら x 方向, 1 なら y 方向.
     GLfloat getStart(int direction) const
     {
-      return static_cast<GLfloat>(start[direction]);
+      return start[direction];
     }
 
     //! \brief トラックボール処理の開始位置を取り出す.
@@ -3780,14 +3787,14 @@ namespace gg
     //!   \return トラックボールの換算係数のポインタ.
     const GLfloat *getScale() const
     {
-      return static_cast<const GLfloat *>(scale);
+      return scale;
     }
 
     //! \brief トラックボール処理の換算係数を取り出す.
     //!   \param direction 0 なら x 方向, 1 なら y 方向.
     GLfloat getScale(int direction) const
     {
-      return static_cast<GLfloat>(scale[direction]);
+      return scale[direction];
     }
 
     //! \brief トラックボール処理の換算係数を取り出す.

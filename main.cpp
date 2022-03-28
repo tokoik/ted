@@ -20,6 +20,9 @@
 // 矩形
 #include "Rect.h"
 
+// ファイルダイアログ
+#include "nfd.h"
+
 //
 // メインプログラム
 //
@@ -27,6 +30,9 @@ int main(int argc, const char *const *const argv)
 {
   // 引数を設定ファイル名に使う（指定されていなければ config.json にする）
   const char *config_file(argc > 1 ? argv[1] : "config.json");
+
+  // 設定データ
+  Config defaults;
 
   // 設定ファイルを読み込む (見つからなかったら作る)
   if (!defaults.load(config_file)) defaults.save(config_file);
@@ -42,46 +48,8 @@ int main(int argc, const char *const *const argv)
   // プログラム終了時には GLFW を終了する
   atexit(glfwTerminate);
 
-  // ディスプレイの情報
-  GLFWmonitor *monitor;
-  int windowWidth, windowHeight;
-
-  // フルスクリーン表示
-  if (defaults.display_fullscreen)
-  {
-    // 接続されているモニタの数を数える
-    int mcount;
-    GLFWmonitor **const monitors(glfwGetMonitors(&mcount));
-
-    // モニタの存在チェック
-    if (mcount == 0)
-    {
-      NOTIFY("GLFW の初期化をしていないか表示可能なディスプレイが見つかりません。");
-      return EXIT_FAILURE;
-    }
-
-    // セカンダリモニタがあればそれを使う
-    monitor = monitors[mcount > defaults.display_secondary ? defaults.display_secondary : 0];
-
-    // モニタのモードを調べる
-    const GLFWvidmode *mode(glfwGetVideoMode(monitor));
-
-    // ウィンドウのサイズをディスプレイのサイズにする
-    windowWidth = mode->width;
-    windowHeight = mode->height;
-  }
-  else
-  {
-    // プライマリモニタをウィンドウモードで使う
-    monitor = nullptr;
-
-    // ウィンドウのサイズにデフォルト値を設定する
-    windowWidth = defaults.display_width ? defaults.display_width : defaultWindowWidth;
-    windowHeight = defaults.display_height ? defaults.display_height : defaultWindowHeight;
-  }
-
   // ウィンドウを開く
-  Window window(windowWidth, windowHeight, windowTitle, monitor);
+  Window window(defaults);
 
   // ウィンドウオブジェクトが生成されなければ終了する
   if (!window.get()) return EXIT_FAILURE;
@@ -121,13 +89,15 @@ int main(int argc, const char *const *const argv)
     if (defaults.role == OPERATOR)
     {
       // リモートカメラからキャプチャするためのダミーカメラを使う
-      CamRemote *const cam(new CamRemote(defaults.remote_texture_reshape));
+      CamRemote *const cam(new CamRemote(defaults.remote_texture_width,
+        defaults.remote_texture_height, defaults.remote_texture_reshape));
 
       // 生成したカメラを記録しておく
       camera.reset(cam);
 
       // 操縦者側を起動する
-      if (cam->open(defaults.port, defaults.address.c_str()) < 0)
+      if (cam->open(defaults.port, defaults.address.c_str(), defaults.remote_fov.data(),
+        defaults.remote_texture_samples) < 0)
       {
         NOTIFY("作業者側のデータを受け取れません。");
         return EXIT_FAILURE;
@@ -166,7 +136,8 @@ int main(int argc, const char *const *const argv)
       else
       {
         // カメラデバイスを開く
-        if (!cam->open(defaults.camera_left, camL))
+        if (!cam->open(defaults.camera_left, camL, defaults.capture_codec.data(),
+          defaults.capture_width, defaults.capture_height, defaults.capture_fps))
         {
           NOTIFY("左のカメラが使用できません。");
           return EXIT_FAILURE;
@@ -201,7 +172,8 @@ int main(int argc, const char *const *const argv)
         else if (defaults.camera_right >= 0 && defaults.camera_right != defaults.camera_left)
         {
           // カメラデバイスを開く
-          if (!cam->open(defaults.camera_right, camR))
+          if (!cam->open(defaults.camera_right, camR, defaults.capture_codec.data(),
+            defaults.capture_width, defaults.capture_height, defaults.capture_fps))
           {
             NOTIFY("右のカメラが使用できません。");
             return EXIT_FAILURE;
@@ -299,6 +271,12 @@ int main(int argc, const char *const *const argv)
       camera->startWorker(defaults.port, defaults.address.c_str());
     }
   }
+
+  // 圧縮設定
+  camera->setQuality(defaults.remote_texture_quality);
+
+  // キャプチャ間隔
+  camera->setInterval(defaults.capture_fps);
 
   // ウィンドウにそのカメラを結び付ける
   window.setControlCamera(camera.get());
@@ -433,11 +411,25 @@ int main(int argc, const char *const *const argv)
     ImGui::SetNextWindowSize(ImVec2(170, 71), ImGuiCond_Once);
     ImGui::Begin("Control panel");
     ImGui::Text("Frame rate: %6.2f fps", ImGui::GetIO().Framerate);
+    if (ImGui::Button("Save"))
+    {
+      // ファイルダイアログから得るパス
+      nfdchar_t* filepath(NULL);
+
+      // 画像ファイル名のフィルタ
+      constexpr nfdfilteritem_t imageFilter[]{ "JSON", "json" };
+
+      // ファイルダイアログを開く
+      if (NFD_SaveDialog(&filepath, imageFilter, 1, NULL, "*.json") == NFD_OKAY)
+      {
+        defaults.save(filepath);
+      }
+    }
+    ImGui::SameLine();
     if (ImGui::Button("Quit")) window.setClose(GLFW_TRUE);
     ImGui::End();
     ImGui::Render();
 #endif
-
 
     // 左カメラをロックして画像を転送する
     camera->transmit(camL, texture[camL], size[camL]);

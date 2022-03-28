@@ -5,7 +5,7 @@
 //
 
 // 各種設定
-#include "config.h"
+#include "Config.h"
 
 // ネットワーク関連の処理
 #include "Network.h"
@@ -51,7 +51,10 @@ protected:
   // キャプチャした画像のサイズ
   GLsizei size[camCount][2];
 
-  // キャプチャするフレーム間隔
+  // 期待するキャプチャ間隔
+  double capture_interval;
+
+  // 実際のキャプチャ間隔
   double interval[camCount];
 
   // キャプチャする画像のフォーマット
@@ -68,6 +71,7 @@ public:
   // デストラクタ
   virtual ~Camera();
 
+  // 
   // 画像の幅を得る
   int getWidth(int cam) const
   {
@@ -79,6 +83,15 @@ public:
   {
     return size[cam][1];
   }
+
+  // フレームレートからキャプチャ間隔を設定する
+  void setInterval(double fps)
+  {
+    capture_interval = fps > 0.0 ? 1000.0 / fps : minDelay;
+  }
+
+  // 圧縮設定
+  void setQuality(int quality);
 
   // Ovrvision Pro の露出を上げる
   virtual void increaseExposure() {};

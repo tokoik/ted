@@ -16,10 +16,16 @@ CamCv::~CamCv()
 }
 
 // カメラから入力する
-bool CamCv::open(int device, int cam)
+bool CamCv::open(int device, int cam, const char* codec, double width, double height, double fps)
 {
-  // カメラを開いてキャプチャを開始する
-  return camera[cam].open(device) && start(cam);
+  // カメラを開く
+  if (!camera[cam].open(device)) return false;
+
+  // カメラを設定する
+  setup(cam, codec, width, height, fps);
+
+  // キャプチャを開始する
+  return start(cam);
 }
 
 // ファイル／ネットワークからキャプチャを開始する
@@ -92,16 +98,20 @@ void CamCv::capture(int cam)
   captureMutex[cam].unlock();
 }
 
+// キャプチャを準備する
+void CamCv::setup(int cam, const char* codec, double width, double height, double fps)
+{
+  // カメラのコーデック・解像度・フレームレートを設定する
+  if (codec[0] != '\0') camera[cam].set(cv::CAP_PROP_FOURCC,
+    cv::VideoWriter::fourcc(codec[0], codec[1], codec[2], codec[3]));
+  if (width > 0.0) camera[cam].set(cv::CAP_PROP_FRAME_WIDTH, width);
+  if (height > 0.0) camera[cam].set(cv::CAP_PROP_FRAME_HEIGHT, height);
+  if (fps > 0.0) camera[cam].set(cv::CAP_PROP_FPS, fps);
+}
+
 // キャプチャを開始する
 bool CamCv::start(int cam)
 {
-  // カメラのコーデック・解像度・フレームレートを設定する
-  if (defaults.fourcc[0] != '\0') camera[cam].set(cv::CAP_PROP_FOURCC,
-    cv::VideoWriter::fourcc(defaults.fourcc[0], defaults.fourcc[1], defaults.fourcc[2], defaults.fourcc[3]));
-  if (defaults.capture_width > 0.0) camera[cam].set(cv::CAP_PROP_FRAME_WIDTH, defaults.capture_width);
-  if (defaults.capture_height > 0.0) camera[cam].set(cv::CAP_PROP_FRAME_HEIGHT, defaults.capture_height);
-  if (defaults.capture_fps > 0.0) camera[cam].set(cv::CAP_PROP_FPS, defaults.capture_fps);
-
   // 左カメラから 1 フレームキャプチャする
   if (camera[cam].grab())
   {

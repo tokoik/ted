@@ -10,14 +10,14 @@
 #include "SharedMemory.h"
 
 // コンストラクタ
-CamRemote::CamRemote(bool reshape)
+CamRemote::CamRemote(double width, double height, bool reshape)
   : reshape(reshape)
 {
   if (reshape)
   {
     // 背景画像のサイズ
-    size[camR][0] = size[camL][0] = static_cast<GLsizei>(defaults.capture_width);
-    size[camR][1] = size[camL][1] = static_cast<GLsizei>(defaults.capture_height);
+    size[camR][0] = size[camL][0] = static_cast<GLsizei>(width);
+    size[camR][1] = size[camL][1] = static_cast<GLsizei>(height);
 
     // 背景画像の変形に使うフレームバッファオブジェクト
     glGenFramebuffers(1, &fb);
@@ -54,7 +54,7 @@ CamRemote::~CamRemote()
 }
 
 // 操縦者側の起動
-int CamRemote::open(unsigned short port, const char *address)
+int CamRemote::open(unsigned short port, const char *address, const GLfloat* fov, int samples)
 {
   // すでに確保されている作業用メモリを破棄する
   delete[] sendbuf, recvbuf;
@@ -131,16 +131,16 @@ int CamRemote::open(unsigned short port, const char *address)
   {
     // 背景画像の変形に使うメッシュの縦横の格子点数を求め
     const GLfloat aspect(static_cast<GLfloat>(size[camL][0]) / static_cast<GLfloat>(size[camL][1]));
-    slices = static_cast<GLsizei>(sqrt(aspect * static_cast<GLfloat>(defaults.remote_texture_samples)));
-    stacks = defaults.remote_texture_samples / slices;
+    slices = static_cast<GLsizei>(sqrt(aspect * static_cast<GLfloat>(samples)));
+    stacks = samples / slices;
 
     // 背景画像の変形に使うメッシュの縦横の格子間隔を求める
     gap[0] = 2.0f / static_cast<GLfloat>(slices - 1);
     gap[1] = 2.0f / static_cast<GLfloat>(stacks - 1);
 
     // 背景画像を取得するリモートカメラの画角
-    screen[0] = tan(defaults.remote_fov_x);
-    screen[1] = tan(defaults.remote_fov_y);
+    screen[0] = tan(fov[0]);
+    screen[1] = tan(fov[1]);
 
     for (int cam = 0; cam < camCount; ++cam)
     {
@@ -322,9 +322,6 @@ void CamRemote::recv()
 // ローカルの姿勢を送信する
 void CamRemote::send()
 {
-  // キャプチャ間隔
-  const double capture_interval(defaults.capture_fps > 0.0 ? 1000.0 / defaults.capture_fps : 30.0);
-
   // 直前のフレームの送信時刻
   double last(glfwGetTime());
 

@@ -3,6 +3,9 @@
 //
 #include "Scene.h"
 
+// 標準ライブラリ
+#include <fstream>
+
 // ファイルマッピングオブジェクト名
 constexpr LPCWSTR localMutexName = L"TED_LOCAL_MUTEX";
 constexpr LPCWSTR localShareName = L"TED_LOCAL_SHARE";
@@ -73,19 +76,21 @@ bool Scene::initialize(unsigned int local_size, unsigned int remote_size)
   return true;
 }
 
+// シーンファイルを読み込む
+bool Scene::read(const std::string& file, picojson::value& v) const
+{
+  // 設定内容の読み込み
+  std::ifstream s{ file };
+  if (!s) return false;
+  s >> v;
+  s.close();
+}
+
 // シーングラフを読み込む
 Scene *Scene::load(const picojson::value &v, const GgSimpleShader *shader, int level)
 {
   // 引数ををパースする
-  const auto &o(
-    v.is<std::string>() ? [&v]()
-  {
-    picojson::value f;
-    return config::read(v.get<std::string>(), f)
-      && f.is<picojson::object>() ? f.get<picojson::object>() : picojson::object();
-  } ()
-    : v.is<picojson::object>() ? v.get<picojson::object>() : picojson::object()
-    );
+  const auto &o(v.is<picojson::object>() ? v.get<picojson::object>() : picojson::object());
   if (o.empty()) return this;
 
   // シーンオブジェクトの変換行列

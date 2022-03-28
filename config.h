@@ -11,6 +11,26 @@ using namespace gg;
 // JSON
 #include "picojson.h"
 
+// ウィンドウのタイトル
+constexpr char windowTitle[] = "TED";
+
+// ナビゲーションの速度調整
+constexpr int zoomMax(100);               // 物体のズーム率調整のステップ
+constexpr GLfloat shiftStep(0.001f);      // 背景テクスチャのシフト量調整のステップ
+constexpr int focalMax(100);              // 背景テクスチャのスケール調整のステップ
+constexpr GLfloat speedScale(0.005f);     // フレームあたりの移動速度係数
+constexpr GLfloat angleScale(-0.05f);     // フレームあたりの回転速度係数
+constexpr GLfloat wheelXStep(0.005f);     // マウスホイールの X 方向の係数
+constexpr GLfloat wheelYStep(0.005f);     // マウスホイールの Y 方向の係数
+constexpr GLfloat axesSpeedScale(0.01f);  // ゲームパッドのスティックの速度の係数
+constexpr GLfloat axesAngleScale(0.01f);  // ゲームパッドのスティックの角速度の係数
+constexpr GLfloat btnsScale(0.02f);       // ゲームパッドのボタンの係数
+constexpr GLfloat offsetStep(0.001f);     // スクリーンの間隔の変更ステップ
+constexpr GLfloat parallaxStep(0.001f);   // 視差の変更ステップ (単位 m)
+
+// マルチサンプリングのサンプル数 (Oculus Rift)
+constexpr int backBufferMultisample(0);
+
 // 立体視の設定
 enum StereoMode
 {
@@ -31,7 +51,7 @@ enum HostRole
 };
 
 // 設定値
-struct config
+struct Config
 {
   int camera_left;
   std::string camera_left_image;
@@ -45,11 +65,8 @@ struct config
   double capture_width;
   double capture_height;
   double capture_fps;
-  char fourcc[4];
-  GLfloat fisheye_center_x;
-  GLfloat fisheye_center_y;
-  GLfloat fisheye_fov_x;
-  GLfloat fisheye_fov_y;
+  std::array<char, 5> capture_codec;
+  GgVector circle;
   int ovrvision_property;
   int display_mode;
   int display_secondary;
@@ -59,66 +76,36 @@ struct config
   GLfloat display_aspect;
   GLfloat display_center;
   GLfloat display_distance;
+  GLfloat display_offset;
   GLfloat display_near;
   GLfloat display_far;
   GLfloat display_zoom;
+  GLfloat display_focal;
+  GLfloat display_parallax;
   std::string vertex_shader;
   std::string fragment_shader;
   int role;
   int port;
   std::string address;
+  std::array<unsigned int, 2> remote_delay;
   bool remote_stabilize;
   bool remote_texture_reshape;
-  unsigned int remote_delay[2];
+  int remote_texture_width;
+  int remote_texture_height;
   int remote_texture_quality;
   int remote_texture_samples;
-  GLfloat remote_fov_x;
-  GLfloat remote_fov_y;
+  std::array<GLfloat, 2> remote_fov;
   int local_share_size;
   int remote_share_size;
+  GgVector position;
+  GgQuaternion orientation;
   int max_level;
   picojson::value scene;
-  static bool read(const std::string &file, picojson::value &v);
+  Config();
+  virtual ~Config();
   bool load(const std::string &file);
   bool save(const std::string &file) const;
 };
-
-// デフォルト値
-extern config defaults;
-
-// ウィンドウのタイトル
-constexpr char windowTitle[] = "TED";
-
-// ウィンドウモード時のウィンドウサイズの初期値
-constexpr int defaultWindowWidth(960);
-constexpr int defaultWindowHeight(540);
-
-// ナビゲーションの速度調整
-constexpr GLfloat zoomStep(0.01f);                          // 物体のズーム率調整のステップ
-constexpr GLfloat shiftStep(0.001f);                        // 背景テクスチャのシフト量調整のステップ
-constexpr GLfloat focalStep(100.0f);                        // 背景テクスチャのスケール調整のステップ
-constexpr GLfloat speedScale(0.005f);                       // フレームあたりの移動速度係数
-constexpr GLfloat angleScale(-0.05f);                       // フレームあたりの回転速度係数
-constexpr GLfloat wheelXStep(0.005f);                       // マウスホイールの X 方向の係数
-constexpr GLfloat wheelYStep(0.005f);                       // マウスホイールの Y 方向の係数
-constexpr GLfloat axesSpeedScale(0.01f);                    // ゲームパッドのスティックの速度の係数
-constexpr GLfloat axesAngleScale(0.01f);                    // ゲームパッドのスティックの角速度の係数
-constexpr GLfloat btnsScale(0.02f);                         // ゲームパッドのボタンの係数
-
-// スクリーンの間隔のデフォルト値
-constexpr GLfloat defaultOffset(0.0f);
-
-// スクリーンの間隔の変更ステップ
-constexpr GLfloat offsetStep(0.001f);
-
-// 視差のデフォルト値
-constexpr GLfloat defaultParallax(0.032f);
-
-// 視差の変更ステップ (単位 m)
-constexpr GLfloat parallaxStep(0.001f);
-
-// マルチサンプリングのサンプル数 (Oculus Rift)
-constexpr int backBufferMultisample(0);
 
 // 光源
 constexpr GgSimpleShader::Light lightData =

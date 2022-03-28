@@ -5,7 +5,7 @@
 //
 
 // 各種設定
-#include "config.h"
+#include "Config.h"
 
 // Leap Motion 関連の処理
 #include "LeapListener.h"
@@ -64,6 +64,9 @@ public:
 
   // 共有メモリを確保して初期化する
   static bool initialize(unsigned int local_size, unsigned int remote_size);
+
+  // シーンファイルを読み込む
+  bool read(const std::string& file, picojson::value& v) const;
 
   // シーングラフを読み込む
   Scene *load(const picojson::value &v, const GgSimpleShader *shader, int level);

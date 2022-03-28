@@ -76,20 +76,66 @@ static int Compare(const ovrGraphicsLuid& lhs, const ovrGraphicsLuid& rhs)
 //
 // コンストラクタ
 //
-Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, GLFWwindow *share)
-  : window(nullptr), camera(nullptr), session(nullptr)
-  , showScene(true), showMirror(true)
-  , oculusFbo{ 0, 0 }, mirrorFbo(0), mirrorTexture(nullptr)
-  , startPosition{ 0.0f, 0.0f, 0.0f }
-  , startOrientation{ 0.0f, 0.0f, 0.0f, 1.0f }
-  , initialOffset(defaultOffset), initialParallax(defaultParallax)
-  , zoomChange(0), focalChange(0), circleChange{ 0, 0, 0, 0 }
-  , key(GLFW_KEY_UNKNOWN), joy(-1)
+Window::Window(Config& defaults, GLFWwindow* share)
+  : defaults{ defaults }
+  , config{ defaults }
+  , window{ nullptr }
+  , camera{ nullptr }
+  , session{ nullptr }
+  , showScene{ true }
+  , showMirror{ true }
+  , oculusFbo{ 0, 0 }
+  , mirrorFbo{ 0 }
+  , mirrorTexture{ nullptr }
+  , initialOffset{ defaultOffset }
+  , initialParallax{ defaultParallax }
+  , zoomChange{ 0 }
+  , focalChange{ 0 }
+  , circleChange{ 0, 0, 0, 0 }
+  , key{ GLFW_KEY_UNKNOWN }
+  , joy{ -1 }
 #if OVR_PRODUCT_VERSION > 0
-  , frameIndex(0LL)
+  , frameIndex{ 0LL }
   , oculusDepth{ 0, 0 }
 #endif
 {
+  GLFWmonitor* monitor;
+  int windowWidth, windowHeight;
+
+  // フルスクリーン表示
+  if (config.display_fullscreen)
+  {
+    // 接続されているモニタの数を数える
+    int mcount;
+    GLFWmonitor** const monitors(glfwGetMonitors(&mcount));
+
+    // モニタの存在チェック
+    if (mcount == 0)
+    {
+      NOTIFY("GLFW の初期化をしていないか表示可能なディスプレイが見つかりません。");
+      exit(EXIT_FAILURE);
+    }
+
+    // セカンダリモニタがあればそれを使う
+    monitor = monitors[mcount > config.display_secondary ? config.display_secondary : 0];
+
+    // モニタのモードを調べる
+    const GLFWvidmode* mode(glfwGetVideoMode(monitor));
+
+    // ウィンドウのサイズをディスプレイのサイズにする
+    windowWidth = mode->width;
+    windowHeight = mode->height;
+  }
+  else
+  {
+    // プライマリモニタをウィンドウモードで使う
+    monitor = nullptr;
+
+    // ウィンドウのサイズにデフォルト値を設定する
+    windowWidth = config.display_width ? config.display_width : defaultWindowWidth;
+    windowHeight = config.display_height ? config.display_height : defaultWindowHeight;
+  }
+
   // 最初のインスタンスのときだけ true
   static bool firstTime(true);
 
@@ -101,7 +147,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
     qrStep[1].loadRotate(1.0f, 0.0f, 0.0f, 0.001f);
 
     // Oculus Rift に表示するとき
-    if (defaults.display_mode == OCULUS)
+    if (config.display_mode == OCULUS)
     {
       // Oculus Rift (LibOVR) を初期化する
       ovrInitParams initParams = { ovrInit_RequestVersion, OVR_MINOR_VERSION, NULL, 0, 0 };
@@ -138,7 +184,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
       // Oculus ではダブルバッファモードにしない
       glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
     }
-    else if (defaults.display_mode == QUADBUFFER)
+    else if (config.display_mode == QUADBUFFER)
     {
       // クワッドバッファステレオモードにする
       glfwWindowHint(GLFW_STEREO, GLFW_TRUE);
@@ -171,7 +217,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   }
 
   // GLFW のウィンドウを開く
-  const_cast<GLFWwindow *>(window) = glfwCreateWindow(width, height, title, monitor, share);
+  const_cast<GLFWwindow *>(window) = glfwCreateWindow(width, height, windowTitle, monitor, share);
 
   // ウィンドウが開かれたかどうか確かめる
   if (!window)
@@ -202,32 +248,6 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
 
     // 設定内容のパース
     picojson::object &o(v.get<picojson::object>());
-
-    // 初期位置
-    const auto &v_position(o.find("position"));
-    if (v_position != o.end() && v_position->second.is<picojson::array>())
-    {
-      picojson::array &p(v_position->second.get<picojson::array>());
-      for (int i = 0; i < 3; ++i) startPosition[i] = static_cast<GLfloat>(p[i].get<double>());
-    }
-
-    // 初期姿勢
-    const auto &v_orientation(o.find("orientation"));
-    if (v_orientation != o.end() && v_orientation->second.is<picojson::array>())
-    {
-      picojson::array &a(v_orientation->second.get<picojson::array>());
-      for (int i = 0; i < 4; ++i) startOrientation[i] = static_cast<GLfloat>(a[i].get<double>());
-    }
-
-    // 初期ズーム率
-    const auto &v_zoom(o.find("zoom"));
-    if (v_zoom != o.end() && v_zoom->second.is<double>())
-      zoomChange = static_cast<int>(v_zoom->second.get<double>());
-
-    // 焦点距離の初期値
-    const auto &v_focal(o.find("focal"));
-    if (v_focal != o.end() && v_focal->second.is<double>())
-      focalChange = static_cast<int>(v_focal->second.get<double>());
 
     // 背景テクスチャの半径と中心位置の初期値
     const auto &v_circle(o.find("circle"));
@@ -275,7 +295,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   ggInit();
 
   // Oculus Rift への表示ではスワップ間隔を待たない
-  glfwSwapInterval(defaults.display_mode == OCULUS ? 0 : 1);
+  glfwSwapInterval(config.display_mode == OCULUS ? 0 : 1);
 
   // フルスクリーンモードでもマウスカーソルを表示する
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -399,11 +419,11 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
 #endif
 
       // ズーム率
-      const auto zf(zoom * defaults.display_near);
+      const auto zf(config.display_zoom * config.display_near);
 
       // 片目の透視投影変換行列を求める
       mp[eye].loadFrustum(-fov.LeftTan * zf, fov.RightTan * zf, -fov.DownTan * zf, fov.UpTan * zf,
-        defaults.display_near, defaults.display_far);
+        config.display_near, config.display_far);
 
       // 片目のスクリーンのサイズと中心位置
       screen[eye][0] = (fov.RightTan + fov.LeftTan) * 0.5f;
@@ -584,24 +604,6 @@ Window::~Window()
   {
     picojson::object o;
 
-    // 位置
-    picojson::array p(3);
-    p[0] = picojson::value(ox);
-    p[1] = picojson::value(oy);
-    p[2] = picojson::value(oz);
-    o.insert(std::make_pair("position", picojson::value(p)));
-
-    // 姿勢
-    picojson::array a;
-    for (int i = 0; i < 4; ++i) a.push_back(picojson::value(trackball.getQuaternion().get()[i]));
-    o.insert(std::make_pair("orientation", picojson::value(a)));
-
-    // ズーム率
-    o.insert(std::make_pair("zoom", picojson::value(static_cast<double>(zoomChange))));
-
-    // 焦点距離
-    o.insert(std::make_pair("focal", picojson::value(static_cast<double>(focalChange))));
-
     // 背景テクスチャの半径と中心位置
     picojson::array c;
     for (int i = 0; i < 4; ++i) c.push_back(picojson::value(static_cast<double>(circleChange[i])));
@@ -712,7 +714,7 @@ Window::operator bool()
 #endif
 
   // 速度を距離に比例させる
-  const auto speedFactor((fabs(oz) + 0.2f));
+  const auto speedFactor((fabs(config.position[2]) + 0.2f));
 
   //
   // ジョイスティックによる操作
@@ -738,18 +740,18 @@ Window::operator bool()
     if (axesCount > 3)
     {
       // 物体を左右に移動する
-      ox += (axes[0] - origin[0]) * axesSpeedFactor;
+      config.position[0] += (axes[0] - origin[0]) * axesSpeedFactor;
 
       // L ボタンか R ボタンを同時に押していれば
       if (lrButton)
       {
         // 物体を前後に移動する
-        oz += (axes[1] - origin[1]) * axesSpeedFactor;
+        config.position[2] += (axes[1] - origin[1]) * axesSpeedFactor;
       }
       else
       {
         // 物体を上下に移動する
-        oy += (axes[1] - origin[1]) * axesSpeedFactor;
+        config.position[1] += (axes[1] - origin[1]) * axesSpeedFactor;
       }
 
       // 物体を左右に回転する
@@ -811,7 +813,12 @@ Window::operator bool()
       else
       {
         // 焦点距離を調整する
-        focal = focalStep / (focalStep - static_cast<GLfloat>(focalChange += zoomButton));
+        const int change{ focalChange + zoomButton };
+        if (change < focalMax)
+        {
+          focalChange = change;
+          config.display_focal = defaults.display_focal * focalMax / (focalMax - change);
+        }
       }
     }
 
@@ -825,12 +832,12 @@ Window::operator bool()
       if (lrButton)
       {
         // 背景に対する横方向の画角を調整する
-        circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(circleChange[0] += textureXButton) * shiftStep;
+        config.circle[0] = defaults.circle[0] + static_cast<GLfloat>(circleChange[0] += textureXButton) * shiftStep;
       }
       else
       {
         // 背景の横位置を調整する
-        circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(circleChange[2] += textureXButton) * shiftStep;
+        config.circle[2] = defaults.circle[2] + static_cast<GLfloat>(circleChange[2] += textureXButton) * shiftStep;
       }
     }
 
@@ -844,12 +851,12 @@ Window::operator bool()
       if (lrButton)
       {
         // 背景に対する縦方向の画角を調整する
-        circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(circleChange[1] += textureYButton) * shiftStep;
+        config.circle[1] = defaults.circle[1] + static_cast<GLfloat>(circleChange[1] += textureYButton) * shiftStep;
       }
       else
       {
         // 背景の縦位置を調整する
-        circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(circleChange[3] += textureYButton) * shiftStep;
+        config.circle[3] = defaults.circle[3] + static_cast<GLfloat>(circleChange[3] += textureYButton) * shiftStep;
       }
     }
 
@@ -894,8 +901,8 @@ Window::operator bool()
   {
     // 物体の位置を移動する
     const auto speed(speedScale * speedFactor);
-    ox += static_cast<GLfloat>(x - cx) * speed;
-    oy += static_cast<GLfloat>(cy - y) * speed;
+    config.position[0] += static_cast<GLfloat>(x - cx) * speed;
+    config.position[1] += static_cast<GLfloat>(cy - y) * speed;
     cx = x;
     cy = y;
   }
@@ -932,14 +939,14 @@ Window::operator bool()
     else if (ctrlKey)
     {
       // 背景に対する横方向の画角を広げる
-      circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(++circleChange[0]) * shiftStep;
+      config.circle[0] = defaults.circle[0] + static_cast<GLfloat>(++circleChange[0]) * shiftStep;
     }
     else if (shiftKey)
     {
       // 背景を右にずらす
-      circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(++circleChange[2]) * shiftStep;
+      config.circle[2] = defaults.circle[2] + static_cast<GLfloat>(++circleChange[2]) * shiftStep;
     }
-    else if (defaults.display_mode != MONO)
+    else if (config.display_mode != MONO)
     {
       // スクリーンの間隔を拡大する
       offset += offsetStep;
@@ -958,14 +965,14 @@ Window::operator bool()
     else if (ctrlKey)
     {
       // 背景に対する横方向の画角を狭める
-      circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(--circleChange[0]) * shiftStep;
+      config.circle[0] = defaults.circle[0] + static_cast<GLfloat>(--circleChange[0]) * shiftStep;
     }
     else if (shiftKey)
     {
       // 背景を左にずらす
-      circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(--circleChange[2]) * shiftStep;
+      config.circle[2] = defaults.circle[2] + static_cast<GLfloat>(--circleChange[2]) * shiftStep;
     }
-    else if (defaults.display_mode != MONO)
+    else if (config.display_mode != MONO)
     {
       // 視差を縮小する
       offset -= offsetStep;
@@ -984,17 +991,22 @@ Window::operator bool()
     else if (ctrlKey)
     {
       // 背景に対する縦方向の画角を広げる
-      circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(++circleChange[1]) * shiftStep;
+      config.circle[1] = defaults.circle[1] + static_cast<GLfloat>(++circleChange[1]) * shiftStep;
     }
     else if (shiftKey)
     {
       // 背景を上にずらす
-      circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(++circleChange[3]) * shiftStep;
+      config.circle[3] = defaults.circle[3] + static_cast<GLfloat>(++circleChange[3]) * shiftStep;
     }
     else
     {
       // 焦点距離を延ばす
-      focal = focalStep / (focalStep - static_cast<GLfloat>(++focalChange));
+      const int change{ focalChange + 1 };
+      if (change < focalMax)
+      {
+        focalChange = change;
+        config.display_focal = defaults.display_focal * focalMax / (focalMax - change);
+      }
     }
   }
 
@@ -1010,17 +1022,22 @@ Window::operator bool()
     else if (ctrlKey)
     {
       // 背景に対する縦方向の画角を狭める
-      circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(--circleChange[1]) * shiftStep;
+      config.circle[1] = defaults.circle[2] + static_cast<GLfloat>(--circleChange[1]) * shiftStep;
     }
     else if (shiftKey)
     {
       // 背景を下にずらす
-      circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(--circleChange[3]) * shiftStep;
+      config.circle[3] = defaults.circle[3] + static_cast<GLfloat>(--circleChange[3]) * shiftStep;
     }
     else
     {
       // 焦点距離を縮める
-      focal = focalStep / (focalStep - static_cast<GLfloat>(--focalChange));
+      const int change{ focalChange - 1 };
+      if (change < focalMax)
+      {
+        focalChange = change;
+        config.display_focal = defaults.display_focal * focalMax / (focalMax - change);
+      }
     }
   }
 
@@ -1038,9 +1055,12 @@ Window::operator bool()
   if (glfwGetKey(window, GLFW_KEY_Z))
   {
     // ズーム率を調整する
-    if (shiftKey) ++zoomChange; else --zoomChange;
-    zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
-      + zoomChange * zoomStep;
+    const int change{ zoomChange + (shiftKey ? 1 : -1) };
+    if (change < zoomMax)
+    {
+      zoomChange = change;
+      config.display_zoom = defaults.display_zoom * zoomMax / (zoomMax - change);
+    }
 
     // 透視投影変換行列を更新する
     updateProjectionMatrix();
@@ -1148,7 +1168,7 @@ bool Window::start()
   }
 
   // モデル変換行列を設定する
-  mm = ggTranslate(ox, oy, -oz) * trackball.getMatrix();
+  mm = ggTranslate(config.position[0], config.position[1], -config.position[2]) * trackball.getMatrix();
 
   // モデル変換行列を共有メモリに保存する
   Scene::setup(mm);
@@ -1237,7 +1257,7 @@ void Window::select(int eye)
   }
 
   // Oculus Rift 以外に表示する
-  switch (defaults.display_mode)
+  switch (config.display_mode)
   {
 	case MONO:
 
@@ -1418,7 +1438,7 @@ void Window::resize(GLFWwindow *window, int width, int height)
     // Oculus Rift 使用時以外
     if (!instance->session)
     {
-      if (defaults.display_mode == LINEBYLINE)
+      if (instance->config.display_mode == LINEBYLINE)
       {
         // VR 室のディスプレイでは表示領域の横半分をビューポートにする
         width /= 2;
@@ -1429,12 +1449,12 @@ void Window::resize(GLFWwindow *window, int width, int height)
       else
       {
         // リサイズ後のディスプレイののアスペクト比を求める
-        instance->aspect = defaults.display_aspect
-          ? defaults.display_aspect
+        instance->aspect = instance->config.display_aspect
+          ? instance->config.display_aspect
           : static_cast<GLfloat>(width) / static_cast<GLfloat>(height);
 
         // リサイズ後のビューポートを設定する
-        switch (defaults.display_mode)
+        switch (instance->config.display_mode)
         {
         case SIDEBYSIDE:
 
@@ -1459,8 +1479,8 @@ void Window::resize(GLFWwindow *window, int width, int height)
     instance->height = height;
 
     // 背景描画用のメッシュの縦横の格子点数を求める
-    instance->samples[0] = static_cast<GLsizei>(sqrt(instance->aspect * defaults.camera_texture_samples));
-    instance->samples[1] = defaults.camera_texture_samples / instance->samples[0];
+    instance->samples[0] = static_cast<GLsizei>(sqrt(instance->aspect * instance->config.camera_texture_samples));
+    instance->samples[1] = instance->config.camera_texture_samples / instance->samples[0];
 
     // 背景描画用のメッシュの縦横の格子間隔を求める
     instance->gap[0] = 2.0f / static_cast<GLfloat>(instance->samples[0] - 1);
@@ -1554,8 +1574,12 @@ void Window::wheel(GLFWwindow *window, double x, double y)
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
     {
       // ズーム率を調整する
-      instance->zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
-        + static_cast<GLfloat>(instance->zoomChange += static_cast<int>(y)) * zoomStep;
+      const int change{ instance->zoomChange + static_cast<int>(y) };
+      if (change < zoomMax)
+      {
+        instance->zoomChange = change;
+        instance->config.display_zoom = instance->defaults.display_zoom * zoomMax / (zoomMax - change);
+      }
 
       // 透視投影変換行列を更新する
       instance->updateProjectionMatrix();
@@ -1563,8 +1587,8 @@ void Window::wheel(GLFWwindow *window, double x, double y)
     else
     {
       // 物体を前後に移動する
-      const GLfloat advSpeed((fabs(instance->oz) * 5.0f + 1.0f) * wheelYStep * static_cast<GLfloat>(y));
-      instance->oz += advSpeed;
+      const GLfloat advSpeed((fabs(instance->config.position[2]) * 5.0f + 1.0f) * wheelYStep * static_cast<GLfloat>(y));
+      instance->config.position[2] += advSpeed;
     }
   }
 }
@@ -1594,6 +1618,7 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
       // キーボード操作による処理
       switch (key)
       {
+      case GLFW_KEY_HOME:
       case GLFW_KEY_R:
 
         // 設定をリセットする
@@ -1646,32 +1671,25 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
 void Window::reset()
 {
   // 物体の位置
-  ox = startPosition[0];
-  oy = startPosition[1];
-  oz = startPosition[2];
+  config.position = defaults.position;
 
   // 物体の回転
-  trackball.reset();
-  trackball.rotate(ggQuaternion(startOrientation));
+  trackball.reset(defaults.orientation);
 
   // ズーム率
-  zoom = (defaults.display_zoom != 0.0f ? 1.0f / defaults.display_zoom : 1.0f)
-    + static_cast<GLfloat>(zoomChange) * zoomStep;
+  config.display_zoom = defaults.display_zoom;
 
   // 焦点距離
-  focal = focalStep / (focalStep - static_cast<GLfloat>(focalChange));
+  config.display_focal = defaults.display_focal;
 
   // 背景テクスチャの半径と中心位置
-  circle[0] = defaults.fisheye_fov_x + static_cast<GLfloat>(circleChange[0]) * shiftStep;
-  circle[1] = defaults.fisheye_fov_y + static_cast<GLfloat>(circleChange[1]) * shiftStep;
-  circle[2] = defaults.fisheye_center_x + static_cast<GLfloat>(circleChange[2]) * shiftStep;
-  circle[3] = defaults.fisheye_center_y + static_cast<GLfloat>(circleChange[3]) * shiftStep;
+  config.circle = defaults.circle;
 
   // スクリーンの間隔
   offset = initialOffset;
 
   // 視差
-  parallax = defaults.display_mode != MONO ? initialParallax : 0.0f;
+  parallax = config.display_mode != MONO ? initialParallax : 0.0f;
 }
 
 //
@@ -1706,24 +1724,24 @@ void Window::updateProjectionMatrix()
 #endif
 
       // ズーム率
-      const auto zf(zoom * defaults.display_near);
+      const auto zf(zoom * config.display_near);
 
       // 片目の透視投影変換行列を求める
       mp[eye].loadFrustum(-fov.LeftTan * zf, fov.RightTan * zf, -fov.DownTan * zf, fov.UpTan * zf,
-        defaults.display_near, defaults.display_far);
+        config.display_near, config.display_far);
     }
   }
   else
   {
     // ズーム率
-    const auto zf(zoom * defaults.display_near);
+    const auto zf(zoom * config.display_near);
 
     // スクリーンの高さと幅
-    const auto screenHeight(defaults.display_center / defaults.display_distance);
+    const auto screenHeight(config.display_center / config.display_distance);
     const auto screenWidth(screenHeight * aspect);
 
     // 視差によるスクリーンのシフト量
-    GLfloat shift(parallax * defaults.display_near / defaults.display_distance);
+    GLfloat shift(parallax * config.display_near / config.display_distance);
 
     // 左目の視野
     const GLfloat fovL[] =
@@ -1736,7 +1754,7 @@ void Window::updateProjectionMatrix()
 
     // 左目の透視投影変換行列を求める
     mp[ovrEye_Left].loadFrustum(fovL[0] * zf, fovL[1] * zf, fovL[2] * zf, fovL[3] * zf,
-      defaults.display_near, defaults.display_far);
+      config.display_near, config.display_far);
 
     // 左目のスクリーンのサイズと中心位置
     screen[ovrEye_Left][0] = (fovL[1] - fovL[0]) * 0.5f;
@@ -1745,7 +1763,7 @@ void Window::updateProjectionMatrix()
     screen[ovrEye_Left][3] = (fovL[3] + fovL[2]) * 0.5f;
 
     // Oculus Rift 以外の立体視表示の場合
-    if (defaults.display_mode != MONO)
+    if (config.display_mode != MONO)
     {
       // 右目の視野
       const GLfloat fovR[] =
@@ -1758,7 +1776,7 @@ void Window::updateProjectionMatrix()
 
       // 右の透視投影変換行列を求める
       mp[ovrEye_Right].loadFrustum(fovR[0] * zf, fovR[1] * zf, fovR[2] * zf, fovR[3] * zf,
-        defaults.display_near, defaults.display_far);
+        config.display_near, config.display_far);
 
       // 右目のスクリーンのサイズと中心位置
       screen[ovrEye_Right][0] = (fovR[1] - fovR[0]) * 0.5f;

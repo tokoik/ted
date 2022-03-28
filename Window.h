@@ -5,7 +5,7 @@
 //
 
 // 各種設定
-#include "config.h"
+#include "Config.h"
 
 // Dear ImGui を使う
 #include "imgui.h"
@@ -34,6 +34,12 @@
 //
 class Window
 {
+  // 設定
+  const Config& defaults;
+
+  // 設定のコピー
+  Config config;
+
   // ウィンドウの識別子
   GLFWwindow *const window;
 
@@ -68,17 +74,8 @@ class Window
   // モデル変換
   //
 
-  // 物体の位置
-  GLfloat ox, oy, oz;
-
-  // 物体の初期位置
-  GLfloat startPosition[3];
-
   // トラックボール処理
   GgTrackball trackball;
-
-  // 物体の初期姿勢
-  GLfloat startOrientation[4];
 
   // モデル変換行列
   GgMatrix mm;
@@ -109,9 +106,6 @@ class Window
   // 投影変換
   //
 
-  // 物体に対するズーム率
-  GLfloat zoom;
-
   // ズーム率の変化量
   int zoomChange;
 
@@ -129,7 +123,7 @@ class Window
   //
 
   // スクリーンの幅と高さ
-  GLfloat screen[camCount][4];
+  GgVector screen[camCount];
 
   // スクリーンの間隔
   GLfloat offset;
@@ -137,14 +131,8 @@ class Window
   // スクリーンの間隔の変化量
   GLfloat initialOffset;
 
-  // 焦点距離
-  GLfloat focal;
-
   // 焦点距離の変化量
   int focalChange;
-
-  // 背景テクスチャの半径と中心
-  GLfloat circle[4];
 
   // 背景テクスチャの半径と中心の変化量
   int circleChange[4];
@@ -203,9 +191,7 @@ public:
   //
   // コンストラクタ
   //
-  Window(int width = 640, int height = 480, const char *title = "GLFW Window"
-    , GLFWmonitor *monitor = nullptr, GLFWwindow *share = nullptr
-  );
+  Window(Config& config, GLFWwindow* share = nullptr);
 
   //
   // コピーコンストラクタを封じる
@@ -395,7 +381,7 @@ public:
   //
   // スクリーンの幅と高さを取り出す
   //
-  const GLfloat *getScreen(int eye) const
+  const GgVector& getScreen(int eye) const
   {
     return screen[eye];
   }
@@ -405,7 +391,7 @@ public:
   //
   GLfloat getFocal() const
   {
-    return focal;
+    return config.display_focal;
   }
 
   //
@@ -419,9 +405,9 @@ public:
   //
   // 背景テクスチャの半径と中心を取り出す
   //
-  const GLfloat *getCircle() const
+  const GgVector& getCircle() const
   {
-    return circle;
+    return config.circle;
   }
 
   //

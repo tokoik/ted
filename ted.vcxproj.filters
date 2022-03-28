@@ -16,6 +16,9 @@
     <Filter Include="シェーダー ファイル">
       <UniqueIdentifier>{361ff517-d8e0-428a-93f8-23ccc45b62e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ImGui">
+      <UniqueIdentifier>{376ccfa5-b86c-457b-a047-2a9693862c44}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Network.h">
@@ -36,7 +39,7 @@
     <ClInclude Include="CamRemote.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="config.h">
+    <ClInclude Include="Config.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="gg.h">
@@ -80,7 +83,7 @@
     <ClCompile Include="CamRemote.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="config.cpp">
+    <ClCompile Include="Config.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="gg.cpp">
@@ -107,26 +110,26 @@
     <ClCompile Include="Window.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="libs\ImGui\imgui.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="C:\libs\ImGui\imgui.cpp">
+      <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="libs\ImGui\imgui_draw.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="C:\libs\ImGui\imgui_draw.cpp">
+      <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="libs\ImGui\imgui_impl_glfw.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="C:\libs\ImGui\imgui_impl_glfw.cpp">
+      <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="libs\ImGui\imgui_impl_opengl3.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="C:\libs\ImGui\imgui_impl_opengl3.cpp">
+      <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="libs\ImGui\imgui_tables.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="C:\libs\ImGui\imgui_tables.cpp">
+      <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="libs\ImGui\imgui_widgets.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="C:\libs\ImGui\imgui_widgets.cpp">
+      <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="libs\ImGui\nfd_win.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="C:\libs\ImGui\nfd_win.cpp">
+      <Filter>ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
