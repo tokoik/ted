@@ -7,9 +7,6 @@
 // 各種設定
 #include "Config.h"
 
-// Dear ImGui を使う
-#include "imgui.h"
-
 // カメラ関連の処理
 #include "Camera.h"
 
@@ -29,6 +26,9 @@
 #include <OVR_CAPI_GL.h>
 #include <Extras/OVR_Math.h>
 
+// Dear ImGui を使う
+#include "imgui.h"
+
 //
 // ウィンドウ関連の処理を担当するクラス
 //
@@ -41,10 +41,10 @@ class Window
   Config config;
 
   // ウィンドウの識別子
-  GLFWwindow *const window;
+  GLFWwindow* const window;
 
   // このウィンドウで制御するカメラ
-  Camera *camera;
+  Camera* camera;
 
   // ビューポートの幅と高さ
   int width, height;
@@ -53,10 +53,10 @@ class Window
   GLfloat aspect;
 
   // メッシュの縦横の格子点数
-  GLsizei samples[2];
+  std::array<GLsizei, 2> samples;
 
   // メッシュの縦横の格子間隔
-  GLfloat gap[2];
+  std::array<GLfloat, 2> gap;
 
   // 最後にタイプしたキー
   int key;
@@ -65,7 +65,7 @@ class Window
   int joy;
 
   // スティックの中立位置
-  float origin[4];
+  std::array<float, 4> origin;
 
   // ドラッグ開始位置
   double cx, cy;
@@ -81,26 +81,23 @@ class Window
   GgMatrix mm;
 
   // ヘッドトラッキングの変換行列
-  GgMatrix mo[camCount];
+  std::array<GgMatrix, camCount> mo;
 
   //
   // ビュー変換
   //
 
   // ヘッドトラッキングによる回転
-  GgQuaternion qo[camCount];
+  std::array<GgQuaternion, camCount> qo;
 
   // ヘッドトラッキングによる位置
-  GgVector po[camCount];
-
-  // カメラ方向の補正値
-  GgQuaternion qa[camCount];
+  std::array<GgVector, camCount> po;
 
   // カメラ方向の補正ステップ
-  static GgQuaternion qrStep[2];
+  static std::array<GgQuaternion, camCount> qrStep;
 
   // ビュー変換
-  GgMatrix mv[camCount];
+  std::array<GgMatrix, camCount> mv;
 
   //
   // 投影変換
@@ -109,33 +106,21 @@ class Window
   // ズーム率の変化量
   int zoomChange;
 
-  // 視差
-  GLfloat parallax;
-
-  // 視差の初期値
-  GLfloat initialParallax;
-
   // 投影変換
-  GgMatrix mp[camCount];
+  std::array<GgMatrix, camCount> mp;
 
   //
   // 背景画像
   //
 
   // スクリーンの幅と高さ
-  GgVector screen[camCount];
-
-  // スクリーンの間隔
-  GLfloat offset;
-
-  // スクリーンの間隔の変化量
-  GLfloat initialOffset;
+  std::array<GgVector, camCount> screen;
 
   // 焦点距離の変化量
   int focalChange;
 
   // 背景テクスチャの半径と中心の変化量
-  int circleChange[4];
+  std::array<int, 4> circleChange;
 
   //
   // Oculus Rift
@@ -158,22 +143,22 @@ class Window
   ovrLayerEyeFov layerData;
 
   // Oculus Rift 表示用の FBO のデプステクスチャ
-  GLuint oculusDepth[ovrEye_Count];
+  std::array<GLuint, ovrEye_Count> oculusDepth;
 
   // ミラー表示用の FBO のカラーテクスチャ
   ovrMirrorTexture mirrorTexture;
 #else
   // Oculus Rift のレンダリング情報
-  ovrEyeRenderDesc eyeRenderDesc[ovrEye_Count];
+  std::array<ovrEyeRenderDesc, ovrEye_Count> eyeRenderDesc;
 
   // Oculus Rift の視点情報
-  ovrPosef eyePose[ovrEye_Count];
+  std::array<ovrPosef, ovrEye_Count> eyePose;
 
   // Oculus Rift に転送する描画データ
   ovrLayer_Union layerData;
 
   // ミラー表示用の FBO のカラーテクスチャ
-  ovrGLTexture *mirrorTexture;
+  ovrGLTexture* mirrorTexture;
 #endif
 
   // ミラー表示用の FBO
@@ -196,12 +181,12 @@ public:
   //
   // コピーコンストラクタを封じる
   //
-  Window(const Window &w) = delete;
+  Window(const Window& w) = delete;
 
   //
   // 代入を封じる
   //
-  Window &operator=(const Window &w) = delete;
+  Window& operator=(const Window& w) = delete;
 
   //
   // デストラクタ
@@ -211,7 +196,7 @@ public:
   //
   // ウィンドウの識別子の取得
   //
-  GLFWwindow *get() const
+  GLFWwindow* get() const
   {
     return window;
   }
@@ -260,28 +245,37 @@ public:
   //   ・ウィンドウのサイズ変更時にコールバック関数として呼び出される
   //   ・ウィンドウの作成時には明示的に呼び出す
   //
-  static void resize(GLFWwindow *window, int width, int height);
+  static void resize(GLFWwindow* window, int width, int height);
 
   //
   // マウスボタンを操作したときの処理
   //
   //   ・マウスボタンを押したときにコールバック関数として呼び出される
   //
-  static void mouse(GLFWwindow *window, int button, int action, int mods);
+  static void mouse(GLFWwindow* window, int button, int action, int mods);
 
   //
   // マウスホイール操作時の処理
   //
   //   ・マウスホイールを操作した時にコールバック関数として呼び出される
   //
-  static void wheel(GLFWwindow *window, double x, double y);
+  static void wheel(GLFWwindow* window, double x, double y);
 
   //
   // キーボードをタイプした時の処理
   //
   //   ．キーボードをタイプした時にコールバック関数として呼び出される
   //
-  static void keyboard(GLFWwindow *window, int key, int scancode, int action, int mods);
+  static void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+  //
+  // 設定値の保存
+  // 
+  bool save(const std::string& file)
+  {
+    config.orientation = trackball.getQuaternion();
+    return config.save(file);
+  }
 
   //
   // 設定値の初期化
@@ -291,7 +285,7 @@ public:
   //
   // このウィンドウで制御するカメラを設定する
   //
-  void setControlCamera(Camera *cam)
+  void setControlCamera(Camera* cam)
   {
     camera = cam;
   }
@@ -309,7 +303,7 @@ public:
   //
   // モデル変換行列を得る
   //
-  const GgMatrix &getMm() const
+  const GgMatrix& getMm() const
   {
     return mm;
   }
@@ -317,7 +311,7 @@ public:
   //
   // ビュー変換行列を得る
   //
-  const GgMatrix &getMv(int eye) const
+  const GgMatrix& getMv(int eye) const
   {
     return mv[eye];
   }
@@ -325,7 +319,7 @@ public:
   //
   // Oculus Rift のヘッドラッキングによる移動を得る
   //
-  const GgVector &getPo(int eye) const
+  const GgVector& getPo(int eye) const
   {
     return po[eye];
   }
@@ -333,7 +327,7 @@ public:
   //
   // Oculus Rift のヘッドラッキングによる回転の四元数を得る
   //
-  const GgQuaternion &getQo(int eye) const
+  const GgQuaternion& getQo(int eye) const
   {
     return qo[eye];
   }
@@ -341,15 +335,15 @@ public:
   //
   // Oculus Rift のヘッドラッキングによる回転の補正値の四元数を得る
   //
-  const GgQuaternion &getQa(int eye) const
+  const GgQuaternion& getQa(int eye) const
   {
-    return qa[eye];
+    return config.parallax_offset[eye];
   }
 
   //
   // Oculus Rift のヘッドラッキングによる回転の変換行列を得る
   //
-  const GgMatrix &getMo(int eye) const
+  const GgMatrix& getMo(int eye) const
   {
     return mo[eye];
   }
@@ -357,7 +351,7 @@ public:
   //
   // プロジェクション変換行列を得る
   //
-  const GgMatrix &getMp(int eye) const
+  const GgMatrix& getMp(int eye) const
   {
     return mp[eye];
   }
@@ -365,17 +359,17 @@ public:
   //
   // メッシュの縦横の格子点数を取り出す
   //
-  const GLsizei *getSamples() const
+  const GLsizei* getSamples() const
   {
-    return samples;
+    return samples.data();
   }
 
   //
   // メッシュの縦横の格子間隔を取り出す
   //
-  const GLfloat *getGap() const
+  const GLfloat* getGap() const
   {
-    return gap;
+    return gap.data();
   }
 
   //
@@ -399,7 +393,7 @@ public:
   //
   GLfloat getOffset(int eye = 0) const
   {
-    return static_cast<GLfloat>(1 - (eye & 1) * 2) * offset;
+    return static_cast<GLfloat>(1 - (eye & 1) * 2) * config.display_offset;
   }
 
   //

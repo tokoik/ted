@@ -18,6 +18,12 @@
 #  endif
 #endif
 
+// Ovrvision Pro
+OVR::OvrvisionPro *CamOv::ovrvision_pro(nullptr);
+
+// 接続されている Ovrvision Pro の台数
+int CamOv::count(0);
+
 // コンストラクタ
 CamOv::CamOv()
 {
@@ -54,8 +60,8 @@ void CamOv::capture()
       ovrvision_pro->PreStoreCamData(OVR::Camqt::OV_CAMQT_DMS);
 
       // 左右のフレームのポインタを取り出して
-      auto *const bufferL(ovrvision_pro->GetCamImageBGRA(OVR::OV_CAMEYE_LEFT));
-      auto *const bufferR(ovrvision_pro->GetCamImageBGRA(OVR::OV_CAMEYE_RIGHT));
+      auto* const bufferL(ovrvision_pro->GetCamImageBGRA(OVR::OV_CAMEYE_LEFT));
+      auto* const bufferR(ovrvision_pro->GetCamImageBGRA(OVR::OV_CAMEYE_RIGHT));
 
       // 両方ともフレームが取り出せていたら
       if (bufferL && bufferR)
@@ -145,9 +151,3 @@ void CamOv::decreaseGain()
 {
   if (ovrvision_pro && gain > 0) ovrvision_pro->SetCameraGain(--gain);
 }
-
-// Ovrvision Pro
-OVR::OvrvisionPro *CamOv::ovrvision_pro(nullptr);
-
-// 接続されている Ovrvision Pro の台数
-int CamOv::count(0);

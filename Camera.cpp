@@ -22,13 +22,15 @@
 
 // コンストラクタ
 Camera::Camera()
+  : recvbuf{ nullptr }
+  , sendbuf{ nullptr }
+  , format{ GL_BGR }
+  , size{}
+  , capture_interval{ minDelay * 0.001 }
+  , interval{}
+  , exposure{ 0 }
+  , gain{ 0 }
 {
-  // 作業用のメモリ領域
-  recvbuf = sendbuf = nullptr;
-
-  // キャプチャされる画像のフォーマット
-  format = GL_BGR;
-
   for (int cam = 0; cam < camCount; ++cam)
   {
     // 画像がまだ取得されていないことを記録しておく
@@ -85,7 +87,7 @@ void Camera::stop()
 }
 
 // カメラをロックして画像をテクスチャに転送する
-bool Camera::transmit(int cam, GLuint texture, const GLsizei *size)
+bool Camera::transmit(int cam, GLuint texture, const GLsizei* size)
 {
   // カメラのロックを試みる
   if (captureMutex[cam].try_lock())
@@ -119,7 +121,7 @@ void Camera::recv()
   while (run[camL])
   {
     // 姿勢データを受信する
-    const int ret(network.recvData(recvbuf, maxFrameSize));
+    const int ret{ network.recvData(recvbuf, maxFrameSize) };
 
     // サイズが 0 なら終了する
     if (ret == 0) return;
@@ -128,13 +130,13 @@ void Camera::recv()
     if (ret > 0 && network.checkRemote())
     {
       // ヘッダのフォーマット
-      unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
+      unsigned int* const head{ reinterpret_cast<unsigned int*>(recvbuf) };
 
       // 受信した変換行列の格納場所
-      GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));
+      GgMatrix* const body{ reinterpret_cast<GgMatrix*>(head + headLength) };
 
       // 変換行列を共有メモリに格納する (head[camCount] には変換行列の数が入っている)
-      remoteAttitude->store(body, head[camCount]);
+      Scene::storeRemoteAttitude(body, head[camCount]);
     }
 
     // 他のスレッドがリソースにアクセスするために少し待つ
@@ -152,25 +154,25 @@ void Camera::send()
   while (run[camL])
   {
     // ヘッダのフォーマット
-    unsigned int *const head(reinterpret_cast<unsigned int *>(sendbuf));
+    unsigned int* const head{ reinterpret_cast<unsigned int*>(sendbuf) };
 
     // 左右フレームのサイズを 0 にしておく
     head[camL] = head[camR] = 0;
 
     // 左右のフレームサイズの次に変換行列の数を保存する
-    head[camCount] = localAttitude->getSize();
+    head[camCount] = Scene::getLocalAttitudeSize();
 
     // 送信する変換行列の格納場所
-    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));
+    GgMatrix* const body{ reinterpret_cast<GgMatrix*>(head + headLength) };
 
     // 変換行列を共有メモリから取り出す
-    localAttitude->load(body, head[camCount]);
+    Scene::loadLocalAttitude(body, head[camCount]);
 
     // 左フレームの保存先 (変換行列の最後)
-    uchar *data(reinterpret_cast<uchar *>(body + head[camCount]));
+    uchar* data{ reinterpret_cast<uchar*>(body + head[camCount]) };
 
     // このフレームの遅延時間
-    long long delay(minDelay);
+    long long delay{ minDelay };
 
     // 左に新しいフレームが到着していれば
     if (!encoded[camL].empty())
@@ -219,10 +221,10 @@ void Camera::send()
       network.sendData(sendbuf, static_cast<unsigned int>(data - sendbuf));
 
       // 現在時刻
-      const double now(glfwGetTime());
+      const double now{ glfwGetTime() };
 
       // 次のフレームの送信時刻までの残り時間
-      const long long remain(static_cast<long long>(last + capture_interval - now));
+      const long long remain{ static_cast<long long>((last + capture_interval - now) * 1000.0) };
 
 #if defined(DEBUG)
       std::cerr << "send remain = " << remain << '\n';
@@ -244,7 +246,7 @@ void Camera::send()
 }
 
 // 作業者通信スレッド起動
-int Camera::startWorker(unsigned short port, const char *address)
+int Camera::startWorker(unsigned short port, const char* address)
 {
   // すでに確保されている作業用メモリを破棄する
   delete[] recvbuf, sendbuf;

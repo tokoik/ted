@@ -4,7 +4,7 @@
 #include "Rect.h"
 
 // コンストラクタ
-Rect::Rect(const std::string &vert, const std::string &frag)
+Rect::Rect(const std::string& vert, const std::string& frag)
   : shader(ggLoadShader(vert.c_str(), frag.c_str()))
   , gapLoc(glGetUniformLocation(shader, "gap"))
   , screenLoc(glGetUniformLocation(shader, "screen"))
@@ -30,7 +30,7 @@ GLuint Rect::get() const
 }
 
 // 格子間隔を設定する
-void Rect::setGap(const GLfloat *gap)
+void Rect::setGap(const GLfloat* gap)
 {
   this->gap = gap;
 }
@@ -57,7 +57,7 @@ void Rect::setCircle(const GgVector& circle, GLfloat offset)
 }
 
 // 描画
-void Rect::draw(GLint texture, const GgMatrix &rotation, const GLsizei* samples) const
+void Rect::draw(GLint texture, const GgMatrix& rotation, const GLsizei* samples) const
 {
   // シェーダプログラムを選択する
   glUseProgram(shader);

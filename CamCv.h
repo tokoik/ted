@@ -41,7 +41,7 @@ public:
   bool open(int device, int cam, const char* codec, double width, double height, double fps);
 
   // ファイル／ネットワークからキャプチャを開始する
-  bool open(const std::string &file, int cam);
+  bool open(const std::string& file, int cam);
 
   // カメラが使用可能か判定する
   bool opened(int cam);

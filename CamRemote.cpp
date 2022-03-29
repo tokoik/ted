@@ -54,7 +54,7 @@ CamRemote::~CamRemote()
 }
 
 // 操縦者側の起動
-int CamRemote::open(unsigned short port, const char *address, const GLfloat* fov, int samples)
+int CamRemote::open(unsigned short port, const char* address, const GLfloat* fov, int samples)
 {
   // すでに確保されている作業用メモリを破棄する
   delete[] sendbuf, recvbuf;
@@ -69,7 +69,7 @@ int CamRemote::open(unsigned short port, const char *address, const GLfloat* fov
   recvbuf = new uchar[maxFrameSize];
 
   // ヘッダのフォーマット
-  unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
+  unsigned int* const head(reinterpret_cast<unsigned int*>(recvbuf));
 
   // 1 フレーム受け取って
   for (int i = 0;;)
@@ -83,13 +83,13 @@ int CamRemote::open(unsigned short port, const char *address, const GLfloat* fov
   }
 
   // 受信した変換行列の格納場所
-  GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));
+  GgMatrix* const body(reinterpret_cast<GgMatrix*>(head + headLength));
 
   // 変換行列を共有メモリに格納する
-  remoteAttitude->store(body, head[camCount]);
+  Scene::storeRemoteAttitude(body, head[camCount]);
 
   // 左フレームの保存先 (変換行列の最後)
-  uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
+  uchar* const data(reinterpret_cast<uchar*>(body + head[camCount]));
 
   // 左フレームデータを vector に変換して
   encoded[camL].assign(data, data + head[camL]);
@@ -173,7 +173,7 @@ int CamRemote::open(unsigned short port, const char *address, const GLfloat* fov
 }
 
 // 左カメラをロックして画像をテクスチャに転送する
-bool CamRemote::transmit(int cam, GLuint texture, const GLsizei *size)
+bool CamRemote::transmit(int cam, GLuint texture, const GLsizei* size)
 {
   // 画像のサイズ
   const GLsizei fsize[] = { remote[cam].cols, remote[cam].rows };
@@ -232,16 +232,16 @@ void CamRemote::recv()
     if (ret > 0 && network.checkRemote())
     {
       // ヘッダのフォーマット
-      unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
+      unsigned int* const head(reinterpret_cast<unsigned int*>(recvbuf));
 
       // 受信した変換行列の格納場所
-      GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));
+      GgMatrix* const body(reinterpret_cast<GgMatrix*>(head + headLength));
 
       // 変換行列を共有メモリに格納する
-      remoteAttitude->store(body, head[camCount]);
+      Scene::storeRemoteAttitude(body, head[camCount]);
 
       // 左フレームの保存先 (変換行列の最後)
-      uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
+      uchar* const data(reinterpret_cast<uchar*>(body + head[camCount]));
 
       // リモートから取得したフレームのサイズ
       GLsizei rsize[camCount][2];
@@ -329,22 +329,22 @@ void CamRemote::send()
   while (run[camL])
   {
     // ヘッダのフォーマット
-    unsigned int *const head(reinterpret_cast<unsigned int *>(sendbuf));
+    unsigned int* const head(reinterpret_cast<unsigned int*>(sendbuf));
 
     // 左右のフレームのサイズは 0 にする
     head[camL] = head[camR] = 0;
 
     // 変換行列の数を保存する
-    head[camCount] = localAttitude->getSize();
+    head[camCount] = Scene::getLocalAttitudeSize();
 
     // 送信する変換行列の格納場所
-    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));
+    GgMatrix* const body(reinterpret_cast<GgMatrix*>(head + headLength));
 
     // 変換行列を共有メモリから取り出す
-    localAttitude->load(body, head[camCount]);
+    Scene::loadLocalAttitude(body, head[camCount]);
 
     // 左フレームの保存先 (変換行列の最後)
-    uchar *const data(reinterpret_cast<uchar *>(body + head[camCount]));
+    uchar* const data(reinterpret_cast<uchar*>(body + head[camCount]));
 
     // フレームを送信する
     network.sendData(sendbuf, static_cast<unsigned int>(data - sendbuf));

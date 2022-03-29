@@ -12,24 +12,38 @@ using namespace gg;
 #include "picojson.h"
 
 // ウィンドウのタイトル
-constexpr char windowTitle[] = "TED";
+constexpr char windowTitle[]{ "TED" };
 
 // ナビゲーションの速度調整
-constexpr int zoomMax(100);               // 物体のズーム率調整のステップ
-constexpr GLfloat shiftStep(0.001f);      // 背景テクスチャのシフト量調整のステップ
-constexpr int focalMax(100);              // 背景テクスチャのスケール調整のステップ
-constexpr GLfloat speedScale(0.005f);     // フレームあたりの移動速度係数
-constexpr GLfloat angleScale(-0.05f);     // フレームあたりの回転速度係数
-constexpr GLfloat wheelXStep(0.005f);     // マウスホイールの X 方向の係数
-constexpr GLfloat wheelYStep(0.005f);     // マウスホイールの Y 方向の係数
-constexpr GLfloat axesSpeedScale(0.01f);  // ゲームパッドのスティックの速度の係数
-constexpr GLfloat axesAngleScale(0.01f);  // ゲームパッドのスティックの角速度の係数
-constexpr GLfloat btnsScale(0.02f);       // ゲームパッドのボタンの係数
-constexpr GLfloat offsetStep(0.001f);     // スクリーンの間隔の変更ステップ
-constexpr GLfloat parallaxStep(0.001f);   // 視差の変更ステップ (単位 m)
+constexpr int zoomMax{ 100 };                           // 物体のズーム率調整のステップ
+constexpr GLfloat shiftStep{ 0.001f };                  // 背景テクスチャのシフト量調整のステップ
+constexpr int focalMax{ 100 };                          // 背景テクスチャのスケール調整のステップ
+constexpr GLfloat speedScale{ 0.005f };                 // フレームあたりの移動速度係数
+constexpr GLfloat angleScale{ -0.05f };                 // フレームあたりの回転速度係数
+constexpr GLfloat wheelXStep{ 0.005f };                 // マウスホイールの X 方向の係数
+constexpr GLfloat wheelYStep{ 0.005f };                 // マウスホイールの Y 方向の係数
+constexpr GLfloat axesSpeedScale{ 0.01f };              // ゲームパッドのスティックの速度の係数
+constexpr GLfloat axesAngleScale{ 0.01f };              // ゲームパッドのスティックの角速度の係数
+constexpr GLfloat btnsScale{ 0.02f };                   // ゲームパッドのボタンの係数
+constexpr GLfloat offsetStep{ 0.001f };                 // スクリーンの間隔の変更ステップ
+constexpr GLfloat parallaxStep{ 0.001f };               // 視差の変更ステップ (単位 m)
 
 // マルチサンプリングのサンプル数 (Oculus Rift)
 constexpr int backBufferMultisample(0);
+
+// ネットワーク設定
+constexpr int receiveRetry{ 30 };                       // 受信リトライ回数
+constexpr int maxDropPackets{ 1000 };                   // 読み飛ばすパケットの最大数
+constexpr long long minDelay{ 10 };                     // フレーム送信の最小間隔
+constexpr char encoderType[]{ ".jpg" };                 // エンコード方法
+
+// カメラの識別子と数
+enum CameraId { camL, camR, camCount };                 // ローカルカメラの数
+constexpr int remoteCamCount{ camCount };               // リモートカメラの数
+constexpr int headLength{ camCount + 1 };               // ヘッダの長さ
+
+// 作業用メモリのサイズ
+constexpr int maxFrameSize{ 1024 * 1024 };
 
 // 立体視の設定
 enum StereoMode
@@ -76,25 +90,26 @@ struct Config
   GLfloat display_aspect;
   GLfloat display_center;
   GLfloat display_distance;
-  GLfloat display_offset;
   GLfloat display_near;
   GLfloat display_far;
+  GLfloat display_offset;
   GLfloat display_zoom;
   GLfloat display_focal;
-  GLfloat display_parallax;
+  GLfloat parallax;
+  std::array<GgQuaternion, camCount> parallax_offset;
   std::string vertex_shader;
   std::string fragment_shader;
   int role;
   int port;
   std::string address;
-  std::array<unsigned int, 2> remote_delay;
+  std::array<unsigned int, camCount> remote_delay;
   bool remote_stabilize;
   bool remote_texture_reshape;
   int remote_texture_width;
   int remote_texture_height;
   int remote_texture_quality;
   int remote_texture_samples;
-  std::array<GLfloat, 2> remote_fov;
+  std::array<GLfloat, camCount> remote_fov;
   int local_share_size;
   int remote_share_size;
   GgVector position;
@@ -103,8 +118,8 @@ struct Config
   picojson::value scene;
   Config();
   virtual ~Config();
-  bool load(const std::string &file);
-  bool save(const std::string &file) const;
+  bool load(const std::string& file);
+  bool save(const std::string& file) const;
 };
 
 // 光源
@@ -127,24 +142,3 @@ constexpr GgSimpleShader::Material materialData =
 
 // テクスチャの境界色
 constexpr GLfloat borderColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-// エンコード方法
-constexpr char encoderType[] = ".jpg";
-
-// 受信リトライ回数
-constexpr int receiveRetry(30);
-
-// 読み飛ばすパケットの最大数
-constexpr int maxDropPackets(1000);
-
-// フレーム送信の最小間隔
-constexpr long long minDelay(10);
-
-// カメラの識別子と数
-enum CameraId { camL, camR, camCount };
-
-// リモートカメラの数
-constexpr int remoteCamCount(camCount);
-
-// ヘッダの長さ
-constexpr int headLength(camCount + 1);

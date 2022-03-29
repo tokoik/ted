@@ -5,6 +5,7 @@
 
 // コンストラクタ
 CamCv::CamCv()
+  : startTime{}
 {
 }
 
@@ -13,6 +14,10 @@ CamCv::~CamCv()
 {
   // スレッドを停止する
   stop();
+
+  // カメラを停止する
+  for (int cam = 0; cam < camCount; ++cam)
+    if (opened(cam)) camera[cam].release();
 }
 
 // カメラから入力する
@@ -29,7 +34,7 @@ bool CamCv::open(int device, int cam, const char* codec, double width, double he
 }
 
 // ファイル／ネットワークからキャプチャを開始する
-bool CamCv::open(const std::string &file, int cam)
+bool CamCv::open(const std::string& file, int cam)
 {
   // ファイル／ネットワークを開く
   return camera[cam].open(file) && start(cam);

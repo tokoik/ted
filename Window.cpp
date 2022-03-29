@@ -16,7 +16,7 @@
 #endif
 
 // Dear ImGui を使うとき
-#ifdef IMGUI_VERSION
+#if defined(IMGUI_VERSION)
 #  include "imgui_impl_glfw.h"
 #  include "imgui_impl_opengl3.h"
 #endif
@@ -27,11 +27,8 @@
 // 標準ライブラリ
 #include <fstream>
 
-// Oculus Rift の目の数と識別子
-constexpr int eyeCount(ovrEye_Count);
-
 // ジョイスティック番号の最大値
-constexpr int maxJoystick(4);
+constexpr int maxJoystick{ 4 };
 
 #if OVR_PRODUCT_VERSION > 0
 // GetDefaultAdapterLuid のため
@@ -56,7 +53,7 @@ static ovrGraphicsLuid GetDefaultAdapterLuid()
       DXGI_ADAPTER_DESC desc;
 
       adapter->GetDesc(&desc);
-      memcpy(&luid, &desc.AdapterLuid, sizeof (luid));
+      memcpy(&luid, &desc.AdapterLuid, sizeof(luid));
       adapter->Release();
     }
 
@@ -69,7 +66,7 @@ static ovrGraphicsLuid GetDefaultAdapterLuid()
 
 static int Compare(const ovrGraphicsLuid& lhs, const ovrGraphicsLuid& rhs)
 {
-  return memcmp(&lhs, &rhs, sizeof (ovrGraphicsLuid));
+  return memcmp(&lhs, &rhs, sizeof(ovrGraphicsLuid));
 }
 #endif
 
@@ -87,8 +84,6 @@ Window::Window(Config& defaults, GLFWwindow* share)
   , oculusFbo{ 0, 0 }
   , mirrorFbo{ 0 }
   , mirrorTexture{ nullptr }
-  , initialOffset{ defaultOffset }
-  , initialParallax{ defaultParallax }
   , zoomChange{ 0 }
   , focalChange{ 0 }
   , circleChange{ 0, 0, 0, 0 }
@@ -99,8 +94,7 @@ Window::Window(Config& defaults, GLFWwindow* share)
   , oculusDepth{ 0, 0 }
 #endif
 {
-  GLFWmonitor* monitor;
-  int windowWidth, windowHeight;
+  GLFWmonitor* monitor{ nullptr };
 
   // フルスクリーン表示
   if (config.display_fullscreen)
@@ -123,8 +117,8 @@ Window::Window(Config& defaults, GLFWwindow* share)
     const GLFWvidmode* mode(glfwGetVideoMode(monitor));
 
     // ウィンドウのサイズをディスプレイのサイズにする
-    windowWidth = mode->width;
-    windowHeight = mode->height;
+    width = mode->width;
+    height = mode->height;
   }
   else
   {
@@ -132,8 +126,8 @@ Window::Window(Config& defaults, GLFWwindow* share)
     monitor = nullptr;
 
     // ウィンドウのサイズにデフォルト値を設定する
-    windowWidth = config.display_width ? config.display_width : defaultWindowWidth;
-    windowHeight = config.display_height ? config.display_height : defaultWindowHeight;
+    width = config.display_width;
+    height = config.display_height;
   }
 
   // 最初のインスタンスのときだけ true
@@ -143,8 +137,8 @@ Window::Window(Config& defaults, GLFWwindow* share)
   if (firstTime)
   {
     // カメラ方向の調整ステップを求める
-    qrStep[0].loadRotate(0.0f, 1.0f, 0.0f, 0.001f);
-    qrStep[1].loadRotate(1.0f, 0.0f, 0.0f, 0.001f);
+    qrStep[0].loadRotate(0.0f, 1.0f, 0.0f, parallaxStep);
+    qrStep[1].loadRotate(1.0f, 0.0f, 0.0f, parallaxStep);
 
     // Oculus Rift に表示するとき
     if (config.display_mode == OCULUS)
@@ -201,7 +195,7 @@ Window::Window(Config& defaults, GLFWwindow* share)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-#ifdef IMGUI_VERSION
+#if defined(IMGUI_VERSION)
     // ImGui のバージョンをチェックする
     IMGUI_CHECKVERSION();
 
@@ -217,7 +211,7 @@ Window::Window(Config& defaults, GLFWwindow* share)
   }
 
   // GLFW のウィンドウを開く
-  const_cast<GLFWwindow *>(window) = glfwCreateWindow(width, height, windowTitle, monitor, share);
+  const_cast<GLFWwindow*>(window) = glfwCreateWindow(width, height, windowTitle, monitor, share);
 
   // ウィンドウが開かれたかどうか確かめる
   if (!window)
@@ -232,54 +226,7 @@ Window::Window(Config& defaults, GLFWwindow* share)
   //
 
   // ヘッドトラッキングの変換行列を初期化する
-  for (auto &m : mo) m = ggIdentity();
-
-  // カメラの補正値を初期化する
-  for (auto &q : qa) q = ggIdentityQuaternion();
-
-  // 初期設定を読み込む
-  std::ifstream attitude("attitude.json");
-  if (attitude)
-  {
-    // 設定内容の読み込み
-    picojson::value v;
-    attitude >> v;
-    attitude.close();
-
-    // 設定内容のパース
-    picojson::object &o(v.get<picojson::object>());
-
-    // 背景テクスチャの半径と中心位置の初期値
-    const auto &v_circle(o.find("circle"));
-    if (v_circle != o.end() && v_circle->second.is<picojson::array>())
-    {
-      picojson::array &c(v_circle->second.get<picojson::array>());
-      for (int i = 0; i < 4; ++i) circleChange[i] = static_cast<int>(c[i].get<double>());
-    }
-
-    // スクリーンの間隔の初期値
-    const auto &v_offset(o.find("offset"));
-    if (v_offset != o.end() && v_offset->second.is<double>())
-      initialOffset = static_cast<GLfloat>(v_offset->second.get<double>());
-
-    // 視差の初期値
-    const auto &v_parallax(o.find("parallax"));
-    if (v_parallax != o.end() && v_parallax->second.is<double>())
-      initialParallax = static_cast<GLfloat>(v_parallax->second.get<double>());
-
-    // カメラ方向の補正値
-    const auto &v_parallax_offset(o.find("parallax_offset"));
-    if (v_parallax_offset != o.end() && v_parallax_offset->second.is<picojson::array>())
-    {
-      picojson::array &a(v_parallax_offset->second.get<picojson::array>());
-      for (int eye = 0; eye < eyeCount; ++eye)
-      {
-        GLfloat q[4];
-        for (int i = 0; i < 4; ++i) q[i] = static_cast<GLfloat>(a[eye * 4 + i].get<double>());
-        qa[eye] = GgQuaternion(q);
-      }
-    }
-  }
+  for (auto& m : mo) m = ggIdentity();
 
   // 設定を初期化する
   reset();
@@ -329,7 +276,7 @@ Window::Window(Config& defaults, GLFWwindow* share)
 
       // スティックの中立位置を求める
       int axesCount;
-      const auto *const axes(glfwGetJoystickAxes(joy, &axesCount));
+      const auto* const axes(glfwGetJoystickAxes(joy, &axesCount));
 
       if (axesCount > 3)
       {
@@ -397,14 +344,14 @@ Window::Window(Config& defaults, GLFWwindow* share)
     layerData.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;   // OpenGL なので左下が原点
 
     // Oculus Rift 表示用の FBO を作成する
-    for (int eye = 0; eye < eyeCount; ++eye)
+    for (int eye = 0; eye < ovrEye_Count; ++eye)
     {
       // Oculus Rift の視野を取得する
-      const auto &eyeFov(hmdDesc.DefaultEyeFov[eye]);
+      const auto& eyeFov(hmdDesc.DefaultEyeFov[eye]);
 #if OVR_PRODUCT_VERSION > 0
       layerData.Fov[eye] = eyeFov;
 
-      const auto &fov(eyeFov);
+      const auto& fov(eyeFov);
 #else
       layerData.EyeFov.Fov[eye] = eyeFov;
 
@@ -412,10 +359,10 @@ Window::Window(Config& defaults, GLFWwindow* share)
       eyeRenderDesc[eye] = ovr_GetRenderDesc(session, ovrEyeType(eye), eyeFov);
 
       // Oculus Rift の片目の頭の位置からの変位を求める
-      const auto &offset(eyeRenderDesc[eye].HmdToEyeViewOffset);
+      const auto& offset(eyeRenderDesc[eye].HmdToEyeViewOffset);
       mv[eye] = ggTranslate(-offset.x, -offset.y, -offset.z);
 
-      const auto &fov(eyeRenderDesc[eye].Fov);
+      const auto& fov(eyeRenderDesc[eye].Fov);
 #endif
 
       // ズーム率
@@ -485,12 +432,12 @@ Window::Window(Config& defaults, GLFWwindow* share)
       layerData.EyeFov.Viewport[eye].Size = size;
 
       // Oculus Rift 表示用の FBO のカラーバッファとして使うテクスチャセットを作成する
-      ovrSwapTextureSet *colorTexture;
+      ovrSwapTextureSet* colorTexture;
       ovr_CreateSwapTextureSetGL(session, GL_SRGB8_ALPHA8, size.w, size.h, &colorTexture);
       layerData.EyeFov.ColorTexture[eye] = colorTexture;
 
       // Oculus Rift 表示用の FBO のデプスバッファとして使うテクスチャセットの作成
-      ovrSwapTextureSet *depthTexture;
+      ovrSwapTextureSet* depthTexture;
       ovr_CreateSwapTextureSetGL(session, GL_DEPTH_COMPONENT32F, size.w, size.h, &depthTexture);
       layerData.EyeFovDepth.DepthTexture[eye] = depthTexture;
 #endif
@@ -502,7 +449,7 @@ Window::Window(Config& defaults, GLFWwindow* share)
       / static_cast<GLfloat>(layerData.Viewport[ovrEye_Left].Size.h);
 
     // ミラー表示用の FBO を作成する
-    const ovrMirrorTextureDesc mirrorDesc =
+    const ovrMirrorTextureDesc mirrorDesc
     {
       OVR_FORMAT_R8G8B8A8_UNORM_SRGB,   // Format
       width,                            // Width
@@ -532,7 +479,7 @@ Window::Window(Config& defaults, GLFWwindow* share)
       / static_cast<GLfloat>(layerData.EyeFov.Viewport[ovrEye_Left].Size.h);
 
     // ミラー表示用の FBO を作成する
-    if (OVR_SUCCESS(ovr_CreateMirrorTextureGL(session, GL_SRGB8_ALPHA8, width, height, reinterpret_cast<ovrTexture **>(&mirrorTexture))))
+    if (OVR_SUCCESS(ovr_CreateMirrorTextureGL(session, GL_SRGB8_ALPHA8, width, height, reinterpret_cast<ovrTexture**>(&mirrorTexture))))
     {
       glGenFramebuffers(1, &mirrorFbo);
       glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFbo);
@@ -542,17 +489,17 @@ Window::Window(Config& defaults, GLFWwindow* share)
     }
 
     // TimeWarp に使う変換行列の成分を取り出す
-    auto &posTimewarpProjectionDesc(layerData.EyeFovDepth.ProjectionDesc);
+    auto& posTimewarpProjectionDesc(layerData.EyeFovDepth.ProjectionDesc);
     posTimewarpProjectionDesc.Projection22 = (mp[ovrEye_Left].get()[4 * 2 + 2] + mp[ovrEye_Left].get()[4 * 3 + 2]) * 0.5f;
     posTimewarpProjectionDesc.Projection23 = mp[ovrEye_Left].get()[4 * 2 + 3] * 0.5f;
     posTimewarpProjectionDesc.Projection32 = mp[ovrEye_Left].get()[4 * 3 + 2];
 #endif
 
     // Oculus Rift のレンダリング用の FBO を作成する
-    glGenFramebuffers(eyeCount, oculusFbo);
+    glGenFramebuffers(ovrEye_Count, oculusFbo);
   }
 
-#ifdef IMGUI_VERSION
+#if defined(IMGUI_VERSION)
   //
   // ユーザインタフェースの準備
   //
@@ -596,37 +543,6 @@ Window::~Window()
   // ウィンドウが開かれていなかったら戻る
   if (!window) return;
 
-  // 設定値の保存先
-  std::ofstream attitude("attitude.json");
-
-  // 設定値を保存する
-  if (attitude)
-  {
-    picojson::object o;
-
-    // 背景テクスチャの半径と中心位置
-    picojson::array c;
-    for (int i = 0; i < 4; ++i) c.push_back(picojson::value(static_cast<double>(circleChange[i])));
-    o.insert(std::make_pair("circle", picojson::value(c)));
-
-    // スクリーンの間隔
-    o.insert(std::make_pair("offset", picojson::value(static_cast<double>(initialOffset))));
-
-    // 視差
-    o.insert(std::make_pair("parallax", picojson::value(static_cast<double>(initialParallax))));
-
-    // カメラ方向の補正値
-    picojson::array q;
-    for (int eye = 0; eye < eyeCount; ++eye)
-      for (int i = 0; i < 4; ++i) q.push_back(picojson::value(static_cast<double>(qa[eye].get()[i])));
-    o.insert(std::make_pair("parallax_offset", picojson::value(q)));
-
-    // 設定内容をシリアライズして保存
-    picojson::value v(o);
-    attitude << v.serialize(true);
-    attitude.close();
-  }
-
   // Oculus Rift 使用時
   if (session)
   {
@@ -640,15 +556,15 @@ Window::~Window()
     if (mirrorTexture)
     {
       glDeleteTextures(1, &mirrorTexture->OGL.TexId);
-      ovr_DestroyMirrorTexture(session, reinterpret_cast<ovrTexture *>(mirrorTexture));
+      ovr_DestroyMirrorTexture(session, reinterpret_cast<ovrTexture*>(mirrorTexture));
     }
 #endif
 
     // Oculus Rift のレンダリング用の FBO を削除する
-    glDeleteFramebuffers(eyeCount, oculusFbo);
+    glDeleteFramebuffers(ovrEye_Count, oculusFbo);
 
     // Oculus Rift 表示用の FBO を削除する
-    for (int eye = 0; eye < eyeCount; ++eye)
+    for (int eye = 0; eye < ovrEye_Count; ++eye)
     {
       // レンダリングターゲットに使ったテクスチャを開放する
 #if OVR_PRODUCT_VERSION > 0
@@ -658,10 +574,10 @@ Window::~Window()
         layerData.ColorTexture[eye] = nullptr;
       }
 #else
-      auto *const colorTexture(layerData.EyeFov.ColorTexture[eye]);
+      auto* const colorTexture(layerData.EyeFov.ColorTexture[eye]);
       for (int i = 0; i < colorTexture->TextureCount; ++i)
       {
-        const auto *const ctex(reinterpret_cast<ovrGLTexture *>(&colorTexture->Textures[i]));
+        const auto* const ctex(reinterpret_cast<ovrGLTexture*>(&colorTexture->Textures[i]));
         glDeleteTextures(1, &ctex->OGL.TexId);
       }
       ovr_DestroySwapTextureSet(session, colorTexture);
@@ -672,10 +588,10 @@ Window::~Window()
       glDeleteTextures(1, &oculusDepth[eye]);
       oculusDepth[eye] = 0;
 #else
-      auto *const depthTexture(layerData.EyeFovDepth.DepthTexture[eye]);
+      auto* const depthTexture(layerData.EyeFovDepth.DepthTexture[eye]);
       for (int i = 0; i < depthTexture->TextureCount; ++i)
       {
-        const auto *const dtex(reinterpret_cast<ovrGLTexture *>(&depthTexture->Textures[i]));
+        const auto* const dtex(reinterpret_cast<ovrGLTexture*>(&depthTexture->Textures[i]));
         glDeleteTextures(1, &dtex->OGL.TexId);
       }
       ovr_DestroySwapTextureSet(session, depthTexture);
@@ -687,7 +603,7 @@ Window::~Window()
     const_cast<ovrSession>(session) = nullptr;
   }
 
-#ifdef IMGUI_VERSION
+#if defined(IMGUI_VERSION)
   // Shutdown Platform/Renderer bindings
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplGlfw_Shutdown();
@@ -725,17 +641,17 @@ Window::operator bool()
   {
     // ボタン
     int btnsCount;
-    const auto *const btns(glfwGetJoystickButtons(joy, &btnsCount));
+    const auto* const btns{ glfwGetJoystickButtons(joy, &btnsCount) };
 
     // スティック
     int axesCount;
-    const auto *const axes(glfwGetJoystickAxes(joy, &axesCount));
+    const auto* const axes{ glfwGetJoystickAxes(joy, &axesCount) };
 
     // スティックの速度係数
-    const auto axesSpeedFactor(axesSpeedScale * speedFactor);
+    const auto axesSpeedFactor{ axesSpeedScale * speedFactor };
 
     // L ボタンと R ボタンの状態
-    const auto lrButton(btns[4] | btns[5]);
+    const auto lrButton{ btns[4] | btns[5] };
 
     if (axesCount > 3)
     {
@@ -762,7 +678,7 @@ Window::operator bool()
     }
 
     // B, X ボタンの状態
-    const auto parallaxButton(btns[1] - btns[2]);
+    const auto parallaxButton{ btns[1] - btns[2] };
 
     // B, X ボタンに変化があれば
     if (parallaxButton)
@@ -773,24 +689,24 @@ Window::operator bool()
         // 背景を左右に回転する
         if (parallaxButton > 0)
         {
-          qa[camL] *= qrStep[0];
-          qa[camR] *= qrStep[0].conjugate();
+          config.parallax_offset[camL] *= qrStep[0];
+          config.parallax_offset[camR] *= qrStep[0].conjugate();
         }
         else
         {
-          qa[camL] *= qrStep[0].conjugate();
-          qa[camR] *= qrStep[0];
+          config.parallax_offset[camL] *= qrStep[0].conjugate();
+          config.parallax_offset[camR] *= qrStep[0];
         }
       }
       else
       {
         // スクリーンの間隔を調整する
-        offset += parallaxButton * offsetStep;
+        config.display_offset += parallaxButton * offsetStep;
       }
     }
 
     // Y, A ボタンの状態
-    const auto zoomButton(btns[3] - btns[0]);
+    const auto zoomButton{ btns[3] - btns[0] };
 
     // Y, A ボタンに変化があれば
     if (zoomButton)
@@ -801,13 +717,13 @@ Window::operator bool()
         // 背景を上下に回転する
         if (zoomButton > 0)
         {
-          qa[camL] *= qrStep[1];
-          qa[camR] *= qrStep[1].conjugate();
+          config.parallax_offset[camL] *= qrStep[1];
+          config.parallax_offset[camR] *= qrStep[1].conjugate();
         }
         else
         {
-          qa[camL] *= qrStep[1].conjugate();
-          qa[camR] *= qrStep[1];
+          config.parallax_offset[camL] *= qrStep[1].conjugate();
+          config.parallax_offset[camR] *= qrStep[1];
         }
       }
       else
@@ -823,7 +739,7 @@ Window::operator bool()
     }
 
     // 十字キーの左右ボタンの状態
-    const auto textureXButton(btns[11] - btns[13]);
+    const auto textureXButton{ btns[11] - btns[13] };
 
     // 十字キーの左右ボタンに変化があれば
     if (textureXButton)
@@ -842,7 +758,7 @@ Window::operator bool()
     }
 
     // 十字キーの上下ボタンの状態
-    const auto textureYButton(btns[10] - btns[12]);
+    const auto textureYButton{ btns[10] - btns[12] };
 
     // 十字キーの上下ボタンに変化があれば
     if (textureYButton)
@@ -875,7 +791,7 @@ Window::operator bool()
   // マウスの位置
   double x, y;
 
-#ifdef IMGUI_VERSION
+#if defined(IMGUI_VERSION)
 
   // ImGui の新規フレームを作成する
   ImGui_ImplOpenGL3_NewFrame();
@@ -885,7 +801,7 @@ Window::operator bool()
   if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) return true;
 
   // マウスの現在位置を調べる
-  const ImGuiIO &io(ImGui::GetIO());
+  const ImGuiIO& io{ ImGui::GetIO() };
   x = io.MousePos.x;
   y = io.MousePos.y;
 
@@ -900,7 +816,7 @@ Window::operator bool()
   if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1))
   {
     // 物体の位置を移動する
-    const auto speed(speedScale * speedFactor);
+    const auto speed{ speedScale * speedFactor };
     config.position[0] += static_cast<GLfloat>(x - cx) * speed;
     config.position[1] += static_cast<GLfloat>(cy - y) * speed;
     cx = x;
@@ -918,14 +834,19 @@ Window::operator bool()
   // キーボードによる操作
   //
 
+#if defined(IMGUI_VERSION)
+    // ImGui がキーボードを使うときはキーボードの処理を行わない
+  if (ImGui::GetIO().WantCaptureKeyboard) return true;
+#endif
+
   // シフトキーの状態
-  const auto shiftKey(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT));
+  const auto shiftKey{ glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) };
 
   // コントロールキーの状態
-  const auto ctrlKey(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL));
+  const auto ctrlKey{ glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) };
 
   // オルタネートキーの状態
-  const auto altKey(glfwGetKey(window, GLFW_KEY_LEFT_ALT) || glfwGetKey(window, GLFW_KEY_RIGHT_ALT));
+  const auto altKey{ glfwGetKey(window, GLFW_KEY_LEFT_ALT) || glfwGetKey(window, GLFW_KEY_RIGHT_ALT) };
 
   // 右矢印キー操作
   if (glfwGetKey(window, GLFW_KEY_RIGHT))
@@ -933,8 +854,8 @@ Window::operator bool()
     if (altKey)
     {
       // 背景を右に回転する
-      if (!ctrlKey) qa[camL] *= qrStep[0].conjugate();
-      if (!shiftKey) qa[camR] *= qrStep[0].conjugate();
+      if (!ctrlKey) config.parallax_offset[camL] *= qrStep[0].conjugate();
+      if (!shiftKey) config.parallax_offset[camR] *= qrStep[0].conjugate();
     }
     else if (ctrlKey)
     {
@@ -949,7 +870,7 @@ Window::operator bool()
     else if (config.display_mode != MONO)
     {
       // スクリーンの間隔を拡大する
-      offset += offsetStep;
+      config.display_offset += offsetStep;
     }
   }
 
@@ -959,8 +880,8 @@ Window::operator bool()
     if (altKey)
     {
       // 背景を左に回転する
-      if (!ctrlKey) qa[camL] *= qrStep[0];
-      if (!shiftKey) qa[camR] *= qrStep[0];
+      if (!ctrlKey) config.parallax_offset[camL] *= qrStep[0];
+      if (!shiftKey) config.parallax_offset[camR] *= qrStep[0];
     }
     else if (ctrlKey)
     {
@@ -975,7 +896,7 @@ Window::operator bool()
     else if (config.display_mode != MONO)
     {
       // 視差を縮小する
-      offset -= offsetStep;
+      config.display_offset -= offsetStep;
     }
   }
 
@@ -985,8 +906,8 @@ Window::operator bool()
     if (altKey)
     {
       // 背景を上に回転する
-      if (!ctrlKey) qa[camL] *= qrStep[1];
-      if (!shiftKey) qa[camR] *= qrStep[1];
+      if (!ctrlKey) config.parallax_offset[camL] *= qrStep[1];
+      if (!shiftKey) config.parallax_offset[camR] *= qrStep[1];
     }
     else if (ctrlKey)
     {
@@ -1016,8 +937,8 @@ Window::operator bool()
     if (altKey)
     {
       // 背景を下に回転する
-      if (!ctrlKey) qa[camL] *= qrStep[1].conjugate();
-      if (!shiftKey) qa[camR] *= qrStep[1].conjugate();
+      if (!ctrlKey) config.parallax_offset[camL] *= qrStep[1].conjugate();
+      if (!shiftKey) config.parallax_offset[camR] *= qrStep[1].conjugate();
     }
     else if (ctrlKey)
     {
@@ -1045,7 +966,7 @@ Window::operator bool()
   if (glfwGetKey(window, GLFW_KEY_P))
   {
     // 視差を調整する
-    parallax += shiftKey ? -parallaxStep : parallaxStep;
+    config.parallax += shiftKey ? -parallaxStep : parallaxStep;
 
     // 透視投影変換行列を更新する
     updateProjectionMatrix();
@@ -1125,14 +1046,14 @@ bool Window::start()
     if (sessionStatus.ShouldRecenter) ovr_RecenterTrackingOrigin(session);
 
     // HmdToEyeOffset などは実行時に変化するので毎フレーム ovr_GetRenderDesc() で ovrEyeRenderDesc を取得する
-    const ovrEyeRenderDesc eyeRenderDesc[] =
+    const ovrEyeRenderDesc eyeRenderDesc[]
     {
       ovr_GetRenderDesc(session, ovrEye_Left, hmdDesc.DefaultEyeFov[0]),
       ovr_GetRenderDesc(session, ovrEye_Right, hmdDesc.DefaultEyeFov[1])
     };
 
     // Oculus Rift の左右の目のトラッキングの位置からの変位を求める
-    const ovrPosef hmdToEyePose[] =
+    const ovrPosef hmdToEyePose[]
     {
       eyeRenderDesc[0].HmdToEyePose,
       eyeRenderDesc[1].HmdToEyePose
@@ -1156,7 +1077,7 @@ bool Window::start()
     const auto hmdState(ovr_GetTrackingState(session, ftiming, ovrTrue));
 
     // 瞳孔間隔
-    const ovrVector3f hmdToEyeViewOffset[] =
+    const ovrVector3f hmdToEyeViewOffset[]
     {
       eyeRenderDesc[0].HmdToEyeViewOffset,
       eyeRenderDesc[1].HmdToEyeViewOffset
@@ -1204,34 +1125,34 @@ void Window::select(int eye)
       glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, oculusDepth[eye], 0);
 
       // ビューポートを設定する
-      const auto &vp(layerData.Viewport[eye]);
+      const auto& vp{ layerData.Viewport[eye] };
       glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
     }
 
     // Oculus Rift の片目の位置と回転を取得する
-    const auto &o(layerData.RenderPose[eye].Orientation);
-    const auto &p(layerData.RenderPose[eye].Position);
+    const auto& o{ layerData.RenderPose[eye].Orientation };
+    const auto& p{ layerData.RenderPose[eye].Position };
 #else
     // レンダーターゲットに描画する前にレンダーターゲットのインデックスをインクリメントする
-    auto *const colorTexture(layerData.EyeFov.ColorTexture[eye]);
+    auto* const colorTexture(layerData.EyeFov.ColorTexture[eye]);
     colorTexture->CurrentIndex = (colorTexture->CurrentIndex + 1) % colorTexture->TextureCount;
-    auto *const depthTexture(layerData.EyeFovDepth.DepthTexture[eye]);
+    auto* const depthTexture(layerData.EyeFovDepth.DepthTexture[eye]);
     depthTexture->CurrentIndex = (depthTexture->CurrentIndex + 1) % depthTexture->TextureCount;
 
     // レンダーターゲットを切り替える
     glBindFramebuffer(GL_FRAMEBUFFER, oculusFbo[eye]);
-    const auto &ctex(reinterpret_cast<ovrGLTexture *>(&colorTexture->Textures[colorTexture->CurrentIndex]));
+    const auto& ctex(reinterpret_cast<ovrGLTexture*>(&colorTexture->Textures[colorTexture->CurrentIndex]));
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ctex->OGL.TexId, 0);
-    const auto &dtex(reinterpret_cast<ovrGLTexture *>(&depthTexture->Textures[depthTexture->CurrentIndex]));
+    const auto& dtex(reinterpret_cast<ovrGLTexture*>(&depthTexture->Textures[depthTexture->CurrentIndex]));
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, dtex->OGL.TexId, 0);
 
     // ビューポートを設定する
-    const auto &vp(layerData.EyeFov.Viewport[eye]);
+    const auto& vp(layerData.EyeFov.Viewport[eye]);
     glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
 
     // Oculus Rift の片目の位置と回転を取得する
-    const auto &p(eyePose[eye].Position);
-    const auto &o(eyePose[eye].Orientation);
+    const auto& p(eyePose[eye].Position);
+    const auto& o(eyePose[eye].Orientation);
 #endif
 
     // Oculus Rift の片目の位置を保存する
@@ -1259,15 +1180,15 @@ void Window::select(int eye)
   // Oculus Rift 以外に表示する
   switch (config.display_mode)
   {
-	case MONO:
+  case MONO:
 
-			// ウィンドウ全体をビューポートにする
-			glViewport(0, 0, width, height);
+    // ウィンドウ全体をビューポートにする
+    glViewport(0, 0, width, height);
 
-			// デプスバッファを消去する
-			glClear(GL_DEPTH_BUFFER_BIT);
+    // デプスバッファを消去する
+    glClear(GL_DEPTH_BUFFER_BIT);
 
-			break;
+    break;
 
   case TOPANDBOTTOM:
 
@@ -1286,8 +1207,8 @@ void Window::select(int eye)
     }
     break;
 
-	case LINEBYLINE:
-	case SIDEBYSIDE:
+  case LINEBYLINE:
+  case SIDEBYSIDE:
 
     if (eye == camL)
     {
@@ -1318,7 +1239,7 @@ void Window::select(int eye)
   }
 
   // 目をずらす代わりにシーンを動かす
-  mv[eye] = ggTranslate(eye == camL ? parallax : -parallax, 0.0f, 0.0f);
+  mv[eye] = ggTranslate(eye == camL ? config.parallax : -config.parallax, 0.0f, 0.0f);
 }
 
 //
@@ -1359,7 +1280,7 @@ void Window::swapBuffers()
   {
 #if OVR_PRODUCT_VERSION > 0
     // 描画データを Oculus Rift に転送する
-    const auto *const layers(&layerData.Header);
+    const auto* const layers(&layerData.Header);
     if (OVR_FAILURE(ovr_SubmitFrame(session, frameIndex++, nullptr, &layers, 1)))
 #else
     // Oculus Rift 上の描画位置と拡大率を求める
@@ -1373,7 +1294,7 @@ void Window::swapBuffers()
     layerData.EyeFov.RenderPose[1] = eyePose[1];
 
     // 描画データを Oculus Rift に転送する
-    const auto *const layers(&layerData.Header);
+    const auto* const layers(&layerData.Header);
     if (OVR_FAILURE(ovr_SubmitFrame(session, 0, &viewScaleDesc, &layers, 1)))
 #endif
     {
@@ -1399,10 +1320,10 @@ void Window::swapBuffers()
       glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     }
 
-#ifdef IMGUI_VERSION
+#if defined(IMGUI_VERSION)
     // ユーザインタフェースを描画する
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    ImDrawData *const imDrawData(ImGui::GetDrawData());
+    ImDrawData* const imDrawData(ImGui::GetDrawData());
     if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
 #endif
 
@@ -1411,9 +1332,9 @@ void Window::swapBuffers()
   }
   else
   {
-#ifdef IMGUI_VERSION
+#if defined(IMGUI_VERSION)
     // ユーザインタフェースを描画する
-    ImDrawData *const imDrawData(ImGui::GetDrawData());
+    ImDrawData* const imDrawData(ImGui::GetDrawData());
     if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
 #endif
 
@@ -1428,10 +1349,10 @@ void Window::swapBuffers()
 //   ・ウィンドウのサイズ変更時にコールバック関数として呼び出される
 //   ・ウィンドウの作成時には明示的に呼び出す
 //
-void Window::resize(GLFWwindow *window, int width, int height)
+void Window::resize(GLFWwindow* window, int width, int height)
 {
   // このインスタンスの this ポインタを得る
-  Window *const instance(static_cast<Window *>(glfwGetWindowUserPointer(window)));
+  Window* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
 
   if (instance)
   {
@@ -1499,15 +1420,15 @@ void Window::resize(GLFWwindow *window, int width, int height)
 //
 //   ・マウスボタンを押したときにコールバック関数として呼び出される
 //
-void Window::mouse(GLFWwindow *window, int button, int action, int mods)
+void Window::mouse(GLFWwindow* window, int button, int action, int mods)
 {
-#ifdef IMGUI_VERSION
+#if defined(IMGUI_VERSION)
   // マウスカーソルが ImGui のウィンドウ上にあったら Window クラスのマウス位置を更新しない
   if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) return;
 #endif
 
   // このインスタンスの this ポインタを得る
-  Window *const instance(static_cast<Window *>(glfwGetWindowUserPointer(window)));
+  Window* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
 
   if (instance)
   {
@@ -1559,15 +1480,15 @@ void Window::mouse(GLFWwindow *window, int button, int action, int mods)
 //
 //   ・マウスホイールを操作した時にコールバック関数として呼び出される
 //
-void Window::wheel(GLFWwindow *window, double x, double y)
+void Window::wheel(GLFWwindow* window, double x, double y)
 {
-#ifdef IMGUI_VERSION
+#if defined(IMGUI_VERSION)
   // マウスカーソルが ImGui のウィンドウ上にあったら Window クラスのマウスホイールの回転量を更新しない
   if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow)) return;
 #endif
 
   // このインスタンスの this ポインタを得る
-  Window *const instance(static_cast<Window *>(glfwGetWindowUserPointer(window)));
+  Window* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
 
   if (instance)
   {
@@ -1598,15 +1519,15 @@ void Window::wheel(GLFWwindow *window, double x, double y)
 //
 //   ．キーボードをタイプした時にコールバック関数として呼び出される
 //
-void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int mods)
+void Window::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-#ifdef IMGUI_VERSION
-  // ImGui のウィンドウが選択されていたらキーボードの処理を行わない
-  if (ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow)) return;
+#if defined(IMGUI_VERSION)
+  // ImGui がキーボードを使うときはキーボードの処理を行わない
+  if (ImGui::GetIO().WantCaptureKeyboard) return;
 #endif
 
   // このインスタンスの this ポインタを得る
-  Window *const instance(static_cast<Window *>(glfwGetWindowUserPointer(window)));
+  Window* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
 
   if (instance)
   {
@@ -1641,7 +1562,7 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
       case GLFW_KEY_ESCAPE:
         glfwSetWindowShouldClose(window, GLFW_TRUE);
         break;
- 
+
       case GLFW_KEY_BACKSPACE:
       case GLFW_KEY_DELETE:
         break;
@@ -1670,11 +1591,11 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
 //
 void Window::reset()
 {
-  // 物体の位置
-  config.position = defaults.position;
+  // 背景テクスチャの半径と中心位置
+  config.circle = defaults.circle;
 
-  // 物体の回転
-  trackball.reset(defaults.orientation);
+  // スクリーンの間隔
+  config.display_offset = defaults.display_offset;
 
   // ズーム率
   config.display_zoom = defaults.display_zoom;
@@ -1682,14 +1603,17 @@ void Window::reset()
   // 焦点距離
   config.display_focal = defaults.display_focal;
 
-  // 背景テクスチャの半径と中心位置
-  config.circle = defaults.circle;
-
-  // スクリーンの間隔
-  offset = initialOffset;
-
   // 視差
-  parallax = config.display_mode != MONO ? initialParallax : 0.0f;
+  config.parallax = defaults.display_mode != MONO ? defaults.parallax : 0.0f;
+
+  // カメラ方向の補正値
+  config.parallax_offset = defaults.parallax_offset;
+  
+  // 物体の位置
+  config.position = defaults.position;
+
+  // 物体の回転
+  trackball.reset(defaults.orientation);
 }
 
 //
@@ -1702,14 +1626,14 @@ void Window::updateProjectionMatrix()
   if (session)
   {
     // Oculus Rift 表示用の FBO を作成する
-    for (int eye = 0; eye < eyeCount; ++eye)
+    for (int eye = 0; eye < ovrEye_Count; ++eye)
     {
       // Oculus Rift の視野を取得する
-      const auto &eyeFov(hmdDesc.DefaultEyeFov[eye]);
+      const auto& eyeFov{ hmdDesc.DefaultEyeFov[eye] };
 #if OVR_PRODUCT_VERSION > 0
       layerData.Fov[eye] = eyeFov;
 
-      const auto &fov(eyeFov);
+      const auto& fov(eyeFov);
 #else
       layerData.EyeFov.Fov[eye] = eyeFov;
 
@@ -1717,14 +1641,14 @@ void Window::updateProjectionMatrix()
       eyeRenderDesc[eye] = ovr_GetRenderDesc(session, ovrEyeType(eye), eyeFov);
 
       // Oculus Rift の片目の頭の位置からの変位を求める
-      const auto &offset(eyeRenderDesc[eye].HmdToEyeViewOffset);
+      const auto& offset(eyeRenderDesc[eye].HmdToEyeViewOffset);
       mv[eye] = ggTranslate(-offset.x, -offset.y, -offset.z);
 
-      const auto &fov(eyeRenderDesc[eye].Fov);
+      const auto& fov(eyeRenderDesc[eye].Fov);
 #endif
 
       // ズーム率
-      const auto zf(zoom * config.display_near);
+      const auto zf{ config.display_zoom * config.display_near };
 
       // 片目の透視投影変換行列を求める
       mp[eye].loadFrustum(-fov.LeftTan * zf, fov.RightTan * zf, -fov.DownTan * zf, fov.UpTan * zf,
@@ -1734,17 +1658,17 @@ void Window::updateProjectionMatrix()
   else
   {
     // ズーム率
-    const auto zf(zoom * config.display_near);
+    const auto zf{ config.display_zoom * config.display_near };
 
     // スクリーンの高さと幅
-    const auto screenHeight(config.display_center / config.display_distance);
-    const auto screenWidth(screenHeight * aspect);
+    const auto screenHeight{ config.display_center / config.display_distance };
+    const auto screenWidth{ screenHeight * aspect };
 
     // 視差によるスクリーンのシフト量
-    GLfloat shift(parallax * config.display_near / config.display_distance);
+    GLfloat shift{ config.parallax * config.display_near / config.display_distance };
 
     // 左目の視野
-    const GLfloat fovL[] =
+    const GLfloat fovL[]
     {
       -screenWidth + shift,
       screenWidth + shift,
@@ -1766,7 +1690,7 @@ void Window::updateProjectionMatrix()
     if (config.display_mode != MONO)
     {
       // 右目の視野
-      const GLfloat fovR[] =
+      const GLfloat fovR[]
       {
         -screenWidth - shift,
         screenWidth - shift,
@@ -1788,4 +1712,4 @@ void Window::updateProjectionMatrix()
 }
 
 // カメラ方向の調整ステップ
-GgQuaternion Window::qrStep[2];
+std::array<GgQuaternion, camCount> Window::qrStep;

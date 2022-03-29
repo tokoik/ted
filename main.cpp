@@ -26,10 +26,10 @@
 //
 // メインプログラム
 //
-int main(int argc, const char *const *const argv)
+int main(int argc, const char* const* const argv)
 {
   // 引数を設定ファイル名に使う（指定されていなければ config.json にする）
-  const char *config_file(argc > 1 ? argv[1] : "config.json");
+  const char* config_file(argc > 1 ? argv[1] : "config.json");
 
   // 設定データ
   Config defaults;
@@ -55,7 +55,7 @@ int main(int argc, const char *const *const argv)
   if (!window.get()) return EXIT_FAILURE;
 
   // 共有メモリを確保する
-  if (!Scene::initialize(defaults.local_share_size, defaults.remote_share_size))
+  if (!Scene::initialize(defaults))
   {
     // 共有メモリの確保に失敗した
     NOTIFY("変換行列を保持する共有メモリが確保できませんでした。");
@@ -63,7 +63,7 @@ int main(int argc, const char *const *const argv)
   }
 
   // 背景画像のデータ
-  const GLubyte *image[camCount] = { nullptr };
+  const GLubyte* image[camCount]{ nullptr };
 
   // 背景画像のサイズ
   GLsizei size[camCount][2];
@@ -89,7 +89,7 @@ int main(int argc, const char *const *const argv)
     if (defaults.role == OPERATOR)
     {
       // リモートカメラからキャプチャするためのダミーカメラを使う
-      CamRemote *const cam(new CamRemote(defaults.remote_texture_width,
+      CamRemote* const cam(new CamRemote(defaults.remote_texture_width,
         defaults.remote_texture_height, defaults.remote_texture_reshape));
 
       // 生成したカメラを記録しておく
@@ -118,7 +118,7 @@ int main(int argc, const char *const *const argv)
     if (defaults.camera_left >= 0 || !defaults.camera_left_movie.empty())
     {
       // 左カメラに OpenCV のキャプチャデバイスを使う
-      CamCv *const cam(new CamCv);
+      CamCv* const cam{ new CamCv };
 
       // 生成したカメラを記録しておく
       camera.reset(cam);
@@ -191,7 +191,7 @@ int main(int argc, const char *const *const argv)
       if (defaults.camera_right >= 0)
       {
         // Ovrvision Pro を使う
-        CamOv *const cam(new CamOv);
+        CamOv* const cam(new CamOv);
 
         // 生成したカメラを記録しておく
         camera.reset(cam);
@@ -215,7 +215,7 @@ int main(int argc, const char *const *const argv)
       else
       {
         // 左カメラに画像ファイルを使う
-        CamImage *const cam(new CamImage);
+        CamImage* const cam{ new CamImage };
 
         // 生成したカメラを記録しておく
         camera.reset(cam);
@@ -282,14 +282,14 @@ int main(int argc, const char *const *const argv)
   window.setControlCamera(camera.get());
 
   // テクスチャのアスペクト比
-  const GLfloat texture_aspect[] =
+  const GLfloat texture_aspect[]
   {
     (GLfloat(size[camL][0]) / GLfloat(size[camL][1])),
     (GLfloat(size[camR][0]) / GLfloat(size[camR][1]))
   };
 
   // テクスチャの境界の処理
-  const GLenum border(defaults.camera_texture_repeat ? GL_REPEAT : GL_CLAMP_TO_BORDER);
+  const GLenum border{ static_cast<GLenum>(defaults.camera_texture_repeat ? GL_REPEAT : GL_CLAMP_TO_BORDER) };
 
   // 背景画像を保存するテクスチャ
   GLuint texture[camCount];
@@ -370,7 +370,7 @@ int main(int argc, const char *const *const argv)
   // 描画回数
   const int drawCount(defaults.display_mode == MONO ? 1 : camCount);
 
-#ifdef IMGUI_VERSION
+#if defined(IMGUI_VERSION)
   //
   // ImGui の初期設定
   //
@@ -397,37 +397,140 @@ int main(int argc, const char *const *const argv)
   //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
   //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
   //IM_ASSERT(font != NULL);
+
+  // 確認ウインドウを出す理由
+  enum class ConfirmReason : int
+  {
+    NONE = 0,
+    RESET,
+    QUIT
+  } confirmReason{ ConfirmReason::NONE };
+
+  // ファイルエラーの理由
+  enum class ErrorReason : int
+  {
+    NONE = 0,
+    READ,
+    WRITE
+  } errorReason{ ErrorReason::NONE };
 #endif
 
   // ウィンドウが開いている間くり返し描画する
   while (window)
   {
-#ifdef IMGUI_VERSION
+#if defined(IMGUI_VERSION)
     //
     // ユーザインタフェース
     //
     ImGui::NewFrame();
-    ImGui::SetNextWindowPos(ImVec2(4, 4), ImGuiCond_Once);
-    ImGui::SetNextWindowSize(ImVec2(170, 71), ImGuiCond_Once);
-    ImGui::Begin("Control panel");
-    ImGui::Text("Frame rate: %6.2f fps", ImGui::GetIO().Framerate);
-    if (ImGui::Button("Save"))
-    {
-      // ファイルダイアログから得るパス
-      nfdchar_t* filepath(NULL);
 
-      // 画像ファイル名のフィルタ
-      constexpr nfdfilteritem_t imageFilter[]{ "JSON", "json" };
+    // コントロールパネル
+    ImGui::SetNextWindowPos(ImVec2(4, 4), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(276, 54), ImGuiCond_Once);
+    ImGui::Begin("Control panel");
+
+    // 設定ファイル名のフィルタ
+    constexpr nfdfilteritem_t configFilter[]{ "JSON", "json" };
+
+    if (ImGui::Button("Load"))
+    {
+      nfdchar_t* filepath{ NULL };
 
       // ファイルダイアログを開く
-      if (NFD_SaveDialog(&filepath, imageFilter, 1, NULL, "*.json") == NFD_OKAY)
+      if (NFD_OpenDialog(&filepath, configFilter, 1, NULL) == NFD_OKAY)
       {
-        defaults.save(filepath);
+        if (defaults.load(filepath))
+          window.reset();
+        else
+          errorReason = ErrorReason::READ;
+        NFD_FreePath(filepath);
       }
     }
     ImGui::SameLine();
-    if (ImGui::Button("Quit")) window.setClose(GLFW_TRUE);
+    if (ImGui::Button("Save"))
+    {
+      // ファイルダイアログから得るパス
+      nfdchar_t* filepath{ NULL };
+
+      // ファイルダイアログを開く
+      if (NFD_SaveDialog(&filepath, configFilter, 1, NULL, "*.json") == NFD_OKAY)
+      {
+        if (!window.save(filepath)) errorReason = ErrorReason::WRITE;
+        NFD_FreePath(filepath);
+      }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Reset")) confirmReason = ConfirmReason::RESET;
+    ImGui::SameLine();
+    if (ImGui::Button("Quit"))  confirmReason = ConfirmReason::QUIT;
+    ImGui::SameLine();
+    ImGui::Text("%7.2f fps", ImGui::GetIO().Framerate);
     ImGui::End();
+
+    // 確認するとき
+    if (static_cast<int>(confirmReason))
+    {
+      // 確認ウィンドウ
+      ImGui::SetNextWindowPos(ImVec2(96, 40), ImGuiCond_Once);
+      ImGui::SetNextWindowSize(ImVec2(96, 54), ImGuiCond_Once);
+      bool confirm{ true };
+      ImGui::Begin("Confirm", &confirm);
+      if (!confirm)
+        confirmReason = ConfirmReason::NONE;
+      else
+      {
+        if (ImGui::Button("OK"))
+        {
+          switch (confirmReason)
+          {
+          case ConfirmReason::RESET:
+            window.reset();
+            confirmReason = ConfirmReason::NONE;
+            break;
+          case ConfirmReason::QUIT:
+            window.setClose(GLFW_TRUE);
+            confirmReason = ConfirmReason::NONE;
+            break;
+          default:
+            confirmReason = ConfirmReason::NONE;
+            break;
+          }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel")) confirmReason = ConfirmReason::NONE;
+      }
+      ImGui::End();
+    }
+
+    // エラーが出たとき
+    if (static_cast<int>(errorReason))
+    {
+      // エラーウィンドウ
+      ImGui::SetNextWindowPos(ImVec2(8, 40), ImGuiCond_Once);
+      ImGui::SetNextWindowSize(ImVec2(136, 72), ImGuiCond_Once);
+      bool confirm{ true };
+      ImGui::Begin("Error", &confirm);
+      if (!confirm)
+        errorReason = ErrorReason::NONE;
+      else
+      {
+        switch (errorReason)
+        {
+        case ErrorReason::READ:
+          ImGui::Text("File read error.");
+          break;
+        case ErrorReason::WRITE:
+          ImGui::Text("File write error.");
+          break;
+        default:
+          errorReason = ErrorReason::NONE;
+          break;
+        }
+        if (ImGui::Button("OK")) errorReason = ErrorReason::NONE;
+      }
+      ImGui::End();
+    }
+
     ImGui::Render();
 #endif
 
@@ -468,10 +571,10 @@ int main(int argc, const char *const *const argv)
         rect.setCircle(window.getCircle(), window.getOffset(eye));
 
         // ローカルのヘッドトラッキングの変換行列
-        const GgMatrix &&mo(defaults.camera_tracking ? window.getMo(eye) * window.getQa(eye).getMatrix() : window.getQa(eye).getMatrix());
+        const GgMatrix&& mo(defaults.camera_tracking ? window.getMo(eye) * window.getQa(eye).getMatrix() : window.getQa(eye).getMatrix());
 
         // リモートのヘッドトラッキングの変換行列
-        const GgMatrix &&mr(mo * Scene::getRemoteAttitude(eye));
+        const GgMatrix&& mr(mo * Scene::getRemoteAttitude(eye));
 
         // 背景を描く
         rect.draw(texture[eye], defaults.remote_stabilize ? mr : mo, window.getSamples());

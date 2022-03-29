@@ -47,7 +47,7 @@ static std::mutex dataLock;
 /**
  * Translates eLeapRS result codes into a human-readable string.
  */
-static const char *ResultString(eLeapRS r)
+static const char* ResultString(eLeapRS r)
 {
   switch (r)
   {
@@ -79,7 +79,7 @@ static const char *ResultString(eLeapRS r)
  * Caches the newest frame by copying the tracking event struct returned by
  * LeapC.
  */
-static void setFrame(const LEAP_TRACKING_EVENT *frame)
+static void setFrame(const LEAP_TRACKING_EVENT* frame)
 {
   std::lock_guard<std::mutex> lock(dataLock);
   if (!lastFrame.get()) lastFrame.reset(new LEAP_TRACKING_EVENT);
@@ -89,9 +89,9 @@ static void setFrame(const LEAP_TRACKING_EVENT *frame)
 /**
  * Returns a pointer to the cached tracking frame.
  */
-static const LEAP_TRACKING_EVENT *getFrame()
+static const LEAP_TRACKING_EVENT* getFrame()
 {
-  LEAP_TRACKING_EVENT *currentFrame;
+  LEAP_TRACKING_EVENT* currentFrame;
 
   std::lock_guard<std::mutex> lock(dataLock);
   currentFrame = lastFrame.get();
@@ -103,7 +103,7 @@ static const LEAP_TRACKING_EVENT *getFrame()
  * Caches the last device found by copying the device info struct returned by
  * LeapC.
  */
-static void setDevice(const LEAP_DEVICE_INFO *deviceProps)
+static void setDevice(const LEAP_DEVICE_INFO* deviceProps)
 {
   std::lock_guard<std::mutex> lock(dataLock);
   if (lastDevice)
@@ -122,9 +122,9 @@ static void setDevice(const LEAP_DEVICE_INFO *deviceProps)
 /**
  * Returns a pointer to the cached device info.
  */
-static LEAP_DEVICE_INFO *getDeviceProperties()
+static LEAP_DEVICE_INFO* getDeviceProperties()
 {
-  LEAP_DEVICE_INFO *currentDevice;
+  LEAP_DEVICE_INFO* currentDevice;
 
   std::lock_guard<std::mutex> lock(dataLock);
   currentDevice = lastDevice.get();
@@ -133,7 +133,7 @@ static LEAP_DEVICE_INFO *getDeviceProperties()
 }
 
 /** Called by serviceMessageLoop() when a connection event is returned by LeapPollConnection(). */
-static void handleConnectionEvent(const LEAP_CONNECTION_EVENT *connection_event)
+static void handleConnectionEvent(const LEAP_CONNECTION_EVENT* connection_event)
 {
   IsConnected = true;
 #if defined(DEBUG)
@@ -142,7 +142,7 @@ static void handleConnectionEvent(const LEAP_CONNECTION_EVENT *connection_event)
 }
 
 /** Called by serviceMessageLoop() when a connection lost event is returned by LeapPollConnection(). */
-static void handleConnectionLostEvent(const LEAP_CONNECTION_LOST_EVENT *connection_lost_event)
+static void handleConnectionLostEvent(const LEAP_CONNECTION_LOST_EVENT* connection_lost_event)
 {
   IsConnected = false;
 #if defined(DEBUG)
@@ -154,7 +154,7 @@ static void handleConnectionLostEvent(const LEAP_CONNECTION_LOST_EVENT *connecti
  * Called by serviceMessageLoop() when a device event is returned by LeapPollConnection()
  * Demonstrates how to access device properties.
  */
-static void handleDeviceEvent(const LEAP_DEVICE_EVENT *device_event)
+static void handleDeviceEvent(const LEAP_DEVICE_EVENT* device_event)
 {
   LEAP_DEVICE deviceHandle;
 
@@ -209,7 +209,7 @@ static void handleDeviceEvent(const LEAP_DEVICE_EVENT *device_event)
 }
 
 /** Called by serviceMessageLoop() when a device lost event is returned by LeapPollConnection(). */
-static void handleDeviceLostEvent(const LEAP_DEVICE_EVENT *device_event)
+static void handleDeviceLostEvent(const LEAP_DEVICE_EVENT* device_event)
 {
 #if defined(DEBUG)
   std::cerr << "Leap: Device lost.\n";
@@ -217,7 +217,7 @@ static void handleDeviceLostEvent(const LEAP_DEVICE_EVENT *device_event)
 }
 
 /** Called by serviceMessageLoop() when a device failure event is returned by LeapPollConnection(). */
-static void handleDeviceFailureEvent(const LEAP_DEVICE_FAILURE_EVENT *device_failure_event)
+static void handleDeviceFailureEvent(const LEAP_DEVICE_FAILURE_EVENT* device_failure_event)
 {
 #if defined(DEBUG)
   std::cerr << "Leap: Device failure: ";
@@ -262,7 +262,7 @@ static void handleDeviceFailureEvent(const LEAP_DEVICE_FAILURE_EVENT *device_fai
 }
 
 /** Called by serviceMessageLoop() when a tracking event is returned by LeapPollConnection(). */
-static void handleTrackingEvent(const LEAP_TRACKING_EVENT *tracking_event)
+static void handleTrackingEvent(const LEAP_TRACKING_EVENT* tracking_event)
 {
   setFrame(tracking_event); //support polling tracking data from different thread
   newestFrameId = static_cast<int32_t>(tracking_event->tracking_frame_id);
@@ -277,7 +277,7 @@ static void handleTrackingEvent(const LEAP_TRACKING_EVENT *tracking_event)
 
   for (uint32_t h = 0; h < tracking_event->nHands; ++h)
   {
-    const LEAP_HAND *hand(&tracking_event->pHands[h]);
+    const LEAP_HAND* hand(&tracking_event->pHands[h]);
     std::cerr << "    Hand id "
       << hand->id
       << " is a "
@@ -294,7 +294,7 @@ static void handleTrackingEvent(const LEAP_TRACKING_EVENT *tracking_event)
 }
 
 /** Called by serviceMessageLoop() when a log event is returned by LeapPollConnection(). */
-static void handleLogEvent(const LEAP_LOG_EVENT *log_event)
+static void handleLogEvent(const LEAP_LOG_EVENT* log_event)
 {
 #if defined(DEBUG)
   std::cerr << "Leap: Log: severity = ";
@@ -320,13 +320,13 @@ static void handleLogEvent(const LEAP_LOG_EVENT *log_event)
 }
 
 /** Called by serviceMessageLoop() when a log event is returned by LeapPollConnection(). */
-static void handleLogEvents(const LEAP_LOG_EVENTS *log_events)
+static void handleLogEvents(const LEAP_LOG_EVENTS* log_events)
 {
 #if defined(DEBUG)
   std::cerr << "Leap: Log:\n";
   for (int i = 0; i < static_cast<int>(log_events->nEvents); i++)
   {
-    const LEAP_LOG_EVENT *log_event(&log_events->events[i]);
+    const LEAP_LOG_EVENT* log_event(&log_events->events[i]);
 
     std::cerr << "  severity = ";
     switch (log_event->severity) {
@@ -352,7 +352,7 @@ static void handleLogEvents(const LEAP_LOG_EVENTS *log_events)
 }
 
 /** Called by serviceMessageLoop() when a policy event is returned by LeapPollConnection(). */
-static void handlePolicyEvent(const LEAP_POLICY_EVENT *policy_event)
+static void handlePolicyEvent(const LEAP_POLICY_EVENT* policy_event)
 {
 #if defined(DEBUG)
   std::cerr << "Leap: policy " << policy_event->current_policy << ".\n";
@@ -360,7 +360,7 @@ static void handlePolicyEvent(const LEAP_POLICY_EVENT *policy_event)
 }
 
 /** Called by serviceMessageLoop() when a config change event is returned by LeapPollConnection(). */
-static void handleConfigChangeEvent(const LEAP_CONFIG_CHANGE_EVENT *config_change_event)
+static void handleConfigChangeEvent(const LEAP_CONFIG_CHANGE_EVENT* config_change_event)
 {
 #if defined(DEBUG)
   std::cerr
@@ -371,7 +371,7 @@ static void handleConfigChangeEvent(const LEAP_CONFIG_CHANGE_EVENT *config_chang
 }
 
 /** Called by serviceMessageLoop() when a config response event is returned by LeapPollConnection(). */
-static void handleConfigResponseEvent(const LEAP_CONFIG_RESPONSE_EVENT *config_response_event)
+static void handleConfigResponseEvent(const LEAP_CONFIG_RESPONSE_EVENT* config_response_event)
 {
 #if defined(DEBUG)
   std::cerr
@@ -381,7 +381,7 @@ static void handleConfigResponseEvent(const LEAP_CONFIG_RESPONSE_EVENT *config_r
 }
 
 /** Called by serviceMessageLoop() when a point mapping change event is returned by LeapPollConnection(). */
-static void handleImageEvent(const LEAP_IMAGE_EVENT *image_event)
+static void handleImageEvent(const LEAP_IMAGE_EVENT* image_event)
 {
 #if defined(DEBUG)
   std::cerr
@@ -403,7 +403,7 @@ static void handleImageEvent(const LEAP_IMAGE_EVENT *image_event)
 }
 
 /** Called by serviceMessageLoop() when a point mapping change event is returned by LeapPollConnection(). */
-static void handlePointMappingChangeEvent(const LEAP_POINT_MAPPING_CHANGE_EVENT *point_mapping_change_event)
+static void handlePointMappingChangeEvent(const LEAP_POINT_MAPPING_CHANGE_EVENT* point_mapping_change_event)
 {
 #if defined(DEBUG)
   std::cerr << "Leap: mapping change.\n";
@@ -411,7 +411,7 @@ static void handlePointMappingChangeEvent(const LEAP_POINT_MAPPING_CHANGE_EVENT 
 }
 
 /** Called by serviceMessageLoop() when a point mapping change event is returned by LeapPollConnection(). */
-static void handleHeadPoseEvent(const LEAP_HEAD_POSE_EVENT *head_pose_event)
+static void handleHeadPoseEvent(const LEAP_HEAD_POSE_EVENT* head_pose_event)
 {
 #if defined(DEBUG)
   std::cerr
@@ -510,12 +510,11 @@ static void serviceMessageLoop()
 #endif
       break;
     }
-  }
-  while (_isRunning);
+  } while (_isRunning);
 }
 
 /** Close the connection and let message thread function end. */
-static void closeConnectionHandle(LEAP_CONNECTION *connectionHandle)
+static void closeConnectionHandle(LEAP_CONNECTION* connectionHandle)
 {
   LeapDestroyConnection(*connectionHandle);
   _isRunning = false;
@@ -538,7 +537,7 @@ LeapListener::~LeapListener()
  * Creates the connection handle and opens a connection to the Leap Motion
  * service. On success, creates a thread to service the LeapC message pump.
  */
-const LEAP_CONNECTION *LeapListener::openConnection()
+const LEAP_CONNECTION* LeapListener::openConnection()
 {
   // serviceMessageLoop() が既に起動していたら何もしない
   if (_isRunning) return &connectionHandle;
@@ -557,8 +556,7 @@ const LEAP_CONNECTION *LeapListener::openConnection()
       {
         serviceMessageLoop();
         std::this_thread::sleep_for(std::chrono::milliseconds(250));
-      }
-      while (!IsConnected);
+      } while (!IsConnected);
 
       // serviceMessageLoopLeap() のループが回るようにして
       _isRunning = true;
@@ -620,7 +618,7 @@ static uint64_t targetFrameSize = 0;
 #endif
 
 // 関節の変換行列のテーブルに値を取得する
-void LeapListener::getHandPose(GgMatrix *matrix) const
+void LeapListener::getHandPose(GgMatrix* matrix) const
 {
 #if defined(LEAP_INTERPORATE_FRAME)
   // アプリケーションの現在時刻を求める (マイクロ秒)
@@ -643,7 +641,7 @@ void LeapListener::getHandPose(GgMatrix *matrix) const
   }
 
   //Allocate enough memory
-  const std::unique_ptr<LEAP_TRACKING_EVENT> frame(reinterpret_cast<LEAP_TRACKING_EVENT *>(new char[targetFrameSize]));
+  const std::unique_ptr<LEAP_TRACKING_EVENT> frame(reinterpret_cast<LEAP_TRACKING_EVENT*>(new char[targetFrameSize]));
 
   //Get the frame
   result = LeapInterpolateFrame(connectionHandle, targetFrameTime, frame.get(), targetFrameSize);
@@ -671,7 +669,7 @@ void LeapListener::getHandPose(GgMatrix *matrix) const
   lastDrawnFrameId = newestFrameId;
 
   // 保存されているフレームを取り出す
-  const LEAP_TRACKING_EVENT *frame(getFrame());
+  const LEAP_TRACKING_EVENT* frame(getFrame());
   if (!frame) return;
 #  if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Frame id: " << frame->info.frame_id
@@ -685,7 +683,7 @@ void LeapListener::getHandPose(GgMatrix *matrix) const
   for (uint32_t h = 0; h < frame->nHands; ++h)
   {
     // h 番目の手のデータ
-    const LEAP_HAND &hand(frame->pHands[h]);
+    const LEAP_HAND& hand(frame->pHands[h]);
 
     // 左手なら 0, 右手なら 1
     const int base(hand.type == eLeapHandType_Left ? 0 : 1);
@@ -704,17 +702,17 @@ void LeapListener::getHandPose(GgMatrix *matrix) const
     };
 
     // 手のひらの法線
-    const float *const &normal(hand.palm.normal.v);
+    const float* const& normal(hand.palm.normal.v);
 
     // 手のひらの方向
-    const float *const &direction(hand.palm.direction.v);
+    const float* const& direction(hand.palm.direction.v);
 
     // 手のひらの法線と方向に直交するベクトル
     GLfloat tangent[3];
     ggCross(tangent, direction, normal);
 
     // 手のひらの変換行列を作成する
-    const GLfloat mPalm[] =
+    const GLfloat mPalm[]
     {
       -tangent[0],   -tangent[2],   -tangent[1],   0.0f,
       -direction[0], -direction[2], -direction[1], 0.0f,
@@ -752,7 +750,7 @@ void LeapListener::getHandPose(GgMatrix *matrix) const
     ggCross(armNormal, armDirection, armTangent);
 
     // 変換行列を作成する
-    const GLfloat mWrist[] =
+    const GLfloat mWrist[]
     {
       -armTangent[0],    -armTangent[2],    -armTangent[1],    0.0f,
       -armNormal[0],     -armNormal[2],     -armNormal[1],     0.0f,
@@ -767,13 +765,13 @@ void LeapListener::getHandPose(GgMatrix *matrix) const
     for (int d = 0; d < 5; ++d)
     {
       // 指
-      const auto &digit(hand.digits[d]);
+      const auto& digit(hand.digits[d]);
 
       // 全ての骨について
       for (int b = 0; b < 4; ++b)
       {
         // 骨
-        const auto &bone(digit.bones[b]);
+        const auto& bone(digit.bones[b]);
 
         // 骨の先端の位置
         const GLfloat bonePosition[]
@@ -802,7 +800,7 @@ void LeapListener::getHandPose(GgMatrix *matrix) const
         ggCross(boneTangent, boneNormal, boneDirection);
 
         // 変換行列を作成する
-        const GLfloat mBone[] =
+        const GLfloat mBone[]
         {
           -boneTangent[0],   -boneTangent[2],   -boneTangent[1],   0.0f,
           -boneNormal[0],    -boneNormal[2],    -boneNormal[1],    0.0f,
@@ -818,6 +816,6 @@ void LeapListener::getHandPose(GgMatrix *matrix) const
 }
 
 // 頭の姿勢の変換行列のテーブルに値を取得する
-void LeapListener::getHeadPose(GgMatrix *matrixmatrix) const
+void LeapListener::getHeadPose(GgMatrix* matrixmatrix) const
 {
 }

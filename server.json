@@ -15,9 +15,9 @@
   "fisheye_center_x": 0,
   "fisheye_center_y": 0,
   "left_camera": 0,
-  "left_image": "images\\normal_left.jpg",
+  "left_image": "normal_left.jpg",
   "right_camera": 1,
-  "right_image": "images\\normal_right.jpg",
+  "right_image": "normal_right.jpg",
   "texture_repeat": false,
   "zoom": 1,
   "max_level": 10,
@@ -33,11 +33,11 @@
   "target": {
     "position": [ 0, 0, -0.5 ],
     "scale": [ 0.5, 0.5, 0.5 ],
-    "model": "objs\target.obj"
+    "model": "target.obj"
   },
   "remote": {
     "position": [ 0, 0, -0.5 ],
     "scale": [ 0.5, 0.5, 0.5 ],
-    "model": "objs\remote.obj"
+    "model": "remote.obj"
   }
 }

@@ -16,7 +16,7 @@ CamImage::~CamImage()
 }
 
 // ファイルから入力する
-bool CamImage::open(const std::string &file, int cam)
+bool CamImage::open(const std::string& file, int cam)
 {
   // 画像をファイルから読み込む
   image[cam] = cv::imread(file);
@@ -38,13 +38,13 @@ bool CamImage::opened(int cam)
 }
 
 // このカメラでは画像の転送を行わない
-bool CamImage::transmit(int cam, GLuint texture, const GLsizei *size)
+bool CamImage::transmit(int cam, GLuint texture, const GLsizei* size)
 {
   return true;
 }
 
 // 読み込んだ画像のデータを得る
-const GLubyte *CamImage::getImage(int cam)
+const GLubyte* CamImage::getImage(int cam)
 {
   return image[cam].data;
 }

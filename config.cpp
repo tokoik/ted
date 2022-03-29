@@ -5,13 +5,15 @@
 // 各種設定
 #include "Config.h"
 
-// 標準ライブラリ
-#include <fstream>
-
 // Ovrvision Pro
 #include "ovrvision_pro.h"
 
+// 標準ライブラリ
+#include <fstream>
+
+//
 // コンストラクタ
+//
 Config::Config()
   : camera_left{ -1 /* ※2 */ }
   , camera_left_image{ "normal_left.jpg" }
@@ -26,8 +28,9 @@ Config::Config()
   , capture_height{ 0.0 }
   , capture_fps{ 0.0 }
   , capture_codec{ '\0', '\0', '\0', '\0', '\0' }
+  , circle{ 1.0f, 1.0f, 0.0f, 0.0f }
   , ovrvision_property{ OVR::OV_CAM5MP_FHD /* ※3 */ }
-  , display_mode{ MONO /* ※1 */}
+  , display_mode{ MONO /* ※1 */ }
   , display_secondary{ 1 }
   , display_fullscreen{ false }
   , display_width{ 960 }
@@ -35,15 +38,16 @@ Config::Config()
   , display_aspect{ 1.0f }
   , display_center{ 0.5f }
   , display_distance{ 1.5f }
-  , display_offset{ 0.0f }
   , display_near{ 0.1f }
   , display_far{ 5.0f }
+  , display_offset{ 0.0f }
   , display_zoom{ 1.0f }
   , display_focal{ 1.0f }
-  , display_parallax{ 0.32f }
+  , parallax{ 0.32f }
+  , parallax_offset{ ggIdentityQuaternion(), ggIdentityQuaternion() }
   , vertex_shader{ "fixed.vert" }
   , fragment_shader{ "normal.frag" }
-  , role{ STANDALONE /* ※4 */}
+  , role{ STANDALONE /* ※4 */ }
   , port{ 0 }
   , address{ "" }
   , remote_delay{ 0, 0 }
@@ -62,7 +66,9 @@ Config::Config()
 {
 }
 
+//
 // デストラクタ
+//
 Config::~Config()
 {
 }
@@ -112,310 +118,348 @@ Config::~Config()
 //
 
 //
-// JSON ファイルの読み込み
+// 値の取得
 //
-bool Config::load(const std::string& file)
+template <typename T>
+static bool getValue(T& scalar, const picojson::object& object, const char* name)
 {
-  // 設定内容の読み込み
-  picojson::value v;
-  std::ifstream config(file);
+    const auto& value{ object.find(name) };
+    if (value == object.end() || !value->second.is<double>()) return false;
+    scalar = static_cast<T>(value->second.get<double>());
+    return true;
+}
+
+//
+// 値の設定
+//
+template <typename T>
+static void setValue(const T& scalar, picojson::object& object, const char* name)
+{
+    object.insert(std::make_pair(name, picojson::value(static_cast<double>(scalar))));
+}
+
+//
+// ベクトルの取得
+//
+template <typename T, std::size_t U>
+static bool getVector(std::array<T, U>& vector, const picojson::object& object, const char* name)
+{
+    const auto& value{ object.find(name) };
+    if (value == object.end() || !value->second.is<picojson::array>()) return false;
+
+    // 配列を取り出す
+    const auto& array{ value->second.get<picojson::array>() };
+
+    // 配列の要素数
+    const auto n{ std::min(static_cast<decltype(array.size())>(U), array.size()) };
+
+    // 配列のすべての要素について
+    for (decltype(array.size()) i = 0; i < n; ++i)
+    {
+        // 要素が数値なら保存する
+        if (array[i].is<double>()) vector[i] = static_cast<T>(array[i].get<double>());
+    }
+
+    return true;
+}
+
+//
+// ベクトルの設定
+//
+template <typename T, std::size_t U>
+static void setVector(const std::array<T, U>& vector, picojson::object& object, const char* name)
+{
+    // picojson の配列
+    picojson::array array;
+
+    // 配列のすべての要素について
+    for (decltype(array.size()) i = 0; i < U; ++i)
+    {
+        // 要素を picojson::array に追加する
+        array.emplace_back(picojson::value(static_cast<double>(vector[i])));
+    }
+
+    // オブジェクトに追加する
+    object.insert(std::make_pair(name, array));
+}
+
+//
+// 文字列の取得
+//
+static bool getString(std::string& string, const picojson::object& object, const char* name)
+{
+    const auto& value{ object.find(name) };
+    if (value == object.end() || !value->second.is<std::string>()) return false;
+    string = value->second.get<std::string>();
+    return true;
+}
+
+//
+// 文字列の設定
+//
+static void setString(const std::string& string, picojson::object& object, const char* name)
+{
+    object.insert(std::make_pair(name, picojson::value(string)));
+}
+
+//
+// 文字列のベクトルの取得
+//
+template <std::size_t U>
+static bool getText(std::array<std::string, U>& source, const picojson::object& object,
+    const char* name)
+{
+    const auto& v_shader{ object.find(name) };
+    if (v_shader == object.end() || !v_shader->second.is<picojson::array>()) return false;
+
+    // 配列を取り出す
+    const auto& array{ v_shader->second.get<picojson::array>() };
+
+    // 配列の要素数
+    const auto n{ std::min(static_cast<decltype(array.size())>(U), array.size()) };
+
+    // 配列のすべての要素について
+    for (decltype(array.size()) i = 0; i < n; ++i)
+    {
+        // 要素が文字列なら保存する
+        if (array[i].is<std::string>()) source[i] = array[i].get<std::string>();
+    }
+
+    return true;
+}
+
+//
+// 文字列のベクトルの設定
+//
+template <std::size_t U>
+static void setText(const std::array<std::string, U>& source, picojson::object& object,
+    const char* name)
+{
+    // picojson の配列
+    picojson::array array;
+
+    // 配列のすべての要素について
+    for (std::size_t i = 0; i < U; ++i)
+    {
+        // 要素を picojson::array に追加する
+        array.emplace_back(picojson::value(source[i]));
+    }
+
+    // オブジェクトに追加する
+    object.insert(std::make_pair(name, array));
+}
+
+//
+// 設定ファイルの読み込み
+//
+bool Config::load(const std::string &file)
+{
+  // 設定ファイルを開く
+  std::ifstream config{ file };
   if (!config) return false;
+
+  // 設定ファイルを読み込む
+  picojson::value v;
   config >> v;
   config.close();
 
+  // 読み込んだ内容が JSON でなければ戻る
+  if (!v.is<picojson::object>()) return false;
+
   // 設定内容のパース
-  const auto& o(v.get<picojson::object>());
+  const auto& o{ v.get<picojson::object>() };
   if (o.empty()) return false;
 
-  // 左目のキャプチャデバイスのデバイス番号もしくはムービーファイル
-  const auto& v_left_camera(o.find("left_camera"));
-  if (v_left_camera != o.end())
-  {
-    if (v_left_camera->second.is<std::string>())
-      camera_left_movie = v_left_camera->second.get<std::string>();
-    else if (v_left_camera->second.is<double>())
-      camera_left = static_cast<int>(v_left_camera->second.get<double>());
-  }
+  // 左目のキャプチャデバイスのデバイス番号
+  getValue(camera_left, o, "left_camera");
+
+  // 左目のムービーファイル
+  getString(camera_left_movie, o, "left_movie");
 
   // 左目のキャプチャデバイス不使用時に表示する静止画像
-  const auto& v_left_image(o.find("left_image"));
-  if (v_left_image != o.end() && v_left_image->second.is<std::string>())
-    camera_left_image = v_left_image->second.get<std::string>();
+  getString(camera_left_image, o, "left_image");
 
-  // 右目のキャプチャデバイスのデバイス番号もしくはムービーファイル
-  const auto& v_right_camera(o.find("right_camera"));
-  if (v_right_camera != o.end())
-  {
-    if (v_right_camera->second.is<std::string>())
-      camera_right_movie = v_right_camera->second.get<std::string>();
-    else if (v_right_camera->second.is<double>())
-      camera_right = static_cast<int>(v_right_camera->second.get<double>());
-  }
+  // 右目のキャプチャデバイスのデバイス番号
+  getValue(camera_right, o, "right_camera");
+
+  // 右目のムービーファイル
+  getString(camera_right_movie, o, "right_movie");
 
   // 右目のキャプチャデバイス不使用時に表示する静止画像
-  const auto& v_right_image(o.find("right_image"));
-  if (v_right_image != o.end() && v_right_image->second.is<std::string>())
-    camera_right_image = v_right_image->second.get<std::string>();
+  getString(camera_right_image, o, "right_image");
 
   // スクリーンのサンプル数
-  const auto& v_screen_samples(o.find("screen_samples"));
-  if (v_screen_samples != o.end() && v_screen_samples->second.is<double>())
-    camera_texture_samples = static_cast<int>(v_screen_samples->second.get<double>());
+  getValue(camera_texture_samples, o, "screen_samples");
 
   // 正距円筒図法の場合はテクスチャを繰り返す
-  const auto& v_texture_repeat(o.find("texture_repeat"));
-  if (v_texture_repeat != o.end() && v_texture_repeat->second.is<bool>())
-    camera_texture_repeat = v_texture_repeat->second.get<bool>();
+  getValue(camera_texture_repeat, o, "texture_repeat");
 
   // ヘッドトラッキング
-  const auto& v_tracking(o.find("tracking"));
-  if (v_tracking != o.end() && v_tracking->second.is<bool>())
-    camera_tracking = v_tracking->second.get<bool>();
+  getValue(camera_tracking, o, "tracking");
 
   // カメラの横の画素数
-  const auto& v_capture_width(o.find("capture_width"));
-  if (v_capture_width != o.end() && v_capture_width->second.is<double>())
-    capture_width = v_capture_width->second.get<double>();
+  getValue(capture_width, o, "capture_width");
 
   // カメラの縦の画素数
-  const auto& v_capture_height(o.find("capture_height"));
-  if (v_capture_height != o.end() && v_capture_height->second.is<double>())
-    capture_height = v_capture_height->second.get<double>();
+  getValue(capture_height, o, "capture_height");
 
   // カメラのフレームレート
-  const auto& v_capture_fps(o.find("capture_fps"));
-  if (v_capture_fps != o.end() && v_capture_fps->second.is<double>())
-    capture_fps = v_capture_fps->second.get<double>();
+  getValue(capture_fps, o, "capture_fps");
 
   // カメラのコーデック
   const auto& v_capture_codec(o.find("capture_codec"));
   if (v_capture_codec != o.end() && v_capture_codec->second.is<std::string>())
   {
+    // コーデックの文字列
     const std::string& codec(v_capture_codec->second.get<std::string>());
-    if (codec.length() == 4)
-    {
-      capture_codec[0] = toupper(codec[0]);
-      capture_codec[1] = toupper(codec[1]);
-      capture_codec[2] = toupper(codec[2]);
-      capture_codec[3] = toupper(codec[3]);
-      capture_codec[4] = '\0';
-    }
-    else
-    {
-      std::fill(capture_codec.begin(), capture_codec.end(), '\0');
-    }
+    
+    // コーデックの文字列の長さと格納先の要素数 - 1 の小さいほう
+    const auto n{ std::min(codec.length(), capture_codec.size() - 1) };
+    
+    // 格納先の先頭からコーデックの文字を格納する
+    std::size_t i{ 0 };
+    for (; i < n; ++i) capture_codec[i] = toupper(codec[i]);
+    
+    // 格納先の残りの要素を 0 で埋める
+    std::fill(capture_codec.begin() + i, capture_codec.end(), '\0');
   }
 
   // 魚眼レンズの横の画角
-  const auto& v_fisheye_fov_x(o.find("fisheye_fov_x"));
-  if (v_fisheye_fov_x != o.end() && v_fisheye_fov_x->second.is<double>())
-    circle[0] = static_cast<GLfloat>(v_fisheye_fov_x->second.get<double>());
+  getValue(circle[0], o, "fisheye_fov_x");
 
   // 魚眼レンズの縦の画角
-  const auto& v_fisheye_fov_y(o.find("fisheye_fov_y"));
-  if (v_fisheye_fov_y != o.end() && v_fisheye_fov_y->second.is<double>())
-    circle[1] = static_cast<GLfloat>(v_fisheye_fov_y->second.get<double>());
+  getValue(circle[1], o, "fisheye_fov_y");
 
   // 魚眼レンズの横の中心位置
-  const auto& v_fisheye_center_x(o.find("fisheye_center_x"));
-  if (v_fisheye_center_x != o.end() && v_fisheye_center_x->second.is<double>())
-    circle[2] = static_cast<GLfloat>(v_fisheye_center_x->second.get<double>());
+  getValue(circle[2], o, "fisheye_center_x");
 
   // 魚眼レンズの縦の中心位置
-  const auto& v_fisheye_center_y(o.find("fisheye_center_y"));
-  if (v_fisheye_center_y != o.end() && v_fisheye_center_y->second.is<double>())
-    circle[3] = static_cast<GLfloat>(v_fisheye_center_y->second.get<double>());
+  getValue(circle[3], o, "fisheye_center_y");
 
   // Ovrvision Pro のモード
-  const auto& v_ovrvision_property(o.find("ovrvision_property"));
-  if (v_ovrvision_property != o.end() && v_ovrvision_property->second.is<double>())
-    ovrvision_property = static_cast<int>(v_ovrvision_property->second.get<double>());
+  getValue(ovrvision_property, o, "ovrvision_property");
 
   // 立体視の方式
-  const auto& v_stereo(o.find("stereo"));
-  if (v_stereo != o.end() && v_stereo->second.is<double>())
-    display_mode = static_cast<int>(v_stereo->second.get<double>());
-
-  // セカンダリディスプレイの使用
-  const auto& v_use_secondary(o.find("use_secondary"));
-  if (v_use_secondary != o.end() && v_use_secondary->second.is<double>())
-    display_secondary = static_cast<int>(v_use_secondary->second.get<double>());
+  getValue(display_mode, o, "stereo");
 
   // フルスクリーン表示
-  const auto& v_fullscreen(o.find("fullscreen"));
-  if (v_fullscreen != o.end() && v_fullscreen->second.is<bool>())
-    display_fullscreen = v_fullscreen->second.get<bool>();
+  getValue(display_fullscreen, o, "fullscreen");
+
+  // フルスクリーン表示するディスプレイの番号
+  getValue(display_secondary, o, "use_secondary");
 
   // ディスプレイの横の画素数
-  const auto& v_display_width(o.find("display_width"));
-  if (v_display_width != o.end() && v_display_width->second.is<double>())
-    display_width = static_cast<int>(v_display_width->second.get<double>());
+  getValue(display_width, o, "display_width");
 
   // ディスプレイの縦の画素数
-  const auto& v_display_height(o.find("display_height"));
-  if (v_display_height != o.end() && v_display_height->second.is<double>())
-    display_height = static_cast<int>(v_display_height->second.get<double>());
+  getValue(display_height, o, "display_height");
 
   // ディスプレイの縦横比
-  const auto& v_display_aspect(o.find("display_aspect"));
-  if (v_display_aspect != o.end() && v_display_aspect->second.is<double>())
-    display_aspect = static_cast<GLfloat>(v_display_aspect->second.get<double>());
+  getValue(display_aspect, o, "display_aspect");
 
   // ディスプレイの中心の高さ
-  const auto& v_display_center(o.find("display_center"));
-  if (v_display_center != o.end() && v_display_center->second.is<double>())
-    display_center = static_cast<GLfloat>(v_display_center->second.get<double>());
+  getValue(display_center, o, "display_center");
 
   // 視点からディスプレイまでの距離
-  const auto& v_display_distance(o.find("display_distance"));
-  if (v_display_distance != o.end() && v_display_distance->second.is<double>())
-    display_distance = static_cast<GLfloat>(v_display_distance->second.get<double>());
-
-  // 左右のディスプレイの間隔
-  const auto& v_display_offset(o.find("display_offset"));
-  if (v_display_offset != o.end() && v_display_offset->second.is<double>())
-    display_offset = static_cast<GLfloat>(v_display_offset->second.get<double>());
+  getValue(display_distance, o, "display_distance");
 
   // 視点から前方面までの距離 (焦点距離)
-  const auto& v_depth_near(o.find("depth_near"));
-  if (v_depth_near != o.end() && v_depth_near->second.is<double>())
-    display_near = static_cast<GLfloat>(v_depth_near->second.get<double>());
+  getValue(display_near, o, "depth_near");
 
   // 視点から後方面までの距離
-  const auto& v_depth_far(o.find("depth_far"));
-  if (v_depth_far != o.end() && v_depth_far->second.is<double>())
-    display_far = static_cast<GLfloat>(v_depth_far->second.get<double>());
+  getValue(display_far, o, "depth_far");
+
+  // 左右のディスプレイの間隔
+  getValue(display_offset, o, "display_offset");
 
   // シーンに対するズーム率
-  const auto& v_zoom(o.find("zoom"));
-  if (v_zoom != o.end() && v_zoom->second.is<double>())
-    display_zoom = static_cast<GLfloat>(v_zoom->second.get<double>());
+  getValue(display_zoom, o, "zoom");
 
   // 背景に対する焦点距離
-  const auto& v_focal(o.find("focal"));
-  if (v_focal != o.end() && v_focal->second.is<double>())
-    display_focal = static_cast<GLfloat>(v_focal->second.get<double>());
+  getValue(display_focal, o, "focal");
 
   // 視差
-  const auto& v_display_parallax(o.find("display_parallax"));
-  if (v_display_parallax != o.end() && v_display_parallax->second.is<double>())
-    display_parallax = static_cast<GLfloat>(v_display_parallax->second.get<double>());
+  getValue(parallax, o, "parallax");
+
+  // カメラ方向の補正値
+  const auto& v_parallax_offset{ o.find("parallax_offset") };
+  if (v_parallax_offset != o.end() && v_parallax_offset->second.is<picojson::array>())
+  {
+    const picojson::array& a{ v_parallax_offset->second.get<picojson::array>() };
+    for (int cam = 0; cam < camCount; ++cam)
+    {
+      GgVector q;
+      for (int i = 0; i < 4; ++i) q[i] = static_cast<GLfloat>(a[cam * 4 + i].get<double>());
+      parallax_offset[cam] = GgQuaternion(q);
+    }
+  }
 
   // バーテックスシェーダのソースファイル名
-  const auto& v_vertex_shader(o.find("vertex_shader"));
-  if (v_vertex_shader != o.end() && v_vertex_shader->second.is<std::string>())
-    vertex_shader = v_vertex_shader->second.get<std::string>();
+  getString(vertex_shader, o, "vertex_shader");
 
   // フラグメントシェーダのソースファイル名
-  const auto& v_fragment_shader(o.find("fragment_shader"));
-  if (v_fragment_shader != o.end() && v_fragment_shader->second.is<std::string>())
-    fragment_shader = v_fragment_shader->second.get<std::string>();
+  getString(fragment_shader, o, "fragment_shader");
 
   // ホストの役割
-  const auto& v_role(o.find("role"));
-  if (v_role != o.end())
-    role = static_cast<int>(v_role->second.get<double>());
+  getValue(role, o, "role");
 
   // リモート表示に使うポート
-  const auto& v_port(o.find("port"));
-  if (v_port != o.end())
-    port = static_cast<int>(v_port->second.get<double>());
+  getValue(port, o, "port");
 
   // リモート表示の送信先の IP アドレス
-  const auto& v_host(o.find("host"));
-  if (v_host != o.end())
-    address = v_host->second.get<std::string>();
+  getString(address, o, "host");
 
   // カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  const auto& v_tracking_delay(o.find("tracking_delay"));
-  if (v_tracking_delay != o.end())
-    remote_delay[0] = remote_delay[1] = static_cast<int>(v_tracking_delay->second.get<double>());
+  if (getValue(remote_delay[0], o, "tracking_delay")) remote_delay[1] = remote_delay[0];
 
   // 左カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  const auto& v_tracking_delay_left(o.find("tracking_delay_left"));
-  if (v_tracking_delay_left != o.end())
-    remote_delay[0] = static_cast<int>(v_tracking_delay_left->second.get<double>());
+  getValue(remote_delay[0], o, "tracking_delay_left");
 
   // 右カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  const auto& v_tracking_delay_right(o.find("tracking_delay_right"));
-  if (v_tracking_delay_right != o.end())
-    remote_delay[1] = static_cast<int>(v_tracking_delay_right->second.get<double>());
+  getValue(remote_delay[1], o, "tracking_delay_right");
 
   // 安定化処理
-  const auto& v_stabilize(o.find("stabilize"));
-  if (v_stabilize != o.end() && v_stabilize->second.is<bool>())
-    remote_stabilize = v_stabilize->second.get<bool>();
+  getValue(remote_stabilize, o, "stabilize");
 
   // 安定化処理用のテクスチャの作成
-  const auto& v_texture_reshape(o.find("texture_reshape"));
-  if (v_texture_reshape != o.end() && v_texture_reshape->second.is<bool>())
-    remote_texture_reshape = v_texture_reshape->second.get<bool>();
+  getValue(remote_texture_reshape, o, "texture_reshape");
 
   // リモートカメラの横の画素数
-  const auto& v_texture_width(o.find("texture_width"));
-  if (v_texture_width != o.end() && v_texture_width->second.is<double>())
-    remote_texture_width = static_cast<int>(v_texture_width->second.get<double>());
+  getValue(remote_texture_width, o, "texture_width");
 
   // リモートカメラの縦の画素数
-  const auto& v_texture_height(o.find("texture_height"));
-  if (v_texture_height != o.end() && v_texture_height->second.is<double>())
-    remote_texture_height = static_cast<int>(v_texture_height->second.get<double>());
+  getValue(remote_texture_height, o, "texture_height");
 
   // 伝送画像の品質
-  const auto& v_texture_quality(o.find("texture_quality"));
-  if (v_texture_quality != o.end())
-    remote_texture_quality = static_cast<int>(v_texture_quality->second.get<double>());
+  getValue(remote_texture_quality, o, "texture_quality");
 
   // リモートカメラのテクスチャのサンプル数
-  const auto& v_texture_samples(o.find("texture_samples"));
-  if (v_texture_samples != o.end())
-    remote_texture_samples = static_cast<int>(v_texture_samples->second.get<double>());
+  getValue(remote_texture_samples, o, "texture_samples");
 
   // リモートカメラの横の画角
-  const auto& v_remote_fov_x(o.find("remote_fov_x"));
-  if (v_remote_fov_x != o.end() && v_remote_fov_x->second.is<double>())
-    remote_fov[0] = static_cast<GLfloat>(v_remote_fov_x->second.get<double>());
+  getValue(remote_fov[0], o, "remote_fov_x");
 
   // リモートカメラの縦の画角
-  const auto& v_remote_fov_y(o.find("remote_fov_y"));
-  if (v_remote_fov_y != o.end() && v_remote_fov_y->second.is<double>())
-    remote_fov[1] = static_cast<GLfloat>(v_remote_fov_y->second.get<double>());
+  getValue(remote_fov[1], o, "remote_fov_y");
 
   // ローカルの姿勢変換行列の最大数
-  const auto& v_local_share_size(o.find("local_share_size"));
-  if (v_local_share_size != o.end())
-    local_share_size = static_cast<int>(v_local_share_size->second.get<double>());
+  getValue(local_share_size, o, "local_share_size");
 
   // リモートの姿勢変換行列の最大数
-  const auto& v_remote_share_size(o.find("remote_share_size"));
-  if (v_remote_share_size != o.end())
-    remote_share_size = static_cast<int>(v_remote_share_size->second.get<double>());
+  getValue(remote_share_size, o, "remote_share_size");
 
   // 初期位置
-  const auto& v_position(o.find("position"));
-  if (v_position != o.end() && v_position->second.is<picojson::array>())
-  {
-    const picojson::array& p(v_position->second.get<picojson::array>());
-    for (int i = 0; i < 4; ++i) position[i] = static_cast<GLfloat>(p[i].get<double>());
-  }
+  getVector(position, o, "position");
 
   // 初期姿勢
-  const auto& v_orientation(o.find("orientation"));
-  if (v_orientation != o.end() && v_orientation->second.is<picojson::array>())
-  {
-    const picojson::array& a(v_orientation->second.get<picojson::array>());
-    for (int i = 0; i < 4; ++i) orientation[i] = static_cast<GLfloat>(a[i].get<double>());
-  }
+  getVector(orientation, o, "orientation");
 
   // シーングラフの最大の深さ
-  const auto& v_max_level(o.find("max_level"));
-  if (v_max_level != o.end())
-    max_level = static_cast<int>(v_max_level->second.get<double>());
+  getValue(max_level, o, "max_level");
 
   // ワールド座標に固定するシーングラフ
-  const auto& v_scene(o.find("scene"));
-  if (v_scene != o.end())
-    scene = v_scene->second;
+  const auto& v_scene{ o.find("scene") };
+  if (v_scene != o.end()) scene = v_scene->second;
 
   return true;
 }
@@ -423,7 +467,7 @@ bool Config::load(const std::string& file)
 //
 // 設定ファイルの書き込み
 //
-bool Config::save(const std::string &file) const
+bool Config::save(const std::string& file) const
 {
   // 設定値を保存する
   std::ofstream config(file);
@@ -432,160 +476,164 @@ bool Config::save(const std::string &file) const
   // オブジェクト
   picojson::object o;
 
-  // 左目のキャプチャデバイスのデバイス番号もしくはムービーファイル
-  o.insert(std::make_pair("left_camera", camera_left_movie.empty()
-    ? picojson::value(static_cast<double>(camera_left))
-    : picojson::value(camera_left_movie)));
+  // 左目のキャプチャデバイスのデバイス番号
+  setValue(camera_left, o, "left_camera");
+
+  // 左目のムービーファイル
+  setString(camera_left_movie, o, "left_movie");
 
   // 左目のキャプチャデバイス不使用時に表示する静止画像
-  o.insert(std::make_pair("left_image", picojson::value(camera_left_image)));
+  setString(camera_left_image, o, "left_image");
 
-  // 右目のキャプチャデバイスのデバイス番号もしくはムービーファイル
-  o.insert(std::make_pair("right_camera", camera_right_movie.empty()
-    ? picojson::value(static_cast<double>(camera_right))
-    : picojson::value(camera_left_movie)));
+  // 右目のキャプチャデバイスのデバイス番号
+  setValue(camera_right, o, "right_camera");
+
+  // 右目のムービーファイル
+  setString(camera_right_movie, o, "right_movie");
 
   // 右目のキャプチャデバイス不使用時に表示する静止画像
-  o.insert(std::make_pair("right_image", picojson::value(camera_right_image)));
+  setString(camera_right_image, o, "right_image");
 
   // スクリーンのサンプル数
-  o.insert(std::make_pair("screen_samples", picojson::value(static_cast<double>(camera_texture_samples))));
+  setValue(camera_texture_samples, o, "screen_samples");
 
   // 正距円筒図法の場合はテクスチャを繰り返す
-  o.insert(std::make_pair("texture_repeat", picojson::value(camera_texture_repeat)));
+  setValue(camera_texture_repeat, o, "texture_repeat");
 
   // ヘッドトラッキング
-  o.insert(std::make_pair("tracking", picojson::value(camera_tracking)));
+  setValue(camera_tracking, o, "tracking");
 
   // カメラの横の画素数
-  o.insert(std::make_pair("capture_width", picojson::value(capture_width)));
+  setValue(capture_width, o, "capture_width");
 
   // カメラの縦の画素数
-  o.insert(std::make_pair("capture_height", picojson::value(capture_height)));
+  setValue(capture_height, o, "capture_height");
 
   // カメラのフレームレート
-  o.insert(std::make_pair("capture_fps", picojson::value(capture_fps)));
+  setValue(capture_fps, o, "capture_fps");
 
   // カメラのコーデック
   o.insert(std::make_pair("capture_codec", picojson::value(std::string(capture_codec.data(), 4))));
 
   // 魚眼レンズの横の画角
-  o.insert(std::make_pair("fisheye_fov_x", picojson::value(static_cast<double>(circle[0]))));
+  setValue(circle[0], o, "fisheye_fov_x");
 
   // 魚眼レンズの縦の画角
-  o.insert(std::make_pair("fisheye_fov_y", picojson::value(static_cast<double>(circle[1]))));
+  setValue(circle[1], o, "fisheye_fov_y");
 
   // 魚眼レンズの横の中心位置
-  o.insert(std::make_pair("fisheye_center_x", picojson::value(static_cast<double>(circle[2]))));
+  setValue(circle[2], o, "fisheye_center_x");
 
   // 魚眼レンズの縦の中心位置
-  o.insert(std::make_pair("fisheye_center_y", picojson::value(static_cast<double>(circle[3]))));
+  setValue(circle[3], o, "fisheye_center_y");
 
   // Ovrvision Pro のモード
-  o.insert(std::make_pair("ovrvision_property", picojson::value(static_cast<double>(ovrvision_property))));
+  setValue(ovrvision_property, o, "ovrvision_property");
 
   // 立体視の方式
-  o.insert(std::make_pair("stereo", picojson::value(static_cast<double>(display_mode))));
-
-  // セカンダリディスプレイの使用
-  o.insert(std::make_pair("use_secondary", picojson::value(static_cast<double>(display_secondary))));
+  setValue(display_mode, o, "stereo");
 
   // フルスクリーン表示
-  o.insert(std::make_pair("fullscreen", picojson::value(display_fullscreen)));
+  setValue(display_fullscreen, o, "fullscreen");
+
+  // フルスクリーン表示するディスプレイの番号
+  setValue(display_secondary, o, "use_secondary");
 
   // ディスプレイの横の画素数
-  o.insert(std::make_pair("display_width", picojson::value(static_cast<double>(display_width))));
+  setValue(display_width, o, "display_width");
 
   // ディスプレイの縦の画素数
-  o.insert(std::make_pair("display_height", picojson::value(static_cast<double>(display_height))));
+  setValue(display_height, o, "display_height");
 
   // ディスプレイの縦横比
-  o.insert(std::make_pair("display_aspect", picojson::value(static_cast<double>(display_aspect))));
+  setValue(display_aspect, o, "display_aspect");
 
   // ディスプレイの中心の高さ
-  o.insert(std::make_pair("display_center", picojson::value(static_cast<double>(display_center))));
+  setValue(display_center, o, "display_center");
 
   // 視点からディスプレイまでの距離
-  o.insert(std::make_pair("display_distance", picojson::value(static_cast<double>(display_distance))));
-
-  // 左右のディスプレイの間隔
-  o.insert(std::make_pair("display_offset", picojson::value(static_cast<double>(display_offset))));
+  setValue(display_distance, o, "display_distance");
 
   // 視点から前方面までの距離 (焦点距離)
-  o.insert(std::make_pair("depth_near", picojson::value(static_cast<double>(display_near))));
+  setValue(display_near, o, "depth_near");
 
   // 視点から後方面までの距離
-  o.insert(std::make_pair("depth_far", picojson::value(static_cast<double>(display_far))));
+  setValue(display_far, o, "depth_far");
+
+  // 左右のディスプレイの間隔
+  setValue(display_offset, o, "display_offset");
 
   // シーンに対するズーム率
-  o.insert(std::make_pair("zoom", picojson::value(static_cast<double>(display_zoom))));
+  setValue(display_zoom, o, "zoom");
 
   // 背景にに対する焦点距離
-  o.insert(std::make_pair("focal", picojson::value(static_cast<double>(display_focal))));
+  setValue(display_focal, o, "focal");
 
   // 視差
-  o.insert(std::make_pair("display_parallax", picojson::value(static_cast<double>(display_parallax))));
+  setValue(parallax, o, "parallax");
+
+  // カメラ方向の補正値
+  picojson::array q;
+  for (int cam = 0; cam < camCount; ++cam)
+    for (int i = 0; i < 4; ++i) q.push_back(picojson::value(static_cast<double>(parallax_offset[cam][i])));
+  o.insert(std::make_pair("parallax_offset", picojson::value(q)));
 
   // バーテックスシェーダのソースファイル名
-  o.insert(std::make_pair("vertex_shader", picojson::value(vertex_shader)));
+  setString(vertex_shader, o, "vertex_shader");
 
   // フラグメントシェーダのソースファイル名
-  o.insert(std::make_pair("fragment_shader", picojson::value(fragment_shader)));
+  setString(fragment_shader, o, "fragment_shader");
 
   // ホストの役割
-  o.insert(std::make_pair("role", picojson::value(static_cast<double>(role))));
+  setValue(role, o, "role");
 
   // リモート表示に使うポート
-  o.insert(std::make_pair("port", picojson::value(static_cast<double>(port))));
+  setValue(port, o, "port");
 
   // リモート表示の送信先の IP アドレス
-  o.insert(std::make_pair("host", picojson::value(address)));
+  setString(address, o, "host");
 
   // 左カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  o.insert(std::make_pair("tracking_delay_left", picojson::value(static_cast<double>(remote_delay[0]))));
+  setValue(remote_delay[0], o, "tracking_delay_left");
 
   // 右カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  o.insert(std::make_pair("tracking_delay_right", picojson::value(static_cast<double>(remote_delay[1]))));
+  setValue(remote_delay[1], o, "tracking_delay_right");
 
   // 安定化処理
-  o.insert(std::make_pair("stabilize", picojson::value(remote_stabilize)));
+  setValue(remote_stabilize, o, "stabilize");
 
   // 安定化処理用のテクスチャの作成
-  o.insert(std::make_pair("texture_reshape", picojson::value(remote_texture_reshape)));
+  setValue(remote_texture_reshape, o, "texture_reshape");
 
   // リモートカメラの横の画素数
-  o.insert(std::make_pair("texture_width", picojson::value(static_cast<double>(remote_texture_width))));
+  setValue(remote_texture_width, o, "texture_width");
 
   // リモートカメラの縦の画素数
-  o.insert(std::make_pair("texture_height", picojson::value(static_cast<double>(remote_texture_height))));
+  setValue(remote_texture_height, o, "texture_height");
 
   // 伝送画像の品質
-  o.insert(std::make_pair("texture_quality", picojson::value(static_cast<double>(remote_texture_quality))));
+  setValue(remote_texture_quality, o, "texture_quality");
 
   // リモートカメラのテクスチャのサンプル数
-  o.insert(std::make_pair("texture_samples", picojson::value(static_cast<double>(remote_texture_samples))));
+  setValue(remote_texture_samples, o, "texture_samples");
 
   // リモートカメラの横の画角
-  o.insert(std::make_pair("remote_fov_x", picojson::value(static_cast<double>(remote_fov[0]))));
+  setValue(remote_fov[0], o, "remote_fov_x");
 
   // リモートカメラの縦の画角
-  o.insert(std::make_pair("remote_fov_y", picojson::value(static_cast<double>(remote_fov[1]))));
+  setValue(remote_fov[1], o, "remote_fov_y");
 
   // ローカルの姿勢変換行列の最大数
-  o.insert(std::make_pair("local_share_size", picojson::value(static_cast<double>(local_share_size))));
+  setValue(local_share_size, o, "local_share_size");
 
   // リモートの姿勢変換行列の最大数
-  o.insert(std::make_pair("remote_share_size", picojson::value(static_cast<double>(remote_share_size))));
+  setValue(remote_share_size, o, "remote_share_size");
 
   // 位置
-  picojson::array p;
-  for (int i = 0; i < 4; ++i) p.push_back(picojson::value(position[i]));
-  o.insert(std::make_pair("position", picojson::value(p)));
+  setVector(position, o, "position");
 
   // 姿勢
-  picojson::array a;
-  for (int i = 0; i < 4; ++i) a.push_back(picojson::value(orientation.get()[i]));
-  o.insert(std::make_pair("orientation", picojson::value(a)));
+  setVector(orientation, o, "orientation");
 
   // シーングラフの最大の深さ
   o.insert(std::make_pair("max_level", picojson::value(static_cast<double>(max_level))));
@@ -594,7 +642,7 @@ bool Config::save(const std::string &file) const
   o.insert(std::make_pair("scene", scene));
 
   // 設定内容をシリアライズして保存
-  picojson::value v(o);
+  picojson::value v{ o };
   config << v.serialize(true);
   config.close();
 

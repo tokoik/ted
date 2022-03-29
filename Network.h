@@ -15,7 +15,7 @@ class Network
   sockaddr_in recvAddr, sendAddr;
 
   // 役割
-  enum Role { STANDALONE = 0, OPERATOR, WORKER } role;
+  enum class Role : int { STANDALONE = 0, OPERATOR, WORKER } role;
 
 public:
 
@@ -30,8 +30,8 @@ public:
 
   // 初期化 (role == 0 : STANDALONE, 1: OPERATOR, 2: WORKER)
   int initializeRecv(unsigned short port);
-  int initializeSend(unsigned short port, const char *address);
-  int initialize(int role, unsigned short port, const char *address);
+  int initializeSend(unsigned short port, const char* address);
+  int initialize(int role, unsigned short port, const char* address);
 
   // 終了処理
   void finalize();
@@ -52,16 +52,16 @@ public:
   bool checkRemote() const;
 
   // 1 パケット受信
-  int recvPacket(void *buf, unsigned int len);
+  int recvPacket(void* buf, int len);
 
   // 1 パケット送信
-  int sendPacket(const void *buf, unsigned int len) const;
+  int sendPacket(const void* buf, int len) const;
 
   // 1 フレーム受信
-  int recvData(void *buf, unsigned int len);
+  int recvData(void* buf, int len);
 
   // 1 フレーム送信
-  unsigned int sendData(const void *buf, unsigned int len) const;
+  unsigned int sendData(const void* buf, int len) const;
 
   // EOF 送信
   int sendEof() const;

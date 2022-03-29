@@ -17,20 +17,11 @@
 #include <thread>
 #include <mutex>
 
-// 作業用メモリのサイズ
-constexpr int maxFrameSize(1024 * 1024);
-
 //
 // カメラ関連の処理を担当するクラス
 //
 class Camera
 {
-  // コピーコンストラクタを封じる
-  Camera(const Camera &c);
-
-  // 代入を封じる
-  Camera &operator=(const Camera &w);
-
 protected:
 
   // カメラスレッド
@@ -46,7 +37,7 @@ protected:
   void stop();
 
   // キャプチャした画像
-  const GLubyte *buffer[camCount];
+  const GLubyte* buffer[camCount];
 
   // キャプチャした画像のサイズ
   GLsizei size[camCount][2];
@@ -68,10 +59,15 @@ public:
   // コンストラクタ
   Camera();
 
+  // コピーコンストラクタを封じる
+  Camera(const Camera &c) = delete;
+
+  // 代入を封じる
+  Camera &operator=(const Camera &w) = delete;
+
   // デストラクタ
   virtual ~Camera();
 
-  // 
   // 画像の幅を得る
   int getWidth(int cam) const
   {
@@ -87,7 +83,7 @@ public:
   // フレームレートからキャプチャ間隔を設定する
   void setInterval(double fps)
   {
-    capture_interval = fps > 0.0 ? 1000.0 / fps : minDelay;
+    capture_interval = fps > 0.0 ? 1.0 / fps : minDelay * 0.001;
   }
 
   // 圧縮設定
@@ -106,7 +102,7 @@ public:
   virtual void decreaseGain() {};
 
   // カメラをロックして画像をテクスチャに転送する
-  virtual bool transmit(int cam, GLuint texture, const GLsizei *size);
+  virtual bool transmit(int cam, GLuint texture, const GLsizei* size);
 
   //
   // 通信関連
@@ -135,10 +131,10 @@ protected:
   std::vector<uchar> encoded[camCount];
 
   // 映像受信用のメモリ
-  uchar *recvbuf;
+  uchar* recvbuf;
 
   // 映像送信用のメモリ
-  uchar *sendbuf;
+  uchar* sendbuf;
 
   // 通信データ
   Network network;
@@ -146,7 +142,7 @@ protected:
 public:
 
   // 作業者通信スレッド起動
-  int startWorker(unsigned short port, const char *address);
+  int startWorker(unsigned short port, const char* address);
 
   // ネットワークを使っているかどうか
   bool useNetwork() const
@@ -160,7 +156,7 @@ public:
     return network.isWorker();
   }
 
-  // 操縦者かかどうか
+  // 作業者かどうか
   bool isOperator() const
   {
     return network.isOperator();
