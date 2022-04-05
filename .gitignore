@@ -1,12 +1,10 @@
 ## Ignore TED setting files
 /config.json
-/attitude.json
 /imgui.ini
-/libs
-/libs/*
 
 ## Ignore local development library
 /libs
+/libs/*
 
 ## Ignore Visual Studio Code settings
 .vscode/

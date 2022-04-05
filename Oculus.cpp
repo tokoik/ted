@@ -9,7 +9,7 @@
 // 姿勢
 #include "Attitude.h"
 
-// SDK ライブラリ (LibOVR) の組み込み
+// Oculus SDK ライブラリ (LibOVR) の組み込み
 #if defined(_WIN32)
 // コンフィギュレーションを調べる
 #  if defined(_DEBUG)
@@ -24,6 +24,7 @@
 // GetDefaultAdapterLuid を使うために dxgi.lib をリンクする
 #    include <dxgi.h>
 #    pragma comment(lib, "dxgi.lib")
+
 //
 // デフォルトのグラフィックアダプタの LUID を調べる
 //

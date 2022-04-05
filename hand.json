@@ -3,7 +3,7 @@
   "children": [
     {
       "controller": 47,
-      "model": "objs\target.obj"
+      "model": "target.obj"
     },
     {
       "position": [ 0, -0.05, 0 ],
@@ -11,179 +11,179 @@
       "children": [
         {
           "controller": 3,
-          "model": "objs\handr.obj"
+          "model": "handr.obj"
         },
         {
           "controller": 4,
-          "model": "objs\handl.obj"
+          "model": "handl.obj"
         },
         {
           "controller": 5,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 6,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 7,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 8,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 9,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 10,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 11,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 12,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 13,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 14,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 15,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 16,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 17,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 18,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 19,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 20,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 21,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 22,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 23,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 24,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 25,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 26,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 27,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 28,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 29,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 30,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 31,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 32,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 33,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 34,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 35,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 36,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 37,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 38,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 39,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 40,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 41,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 42,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 43,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 44,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 45,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         },
         {
           "controller": 46,
-          "model": "objs\finger.obj"
+          "model": "finger.obj"
         }
       ]
     }
