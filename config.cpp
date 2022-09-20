@@ -43,7 +43,7 @@ Config::Config()
   , display_offset{ 0.0f }
   , display_zoom{ 1.0f }
   , display_focal{ 1.0f }
-  , parallax{ 0.32f }
+  , parallax{ 0.032f }
   , parallax_offset{ ggIdentityQuaternion(), ggIdentityQuaternion() }
   , vertex_shader{ "fixed.vert" }
   , fragment_shader{ "normal.frag" }
