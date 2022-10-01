@@ -1,5 +1,6 @@
 ## Ignore TED setting files
 /config.json
+/attitude.json
 /imgui.ini
 
 ## Ignore local development library
