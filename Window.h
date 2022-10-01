@@ -417,4 +417,7 @@ public:
 
   // ミラー表示
   bool showMirror;
+
+  // メニュー表示
+  bool showMenu;
 };

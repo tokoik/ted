@@ -81,6 +81,7 @@ Window::Window(Config& defaults, GLFWwindow* share)
   , session{ nullptr }
   , showScene{ true }
   , showMirror{ true }
+  , showMenu{ true }
   , oculusFbo{ 0, 0 }
   , mirrorFbo{ 0 }
   , mirrorTexture{ nullptr }
@@ -1305,9 +1306,9 @@ void Window::swapBuffers()
       glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
 
+    // レンダリング結果をミラー表示用のフレームバッファにも転送する
     if (showMirror)
     {
-      // レンダリング結果をミラー表示用のフレームバッファにも転送する
       glBindFramebuffer(GL_READ_FRAMEBUFFER, mirrorFbo);
       glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 #if OVR_PRODUCT_VERSION > 0
@@ -1322,9 +1323,12 @@ void Window::swapBuffers()
 
 #if defined(IMGUI_VERSION)
     // ユーザインタフェースを描画する
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    ImDrawData* const imDrawData(ImGui::GetDrawData());
-    if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
+    if (showMenu)
+    {
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      ImDrawData* const imDrawData(ImGui::GetDrawData());
+      if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
+    }
 #endif
 
     // 残っている OpenGL コマンドを実行する
@@ -1334,8 +1338,11 @@ void Window::swapBuffers()
   {
 #if defined(IMGUI_VERSION)
     // ユーザインタフェースを描画する
-    ImDrawData* const imDrawData(ImGui::GetDrawData());
-    if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
+    if (showMenu)
+    {
+      ImDrawData* const imDrawData(ImGui::GetDrawData());
+      if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
+    }
 #endif
 
     // カラーバッファを入れ替える
@@ -1557,6 +1564,12 @@ void Window::keyboard(GLFWwindow* window, int key, int scancode, int action, int
 
         // ミラー表示を ON/OFF する
         instance->showMirror = !instance->showMirror;
+        break;
+
+      case GLFW_KEY_N:
+
+        // メニュー表示を ON/OFF する
+        instance->showMenu = !instance->showMenu;
         break;
 
       case GLFW_KEY_ESCAPE:
