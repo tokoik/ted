@@ -49,9 +49,6 @@ bool CamCv::opened(int cam)
 // フレームをキャプチャする
 void CamCv::capture(int cam)
 {
-  // あらかじめキャプチャデバイスをロックして
-  captureMutex[cam].lock();
-
   // スレッドが実行可の間
   while (run[cam])
   {
@@ -61,8 +58,11 @@ void CamCv::capture(int cam)
       // 次のフレームが存在すれば
       if (camera[cam].grab())
       {
+        // キャプチャデバイスをロックして
+        captureMutex[cam].lock();
+
         // 到着したフレームを切り出して
-        camera[cam].retrieve(image[cam], 3);
+        camera[cam].retrieve(image[cam]);
 
         // 画像を更新し
         buffer[cam] = image[cam].data;
@@ -73,6 +73,9 @@ void CamCv::capture(int cam)
           // フレームを圧縮して保存し
           cv::imencode(encoderType, image[cam], encoded[cam], param);
         }
+
+        // ロックを解除して
+        captureMutex[cam].unlock();
 
         // 次のフレームに進む
         continue;
@@ -88,19 +91,7 @@ void CamCv::capture(int cam)
         continue;
       }
     }
-
-    // フレームが切り出せなければロックを解除して
-    captureMutex[cam].unlock();
-
-    // 他のスレッドがリソースにアクセスするために少し待ってから
-    std::this_thread::sleep_for(std::chrono::milliseconds(minDelay));
-
-    // またキャプチャデバイスをロックする
-    captureMutex[cam].lock();
   }
-
-  // 終わるときはロックを解除する
-  captureMutex[cam].unlock();
 }
 
 // キャプチャを準備する
@@ -118,7 +109,7 @@ void CamCv::setup(int cam, const char* codec, double width, double height, doubl
 bool CamCv::start(int cam)
 {
   // 左カメラから 1 フレームキャプチャする
-  if (camera[cam].grab())
+  if (camera[cam].read(image[cam]))
   {
     // キャプチャした画像のフレームレートを取得する
     const double fps(camera[cam].get(cv::CAP_PROP_FPS));
