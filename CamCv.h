@@ -14,9 +14,6 @@ class CamCv
   // OpenCV のキャプチャデバイス
   cv::VideoCapture camera[camCount];
 
-  // OpenCV のキャプチャデバイスから取得した画像
-  cv::Mat image[camCount];
-
   // キャプチャデバイスを準備する
   void setup(int cam, const char* codec, double width, double height, double fps);
 

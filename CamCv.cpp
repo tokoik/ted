@@ -52,8 +52,8 @@ void CamCv::capture(int cam)
   // スレッドが実行可の間
   while (run[cam])
   {
-    // バッファが空のとき経過時間が次のフレームの時刻に達していて
-    if (!buffer[cam] && glfwGetTime() - startTime[cam] >= camera[cam].get(cv::CAP_PROP_POS_MSEC) * 0.001)
+    // 経過時間が次のフレームの時刻に達していて
+    if (glfwGetTime() - startTime[cam] >= camera[cam].get(cv::CAP_PROP_POS_MSEC) * 0.001)
     {
       // 次のフレームが存在すれば
       if (camera[cam].grab())
@@ -61,11 +61,8 @@ void CamCv::capture(int cam)
         // キャプチャデバイスをロックして
         captureMutex[cam].lock();
 
-        // 到着したフレームを切り出して
+        // 到着したフレームを切り出し
         camera[cam].retrieve(image[cam]);
-
-        // 画像を更新し
-        buffer[cam] = image[cam].data;
 
         // 作業者として動作していたら
         if (isWorker())
@@ -74,7 +71,10 @@ void CamCv::capture(int cam)
           cv::imencode(encoderType, image[cam], encoded[cam], param);
         }
 
-        // ロックを解除して
+        // キャプチャの完了を記録して
+        captured[cam] = true;
+
+        // ロックを解除したら
         captureMutex[cam].unlock();
 
         // 次のフレームに進む
@@ -84,7 +84,7 @@ void CamCv::capture(int cam)
       // フレームが取得できなかったらムービーファイルを巻き戻し
       if (camera[cam].set(cv::CAP_PROP_POS_FRAMES, 0.0))
       {
-        // 次のフレームの時刻を求める
+        // 次のフレームの時刻を求めて
         startTime[cam] = glfwGetTime() - camera[cam].get(cv::CAP_PROP_POS_MSEC) * 0.001 + interval[cam];
 
         // 次のフレームに進む
@@ -111,29 +111,24 @@ bool CamCv::start(int cam)
   // 左カメラから 1 フレームキャプチャする
   if (camera[cam].read(image[cam]))
   {
+    // キャプチャした画像のフォーマットを調べる
+    format = image[cam].channels() == 4 ? GL_BGRA : GL_BGR;
+
     // キャプチャした画像のフレームレートを取得する
-    const double fps(camera[cam].get(cv::CAP_PROP_FPS));
+    const double fps{ camera[cam].get(cv::CAP_PROP_FPS) };
     interval[cam] = fps > 0.0 ? 1.0 / fps : 0.033333333;
 
     // 次のフレームの時刻を求める
     startTime[cam] = glfwGetTime() - camera[cam].get(cv::CAP_PROP_POS_MSEC) * 0.001 + interval[cam];
 
-    // キャプチャした画像のサイズを取得する
-    size[cam][0] = static_cast<GLsizei>(camera[cam].get(cv::CAP_PROP_FRAME_WIDTH));
-    size[cam][1] = static_cast<GLsizei>(camera[cam].get(cv::CAP_PROP_FRAME_HEIGHT));
-
 #if defined(DEBUG)
     const int cc(static_cast<int>(camera[cam].get(cv::CAP_PROP_FOURCC)));
-    std::cerr << "Camera:" << cam << ", width:" << size[cam][0] << ", height:" << size[cam][1]
+    std::cerr << "Camera:" << cam << ", width:" << getWidth(cam) << ", height:" << getHeight(cam)
       << ", fourcc: " << static_cast<char>(cc & 255)
       << static_cast<char>((cc >> 8) & 255)
       << static_cast<char>((cc >> 16) & 255)
       << static_cast<char>((cc >> 24) & 255) << "\n";
 #endif
-
-    // キャプチャ用のメモリを確保する
-    image[cam].create(size[cam][0], size[cam][1], CV_8UC3);
-    buffer[cam] = image[cam].data;
 
     // 左カメラの利得と露出を取得する
     gain = static_cast<GLsizei>(camera[cam].get(cv::CAP_PROP_GAIN));

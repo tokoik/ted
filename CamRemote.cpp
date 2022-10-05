@@ -15,9 +15,8 @@ CamRemote::CamRemote(double width, double height, bool reshape)
 {
   if (reshape)
   {
-    // 背景画像のサイズ
-    size[camR][0] = size[camL][0] = static_cast<GLsizei>(width);
-    size[camR][1] = size[camL][1] = static_cast<GLsizei>(height);
+    // 背景画像の大きさ
+    size[camL] = size[camR] = cv::Size(static_cast<int>(width), static_cast<int>(height));
 
     // 背景画像の変形に使うフレームバッファオブジェクト
     glGenFramebuffers(1, &fb);
@@ -98,11 +97,10 @@ int CamRemote::open(unsigned short port, const char* address, const GLfloat* fov
   remote[camL] = cv::imdecode(cv::Mat(encoded[camL]), 1);
 
   // リモートから取得したフレームのサイズ
-  GLsizei rsize[camCount][2];
+  cv::Size rsize[camCount];
 
   // 左フレームのサイズを求める
-  rsize[camL][0] = remote[camL].cols;
-  rsize[camL][1] = remote[camL].rows;
+  rsize[camL] = remote[camL].size();
 
   // 右フレームが存在すれば
   if (head[camR] > 0)
@@ -114,8 +112,7 @@ int CamRemote::open(unsigned short port, const char* address, const GLfloat* fov
     remote[camR] = cv::imdecode(cv::Mat(encoded[camR]), 1);
 
     // 右フレームのサイズを求める
-    rsize[camR][0] = remote[camR].cols;
-    rsize[camR][1] = remote[camR].rows;
+    rsize[camR] = remote[camR].size();
   }
   else
   {
@@ -123,14 +120,13 @@ int CamRemote::open(unsigned short port, const char* address, const GLfloat* fov
     remote[camR] = remote[camL];
 
     // 右フレームのサイズは左フレームと同じにする
-    rsize[camR][0] = rsize[camL][0];
-    rsize[camR][1] = rsize[camL][1];
+    rsize[camR] = rsize[camL];
   }
 
   if (reshape)
   {
     // 背景画像の変形に使うメッシュの縦横の格子点数を求め
-    const GLfloat aspect(static_cast<GLfloat>(size[camL][0]) / static_cast<GLfloat>(size[camL][1]));
+    const GLfloat aspect(static_cast<GLfloat>(size[camL].width) / static_cast<GLfloat>(size[camL].height));
     slices = static_cast<GLsizei>(sqrt(aspect * static_cast<GLfloat>(samples)));
     stacks = samples / slices;
 
@@ -146,7 +142,7 @@ int CamRemote::open(unsigned short port, const char* address, const GLfloat* fov
     {
       // リモートから取得したフレームのサンプリングに使うテクスチャを準備する
       glBindTexture(GL_TEXTURE_2D, resample[cam]);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, rsize[cam][0], rsize[cam][1], 0,
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, rsize[cam].width, rsize[cam].height, 0,
         GL_RGB, GL_UNSIGNED_BYTE, NULL);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -158,10 +154,8 @@ int CamRemote::open(unsigned short port, const char* address, const GLfloat* fov
   else
   {
     // ドーム画像に変形しないときは背景テクスチャのサイズにする
-    size[camL][0] = rsize[camL][0];
-    size[camL][1] = rsize[camL][1];
-    size[camR][0] = rsize[camR][0];
-    size[camR][1] = rsize[camR][1];
+    size[camL] = rsize[camL];
+    size[camR] = rsize[camR];
   }
 
   // 通信スレッドを開始する
@@ -244,10 +238,10 @@ void CamRemote::recv()
       uchar* const data(reinterpret_cast<uchar*>(body + head[camCount]));
 
       // リモートから取得したフレームのサイズ
-      GLsizei rsize[camCount][2];
+      cv::Size rsize[camCount];
 
       // 左バッファが空のとき
-      if (!buffer[camL])
+      if (!captured[camL])
       {
         // 左フレームをロックして
         captureMutex[camL].lock();
@@ -258,23 +252,25 @@ void CamRemote::recv()
           // 左フレームデータを vector に変換して
           encoded[camL].assign(data, data + head[camL]);
 
-          // 左フレームをデコードして保存する
+          // 左フレームをデコードして保存し
           remote[camL] = cv::imdecode(cv::Mat(encoded[camL]), 1);
 
-          // 左フレームのサイズを求める
-          rsize[camL][0] = remote[camL].cols;
-          rsize[camL][1] = remote[camL].rows;
+          // 左フレームのサイズを求めて
+          rsize[camL] = remote[camL].size();
+
+          // 左フレームの取得の完了を記録する
+          captured[camL] = true;
         }
 
         // 左画像を更新し
-        buffer[camL] = remote[camL].data;
+        image[camL] = remote[camL];
 
         // 左フレームの転送が完了すればロックを解除する
         captureMutex[camL].unlock();
       }
 
       // 右バッファが空のとき
-      if (!buffer[camR])
+      if (!captured[camR])
       {
         // 右フレームをロックして
         captureMutex[camR].lock();
@@ -285,28 +281,29 @@ void CamRemote::recv()
           // 右フレームデータを vector に変換して
           encoded[camR].assign(data + head[camL], data + head[camL] + head[camR]);
 
-          // 右フレームをデコードして保存する
+          // 右フレームをデコードして保存し
           remote[camR] = cv::imdecode(cv::Mat(encoded[camR]), 1);
 
-          // 右フレームのサイズを求める
-          rsize[camR][0] = remote[camR].cols;
-          rsize[camR][1] = remote[camR].rows;
+          // 右フレームのサイズを求めて
+          rsize[camR] = remote[camR].size();
+
+          // 右フレームの取得の完了を記録する
+          captured[camR] = true;
         }
 
         // 右フレームが保存されていなければ
         if (remote[camR].empty())
         {
           // 右フレームのサイズは左フレームと同じにする
-          rsize[camR][0] = rsize[camL][0];
-          rsize[camR][1] = rsize[camL][1];
+          rsize[camR] = rsize[camL];
 
           // 右フレームは左フレームと同じにする
-          buffer[camR] = remote[camL].data;
+          image[camR] = remote[camL];
         }
         else
         {
           // 右フレームを更新する
-          buffer[camR] = remote[camR].data;
+          image[camR] = remote[camR];
         }
 
         // フレームの転送が完了すればロックを解除する

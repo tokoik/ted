@@ -36,11 +36,11 @@ protected:
   // スレッドを停止する
   void stop();
 
-  // キャプチャした画像
-  const GLubyte* buffer[camCount];
+  // キャプチャデバイスから取得した画像
+  cv::Mat image[camCount];
 
-  // キャプチャした画像のサイズ
-  GLsizei size[camCount][2];
+  // キャプチャ完了なら true
+  bool captured[camCount];
 
   // 期待するキャプチャ間隔
   double capture_interval;
@@ -71,13 +71,13 @@ public:
   // 画像の幅を得る
   int getWidth(int cam) const
   {
-    return size[cam][0];
+    return image[cam].cols;
   }
 
   // 画像の高さを得る
   int getHeight(int cam) const
   {
-    return size[cam][1];
+    return image[cam].rows;
   }
 
   // フレームレートからキャプチャ間隔を設定する

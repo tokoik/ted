@@ -11,9 +11,6 @@
 class CamImage
   : public Camera
 {
-  // ファイルから読み込んだ画像
-  cv::Mat image[camCount];
-
 public:
 
   // コンストラクタ

@@ -25,20 +25,13 @@ Camera::Camera()
   : recvbuf{ nullptr }
   , sendbuf{ nullptr }
   , format{ GL_BGR }
-  , size{}
+  , run{ false, false }
+  , captured{ false, false }
   , capture_interval{ minDelay * 0.001 }
   , interval{}
   , exposure{ 0 }
   , gain{ 0 }
 {
-  for (int cam = 0; cam < camCount; ++cam)
-  {
-    // 画像がまだ取得されていないことを記録しておく
-    buffer[cam] = nullptr;
-
-    // スレッドが停止状態であることを記録しておく
-    run[cam] = false;
-  }
 }
 
 // デストラクタ
@@ -93,14 +86,14 @@ bool Camera::transmit(int cam, GLuint texture, const GLsizei* size)
   if (captureMutex[cam].try_lock())
   {
     // 新しいデータが到着していたら
-    if (buffer[cam])
+    if (captured[cam])
     {
       // データをテクスチャに転送する
       glBindTexture(GL_TEXTURE_2D, texture);
-      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size[0], size[1], format, GL_UNSIGNED_BYTE, buffer[cam]);
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size[0], size[1], format, GL_UNSIGNED_BYTE, image[cam].data);
 
       // データの転送完了を記録する
-      buffer[cam] = nullptr;
+      captured[cam] = false;
     }
 
     // 左カメラのロックを解除する

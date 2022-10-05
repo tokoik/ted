@@ -24,10 +24,6 @@ bool CamImage::open(const std::string& file, int cam)
   // “Ç‚İ‚İ‚É¸”s‚µ‚½‚ç–ß‚é
   if (image[cam].empty()) return false;
 
-  // “Ç‚İ‚ñ‚¾‰æ‘œ‚ÌƒTƒCƒY‚ğ‹‚ß‚é
-  size[cam][0] = image[cam].cols;
-  size[cam][1] = image[cam].rows;
-
   return true;
 }
 

@@ -17,6 +17,9 @@ class CamRemote
   // 背景画像の変形に使うフレームバッファオブジェクト
   GLuint fb;
 
+  // 背景画像の大きさ
+  cv::Size size[camCount];
+
   // 背景画像の変形に使うメッシュの解像度
   GLsizei slices, stacks;;
 
