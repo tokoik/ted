@@ -123,7 +123,6 @@ void Menu::displayWindow()
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"表示設定", &showDisplayWindow);
-  ImGui::Text("Frame rate: %6.2f fps", ImGui::GetIO().Framerate);
 
   // 表示モードの選択
   int display_mode{ defaults.display_mode };
@@ -397,12 +396,12 @@ void Menu::startupWindow()
   ImGui::Checkbox(u8"クアッドバッファステレオ", &quadbuffer);
   ImGui::Checkbox(u8"フルスクリーン", &fullscreen);
 
-  ImGui::Text(u8"セカンダリモニタの番号");
-  ImGui::InputInt("", &secondary);
+  ImGui::Text(u8"セカンダリモニタ");
+  ImGui::InputInt(u8"番号", &secondary);
   secondary = std::max(secondary, 0);
 
-  ImGui::Text(u8"共有メモリのサイズ");
-  ImGui::InputInt2("", memorysize);
+  ImGui::Text(u8"共有メモリ");
+  ImGui::InputInt2(u8"サイズ", memorysize);
   memorysize[0] = std::max(memorysize[0], localShareSize);
   memorysize[1] = std::max(memorysize[1], remoteShareSize);
 
@@ -495,6 +494,9 @@ void Menu::menuBar()
       // Window メニュー終了
       ImGui::EndMenu();
     }
+
+    // フレームレートの表示
+    ImGui::Text("%6.2f fps", ImGui::GetIO().Framerate);
 
     // メインメニューバー終了
     ImGui::EndMainMenuBar();
