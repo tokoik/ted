@@ -29,7 +29,7 @@ Oculus* Window::oculus{ nullptr };
 //
 // コンストラクタ
 //
-Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, GLFWwindow *share)
+Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share)
   : window{ nullptr }
   , camera{ nullptr }
   , showScene{ true }
@@ -79,7 +79,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   }
 
   // GLFW のウィンドウを開く
-  const_cast<GLFWwindow *>(window) = glfwCreateWindow(width, height, title, monitor, share);
+  const_cast<GLFWwindow*>(window) = glfwCreateWindow(width, height, title, monitor, share);
 
   // ウィンドウが開かれなかったら戻る
   if (!window) return;
@@ -89,7 +89,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
   //
 
   // ヘッドトラッキングの変換行列を初期化する
-  for (auto &m : mo) m = ggIdentity();
+  for (auto& m : mo) m = ggIdentity();
 
   // 設定を初期化する
   reset();
@@ -136,7 +136,7 @@ Window::Window(int width, int height, const char *title, GLFWmonitor *monitor, G
 
       // スティックの中立位置を求める
       int axesCount;
-      const auto *const axes(glfwGetJoystickAxes(joy, &axesCount));
+      const auto* const axes(glfwGetJoystickAxes(joy, &axesCount));
 
       if (axesCount > 3)
       {
@@ -246,11 +246,11 @@ Window::operator bool()
   {
     // ボタン
     int btnsCount;
-    const auto *const btns(glfwGetJoystickButtons(joy, &btnsCount));
+    const auto* const btns{ glfwGetJoystickButtons(joy, &btnsCount) };
 
     // スティック
     int axesCount;
-    const auto *const axes(glfwGetJoystickAxes(joy, &axesCount));
+    const auto* const axes{ glfwGetJoystickAxes(joy, &axesCount) };
 
     // スティックの速度係数
     const auto axesSpeedFactor(axesSpeedScale * speedFactor);
@@ -400,7 +400,7 @@ Window::operator bool()
   }
 
   // マウスの現在位置を調べる
-  const ImGuiIO &io(ImGui::GetIO());
+  const ImGuiIO& io{ ImGui::GetIO() };
   x = io.MousePos.x;
   y = io.MousePos.y;
 
@@ -456,7 +456,7 @@ void Window::swapBuffers()
     if (showMenu)
     {
       // ユーザインタフェースを描画する
-      ImDrawData *const imDrawData(ImGui::GetDrawData());
+      ImDrawData* const imDrawData{ ImGui::GetDrawData() };
       if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
     }
 #endif
@@ -470,7 +470,7 @@ void Window::swapBuffers()
     if (showMenu)
     {
       // ユーザインタフェースを描画する
-      ImDrawData *const imDrawData(ImGui::GetDrawData());
+      ImDrawData* const imDrawData{ ImGui::GetDrawData() };
       if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
     }
 #endif
@@ -486,10 +486,10 @@ void Window::swapBuffers()
 //   ・ウィンドウのサイズ変更時にコールバック関数として呼び出される
 //   ・ウィンドウの作成時には明示的に呼び出す
 //
-void Window::resize(GLFWwindow *window, int width, int height)
+void Window::resize(GLFWwindow* window, int width, int height)
 {
   // このインスタンスの this ポインタを得る
-  Window *const instance(static_cast<Window *>(glfwGetWindowUserPointer(window)));
+  Window* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
 
   if (instance)
   {
@@ -561,7 +561,7 @@ void Window::resize(GLFWwindow *window, int width, int height)
 //
 //   ・マウスボタンを押したときにコールバック関数として呼び出される
 //
-void Window::mouse(GLFWwindow *window, int button, int action, int mods)
+void Window::mouse(GLFWwindow* window, int button, int action, int mods)
 {
 #ifdef IMGUI_VERSION
   // ImGui がマウスを使うときは Window クラスのマウス位置を更新しない
@@ -569,7 +569,7 @@ void Window::mouse(GLFWwindow *window, int button, int action, int mods)
 #endif
 
   // このインスタンスの this ポインタを得る
-  Window *const instance(static_cast<Window *>(glfwGetWindowUserPointer(window)));
+  Window* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
 
   if (instance)
   {
@@ -621,7 +621,7 @@ void Window::mouse(GLFWwindow *window, int button, int action, int mods)
 //
 //   ・マウスホイールを操作した時にコールバック関数として呼び出される
 //
-void Window::wheel(GLFWwindow *window, double x, double y)
+void Window::wheel(GLFWwindow* window, double x, double y)
 {
 #ifdef IMGUI_VERSION
   // ImGui がマウスを使うときは Window クラスのマウスホイールの回転量を更新しない
@@ -629,7 +629,7 @@ void Window::wheel(GLFWwindow *window, double x, double y)
 #endif
 
   // このインスタンスの this ポインタを得る
-  Window *const instance(static_cast<Window *>(glfwGetWindowUserPointer(window)));
+  Window* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
 
   if (instance)
   {
@@ -655,7 +655,7 @@ void Window::wheel(GLFWwindow *window, double x, double y)
 //
 //   ．キーボードをタイプした時にコールバック関数として呼び出される
 //
-void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int mods)
+void Window::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 #ifdef IMGUI_VERSION
   // ImGui がキーボードを使うときはキーボードの処理を行わない
@@ -663,7 +663,7 @@ void Window::keyboard(GLFWwindow *window, int key, int scancode, int action, int
 #endif
 
   // このインスタンスの this ポインタを得る
-  Window *const instance(static_cast<Window *>(glfwGetWindowUserPointer(window)));
+  Window* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
 
   if (instance)
   {

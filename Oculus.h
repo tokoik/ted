@@ -28,7 +28,7 @@ class Oculus
   ovrHmdDesc hmdDesc;
 
   // Oculus Rift 表示用の FBO
-  GLuint oculusFbo[ovrEye_Count];
+  std::array<GLuint, ovrEye_Count> oculusFbo;
 
 #if OVR_PRODUCT_VERSION >= 1
   // Oculus Rift にレンダリングするフレームの番号
@@ -38,7 +38,7 @@ class Oculus
   ovrLayerEyeFov layerData;
 
   // Oculus Rift 表示用の FBO のデプステクスチャ
-  GLuint oculusDepth[ovrEye_Count];
+  std::array<GLuint, ovrEye_Count> oculusDepth;
 
   // ミラー表示用の FBO のカラーテクスチャ
   ovrMirrorTexture mirrorTexture;
@@ -48,10 +48,10 @@ class Oculus
 
 #else
   // Oculus Rift のレンダリング情報
-  ovrEyeRenderDesc eyeRenderDesc[ovrEye_Count];
+  std::array<ovrEyeRenderDesc, ovrEye_Count> eyeRenderDesc;
 
   // Oculus Rift の視点情報
-  ovrPosef eyePose[ovrEye_Count];
+  std::array<ovrPosef, ovrEye_Count> eyePose;
 
   // Oculus Rift に転送する描画データ
   ovrLayer_Union layerData;
@@ -86,7 +86,7 @@ public:
   ///   @param screen 背景に対するスクリーンのサイズの配列.
   ///   @return Oculus Rift の初期化に成功したらコンテキストのポインタ.
   ///
-  static Oculus* initialize(GLfloat zoom, GLfloat* aspect, GgMatrix* mp, GgVector* screen);
+  static Oculus* initialize(GLfloat zoom, GLfloat* aspect, std::array<GgMatrix, ovrEye_Count>& mp, std::array<GgVector, ovrEye_Count>& screen);
 
   ///
   /// @brief Oculus Rift を停止する.
@@ -99,7 +99,7 @@ public:
   ///   @param zoom シーンのズーム率.
   ///   @param mp 透視投影変換行列の配列.
   ///
-void getPerspective(GLfloat zoom, GgMatrix* mp) const;
+void getPerspective(GLfloat zoom, std::array<GgMatrix, ovrEye_Count>& mp) const;
 
   ///
   /// @brief Oculus Rift のセッションが有効かどうか判定する.
@@ -117,7 +117,7 @@ void getPerspective(GLfloat zoom, GgMatrix* mp) const;
   ///   @param mv それぞれの目の位置に平行移動する GgMatrix 型の変換行列.
   ///   @return 描画が可能なら VISIBLE, 不可能なら INVISIBLE, 終了要求があれば WANTQUIT.
   ///
-  enum OculusStatus { VISIBLE = 0, INVISIBLE, WANTQUIT } start(GgMatrix* mv);
+  enum OculusStatus { VISIBLE = 0, INVISIBLE, WANTQUIT } start(std::array<GgMatrix, ovrEye_Count>& mv);
 
   ///
   /// @brief 図形を描画する Oculus Rift の目を選択する.

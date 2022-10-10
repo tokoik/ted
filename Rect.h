@@ -60,5 +60,5 @@ public:
   GLuint get() const;
 
   // •`‰æ
-  void draw(int eye, const GgMatrix& rotation, const GLsizei* samples) const;
+  void draw(int eye, const GgMatrix& rotation, const std::array<GLsizei, 2>& samples) const;
 };

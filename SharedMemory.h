@@ -20,7 +20,7 @@ class SharedMemory
   HANDLE hShare;
 
   // 共有メモリの先頭へのポインタ
-  GgMatrix *pShare;
+  GgMatrix* pShare;
 
   // 共有メモリの全要素数
   const unsigned int size;
@@ -46,23 +46,23 @@ public:
   unsigned int getSize() const;
 
   // 確保した共有メモリのアドレスを得る
-  const GgMatrix *get() const;
+  const GgMatrix* get() const;
 
   // 共有メモリの要素を取り出す
-  void get(unsigned int i, GgMatrix &m) const;
+  void get(unsigned int i, GgMatrix& m) const;
 
   // 共有メモリの要素に格納する
-  void set(unsigned int i, const GgMatrix &m);
+  void set(unsigned int i, const GgMatrix& m);
 
   // 共有メモリの複数の要素に値を設定する
-  void set(unsigned int i, unsigned int count, const GgMatrix &m);
-
-  // メモリの内容を共有メモリに保存する
-  void store(const GgMatrix *src, unsigned int count) const;
-
-  // メモリの内容を共有メモリと同期する
-  void sync(GgMatrix *src, unsigned int count) const;
+  void set(unsigned int i, unsigned int count, const GgMatrix& m);
 
   // 共有メモリの内容をメモリに取り出す
-  void load(GgMatrix *dst, unsigned int count) const;
+  void load(GgMatrix* dst, unsigned int count) const;
+
+  // メモリの内容を共有メモリに保存する
+  void store(const GgMatrix* src, unsigned int count) const;
+
+  // メモリの内容を共有メモリと同期する
+  void sync(GgMatrix* src, unsigned int count) const;
 };

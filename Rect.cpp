@@ -31,13 +31,13 @@ GLuint Rect::get() const
 }
 
 // 描画
-void Rect::draw(int eye, const GgMatrix& rotation, const GLsizei* samples) const
+void Rect::draw(int eye, const GgMatrix& rotation, const std::array<GLsizei, 2>& samples) const
 {
   // シェーダプログラムを選択する
   glUseProgram(shader);
 
   // 格子間隔を設定する
-  glUniform2fv(gapLoc, 1, window.gap);
+  glUniform2fv(gapLoc, 1, window.gap.data());
 
   // 背景テクスチャの半径と中心位置を設定する
   glUniform4fv(circleLoc, 1, window.circle.data());

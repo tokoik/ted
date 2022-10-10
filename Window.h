@@ -26,7 +26,7 @@ class Window
   GLFWwindow* const window;
 
   // ウィンドウのサイズ
-  GLsizei size[2];
+  std::array<GLsizei, 2> size;
 
   // ビューポートの幅と高さ
   int width, height;
@@ -35,10 +35,10 @@ class Window
   GLfloat aspect;
 
   // メッシュの縦横の格子点数
-  GLsizei samples[2];
+  std::array<GLsizei, 2> samples;
 
   // メッシュの縦横の格子間隔
-  GLfloat gap[2];
+  std::array<GLfloat, 2> gap;
 
   // 最後にタイプしたキー
   int key;
@@ -47,7 +47,7 @@ class Window
   int joy;
 
   // スティックの中立位置
-  float origin[4];
+  std::array<float, 4> origin;
 
   // ドラッグ開始位置
   double cx, cy;
@@ -60,13 +60,13 @@ class Window
   //
 
   // ヘッドトラッキングによる回転
-  GgQuaternion qo[camCount];
+  std::array<GgQuaternion, camCount> qo;
 
   // ヘッドトラッキングによる位置
-  GgVector po[camCount];
+  std::array<GgVector, camCount> po;
 
   // ヘッドトラッキングの変換行列
-  GgMatrix mo[camCount];
+  std::array<GgMatrix, camCount> mo;
 
   //
   // 座標変換
@@ -76,10 +76,10 @@ class Window
   GgMatrix mm;
 
   // ビュー変換行列
-  GgMatrix mv[camCount];
+  std::array<GgMatrix, camCount> mv;
 
   // 投影変換行列
-  GgMatrix mp[camCount];
+  std::array<GgMatrix, camCount> mp;
 
   // ズーム率
   GLfloat zoom;
@@ -92,7 +92,7 @@ class Window
   GgVector circle;
 
   // スクリーンの幅と高さ
-  GgVector screen[camCount];
+  std::array<GgVector, camCount> screen;
 
   // 焦点距離
   GLfloat focal;
@@ -125,7 +125,7 @@ public:
   //
   // 代入を封じる
   //
-  Window &operator=(const Window& w) = delete;
+  Window& operator=(const Window& w) = delete;
 
   //
   // デストラクタ
@@ -135,7 +135,7 @@ public:
   //
   // ウィンドウの識別子の取得
   //
-  GLFWwindow *get() const
+  GLFWwindow* get() const
   {
     return window;
   }
@@ -282,7 +282,7 @@ public:
   //
   // メッシュの縦横の格子点数を取り出す
   //
-  const GLsizei* getSamples() const
+  const auto& getSamples() const
   {
     return samples;
   }
@@ -290,7 +290,7 @@ public:
   //
   // メッシュの縦横の格子間隔を取り出す
   //
-  const GLfloat* getGap() const
+  const auto& getGap() const
   {
     return gap;
   }
@@ -298,15 +298,15 @@ public:
   //
   // スクリーンの幅と高さを取り出す
   //
-  const GLfloat* getScreen(int eye) const
+  const auto& getScreen(int eye) const
   {
-    return screen[eye].data();
+    return screen[eye];
   }
 
   //
   // 焦点距離を取り出す
   //
-  const GLfloat getFocal() const
+  auto getFocal() const
   {
     return focal;
   }
@@ -314,7 +314,7 @@ public:
   //
   // スクリーンの間隔を取り出す
   //
-  GLfloat getOffset(int eye = 0) const
+  auto getOffset(int eye = 0) const
   {
     return static_cast<GLfloat>(1 - (eye & 1) * 2) * offset;
   }
@@ -322,15 +322,15 @@ public:
   //
   // 背景テクスチャの半径と中心を取り出す
   //
-  const GLfloat *getCircle() const
+  const auto& getCircle() const
   {
-    return circle.data();
+    return circle;
   }
 
   //
   // ウィンドウのサイズを取り出す
   //
-  const GLsizei* getSize() const
+  const auto& getSize() const
   {
     return size;
   }
@@ -338,7 +338,7 @@ public:
   //
   // ウィンドウのアスペクト比を取り出す
   //
-  GLfloat getAspect() const
+  auto getAspect() const
   {
     return aspect;
   }
@@ -354,7 +354,7 @@ public:
 
   // Oculus Rift のコンテキスト
   friend class Oculus;
-  static Oculus *oculus;
+  static Oculus* oculus;
 
   // Oculus Rift を起動する
   bool startOculus();

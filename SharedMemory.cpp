@@ -14,12 +14,12 @@ SharedMemory::SharedMemory(const LPCTSTR strMutexName, const LPCTSTR strShareNam
   if (hMutex)
   {
     // ファイルマッピングオブジェクトを作成する
-    hShare = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, size * sizeof (GgMatrix), strShareName);
+    hShare = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, size * sizeof(GgMatrix), strShareName);
 
     if (hShare)
     {
       // ファイルマッピングオブジェクトをメモリにマップする
-      pShare = static_cast<GgMatrix *>(MapViewOfFile(hShare, FILE_MAP_WRITE, 0, 0, 0));
+      pShare = static_cast<GgMatrix*>(MapViewOfFile(hShare, FILE_MAP_WRITE, 0, 0, 0));
       return;
     }
 
@@ -65,13 +65,13 @@ unsigned int SharedMemory::getSize() const
 }
 
 // 確保した共有メモリのアドレスを得る
-const GgMatrix *SharedMemory::get() const
+const GgMatrix* SharedMemory::get() const
 {
   return pShare;
 }
 
 // 共有メモリの要素を取り出す
-void SharedMemory::get(unsigned int i, GgMatrix &m) const
+void SharedMemory::get(unsigned int i, GgMatrix& m) const
 {
   if (i >= size) return;
   if (lock())
@@ -82,7 +82,7 @@ void SharedMemory::get(unsigned int i, GgMatrix &m) const
 }
 
 // 共有メモリの要素に格納する
-void SharedMemory::set(unsigned int i, const GgMatrix &m)
+void SharedMemory::set(unsigned int i, const GgMatrix& m)
 {
   if (i >= size) return;
   if (lock())
@@ -93,7 +93,7 @@ void SharedMemory::set(unsigned int i, const GgMatrix &m)
 }
 
 // 共有メモリの複数の要素に値を設定する
-void SharedMemory::set(unsigned int i, unsigned int count, const GgMatrix &m)
+void SharedMemory::set(unsigned int i, unsigned int count, const GgMatrix& m)
 {
   if (i >= size) return;
   if (count += i >= size) count = size;
@@ -105,7 +105,7 @@ void SharedMemory::set(unsigned int i, unsigned int count, const GgMatrix &m)
 }
 
 // メモリの内容を共有メモリに保存する
-void SharedMemory::store(const GgMatrix *src, unsigned int count) const
+void SharedMemory::store(const GgMatrix* src, unsigned int count) const
 {
   if (count > size) count = size;
   if (lock())
@@ -116,7 +116,7 @@ void SharedMemory::store(const GgMatrix *src, unsigned int count) const
 }
 
 // メモリの内容を共有メモリと同期する
-void SharedMemory::sync(GgMatrix *src, unsigned int count) const
+void SharedMemory::sync(GgMatrix* src, unsigned int count) const
 {
   if (count > size) count = size;
   if (lock())
@@ -128,7 +128,7 @@ void SharedMemory::sync(GgMatrix *src, unsigned int count) const
 }
 
 // 共有メモリの内容をメモリに取り出す
-void SharedMemory::load(GgMatrix *dst, unsigned int count) const
+void SharedMemory::load(GgMatrix* dst, unsigned int count) const
 {
   if (count > size) count = size;
 

@@ -26,13 +26,13 @@ extern std::unique_ptr<SharedMemory> remoteAttitude;
 class Scene
 {
   // 子供のパーツのリスト
-  std::vector<Scene *> children;
+  std::vector<Scene*> children;
 
   // 描画するパーツ
-  const GgSimpleObj *obj;
+  const GgSimpleObj* obj;
 
   // 使用するシェーダ
-  static const GgSimpleShader *shader;
+  static const GgSimpleShader* shader;
 
   // 読み込んだパーツを登録するパーツリスト
   static std::map<const std::string, std::unique_ptr<const GgSimpleObj>> parts;
@@ -41,7 +41,7 @@ class Scene
   GgMatrix mm;
 
   // このパーツが参照する外部モデル変換行列
-  const GgMatrix *me;
+  const GgMatrix* me;
 
   // リモートの外部モデル変換行列のテーブルのコピー
   static std::vector<GgMatrix> localMatrixTable, remoteMatrixTable;
@@ -55,10 +55,10 @@ class Scene
 public:
 
   // コンストラクタ
-  Scene(const GgSimpleObj *obj = nullptr);
+  Scene(const GgSimpleObj* obj = nullptr);
 
   // シーングラフからシーンのオブジェクトを作成するコンストラクタ
-  Scene(const picojson::value &v, int level = 0);
+  Scene(const picojson::value& v, int level = 0);
 
   // デストラクタ
   virtual ~Scene();
@@ -70,16 +70,16 @@ public:
   picojson::object load(const picojson::value& v);
 
   // シーングラフを解析する
-  Scene *read(const picojson::value &v, int level);
+  Scene* read(const picojson::value& v, int level);
 
   // 子供にシーンを追加する
-  Scene *addChild(Scene *scene);
+  Scene* addChild(Scene* scene);
 
   // 子供にパーツに追加する
-  Scene *addChild(GgSimpleObj *obj = nullptr);
+  Scene* addChild(GgSimpleObj* obj = nullptr);
 
   // ローカルとリモートの変換行列を設定する
-  static void setup(const GgMatrix &m);
+  static void setup(const GgMatrix& m);
 
 #if defined(LEAP_INTERPORATE_FRAME)
   // ローカルとリモートの変換行列を更新する
@@ -87,10 +87,10 @@ public:
 #endif
 
   // ローカルの変換行列のテーブルに保存する
-  static void setLocalAttitude(int cam, const GgMatrix &m);
+  static void setLocalAttitude(int cam, const GgMatrix& m);
 
   // リモートのカメラのトラッキング情報を遅延させて取り出す
-  static const GgMatrix &getRemoteAttitude(int cam);
+  static const GgMatrix& getRemoteAttitude(int cam);
 
   // Leap Motion を起動する
   static bool startLeapMotion()
@@ -107,11 +107,11 @@ public:
   }
 
   // シェーダを設定する
-  static void setShader(const GgSimpleShader &shader)
+  static void setShader(const GgSimpleShader& shader)
   {
     Scene::shader = &shader;
   }
 
   // このパーツ以下のすべてのパーツを描画する
-  void draw(const GgMatrix &mp, const GgMatrix &mv) const;
+  void draw(const GgMatrix& mp, const GgMatrix& mv) const;
 };

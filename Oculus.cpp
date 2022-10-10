@@ -89,7 +89,7 @@ Oculus::Oculus()
 //   screen 背景に対するスクリーンのサイズ.
 //   戻り値 Oculus Rift の初期化に成功したらコンテキストのポインタ.
 //
-Oculus* Oculus::initialize(GLfloat zoom, GLfloat* aspect, GgMatrix* mp, GgVector* screen)
+Oculus* Oculus::initialize(GLfloat zoom, GLfloat* aspect, std::array<GgMatrix, ovrEye_Count>& mp, std::array<GgVector, ovrEye_Count>& screen)
 {
   // Oculus Rift のコンテキスト
   static Oculus oculus;
@@ -168,11 +168,11 @@ Oculus* Oculus::initialize(GLfloat zoom, GLfloat* aspect, GgMatrix* mp, GgVector
   layerData.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;
 
   // Oculus Rift のレンダリング用の FBO を作成する
-  glGenFramebuffers(ovrEye_Count, oculus.oculusFbo);
+  glGenFramebuffers(ovrEye_Count, oculus.oculusFbo.data());
 
 #  if OVR_PRODUCT_VERSION >= 1
   // FBO のデプスバッファとして使うテクスチャを作成する
-  glGenTextures(ovrEye_Count, oculus.oculusDepth);
+  glGenTextures(ovrEye_Count, oculus.oculusDepth.data());
 #  endif
 
   // 前方面が defaults.display_near なのでスクリーンもそれに合わせる
@@ -192,11 +192,11 @@ Oculus* Oculus::initialize(GLfloat zoom, GLfloat* aspect, GgMatrix* mp, GgVector
     layerData.EyeFov.Fov[eye] = eyeFov;
 
     // Oculus Rift のレンズ補正等の設定値を取得する
-    auto& eyeRenderDesc{ oculus.eyeRenderDesc };
-    eyeRenderDesc[eye] = ovr_GetRenderDesc(session, ovrEyeType(eye), eyeFov);
+    auto& eyeRenderDesc{ oculus.eyeRenderDesc[eye] };
+    eyeRenderDesc = ovr_GetRenderDesc(session, ovrEyeType(eye), eyeFov);
 
     // Oculus Rift の片目の頭の位置からの変位を求める
-    const auto &offset(eyeRenderDesc[eye].HmdToEyeViewOffset);
+    const auto& offset{ eyeRenderDesc.HmdToEyeViewOffset };
     mv[eye] = ggTranslate(-offset.x, -offset.y, -offset.z);
 
     // Oculus Rift の実際の視野
@@ -384,7 +384,7 @@ void Oculus::terminate()
       // Oculus Rift のレンダリング用の FBO を削除する
       if (oculusFbo[eye] != 0)
       {
-        glDeleteFramebuffers(eye, oculusFbo + eye);
+        glDeleteFramebuffers(eye, &oculusFbo[eye]);
         oculusFbo[eye] = 0;
       }
 
@@ -399,7 +399,7 @@ void Oculus::terminate()
       // デプスバッファとして使ったテクスチャを開放する
       if (oculusDepth[eye] != 0)
       {
-        glDeleteTextures(eye, oculusDepth + eye);
+        glDeleteTextures(eye, &oculusDepth[eye]);
         oculusDepth[eye] = 0;
       }
 #else
@@ -441,7 +441,7 @@ void Oculus::terminate()
 //   zoom シーンのズーム率.
 //   mp 透視投影変換行列の配列.
 //
-void Oculus::getPerspective(GLfloat zoom, GgMatrix* mp) const
+void Oculus::getPerspective(GLfloat zoom, std::array<GgMatrix, ovrEye_Count>& mp) const
 {
   // 前方面が defaults.display_near なのでスクリーンもそれに合わせる
   const GLfloat zf{ defaults.display_near / zoom };
@@ -453,14 +453,14 @@ void Oculus::getPerspective(GLfloat zoom, GgMatrix* mp) const
 
     // Oculus Rift の実際の視野
 #if OVR_PRODUCT_VERSION >= 1
-    const auto& fov(eyeFov);
+    const auto& fov{ eyeFov };
 #else
     // Oculus Rift のレンズ補正等の設定値を取得する
-    auto& eyeRenderDesc{ oculus.eyeRenderDesc };
-    eyeRenderDesc[eye] = ovr_GetRenderDesc(session, ovrEyeType(eye), eyeFov);
+    auto& eyeRenderDesc{ oculus.eyeRenderDesc[eye] };
+    eyeRenderDesc = ovr_GetRenderDesc(session, ovrEyeType(eye), eyeFov);
 
     // Oculus Rift の実際の視野
-    const auto &fov(eyeRenderDesc.Fov);
+    const auto& fov{ eyeRenderDesc.Fov };
 #endif
 
     // 視差の調整値
@@ -481,7 +481,7 @@ void Oculus::getPerspective(GLfloat zoom, GgMatrix* mp) const
 //   mv それぞれの目の位置に平行移動する GgMatrix 型の変換行列.
 //   戻り値 描画が可能なら VISIBLE, 不可能なら INVISIBLE, 終了要求があれば WANTQUIT.
 //
-enum Oculus::OculusStatus Oculus::start(GgMatrix *mv)
+enum Oculus::OculusStatus Oculus::start(std::array<GgMatrix, ovrEye_Count>& mv)
 {
   // 既に Oculus Rift のセッションが作成されていないとおかしい
   assert(session != nullptr);
@@ -501,14 +501,14 @@ enum Oculus::OculusStatus Oculus::start(GgMatrix *mv)
   if (!sessionStatus.IsVisible) return INVISIBLE;
 
   // HmdToEyeOffset などは実行時に変化するので毎フレーム ovr_GetRenderDesc() で ovrEyeRenderDesc を取得する
-  const ovrEyeRenderDesc eyeRenderDesc[] =
+  const ovrEyeRenderDesc eyeRenderDesc[]
   {
     ovr_GetRenderDesc(session, ovrEye_Left, hmdDesc.DefaultEyeFov[0]),
     ovr_GetRenderDesc(session, ovrEye_Right, hmdDesc.DefaultEyeFov[1])
   };
 
   // Oculus Rift の左右の目のトラッキングの位置からの変位を求める
-  const ovrPosef hmdToEyePose[] =
+  const ovrPosef hmdToEyePose[]
   {
     eyeRenderDesc[0].HmdToEyePose,
     eyeRenderDesc[1].HmdToEyePose
@@ -523,23 +523,23 @@ enum Oculus::OculusStatus Oculus::start(GgMatrix *mv)
 
 #else
   // フレームのタイミング計測開始
-  const auto ftiming(ovr_GetPredictedDisplayTime(session, 0));
+  const auto ftiming{ ovr_GetPredictedDisplayTime(session, 0) };
 
   // sensorSampleTime の取得は可能な限り ovr_GetTrackingState() の近くで行う
   layerData.EyeFov.SensorSampleTime = ovr_GetTimeInSeconds();
 
   // ヘッドトラッキングの状態を取得する
-  const auto hmdState(ovr_GetTrackingState(session, ftiming, ovrTrue));
+  const auto hmdState{ ovr_GetTrackingState(session, ftiming, ovrTrue) };
 
   // 瞳孔間隔
-  const ovrVector3f hmdToEyeViewOffset[] =
+  const ovrVector3f hmdToEyeViewOffset[]
   {
     eyeRenderDesc[0].HmdToEyeViewOffset,
     eyeRenderDesc[1].HmdToEyeViewOffset
   };
 
   // 視点の姿勢情報を求める
-  ovr_CalcEyePoses(hmdState.HeadPose.ThePose, hmdToEyeViewOffset, eyePose);
+  ovr_CalcEyePoses(hmdState.HeadPose.ThePose, hmdToEyeViewOffset, eyePose.data());
 #endif
 
   return VISIBLE;
@@ -575,34 +575,34 @@ void Oculus::select(int eye, GgVector &po, GgQuaternion &qo)
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, oculusDepth[eye], 0);
 
     // ビューポートを設定する
-    const auto &vp(layerData.Viewport[eye]);
+    const auto& vp{ layerData.Viewport[eye] };
     glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
   }
 
   // Oculus Rift の片目の位置と回転を取得する
-  const auto &o(layerData.RenderPose[eye].Orientation);
-  const auto &p(layerData.RenderPose[eye].Position);
+  const auto& o{ layerData.RenderPose[eye].Orientation };
+  const auto& p{ layerData.RenderPose[eye].Position };
 #else
   // レンダーターゲットに描画する前にレンダーターゲットのインデックスをインクリメントする
-  auto *const colorTexture(layerData.EyeFov.ColorTexture[eye]);
+  auto* const colorTexture{ layerData.EyeFov.ColorTexture[eye] };
   colorTexture->CurrentIndex = (colorTexture->CurrentIndex + 1) % colorTexture->TextureCount;
-  auto *const depthTexture(layerData.EyeFovDepth.DepthTexture[eye]);
+  auto* const depthTexture{ layerData.EyeFovDepth.DepthTexture[eye] };
   depthTexture->CurrentIndex = (depthTexture->CurrentIndex + 1) % depthTexture->TextureCount;
 
   // レンダーターゲットを切り替える
   glBindFramebuffer(GL_FRAMEBUFFER, oculusFbo[eye]);
-  const auto &ctex(reinterpret_cast<ovrGLTexture *>(&colorTexture->Textures[colorTexture->CurrentIndex]));
+  const auto& ctex{ reinterpret_cast<ovrGLTexture*>(&colorTexture->Textures[colorTexture->CurrentIndex]) };
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ctex->OGL.TexId, 0);
-  const auto &dtex(reinterpret_cast<ovrGLTexture *>(&depthTexture->Textures[depthTexture->CurrentIndex]));
+  const auto& dtex{ reinterpret_cast<ovrGLTexture*>(&depthTexture->Textures[depthTexture->CurrentIndex]) };
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, dtex->OGL.TexId, 0);
 
   // ビューポートを設定する
-  const auto &vp(layerData.EyeFov.Viewport[eye]);
+  const auto& vp{ layerData.EyeFov.Viewport[eye] };
   glViewport(vp.Pos.x, vp.Pos.y, vp.Size.w, vp.Size.h);
 
   // Oculus Rift の片目の位置と回転を取得する
-  const auto &p(eyePose[eye].Position);
-  const auto &o(eyePose[eye].Orientation);
+  const auto& p{ eyePose[eye].Position };
+  const auto& o{ eyePose[eye].Orientation };
 #endif
 
   // Oculus Rift の片目の位置を保存する

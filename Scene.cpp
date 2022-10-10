@@ -7,7 +7,7 @@
 #include <fstream>
 
 // シェーダ
-const GgSimpleShader *Scene::shader{ nullptr };
+const GgSimpleShader* Scene::shader{ nullptr };
 
 // 読み込んだパーツを登録するパーツリスト
 std::map<const std::string, std::unique_ptr<const GgSimpleObj>> Scene::parts;
@@ -28,7 +28,7 @@ std::queue<GgMatrix> Scene::fifo[remoteCamCount];
 LeapListener Scene::listener;
 
 // コンストラクタ
-Scene::Scene(const GgSimpleObj *obj)
+Scene::Scene(const GgSimpleObj* obj)
   : obj{ obj }
   , me{ nullptr }
 {
@@ -37,7 +37,7 @@ Scene::Scene(const GgSimpleObj *obj)
 }
 
 // シーングラフからシーンのオブジェクトを作成するコンストラクタ
-Scene::Scene(const picojson::value &v, int level)
+Scene::Scene(const picojson::value& v, int level)
   : obj{ nullptr }
 {
   read(v, level);
@@ -104,16 +104,16 @@ inline picojson::object Scene::load(const picojson::value& v)
     // 読み込んだ設定が object ならそれを返す
     if (f.is<picojson::object>()) return f.get<picojson::object>();
   }
-  
+
   // これら以外なら空の object を返す
   return picojson::object{};
 }
 
 // シーングラフを解析する
-Scene *Scene::read(const picojson::value &v, int level)
+Scene* Scene::read(const picojson::value& v, int level)
 {
   // 引数ををパースする
-  const auto &&o(load(v));
+  const auto&& o(load(v));
   if (o.empty()) return this;
 
   // シーンオブジェクトの変換行列
@@ -123,10 +123,10 @@ Scene *Scene::read(const picojson::value &v, int level)
   me = nullptr;
 
   // パーツの位置
-  const auto &v_position(o.find("position"));
+  const auto& v_position(o.find("position"));
   if (v_position != o.end() && v_position->second.is<picojson::array>())
   {
-    const auto &a(v_position->second.get<picojson::array>());
+    const auto& a(v_position->second.get<picojson::array>());
     GLfloat t[] = { 0.0f, 0.0f, 0.0f };
     const size_t size(sizeof t / sizeof t[0]);
     const size_t count(a.size() < size ? a.size() : size);
@@ -135,10 +135,10 @@ Scene *Scene::read(const picojson::value &v, int level)
   }
 
   // パーツの回転
-  const auto &v_rotation(o.find("rotation"));
+  const auto& v_rotation(o.find("rotation"));
   if (v_rotation != o.end() && v_rotation->second.is<picojson::array>())
   {
-    const auto &a(v_rotation->second.get<picojson::array>());
+    const auto& a(v_rotation->second.get<picojson::array>());
     GLfloat r[] = { 1.0f, 0.0f, 0.0f, 0.0f };
     const size_t size(sizeof r / sizeof r[0]);
     const size_t count(a.size() < size ? a.size() : size);
@@ -147,10 +147,10 @@ Scene *Scene::read(const picojson::value &v, int level)
   }
 
   // パーツのスケール
-  const auto &v_scale(o.find("scale"));
+  const auto& v_scale(o.find("scale"));
   if (v_scale != o.end() && v_scale->second.is<picojson::array>())
   {
-    const auto &a(v_scale->second.get<picojson::array>());
+    const auto& a(v_scale->second.get<picojson::array>());
     GLfloat s[] = { 1.0f, 1.0f, 1.0f };
     const size_t size(sizeof s / sizeof s[0]);
     const size_t count(a.size() < size ? a.size() : size);
@@ -159,7 +159,7 @@ Scene *Scene::read(const picojson::value &v, int level)
   }
 
   // 外部コントローラーによる制御
-  const auto &v_controller(o.find("controller"));
+  const auto& v_controller(o.find("controller"));
   if (v_controller != o.end() && v_controller->second.is<double>())
   {
     // 引数に指定されている変換行列の番号を取り出し
@@ -168,7 +168,7 @@ Scene *Scene::read(const picojson::value &v, int level)
   }
 
   // 遠隔コントローラーによる制御
-  const auto &v_remote_controller(o.find("remote_controller"));
+  const auto& v_remote_controller(o.find("remote_controller"));
   if (v_remote_controller != o.end() && v_remote_controller->second.is<double>())
   {
     // 引数に指定されている変換行列の番号を取り出し
@@ -177,14 +177,14 @@ Scene *Scene::read(const picojson::value &v, int level)
   }
 
   // パーツの図形データ
-  const auto &v_model(o.find("model"));
+  const auto& v_model(o.find("model"));
   if (v_model != o.end() && v_model->second.is<std::string>())
   {
     // パーツのファイル名を取り出す
-    const auto &model(v_model->second.get<std::string>());
+    const auto& model(v_model->second.get<std::string>());
 
     // パーツリストに登録されていれば
-    const auto &p(parts.find(model));
+    const auto& p(parts.find(model));
     if (p != parts.end())
     {
       // すでに読み込んだ図形を使う
@@ -204,7 +204,7 @@ Scene *Scene::read(const picojson::value &v, int level)
   if (++level <= defaults.max_level)
   {
     // シーングラフに下位ノードを接続する
-    const auto &v_children(o.find("children"));
+    const auto& v_children(o.find("children"));
     if (v_children != o.end())
     {
       if (v_children->second.is<picojson::array>())
@@ -225,20 +225,20 @@ Scene *Scene::read(const picojson::value &v, int level)
 }
 
 // 子供にシーンを追加する
-Scene *Scene::addChild(Scene *scene)
+Scene* Scene::addChild(Scene* scene)
 {
   children.push_back(scene);
   return scene;
 }
 
 // 子供にパーツに追加する
-Scene *Scene::addChild(GgSimpleObj *obj)
+Scene* Scene::addChild(GgSimpleObj* obj)
 {
   return addChild(new Scene(obj));
 }
 
 // ローカルとリモートの変換行列を設定する
-void Scene::setup(const GgMatrix &m)
+void Scene::setup(const GgMatrix& m)
 {
   // モデル変換行列を変換行列のテーブルに保存する
   localMatrixTable[camCount] = m;
@@ -274,14 +274,14 @@ void Scene::update()
 #endif
 
 // ローカルの変換行列のテーブルに保存する
-void Scene::setLocalAttitude(int cam, const GgMatrix &m)
+void Scene::setLocalAttitude(int cam, const GgMatrix& m)
 {
   localMatrixTable[cam] = m;
   localAttitude->set(cam, m);
 }
 
 // リモートのカメラのトラッキング情報を遅延させて取り出す
-const GgMatrix &Scene::getRemoteAttitude(int cam)
+const GgMatrix& Scene::getRemoteAttitude(int cam)
 {
   // 新しいトラッキングデータを追加する
   fifo[cam].push(remoteMatrixTable[cam]);
@@ -294,7 +294,7 @@ const GgMatrix &Scene::getRemoteAttitude(int cam)
 }
 
 // このパーツ以下のすべてのパーツを描画する
-void Scene::draw(const GgMatrix &mp, const GgMatrix &mv) const
+void Scene::draw(const GgMatrix& mp, const GgMatrix& mv) const
 {
   // このノードのモデル変換行列を累積する
   GgMatrix mw(mv * this->mm);
