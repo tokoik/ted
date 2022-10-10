@@ -45,7 +45,7 @@ enum Role
 enum CameraId { camL = 0, camR, camCount };
 
 // 設定値
-struct config
+struct Config
 {
   // 画面表示のモード
   int display_mode;
@@ -174,10 +174,10 @@ struct config
   std::string config_file;
 
   // コンストラクタ
-  config();
+  Config();
 
   // デストラクタ
-  virtual ~config();
+  virtual ~Config();
 
   // 設定の解析
   bool read(picojson::value &v);
@@ -190,7 +190,7 @@ struct config
 };
 
 // デフォルト値
-extern config defaults;
+extern Config defaults;
 
 // ウィンドウのタイトル
 constexpr char windowTitle[]{ "TED" };

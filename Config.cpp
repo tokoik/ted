@@ -3,7 +3,7 @@
 //
 
 // 各種設定
-#include "config.h"
+#include "Config.h"
 
 // Ovrvision Pro
 #include "ovrvision_pro.h"
@@ -12,7 +12,7 @@
 #include <fstream>
 
 // 初期設定
-config defaults;
+Config defaults;
 
 //
 // ※1 表示の設定 (DisplayMode)
@@ -60,7 +60,7 @@ config defaults;
 //
 // コンストラクタ
 //
-config::config()
+Config::Config()
   : display_mode{ MONOCULAR }                 // 画面表示のモード (※1)
   , display_quadbuffer{ false }               // クワッドバッファステレオ表示を行うとき true
   , display_fullscreen{ false }               // フルスクリーン表示を行うとき true
@@ -111,7 +111,7 @@ config::config()
 //
 // デストラクタ
 //
-config::~config()
+Config::~Config()
 {
 }
 
@@ -250,7 +250,7 @@ static void setSource(const std::array<std::string, U>& source, picojson::object
 //
 // JSON の読み取り
 //
-bool config::read(picojson::value &v)
+bool Config::read(picojson::value &v)
 {
   // 設定内容のパース
   const auto &o(v.get<picojson::object>());
@@ -525,13 +525,13 @@ bool config::read(picojson::value &v)
 //
 // 設定ファイルの読み込み
 //
-bool config::load(const std::string &file)
+bool Config::load(const std::string &file)
 {
   // 読み込んだ設定ファイル名を覚えておく
   config_file = file;
 
   // 設定ファイルを開く
-  std::ifstream config(file);
+  std::ifstream config{ file };
   if (!config) return false;
 
   // 設定ファイルを読み込む
@@ -546,10 +546,10 @@ bool config::load(const std::string &file)
 //
 // 設定ファイルの書き込み
 //
-bool config::save(const std::string &file) const
+bool Config::save(const std::string &file) const
 {
   // 設定値を保存する
-  std::ofstream config(file);
+  std::ofstream config{ file };
   if (!config) return false;
 
   // オブジェクト
