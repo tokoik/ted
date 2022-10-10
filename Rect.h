@@ -13,7 +13,7 @@
 class Rect
 {
   // 描画するウィンドウ
-  const Window &window;
+  const Window& window;
 
   // 描画に使うシェーダ
   const GLuint shader;
@@ -39,25 +39,13 @@ class Rect
   // 頂点配列オブジェクト
   const GLuint vao;
 
-  // 格子間隔
-  const GLfloat *gap;
-
-  // 背景テクスチャの半径と中心位置
-  const GLfloat *circle;
-
-  // スクリーンのサイズと中心位置
-  const GLfloat *screen;
-
-  // 焦点距離
-  GLfloat focal;
-
   // 貼り付けるテクスチャ
   GLuint texture[camCount];
 
 public:
 
   // コンストラクタ
-  Rect(const Window& window, const std::string &vert, const std::string &frag);
+  Rect(const Window& window, const std::string& vert, const std::string& frag);
 
   // デストラクタ
   ~Rect();
@@ -72,5 +60,5 @@ public:
   GLuint get() const;
 
   // 描画
-  void draw(int eye, const GgMatrix &rotation, const GLsizei *samples) const;
+  void draw(int eye, const GgMatrix& rotation, const GLsizei* samples) const;
 };

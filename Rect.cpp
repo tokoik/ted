@@ -4,7 +4,7 @@
 #include "Rect.h"
 
 // コンストラクタ
-Rect::Rect(const Window &window, const std::string &vert, const std::string &frag)
+Rect::Rect(const Window& window, const std::string& vert, const std::string& frag)
   : window(window)
   , shader(ggLoadShader(vert, frag))
   , gapLoc(glGetUniformLocation(shader, "gap"))
@@ -31,7 +31,7 @@ GLuint Rect::get() const
 }
 
 // 描画
-void Rect::draw(int eye, const GgMatrix &rotation, const GLsizei *samples) const
+void Rect::draw(int eye, const GgMatrix& rotation, const GLsizei* samples) const
 {
   // シェーダプログラムを選択する
   glUseProgram(shader);
