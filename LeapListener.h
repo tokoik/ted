@@ -30,7 +30,7 @@ struct LeapListener
   virtual ~LeapListener();
 
   // Leap Motion と接続する
-  const LEAP_CONNECTION *openConnection();
+  const LEAP_CONNECTION* openConnection();
 
   // Leap Motion から切断する
   void closeConnection();
@@ -44,8 +44,8 @@ struct LeapListener
 #endif
 
   // 関節の変換行列のテーブルに値を取得する
-  void getHandPose(GgMatrix *matrix) const;
+  void getHandPose(GgMatrix* matrix) const;
 
   // 頭の姿勢の変換行列のテーブルに値を取得する
-  void getHeadPose(GgMatrix *matrix) const;
+  void getHeadPose(GgMatrix* matrix) const;
 };

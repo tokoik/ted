@@ -13,14 +13,16 @@
 #include "Window.h"
 
 // 最大データサイズ
-const unsigned int maxSize(65507);
+const std::size_t maxSize{ 65507 };
 
 // 受信のタイムアウト (10秒)
-const unsigned long timeout(10000UL);
+const unsigned long timeout{ 10000UL };
 
 // コンストラクタ
 Network::Network()
-  : role(STANDALONE), recvSock(INVALID_SOCKET), sendSock(INVALID_SOCKET)
+  : role{ Role::STANDALONE }
+  , recvSock{ INVALID_SOCKET }
+  , sendSock{ INVALID_SOCKET }
 {
 }
 
@@ -84,7 +86,7 @@ int Network::initializeRecv(unsigned short port)
   recvSock = socket(AF_INET, SOCK_DGRAM, 0);
   if (recvSock == INVALID_SOCKET)
   {
-    const int ret(getError());
+    const int ret{ getError() };
     NOTIFY("受信側ソケットが作成できません。");
     return ret;
   }
@@ -102,17 +104,17 @@ int Network::initializeRecv(unsigned short port)
   memset(recvAddr.sin_zero, 0, sizeof recvAddr.sin_zero);
 
   // 受信側のソケットにホストのアドレスを関連付ける
-  if (bind(recvSock, reinterpret_cast<sockaddr *>(&recvAddr), static_cast<int>(sizeof recvAddr)))
+  if (bind(recvSock, reinterpret_cast<sockaddr*>(&recvAddr), static_cast<int>(sizeof recvAddr)))
   {
-    const int ret(getError());
+    const int ret{ getError() };
     NOTIFY("BIND に失敗しました。");
     return ret;
   }
 
   // 受信のタイムアウトを設定する
-  if (setsockopt(recvSock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char *>(&timeout), sizeof timeout))
+  if (setsockopt(recvSock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&timeout), sizeof timeout))
   {
-    const int ret(getError());
+    const int ret{ getError() };
     NOTIFY("タイムアウトが設定できません。");
     return ret;
   }
@@ -121,13 +123,13 @@ int Network::initializeRecv(unsigned short port)
 }
 
 // 送信側の初期化
-int Network::initializeSend(unsigned short port, const char *address)
+int Network::initializeSend(unsigned short port, const char* address)
 {
   // 送信用 UDP ソケットの作成
   sendSock = socket(AF_INET, SOCK_DGRAM, 0);
   if (sendSock == INVALID_SOCKET)
   {
-    const int ret(getError());
+    const int ret{ getError() };
     NOTIFY("送信側ソケットが作成できません。");
     return ret;
   }
@@ -141,7 +143,7 @@ int Network::initializeSend(unsigned short port, const char *address)
   // 送信先の IP アドレス
   if (inet_pton(AF_INET, address, &sendAddr.sin_addr.s_addr) <= 0)
   {
-    const int ret(getError());
+    const int ret{ getError() };
     NOTIFY("送信先の IP アドレスが設定できません。");
     return ret;
   }
@@ -153,16 +155,16 @@ int Network::initializeSend(unsigned short port, const char *address)
 }
 
 // ネットワーク設定の初期化
-int Network::initialize(int role, unsigned short port, const char *address)
+int Network::initialize(int role, unsigned short port, const char* address)
 {
   // 役割
   this->role = static_cast<Role>(role);
 
   // role が OPERATOR でも WORKER でもなければ何もしない
-  if (role != OPERATOR && role != WORKER) return 0;
+  if (this->role != Role::OPERATOR && this->role != Role::WORKER) return 0;
 
   // 受信側を初期化する
-  const int ret(initializeRecv(port + role - 1));
+  const int ret{ initializeRecv(port + role - 1) };
   if (ret != 0) return ret;
 
   // 送信側を初期化する
@@ -189,19 +191,19 @@ bool Network::running() const
 // STANDALONE なら真
 bool Network::isStandalone() const
 {
-  return role == STANDALONE;
+  return role == Role::STANDALONE;
 }
 
 // OPERATOR なら真
 bool Network::isInstructor() const
 {
-  return role == OPERATOR;
+  return role == Role::OPERATOR;
 }
 
 // WORKDER なら真
 bool Network::isWorker() const
 {
-  return role == WORKER;
+  return role == Role::WORKER;
 }
 
 // リモートのアドレス
@@ -218,23 +220,20 @@ bool Network::checkRemote() const
 }
 
 // 1 パケット受信
-int Network::recvPacket(void *buf, unsigned int len)
+int Network::recvPacket(void* buf, int len)
 {
   // アドレスデータの長さ
-  int fromlen(static_cast<int>(sizeof recvAddr));
+  int fromlen{ static_cast<int>(sizeof recvAddr) };
 
-  // データを受信する
-  const int ret(recvfrom(recvSock, static_cast<char *>(buf), len, 0,
-    reinterpret_cast<sockaddr *>(&recvAddr), &fromlen));
-
-  return ret;
+  return recvfrom(recvSock, static_cast<char*>(buf), len, 0,
+    reinterpret_cast<sockaddr*>(&recvAddr), &fromlen);
 }
 
 // 1 パケット送信
-int Network::sendPacket(const void *buf, unsigned int len) const
+int Network::sendPacket(const void* buf, int len) const
 {
-  return sendto(sendSock, static_cast<const char *>(buf), len,
-    0, reinterpret_cast<const sockaddr *>(&sendAddr), sizeof sendAddr);
+  return sendto(sendSock, static_cast<const char*>(buf), len,
+    0, reinterpret_cast<const sockaddr*>(&sendAddr), sizeof sendAddr);
 }
 
 // パケットのレイアウト
@@ -248,16 +247,16 @@ struct Packet
 };
 
 // 1 フレーム受信
-int Network::recvData(void *buf, unsigned int len)
+int Network::recvData(void* buf, int len)
 {
   // パケット
   Packet packet;
 
   // 受信するパケット数の上限
-  const int limit((len - 1) / sizeof packet.data + 1);
+  const int limit{ (len - 1) / static_cast<int>(sizeof packet.data) + 1 };
 
   // 受信すべきパケット数
-  int total(-1);
+  int total{ -1 };
 
   // 受信したデータサイズ
   int bytes;
@@ -316,7 +315,7 @@ int Network::recvData(void *buf, unsigned int len)
     }
 
     // ペイロードのサイズ
-    const int size(bytes - sizeof packet.count);
+    const int size{ bytes - static_cast<int>(sizeof packet.count) };
 
     // ペイロードのサイズをチェック
     if (size < 0)
@@ -334,7 +333,7 @@ int Network::recvData(void *buf, unsigned int len)
 #endif
 
     // 保存先の位置
-    const unsigned int pos((total - packet.count) * sizeof packet.data);
+    const int pos{ (total - packet.count) * static_cast<int>(sizeof packet.data) };
 
     // 保存先に収まるかどうかチェック
     if (pos > len - size)
@@ -347,7 +346,7 @@ int Network::recvData(void *buf, unsigned int len)
     }
 
     // 保存先の領域の先頭
-    char *const ptr(static_cast<char *>(buf) + pos);
+    char* const ptr{ static_cast<char*>(buf) + pos };
 
     // ペイロードを保存する
     memcpy(ptr, packet.data, size);
@@ -361,13 +360,13 @@ int Network::recvData(void *buf, unsigned int len)
 }
 
 // 1 フレーム送信
-unsigned int Network::sendData(const void *buf, unsigned int len) const
+unsigned int Network::sendData(const void* buf, int len) const
 {
   // パケット
   Packet packet;
 
   // 残りのパケット数はデータを送りきるのに必要なペイロードの数
-  int total((len - 1) / static_cast<unsigned short>(sizeof packet.data) + 1);
+  int total{ (len - 1) / static_cast<int>(sizeof packet.data) + 1 };
 
   // 最初のパケットでは残りのパケット数の符号を反転する
   packet.count = -total;
@@ -376,10 +375,11 @@ unsigned int Network::sendData(const void *buf, unsigned int len) const
   for (int count = 0; total > 0; ++count)
   {
     // 送信するデータの先頭
-    const char *const ptr(static_cast<const char *>(buf) + count * sizeof packet.data);
+    const char* const ptr{ static_cast<const char*>(buf) + count * sizeof packet.data };
 
     // パケットサイズ
-    const unsigned int size(len > sizeof packet.data ? sizeof packet.data : len);
+    const int dlen{ static_cast<int>(sizeof packet.data) };
+    const int size{ len > dlen ? dlen : len };
 
     // ペイロードに 1 パケット分データをコピーする
     memcpy(packet.data, ptr, size);
@@ -390,7 +390,7 @@ unsigned int Network::sendData(const void *buf, unsigned int len) const
 #endif
 
     // 1 パケット分データを送信する
-    const int ret(sendPacket(&packet, size + sizeof packet.count));
+    const int ret{ sendPacket(&packet, size + sizeof packet.count) };
 
     // 送信したデータサイズを確かめる
     if (ret <= 0)

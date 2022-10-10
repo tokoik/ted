@@ -744,7 +744,7 @@ template <typename String, typename Iter> inline bool _parse_codepoint(String &o
       // a second 16-bit of a surrogate pair appeared
       return false;
     }
-    // first 16-bit of surrogate pair, data the next one
+    // first 16-bit of surrogate pair, get the next one
     if (in.getc() != '\\' || in.getc() != 'u') {
       in.ungetc();
       return false;
