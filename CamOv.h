@@ -15,7 +15,7 @@ class CamOv
   : public Camera
 {
   // Ovrvision Pro
-  static OVR::OvrvisionPro *ovrvision_pro;
+  static OVR::OvrvisionPro* ovrvision_pro;
 
   // Ovrvision Pro ÇÃî‘çÜ
   int device;

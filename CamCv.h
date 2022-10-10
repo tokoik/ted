@@ -14,8 +14,8 @@ class CamCv
   // OpenCV のキャプチャデバイス
   cv::VideoCapture camera[camCount];
 
-  // OpenCV のキャプチャデバイスから取得した画像
-  cv::Mat image[camCount];
+  // キャプチャデバイスを準備する
+  void setup(int cam, const std::array<char, 4>& codec, const std::array<int, 2>& size, double fps);
 
   // キャプチャデバイスを開始する
   bool start(int cam);
@@ -38,7 +38,7 @@ public:
   bool open(int device, int cam);
 
   // ファイル／ネットワークからキャプチャを開始する
-  bool open(const std::string &file, int cam);
+  bool open(const std::string& file, int cam);
 
   // カメラが使用可能か判定する
   bool opened(int cam);

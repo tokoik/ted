@@ -105,7 +105,7 @@ struct config
   double camera_fps;
 
   // カメラの４文字コーデック
-  char camera_fourcc[4];
+  std::array<char, 4> camera_fourcc;
 
   // 魚眼カメラの中心位置
   GLfloat camera_center_x;

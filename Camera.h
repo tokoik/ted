@@ -11,7 +11,7 @@
 #include "Network.h"
 
 // OpenCV
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
 
 // 標準ライブラリ
 #include <thread>
@@ -21,7 +21,7 @@
 constexpr int headLength{ camCount + 1 };
 
 // 作業用メモリのサイズ
-constexpr int maxFrameSize(1024 * 1024);
+constexpr int maxFrameSize{ 1024 * 1024 };
 
 //
 // カメラ関連の処理を担当するクラス
@@ -42,13 +42,16 @@ protected:
   // スレッドを停止する
   void stop();
 
-  // キャプチャした画像
-  const GLubyte *buffer[camCount];
+  // キャプチャデバイスから取得した画像
+  cv::Mat image[camCount];
 
-  // キャプチャした画像のサイズ
-  GLsizei size[camCount][2];
+  // キャプチャ完了なら true
+  bool captured[camCount];
 
-  // キャプチャするフレーム間隔
+  // 期待するキャプチャ間隔
+  double capture_interval;
+
+  // 実際のキャプチャ間隔
   double interval[camCount];
 
   // キャプチャする画像のフォーマット
@@ -60,13 +63,13 @@ protected:
 public:
 
   // コンストラクタ
-  Camera();
+  Camera(int quality = 95);
 
   // コピーコンストラクタを封じる
-  Camera(const Camera &c) = delete;
+  Camera(const Camera& c) = delete;
 
   // 代入を封じる
-  Camera &operator=(const Camera &w) = delete;
+  Camera& operator=(const Camera& w) = delete;
 
   // デストラクタ
   virtual ~Camera();
@@ -74,14 +77,23 @@ public:
   // 画像の幅を得る
   int getWidth(int cam) const
   {
-    return size[cam][0];
+    return image[cam].cols;
   }
 
   // 画像の高さを得る
   int getHeight(int cam) const
   {
-    return size[cam][1];
+    return image[cam].rows;
   }
+
+  // フレームレートからキャプチャ間隔を設定する
+  void setInterval(double fps)
+  {
+  	capture_interval = fps > 0.0 ? 1000.0 / fps : minDelay;
+  }
+
+  // 圧縮設定
+  void setQuality(int quality);
 
   // Ovrvision Pro の露出を上げる
   virtual void increaseExposure() {};
@@ -96,7 +108,7 @@ public:
   virtual void decreaseGain() {};
 
   // カメラをロックして画像をテクスチャに転送する
-  virtual bool transmit(int cam, GLuint texture, const GLsizei *size);
+  virtual bool transmit(int cam, GLuint texture, const GLsizei* size);
 
   //
   // 通信関連
@@ -125,10 +137,10 @@ protected:
   std::vector<uchar> encoded[camCount];
 
   // 映像受信用のメモリ
-  uchar *recvbuf;
+  uchar* recvbuf;
 
   // 映像送信用のメモリ
-  uchar *sendbuf;
+  uchar* sendbuf;
 
   // 通信データ
   Network network;
@@ -136,7 +148,7 @@ protected:
 public:
 
   // 作業者通信スレッド起動
-  int startWorker(unsigned short port, const char *address);
+  int startWorker(unsigned short port, const char* address);
 
   // ネットワークを使っているかどうか
   bool useNetwork() const

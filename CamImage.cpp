@@ -16,19 +16,13 @@ CamImage::~CamImage()
 }
 
 // ファイルから入力する
-bool CamImage::open(const std::string &file, int cam)
+bool CamImage::open(const std::string& file, int cam)
 {
   // 画像をファイルから読み込む
-  image[cam] = cv::imread(defaults.camera_image[camL]);
+  image[cam] = cv::imread(file);
 
-  // 読み込みに失敗したら戻る
-  if (image[cam].empty()) return false;
-
-  // 読み込んだ画像のサイズを求める
-  size[cam][0] = image[cam].cols;
-  size[cam][1] = image[cam].rows;
-
-  return true;
+  // 読み込みに成功したら true
+  return !image[cam].empty();
 }
 
 // カメラが使用可能か判定する
@@ -38,13 +32,13 @@ bool CamImage::opened(int cam)
 }
 
 // このカメラでは画像の転送を行わない
-bool CamImage::transmit(int cam, GLuint texture, const GLsizei *size)
+bool CamImage::transmit(int cam, GLuint texture, const GLsizei* size)
 {
   return true;
 }
 
 // 読み込んだ画像のデータを得る
-const GLubyte *CamImage::getImage(int cam)
+const GLubyte* CamImage::getImage(int cam)
 {
   return image[cam].data;
 }

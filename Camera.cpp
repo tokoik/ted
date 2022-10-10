@@ -21,27 +21,19 @@
 #endif
 
 // コンストラクタ
-Camera::Camera()
+Camera::Camera(int quality)
   : recvbuf{ nullptr }
   , sendbuf{ nullptr }
   , format{ GL_BGR }
-  , size{}
+  , run{ false, false }
+  , captured{ false, false }
+  , capture_interval{ minDelay }
   , interval{}
   , exposure{ 0 }
   , gain{ 0 }
 {
   // 圧縮設定
-  param.push_back(cv::IMWRITE_JPEG_QUALITY);
-  param.push_back(defaults.remote_texture_quality);
-
-  for (int cam = 0; cam < camCount; ++cam)
-  {
-    // 画像がまだ取得されていないことを記録しておく
-    buffer[cam] = nullptr;
-
-    // スレッドが停止状態であることを記録しておく
-    run[cam] = false;
-  }
+  setQuality(quality);
 }
 
 // デストラクタ
@@ -49,6 +41,15 @@ Camera::~Camera()
 {
   // 作業用のメモリを開放する
   delete[] recvbuf, sendbuf;
+  recvbuf = sendbuf = nullptr;
+}
+
+// 圧縮設定
+void Camera::setQuality(int quality)
+{
+  // 圧縮設定
+  param.push_back(cv::IMWRITE_JPEG_QUALITY);
+  param.push_back(quality);
 }
 
 // スレッドを停止する
@@ -81,20 +82,20 @@ void Camera::stop()
 }
 
 // カメラをロックして画像をテクスチャに転送する
-bool Camera::transmit(int cam, GLuint texture, const GLsizei *size)
+bool Camera::transmit(int cam, GLuint texture, const GLsizei* size)
 {
   // カメラのロックを試みる
   if (captureMutex[cam].try_lock())
   {
     // 新しいデータが到着していたら
-    if (buffer[cam])
+    if (captured[cam])
     {
       // データをテクスチャに転送する
       glBindTexture(GL_TEXTURE_2D, texture);
-      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size[0], size[1], format, GL_UNSIGNED_BYTE, buffer[cam]);
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size[0], size[1], format, GL_UNSIGNED_BYTE, image[cam].data);
 
       // データの転送完了を記録する
-      buffer[cam] = nullptr;
+      captured[cam] = false;
     }
 
     // 左カメラのロックを解除する
@@ -115,7 +116,7 @@ void Camera::recv()
   while (run[camL])
   {
     // 姿勢データを受信する
-    const int ret(network.recvData(recvbuf, maxFrameSize));
+    const int ret{ network.recvData(recvbuf, maxFrameSize) };
 
     // サイズが 0 なら終了する
     if (ret == 0) return;
@@ -124,10 +125,10 @@ void Camera::recv()
     if (ret > 0 && network.checkRemote())
     {
       // ヘッダのフォーマット
-      unsigned int *const head(reinterpret_cast<unsigned int *>(recvbuf));
+      unsigned int* const head{ reinterpret_cast<unsigned int*>(recvbuf) };
 
       // 受信した変換行列の格納場所
-      GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));
+      GgMatrix* const body{ reinterpret_cast<GgMatrix*>(head + headLength) };
 
       // 変換行列を共有メモリに格納する (head[camCount] には変換行列の数が入っている)
       remoteAttitude->store(body, head[camCount]);
@@ -141,9 +142,6 @@ void Camera::recv()
 // ローカルの映像と姿勢を送信する
 void Camera::send()
 {
-  // キャプチャ間隔
-  const double capture_interval(defaults.camera_fps > 0.0 ? 1000.0 / defaults.camera_fps : minDelay);
-
   // 直前のフレームの送信時刻
   double last(glfwGetTime());
 
@@ -151,7 +149,7 @@ void Camera::send()
   while (run[camL])
   {
     // ヘッダのフォーマット
-    unsigned int *const head(reinterpret_cast<unsigned int *>(sendbuf));
+    unsigned int* const head{ reinterpret_cast<unsigned int*>(sendbuf) };
 
     // 左右フレームのサイズを 0 にしておく
     head[camL] = head[camR] = 0;
@@ -160,16 +158,16 @@ void Camera::send()
     head[camCount] = localAttitude->getSize();
 
     // 送信する変換行列の格納場所
-    GgMatrix *const body(reinterpret_cast<GgMatrix *>(head + headLength));
+    GgMatrix* const body{ reinterpret_cast<GgMatrix*>(head + headLength) };
 
     // 変換行列を共有メモリから取り出す
     localAttitude->load(body, head[camCount]);
 
     // 左フレームの保存先 (変換行列の最後)
-    uchar *data(reinterpret_cast<uchar *>(body + head[camCount]));
+    uchar* data{ reinterpret_cast<uchar*>(body + head[camCount]) };
 
     // このフレームの遅延時間
-    long long delay(minDelay);
+    long long delay{ minDelay };
 
     // 左に新しいフレームが到着していれば
     if (!encoded[camL].empty())
@@ -218,10 +216,10 @@ void Camera::send()
       network.sendData(sendbuf, static_cast<unsigned int>(data - sendbuf));
 
       // 現在時刻
-      const double now(glfwGetTime());
+      const double now{ glfwGetTime() };
 
       // 次のフレームの送信時刻までの残り時間
-      const long long remain(static_cast<long long>(last + capture_interval - now));
+      const long long remain{ static_cast<long long>(last + capture_interval - now) };
 
 #if defined(DEBUG)
       std::cerr << "send remain = " << remain << '\n';
@@ -243,7 +241,7 @@ void Camera::send()
 }
 
 // 作業者通信スレッド起動
-int Camera::startWorker(unsigned short port, const char *address)
+int Camera::startWorker(unsigned short port, const char* address)
 {
   // すでに確保されている作業用メモリを破棄する
   delete[] recvbuf, sendbuf;

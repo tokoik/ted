@@ -628,7 +628,7 @@ bool config::save(const std::string &file) const
   o.insert(std::make_pair("capture_fps", picojson::value(camera_fps)));
 
   // カメラのコーデック
-  o.insert(std::make_pair("capture_codec", picojson::value(std::string(camera_fourcc, 4))));
+  o.insert(std::make_pair("capture_codec", picojson::value(std::string(camera_fourcc.data(), camera_fourcc.size()))));
 
   // 魚眼レンズの横の中心位置
   o.insert(std::make_pair("fisheye_center_x", picojson::value(static_cast<double>(camera_center_x))));

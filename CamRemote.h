@@ -17,6 +17,9 @@ class CamRemote
   // 背景画像の変形に使うフレームバッファオブジェクト
   GLuint fb;
 
+  // 背景画像の大きさ
+  cv::Size size[camCount];
+
   // 背景画像の変形に使うメッシュの解像度
   GLsizei slices, stacks;;
 
@@ -53,8 +56,8 @@ public:
   virtual ~CamRemote();
 
   // カメラから入力する
-  int open(unsigned short port, const char *address);
+  int open(unsigned short port, const char* address);
 
   // カメラをロックして画像をテクスチャに転送する
-  virtual bool transmit(int cam, GLuint texture, const GLsizei *size);
+  virtual bool transmit(int cam, GLuint texture, const GLsizei* size);
 };
