@@ -26,7 +26,7 @@
     <ClInclude Include="CamOv.h" />
     <ClInclude Include="CamRemote.h" />
     <ClInclude Include="Compute.h" />
-    <ClInclude Include="config.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="DepthCamera.h" />
     <ClInclude Include="gg.h" />
     <ClInclude Include="LeapListener.h" />
@@ -50,7 +50,7 @@
     <ClCompile Include="CamImage.cpp" />
     <ClCompile Include="CamOv.cpp" />
     <ClCompile Include="CamRemote.cpp" />
-    <ClCompile Include="config.cpp" />
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="DepthCamera.cpp" />
     <ClCompile Include="gg.cpp" />
     <ClCompile Include="LeapListener.cpp" />

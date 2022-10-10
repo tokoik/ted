@@ -95,7 +95,7 @@ void CamCv::capture(int cam)
 }
 
 // キャプチャを準備する
-void CamCv::setup(int cam, const std::array<char, 4>& codec, const std::array<int, 2>& size, double fps)
+void CamCv::setup(int cam, const std::array<char, 5>& codec, const std::array<int, 2>& size, double fps)
 {
   // カメラのコーデック・解像度・フレームレートを設定する
   if (codec[0] != '\0') camera[cam].set(cv::CAP_PROP_FOURCC,

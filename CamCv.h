@@ -15,7 +15,7 @@ class CamCv
   cv::VideoCapture camera[camCount];
 
   // キャプチャデバイスを準備する
-  void setup(int cam, const std::array<char, 4>& codec, const std::array<int, 2>& size, double fps);
+  void setup(int cam, const std::array<char, 5>& codec, const std::array<int, 2>& size, double fps);
 
   // キャプチャデバイスを開始する
   bool start(int cam);

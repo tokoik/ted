@@ -11,6 +11,109 @@ using namespace gg;
 // JSON
 #include "picojson.h"
 
+// ウィンドウのタイトル
+constexpr char windowTitle[]{ "TED" };
+
+// ウィンドウモード時のウィンドウサイズの初期値
+constexpr int defaultWindowWidth{ 960 };
+constexpr int defaultWindowHeight{ 540 };
+
+// ナビゲーションの速度調整
+constexpr GLfloat speedScale{ 0.005f };     // フレームあたりの移動速度係数
+constexpr GLfloat angleScale{ -0.05f };     // フレームあたりの回転速度係数
+constexpr GLfloat wheelXStep{ 0.005f };     // マウスホイールの X 方向の係数
+constexpr GLfloat wheelYStep{ 0.005f };     // マウスホイールの Y 方向の係数
+constexpr GLfloat axesSpeedScale{ 0.01f };  // ゲームパッドのスティックの速度の係数
+constexpr GLfloat axesAngleScale{ 0.01f };  // ゲームパッドのスティックの角速度の係数
+constexpr GLfloat btnsScale{ 0.02f };       // ゲームパッドのボタンの係数
+
+// ズーム率の変更ステップ
+constexpr GLfloat zoomStep{ 0.01f };
+
+// 視差のデフォルト値
+constexpr GLfloat defaultParallax{ 0.032f };
+
+// 視差の変更ステップ (単位 m)
+constexpr GLfloat parallaxStep{ 0.001f };
+
+// 前景に対する焦点距離の変更ステップ
+constexpr GLfloat foreFocalStep{ 0.001f };
+
+// 前景に対する縦横比の変更ステップ
+constexpr GLfloat foreAspectStep{ 0.001f };
+
+// 背景に対する焦点距離の変更ステップ
+constexpr GLfloat backFocalStep{ 0.001f };
+
+// 背景に対する縦横比の変更ステップ
+constexpr GLfloat backAspectStep{ 0.001f };
+
+// レンズの画角の変更ステップ
+constexpr GLfloat fovStep{ 0.001f };
+
+// レンズの位置の変更ステップ
+constexpr GLfloat shiftStep{ 0.001f };
+
+// スクリーンの間隔のデフォルト値
+constexpr GLfloat offsetDefault{ 0.0f };
+
+// スクリーンの間隔の変更ステップ
+constexpr GLfloat offsetStep{ 0.001f };
+
+// マルチサンプリングのサンプル数 (Oculus Rift)
+constexpr int backBufferMultisample{ 0 };
+
+// 光源
+constexpr GgSimpleShader::Light lightData
+{
+  { 0.2f, 0.2f, 0.2f, 1.0f },               // 環境光成分
+  { 1.0f, 1.0f, 1.0f, 0.0f },               // 拡散反射光成分
+  { 1.0f, 1.0f, 1.0f, 0.0f },               // 鏡面光成分
+  { 0.0f, 0.0f, 1.0f, 1.0f }                // 位置
+};
+
+// テクスチャの境界色
+constexpr GLfloat borderColor[]{ 0.0f, 0.0f, 0.0f, 1.0f };
+
+// エンコード方法
+constexpr char encoderType[]{ ".jpg" };
+
+// 受信リトライ回数
+constexpr int receiveRetry{ 30 };
+
+// 読み飛ばすパケットの最大数
+constexpr int maxDropPackets{ 1000 };
+
+// フレーム送信の最小間隔
+constexpr long long minDelay{ 10 };
+
+// カメラの識別子と数
+enum CameraId { camL = 0, camR, camCount };
+
+// リモートカメラの数
+constexpr int remoteCamCount{ camCount };
+
+// 目の数
+constexpr int eyeCount{ camCount };
+
+// ローカルの共有メモリのサイズ
+constexpr int localShareSize{ 64 };
+
+// リモートの共有メモリのサイズ
+constexpr int remoteShareSize{ 64 };
+
+// ファイルマッピングオブジェクト名
+constexpr wchar_t* localMutexName{ L"TED_LOCAL_MUTEX" };
+constexpr wchar_t* localShareName{ L"TED_LOCAL_SHARE" };
+constexpr wchar_t* remoteMutexName{ L"TED_REMOTE_MUTEX" };
+constexpr wchar_t* remoteShareName{ L"TED_REMOTE_SHARE" };
+
+// 設定ファイル名
+constexpr char defaultConfig[]{ "config.json" };
+
+// 姿勢ファイル名
+constexpr char defaultAttitude[]{ "attitude.json" };
+
 // 表示の設定
 enum DisplayMode
 {
@@ -40,9 +143,6 @@ enum Role
   INSTRUCTOR,               // 指示者
   WORKER                    // 作業者
 };
-
-// カメラの識別子と数
-enum CameraId { camL = 0, camR, camCount };
 
 // 設定値
 struct Config
@@ -105,7 +205,7 @@ struct Config
   double camera_fps;
 
   // カメラの４文字コーデック
-  std::array<char, 4> camera_fourcc;
+  std::array<char, 5> camera_fourcc;
 
   // 魚眼カメラの中心位置
   GLfloat camera_center_x;
@@ -192,102 +292,132 @@ struct Config
 // デフォルト値
 extern Config defaults;
 
-// ウィンドウのタイトル
-constexpr char windowTitle[]{ "TED" };
-
-// ウィンドウモード時のウィンドウサイズの初期値
-constexpr int defaultWindowWidth{ 960 };
-constexpr int defaultWindowHeight{ 540 };
-
-// ナビゲーションの速度調整
-constexpr GLfloat speedScale{ 0.005f };     // フレームあたりの移動速度係数
-constexpr GLfloat angleScale{ -0.05f };     // フレームあたりの回転速度係数
-constexpr GLfloat wheelXStep{ 0.005f };     // マウスホイールの X 方向の係数
-constexpr GLfloat wheelYStep{ 0.005f };     // マウスホイールの Y 方向の係数
-constexpr GLfloat axesSpeedScale{ 0.01f };  // ゲームパッドのスティックの速度の係数
-constexpr GLfloat axesAngleScale{ 0.01f };  // ゲームパッドのスティックの角速度の係数
-constexpr GLfloat btnsScale{ 0.02f };       // ゲームパッドのボタンの係数
-
-// ズーム率の変更ステップ
-constexpr GLfloat zoomStep{ 0.01f };
-
-// 視差のデフォルト値
-constexpr GLfloat defaultParallax{ 0.032f };
-
-// 視差の変更ステップ (単位 m)
-constexpr GLfloat parallaxStep{ 0.001f };
-
-// 前景に対する焦点距離の変更ステップ
-constexpr GLfloat foreFocalStep{ 0.001f };
-
-// 前景に対する縦横比の変更ステップ
-constexpr GLfloat foreAspectStep{ 0.001f };
-
-// 背景に対する焦点距離の変更ステップ
-constexpr GLfloat backFocalStep{ 0.001f };
-
-// 背景に対する縦横比の変更ステップ
-constexpr GLfloat backAspectStep{ 0.001f };
-
-// レンズの画角の変更ステップ
-constexpr GLfloat fovStep{ 0.001f };
-
-// レンズの位置の変更ステップ
-constexpr GLfloat shiftStep{ 0.001f };
-
-// スクリーンの間隔のデフォルト値
-constexpr GLfloat offsetDefault{ 0.0f };
-
-// スクリーンの間隔の変更ステップ
-constexpr GLfloat offsetStep{ 0.001f };
-
-// マルチサンプリングのサンプル数 (Oculus Rift)
-constexpr int backBufferMultisample{ 0 };
-
-// 光源
-constexpr GgSimpleShader::Light lightData
+//
+// 値の取得
+//
+template <typename T>
+static bool getValue(T& scalar, const picojson::object& object, const char* name)
 {
-  { 0.2f, 0.2f, 0.2f, 1.0f },               // 環境光成分
-  { 1.0f, 1.0f, 1.0f, 0.0f },               // 拡散反射光成分
-  { 1.0f, 1.0f, 1.0f, 0.0f },               // 鏡面光成分
-  { 0.0f, 0.0f, 1.0f, 1.0f }                // 位置
-};
+  const auto&& value{ object.find(name) };
+  if (value == object.end() || !value->second.is<double>()) return false;
+  scalar = static_cast<T>(value->second.get<double>());
+  return true;
+}
 
-// テクスチャの境界色
-constexpr GLfloat borderColor[]{ 0.0f, 0.0f, 0.0f, 1.0f };
+//
+// 値の設定
+//
+template <typename T>
+static void setValue(const T& scalar, picojson::object& object, const char* name)
+{
+  object.insert(std::make_pair(name, picojson::value(static_cast<double>(scalar))));
+}
 
-// エンコード方法
-constexpr char encoderType[]{ ".jpg" };
+//
+// ベクトルの取得
+//
+template <typename T, std::size_t U>
+static bool getVector(std::array<T, U>& vector, const picojson::object& object, const char* name)
+{
+  const auto&& value{ object.find(name) };
+  if (value == object.end() || !value->second.is<picojson::array>()) return false;
 
-// 受信リトライ回数
-constexpr int receiveRetry{ 30 };
+  // 配列を取り出す
+  const auto& array{ value->second.get<picojson::array>() };
 
-// 読み飛ばすパケットの最大数
-constexpr int maxDropPackets{ 1000 };
+  // 配列の要素数の上限
+  const auto limit{ std::min(static_cast<decltype(array.size())>(U), array.size()) };
 
-// フレーム送信の最小間隔
-constexpr long long minDelay{ 10 };
+  // 配列のすべての要素について
+  for (decltype(array.size()) i = 0; i < limit; ++i)
+  {
+    // 要素が数値なら保存する
+    if (array[i].is<double>()) vector[i] = static_cast<T>(array[i].get<double>());
+  }
 
-// リモートカメラの数
-constexpr int remoteCamCount{ camCount };
+  return true;
+}
 
-// 目の数
-constexpr int eyeCount{ camCount };
+//
+// ベクトルの設定
+//
+template <typename T, std::size_t U>
+static void setVector(const std::array<T, U>& vector, picojson::object& object, const char* name)
+{
+  // picojson の配列
+  picojson::array array;
 
-// ローカルの共有メモリのサイズ
-constexpr int localShareSize{ 64 };
+  // 配列のすべての要素について
+  for (std::size_t i = 0; i < U; ++i)
+  {
+    // 要素を picojson::array に追加する
+    array.emplace_back(picojson::value(static_cast<double>(vector[i])));
+  }
 
-// リモートの共有メモリのサイズ
-constexpr int remoteShareSize{ 64 };
+  // オブジェクトに追加する
+  object.insert(std::make_pair(name, array));
+}
 
-// ファイルマッピングオブジェクト名
-constexpr wchar_t* localMutexName{ L"TED_LOCAL_MUTEX" };
-constexpr wchar_t* localShareName{ L"TED_LOCAL_SHARE" };
-constexpr wchar_t* remoteMutexName{ L"TED_REMOTE_MUTEX" };
-constexpr wchar_t* remoteShareName{ L"TED_REMOTE_SHARE" };
+//
+// 文字列の取得
+//
+static bool getString(std::string& string, const picojson::object& object, const char* name)
+{
+  const auto&& value{ object.find(name) };
+  if (value == object.end() || !value->second.is<std::string>()) return false;
+  string = value->second.get<std::string>();
+  return true;
+}
 
-// 設定ファイル名
-constexpr char defaultConfig[]{ "config.json" };
+//
+// 文字列の設定
+//
+static void setString(const std::string& string, picojson::object& object, const char* name)
+{
+  object.insert(std::make_pair(name, picojson::value(string)));
+}
 
-// 姿勢ファイル名
-constexpr char defaultAttitude[]{ "attitude.json" };
+//
+// 文字列のベクトルの取得
+//
+template <std::size_t U>
+static bool getSource(std::array<std::string, U>& source, const picojson::object& object, const char* name)
+{
+  const auto& v_shader{ object.find(name) };
+  if (v_shader == object.end() || !v_shader->second.is<picojson::array>()) return false;
+
+  // 配列を取り出す
+  const auto& array{ v_shader->second.get<picojson::array>() };
+
+  // 配列の要素数の上限
+  const auto limit{ std::min(static_cast<decltype(array.size())>(U), array.size()) };
+
+  // 配列のすべての要素について
+  for (decltype(array.size()) i = 0; i < limit; ++i)
+  {
+    // 要素が文字列なら保存する
+    if (array[i].is<std::string>()) source[i] = array[i].get<std::string>();
+  }
+
+  return true;
+}
+
+//
+// 文字列のベクトルの設定
+//
+template <std::size_t U>
+static void setSource(const std::array<std::string, U>& source, picojson::object& object, const char* name)
+{
+  // picojson の配列
+  picojson::array array;
+
+  // 配列のすべての要素について
+  for (std::size_t i = 0; i < U; ++i)
+  {
+    // 要素を picojson::array に追加する
+    array.emplace_back(picojson::value(source[i]));
+  }
+
+  // オブジェクトに追加する
+  object.insert(std::make_pair(name, array));
+}

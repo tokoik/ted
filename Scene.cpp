@@ -123,7 +123,7 @@ Scene* Scene::read(const picojson::value& v, int level)
   me = nullptr;
 
   // パーツの位置
-  const auto& v_position(o.find("position"));
+  const auto& v_position{ o.find("position") };
   if (v_position != o.end() && v_position->second.is<picojson::array>())
   {
     const auto& a(v_position->second.get<picojson::array>());
@@ -135,7 +135,7 @@ Scene* Scene::read(const picojson::value& v, int level)
   }
 
   // パーツの回転
-  const auto& v_rotation(o.find("rotation"));
+  const auto& v_rotation{ o.find("rotation") };
   if (v_rotation != o.end() && v_rotation->second.is<picojson::array>())
   {
     const auto& a(v_rotation->second.get<picojson::array>());
@@ -147,7 +147,7 @@ Scene* Scene::read(const picojson::value& v, int level)
   }
 
   // パーツのスケール
-  const auto& v_scale(o.find("scale"));
+  const auto& v_scale{ o.find("scale") };
   if (v_scale != o.end() && v_scale->second.is<picojson::array>())
   {
     const auto& a(v_scale->second.get<picojson::array>());
@@ -159,7 +159,7 @@ Scene* Scene::read(const picojson::value& v, int level)
   }
 
   // 外部コントローラーによる制御
-  const auto& v_controller(o.find("controller"));
+  const auto& v_controller{ o.find("controller") };
   if (v_controller != o.end() && v_controller->second.is<double>())
   {
     // 引数に指定されている変換行列の番号を取り出し
@@ -168,7 +168,7 @@ Scene* Scene::read(const picojson::value& v, int level)
   }
 
   // 遠隔コントローラーによる制御
-  const auto& v_remote_controller(o.find("remote_controller"));
+  const auto& v_remote_controller{ o.find("remote_controller") };
   if (v_remote_controller != o.end() && v_remote_controller->second.is<double>())
   {
     // 引数に指定されている変換行列の番号を取り出し
@@ -177,7 +177,7 @@ Scene* Scene::read(const picojson::value& v, int level)
   }
 
   // パーツの図形データ
-  const auto& v_model(o.find("model"));
+  const auto& v_model{ o.find("model") };
   if (v_model != o.end() && v_model->second.is<std::string>())
   {
     // パーツのファイル名を取り出す
@@ -204,7 +204,7 @@ Scene* Scene::read(const picojson::value& v, int level)
   if (++level <= defaults.max_level)
   {
     // シーングラフに下位ノードを接続する
-    const auto& v_children(o.find("children"));
+    const auto& v_children{ o.find("children") };
     if (v_children != o.end())
     {
       if (v_children->second.is<picojson::array>())
