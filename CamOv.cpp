@@ -50,29 +50,19 @@ void CamOv::capture()
   // スレッドが実行可の間
   while (run[camL])
   {
-    // 両方のバッファが空なら
-    if (!captured[camL] && !captured[camR])
-    {
-      // キャプチャデバイスをロックしてから
-      captureMutex[camL].lock();
+    // キャプチャデバイスをロックしてから
+    captureMutex[camL].lock();
+    captureMutex[camR].lock();
 
-      // フレームを切り出して
-      ovrvision_pro->PreStoreCamData(OVR::Camqt::OV_CAMQT_DMS);
+    // フレームを切り出して
+    ovrvision_pro->PreStoreCamData(OVR::Camqt::OV_CAMQT_DMS);
 
-      // 作業者として動作していたら
-      if (isWorker())
-      {
-        // フレームを圧縮して保存し
-        cv::imencode(encoderType, image[camL], encoded[camL], param);
-        cv::imencode(encoderType, image[camR], encoded[camR], param);
-      }
+    // キャプチャの完了を記録したら
+    unsent[camL] = unsent[camR] = captured[camL] = captured[camR] = true;
 
-      // キャプチャの完了を記録して
-      captured[camL] = captured[camR] = true;
-
-      // ロックを解除する
-      captureMutex[camL].unlock();
-    }
+    // ロックを解除する
+    captureMutex[camL].unlock();
+    captureMutex[camR].unlock();
   }
 }
 
@@ -92,9 +82,9 @@ bool CamOv::open(OVR::Camprop ovrvision_property)
   ovrvision_pro->PreStoreCamData(OVR::Camqt::OV_CAMQT_DMS);
 
   // 左右のフレームのメモリに cv::Mat のヘッダを付ける
-  auto* const bufferL(ovrvision_pro->GetCamImageBGRA(OVR::OV_CAMEYE_LEFT));
+  auto* const bufferL{ ovrvision_pro->GetCamImageBGRA(OVR::OV_CAMEYE_LEFT) };
   image[camL] = cv::Mat(size, CV_8UC4, bufferL);
-  auto* const bufferR(ovrvision_pro->GetCamImageBGRA(OVR::OV_CAMEYE_RIGHT));
+  auto* const bufferR{ ovrvision_pro->GetCamImageBGRA(OVR::OV_CAMEYE_RIGHT) };
   image[camR] = cv::Mat(size, CV_8UC4, bufferR);
 
   // 左カメラの利得と露出を取得する
