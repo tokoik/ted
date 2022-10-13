@@ -42,8 +42,14 @@ protected:
   // スレッドを停止する
   void stop();
 
+  // キャプチャする画像のフォーマット
+  GLenum format;
+
   // キャプチャデバイスから取得した画像
   cv::Mat image[camCount];
+
+  // キャプチャ間隔
+  double interval[camCount];
 
   // キャプチャ完了なら true
   bool captured[camCount];
@@ -51,14 +57,8 @@ protected:
   // 未送信なら true
   bool unsent[camCount];
 
-  // 期待するキャプチャ間隔
-  double capture_interval;
-
-  // 実際のキャプチャ間隔
-  double interval[camCount];
-
-  // キャプチャする画像のフォーマット
-  GLenum format;
+  // 送信間隔
+  double send_interval;
 
   // 露出と利得
   int exposure, gain;
@@ -87,12 +87,6 @@ public:
   int getHeight(int cam) const
   {
     return image[cam].rows;
-  }
-
-  // フレームレートからキャプチャ間隔を設定する
-  void setInterval(double fps)
-  {
-  	capture_interval = fps > 0.0 ? 1000.0 / fps : minDelay;
   }
 
   // 圧縮設定

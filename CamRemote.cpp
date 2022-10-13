@@ -355,7 +355,7 @@ void CamRemote::send()
     const auto now{ glfwGetTime() };
 
     // 次のフレームの送信時刻までの残り時間
-    const auto remain{ static_cast<long long>(last + capture_interval - now) };
+    const auto remain{ static_cast<long long>(last + send_interval - now) };
 
 #if defined(DEBUG)
     std::cerr << "send remain = " << remain << '\n';
