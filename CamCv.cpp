@@ -64,15 +64,8 @@ void CamCv::capture(int cam)
         // 到着したフレームを切り出し
         camera[cam].retrieve(image[cam]);
 
-        // 作業者として動作していたら
-        if (isWorker())
-        {
-          // フレームを圧縮して保存し
-          cv::imencode(encoderType, image[cam], encoded[cam], param);
-        }
-
         // キャプチャの完了を記録して
-        captured[cam] = true;
+        unsent[cam] = captured[cam] = true;
 
         // ロックを解除したら
         captureMutex[cam].unlock();
@@ -116,7 +109,7 @@ bool CamCv::start(int cam)
 
     // キャプチャした画像のフレームレートを取得する
     const double fps{ camera[cam].get(cv::CAP_PROP_FPS) };
-    interval[cam] = fps > 0.0 ? 1.0 / fps : 0.033333333;
+    interval[cam] = fps > 0.0 ? 1.0 / fps : 1.0 / 30.0;
 
     // 次のフレームの時刻を求める
     startTime[cam] = glfwGetTime() - camera[cam].get(cv::CAP_PROP_POS_MSEC) * 0.001 + interval[cam];

@@ -27,8 +27,9 @@ Camera::Camera()
   , format{ GL_BGR }
   , run{ false, false }
   , captured{ false, false }
+  , unsent{ false, false }
   , capture_interval{ minDelay * 0.001 }
-  , interval{}
+  , interval{ 1.0 / 30.0 }
   , exposure{ 0 }
   , gain{ 0 }
 {
@@ -167,44 +168,53 @@ void Camera::send()
     // このフレームの遅延時間
     long long delay{ minDelay };
 
-    // 左に新しいフレームが到着していれば
-    if (!encoded[camL].empty())
+    // 符号化されたデータの一時保存先
+    std::vector<GLubyte> encoded;
+
+    // 左画像が未送信なら
+    if (unsent[camL])
     {
-      // 左キャプチャデバイスをロックする
+      // 左画像をロックして
       captureMutex[camL].lock();
 
-      // 左フレームのサイズを保存する
-      head[camL] = static_cast<unsigned int>(encoded[camL].size());
+      // 左画像を圧縮して保存し
+      cv::imencode(encoderType, image[camL], encoded, param);
 
-      // 左フレームのデータをコピーする
-      memcpy(data, encoded[camL].data(), head[camL]);
+      // 左画像の送信準備の完了を記録して
+      unsent[camL] = false;
 
-      // 左フレームのデータを空にする
-      encoded[camL].clear();
-
-      // 左フレームの転送が完了すればロックを解除する
+      // 左画像のロックを解除してから
       captureMutex[camL].unlock();
+
+      // 左フレームのサイズを保存して
+      head[camL] = static_cast<unsigned int>(encoded.size());
+
+      // 左フレームのデータをコピーしたら
+      memcpy(data, encoded.data(), head[camL]);
 
       // 右フレームの保存先 (左フレームの最後)
       data += head[camL];
 
-      // 右キャプチャデバイスが動作していれば
-      if (run[camR])
+      // 右キャプチャデバイスが動作していて右画像が未送信なら
+      if (run[camR] && unsent[camR])
       {
-        // 右キャプチャデバイスをロックする
+        // 右画像をロックして
         captureMutex[camR].lock();
 
-        // 右フレームのサイズを保存する
-        head[camR] = static_cast<unsigned int>(encoded[camR].size());
+        // 右画像を圧縮して保存し
+        cv::imencode(encoderType, image[camR], encoded, param);
 
-        // 右フレームのデータを左フレームのデータの後ろにコピーする
-        memcpy(data, encoded[camR].data(), head[camR]);
+        // 右画像の送信準備の完了を記録して
+        unsent[camR] = false;
 
-        // 右フレームのデータを空にする
-        encoded[camR].clear();
-
-        // フレームの転送が完了すればロックを解除する
+        // 右画像のロックを解除してから
         captureMutex[camR].unlock();
+
+        // 右フレームのサイズを保存して
+        head[camR] = static_cast<unsigned int>(encoded.size());
+
+        // 右フレームのデータを左フレームのデータの後ろにコピーしたら
+        memcpy(data, encoded.data(), head[camR]);
 
         // 右フレームの最後
         data += head[camR];

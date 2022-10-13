@@ -11,7 +11,7 @@
 
 // コンストラクタ
 CamRemote::CamRemote(double width, double height, bool reshape)
-  : reshape(reshape)
+  : reshape{ reshape }
 {
   if (reshape)
   {
@@ -90,11 +90,14 @@ int CamRemote::open(unsigned short port, const char* address, const GLfloat* fov
   // 左フレームの保存先 (変換行列の最後)
   uchar* const data(reinterpret_cast<uchar*>(body + head[camCount]));
 
+  // 符号化されたデータの一時保存先
+  std::vector<GLubyte> encoded;
+
   // 左フレームデータを vector に変換して
-  encoded[camL].assign(data, data + head[camL]);
+  encoded.assign(data, data + head[camL]);
 
   // 左フレームをデコードする
-  remote[camL] = cv::imdecode(cv::Mat(encoded[camL]), 1);
+  remote[camL] = cv::imdecode(cv::Mat(encoded), 1);
 
   // リモートから取得したフレームのサイズ
   cv::Size rsize[camCount];
@@ -106,10 +109,10 @@ int CamRemote::open(unsigned short port, const char* address, const GLfloat* fov
   if (head[camR] > 0)
   {
     // 右フレームデータを vector に変換して
-    encoded[camR].assign(data + head[camL], data + head[camL] + head[camR]);
+    encoded.assign(data + head[camL], data + head[camL] + head[camR]);
 
     // 右フレームをデコードする
-    remote[camR] = cv::imdecode(cv::Mat(encoded[camR]), 1);
+    remote[camR] = cv::imdecode(cv::Mat(encoded), 1);
 
     // 右フレームのサイズを求める
     rsize[camR] = remote[camR].size();
@@ -213,7 +216,7 @@ void CamRemote::recv()
   while (run[camL])
   {
     // 姿勢データと画像データを受信する
-    const int ret(network.recvData(recvbuf, maxFrameSize));
+    const int ret{ network.recvData(recvbuf, maxFrameSize) };
 
 #if defined(DEBUG)
     std::cerr << "CamRemote recv:" << ret << '\n';
@@ -226,87 +229,89 @@ void CamRemote::recv()
     if (ret > 0 && network.checkRemote())
     {
       // ヘッダのフォーマット
-      unsigned int* const head(reinterpret_cast<unsigned int*>(recvbuf));
+      const auto head{ reinterpret_cast<unsigned int*>(recvbuf) };
 
       // 受信した変換行列の格納場所
-      GgMatrix* const body(reinterpret_cast<GgMatrix*>(head + headLength));
+      const auto body{ reinterpret_cast<GgMatrix*>(head + headLength) };
 
       // 変換行列を共有メモリに格納する
       Scene::storeRemoteAttitude(body, head[camCount]);
 
       // 左フレームの保存先 (変換行列の最後)
-      uchar* const data(reinterpret_cast<uchar*>(body + head[camCount]));
+      const auto data{ reinterpret_cast<uchar*>(body + head[camCount]) };
 
       // リモートから取得したフレームのサイズ
       cv::Size rsize[camCount];
 
-      // 左バッファが空のとき
-      if (!captured[camL])
+      // 符号化されたデータの一時保存先
+      std::vector<GLubyte> encoded;
+
+      // 左バッファが空のとき左フレームが送られてきていれば
+      if (!captured[camL] && head[camL] > 0)
       {
-        // 左フレームをロックして
+        // 左フレームデータを vector に変換して
+        encoded.assign(data, data + head[camL]);
+
+        // 左フレームをデコードして保存し
+        remote[camL] = cv::imdecode(cv::Mat(encoded), 1);
+
+        // 左フレームのサイズを求めておいて
+        rsize[camL] = remote[camL].size();
+
+        // 左画像をロックし
         captureMutex[camL].lock();
 
-        // 左フレームが送られてきていれば
-        if (head[camL] > 0)
-        {
-          // 左フレームデータを vector に変換して
-          encoded[camL].assign(data, data + head[camL]);
-
-          // 左フレームをデコードして保存し
-          remote[camL] = cv::imdecode(cv::Mat(encoded[camL]), 1);
-
-          // 左フレームのサイズを求めて
-          rsize[camL] = remote[camL].size();
-
-          // 左フレームの取得の完了を記録する
-          captured[camL] = true;
-        }
-
-        // 左画像を更新し
+        // 左画像を更新したら
         image[camL] = remote[camL];
 
-        // 左フレームの転送が完了すればロックを解除する
+        // 左フレームの取得の完了を記録して
+        captured[camL] = true;
+
+        // 左画像のロックを解除する
         captureMutex[camL].unlock();
       }
 
-      // 右バッファが空のとき
-      if (!captured[camR])
+      // 右バッファが空のとき右フレームが送られてきていれば
+      if (!captured[camR] && head[camR] > 0)
       {
-        // 右フレームをロックして
+        // 右フレームデータを vector に変換して
+        encoded.assign(data + head[camL], data + head[camL] + head[camR]);
+
+        // 右フレームをデコードして保存し
+        remote[camR] = cv::imdecode(cv::Mat(encoded), 1);
+
+        // 右フレームのサイズを求めておいて
+        rsize[camR] = remote[camR].size();
+
+        // 右画像をロックし
         captureMutex[camR].lock();
 
-        // 右フレームが送られてきていれば
-        if (head[camR] > 0)
-        {
-          // 右フレームデータを vector に変換して
-          encoded[camR].assign(data + head[camL], data + head[camL] + head[camR]);
+        // 右画像を更新したら
+        image[camR] = remote[camR];
 
-          // 右フレームをデコードして保存し
-          remote[camR] = cv::imdecode(cv::Mat(encoded[camR]), 1);
+        // 右フレームの取得の完了を記録して
+        captured[camR] = true;
 
-          // 右フレームのサイズを求めて
-          rsize[camR] = remote[camR].size();
+        // 右画像のロックを解除する
+        captureMutex[camR].unlock();
+      }
 
-          // 右フレームの取得の完了を記録する
-          captured[camR] = true;
-        }
+      // 右フレームが保存されていなければ
+      if (remote[camR].empty())
+      {
+        // 右フレームのサイズは左フレームと同じにして
+        rsize[camR] = rsize[camL];
 
-        // 右フレームが保存されていなければ
-        if (remote[camR].empty())
-        {
-          // 右フレームのサイズは左フレームと同じにする
-          rsize[camR] = rsize[camL];
+        // 右画像をロックし
+        captureMutex[camR].lock();
 
-          // 右フレームは左フレームと同じにする
-          image[camR] = remote[camL];
-        }
-        else
-        {
-          // 右フレームを更新する
-          image[camR] = remote[camR];
-        }
+        // 右画像は左フレームと同じにして
+        image[camR] = remote[camL];
 
-        // フレームの転送が完了すればロックを解除する
+        // 右フレームの取得の完了を記録して
+        captured[camR] = true;
+
+        // 右画像のロックを解除する
         captureMutex[camR].unlock();
       }
     }
@@ -320,13 +325,13 @@ void CamRemote::recv()
 void CamRemote::send()
 {
   // 直前のフレームの送信時刻
-  double last(glfwGetTime());
+  auto last{ glfwGetTime() };
 
   // カメラスレッドが実行可の間
   while (run[camL])
   {
     // ヘッダのフォーマット
-    unsigned int* const head(reinterpret_cast<unsigned int*>(sendbuf));
+    const auto head{ reinterpret_cast<unsigned int*>(sendbuf) };
 
     // 左右のフレームのサイズは 0 にする
     head[camL] = head[camR] = 0;
@@ -335,22 +340,22 @@ void CamRemote::send()
     head[camCount] = Scene::getLocalAttitudeSize();
 
     // 送信する変換行列の格納場所
-    GgMatrix* const body(reinterpret_cast<GgMatrix*>(head + headLength));
+    const auto body{ reinterpret_cast<GgMatrix*>(head + headLength) };
 
     // 変換行列を共有メモリから取り出す
     Scene::loadLocalAttitude(body, head[camCount]);
 
     // 左フレームの保存先 (変換行列の最後)
-    uchar* const data(reinterpret_cast<uchar*>(body + head[camCount]));
+    const auto data{ reinterpret_cast<uchar*>(body + head[camCount]) };
 
     // フレームを送信する
     network.sendData(sendbuf, static_cast<unsigned int>(data - sendbuf));
 
     // 現在時刻
-    const double now(glfwGetTime());
+    const auto now{ glfwGetTime() };
 
     // 次のフレームの送信時刻までの残り時間
-    const long long remain(static_cast<long long>(last + capture_interval - now));
+    const auto remain{ static_cast<long long>(last + capture_interval - now) };
 
 #if defined(DEBUG)
     std::cerr << "send remain = " << remain << '\n';
@@ -360,7 +365,7 @@ void CamRemote::send()
     last = now;
 
     // 残り時間分遅延させる
-    const long long delay(remain > minDelay ? remain : minDelay);
+    const auto delay{ remain > minDelay ? remain : minDelay };
 
     // 次のフレームの送信時刻まで待つ
     std::this_thread::sleep_for(std::chrono::milliseconds(delay));

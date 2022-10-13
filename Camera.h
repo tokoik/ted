@@ -42,6 +42,9 @@ protected:
   // キャプチャ完了なら true
   bool captured[camCount];
 
+  // 未送信なら true
+  bool unsent[camCount];
+
   // 期待するキャプチャ間隔
   double capture_interval;
 
@@ -126,9 +129,6 @@ protected:
 
   // エンコードのパラメータ
   std::vector<int> param;
-
-  // エンコードした画像
-  std::vector<uchar> encoded[camCount];
 
   // 映像受信用のメモリ
   uchar* recvbuf;
