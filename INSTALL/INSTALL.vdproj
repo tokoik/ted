@@ -15,7 +15,25 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_011C35526A304BC2871FCF99D755BDB9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_029A7A52B5434139845336E8D483E0BE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0498F0D7776F4125B517C80176C9873A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_04FE9376A65441BB8466ABDAFEFA5E7A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -39,6 +57,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_0F18FB4CC1B14F11B6C7F767CF514B91"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_118E2F6668224A2C896305B4212955EB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -57,19 +81,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_16D7C8A9DA5741069E837BBDF90ADF1E"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_17054EC5A1B24A2CB67E37C55D900AC4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_1B4DF8E4516F4D97A7DCB7A2F08D24B3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1E0C95FF33574B77A5C812F7299E43AA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -135,13 +153,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_2AF64A13DC17464AAA2E6DD73F88AD5F"
+        "MsmKey" = "8:_2BF18531FB8E4D0486C6B01A972C2981"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_2BF18531FB8E4D0486C6B01A972C2981"
+        "MsmKey" = "8:_2E5769E353114F6DA115169DFF0CBAC5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -153,25 +171,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_383CFB8912EA47A7BEE454DD152C4AE7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_39F9EFAD880849C8B7EF5BB80DD8DB00"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3F566BCB480E47C2A9A36E468ED545C7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_46A78E2F99744448822F1F41889ACEF2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -201,12 +201,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_50C2C2F2FCBB41B2B286FAA4B6132119"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_51A6E506614C41DCA5021976C573B89D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -220,12 +214,6 @@
         "Entry"
         {
         "MsmKey" = "8:_5EE19F4D360A44DDA0571CB588BC81E6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_64471F1A6A79404882DA1576D04C71D2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -309,6 +297,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_8C61E9A75B504F91A38CF220E0C0D1EB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_8C737FB7F7494A078B0B8C979683CE0F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -327,7 +321,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9322FF009F31435DABE8B0A9349B4099"
+        "MsmKey" = "8:_8E84850793394CD3A38F1F25C22EFA58"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -387,6 +381,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_A8B8308B1E204145B694F5DFBC865FBB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_AAF81797211342398412F1BE5B5E4438"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -417,19 +417,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B09F2C4FAFC548708D31CD89D643CD51"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_B2A63E8F15944D78951C34D4C8C322B6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_B3FD54783D5E4FF894316373B0AFDC07"
+        "MsmKey" = "8:_B4DF673A4D3640FEAE010738944FC3B3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -471,7 +465,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_C0CF3F0FB0584CE2816CF86B3138D57B"
+        "MsmKey" = "8:_C2CC097A8FF64055B330D143B4DAF39E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -513,12 +507,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_CE6BF15953A94C9ABE06B3A3C22B7BB1"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_CF89722AA6A54C428CD13DE2F80AC577"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -526,6 +514,18 @@
         "Entry"
         {
         "MsmKey" = "8:_D3FE522E9A88426C829CB3B638971691"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D452F0464D814531808721FFA85BCFB9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D45EF0F2F3DB42FA910520EDFCD4B149"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -567,7 +567,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DF8BDA6ADF65442BA8373A7A92A532D0"
+        "MsmKey" = "8:_DE8D0F99065249AAA7EC4DB76FADE697"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -633,7 +633,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F665179D1C204B7CA2E7E5D377F4B13E"
+        "MsmKey" = "8:_FBA2EDA36FF343CBA856FCF087577245"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -726,10 +726,70 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_011C35526A304BC2871FCF99D755BDB9"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\intl-8.dll"
+            "TargetName" = "8:intl-8.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_029A7A52B5434139845336E8D483E0BE"
             {
             "SourcePath" = "8:..\\r-hinge.obj"
             "TargetName" = "8:r-hinge.obj"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0498F0D7776F4125B517C80176C9873A"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\orc-0.4-0.dll"
+            "TargetName" = "8:orc-0.4-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_04FE9376A65441BB8466ABDAFEFA5E7A"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstbase-1.0-0.dll"
+            "TargetName" = "8:gstbase-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -806,6 +866,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0F18FB4CC1B14F11B6C7F767CF514B91"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstreamer-1.0-0.dll"
+            "TargetName" = "8:gstreamer-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_118E2F6668224A2C896305B4212955EB"
             {
             "SourcePath" = "8:..\\pixpro.json"
@@ -866,50 +946,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_16D7C8A9DA5741069E837BBDF90ADF1E"
-            {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\intl-8.dll"
-            "TargetName" = "8:intl-8.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_17054EC5A1B24A2CB67E37C55D900AC4"
-            {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\orc-0.4-0.dll"
-            "TargetName" = "8:orc-0.4-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1B4DF8E4516F4D97A7DCB7A2F08D24B3"
             {
             "SourcePath" = "8:..\\fisheye_left.jpg"
             "TargetName" = "8:fisheye_left.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1E0C95FF33574B77A5C812F7299E43AA"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstaudio-1.0-0.dll"
+            "TargetName" = "8:gstaudio-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1126,10 +1186,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2AF64A13DC17464AAA2E6DD73F88AD5F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2BF18531FB8E4D0486C6B01A972C2981"
             {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\gstbase-1.0-0.dll"
-            "TargetName" = "8:gstbase-1.0-0.dll"
+            "SourcePath" = "8:..\\target.mtl"
+            "TargetName" = "8:target.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1146,10 +1206,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2BF18531FB8E4D0486C6B01A972C2981"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2E5769E353114F6DA115169DFF0CBAC5"
             {
-            "SourcePath" = "8:..\\target.mtl"
-            "TargetName" = "8:target.mtl"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstapp-1.0-0.dll"
+            "TargetName" = "8:gstapp-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1186,70 +1246,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_383CFB8912EA47A7BEE454DD152C4AE7"
-            {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\z-1.dll"
-            "TargetName" = "8:z-1.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_39F9EFAD880849C8B7EF5BB80DD8DB00"
             {
             "SourcePath" = "8:..\\hand.json"
             "TargetName" = "8:hand.json"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3F566BCB480E47C2A9A36E468ED545C7"
-            {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\glib-2.0-0.dll"
-            "TargetName" = "8:glib-2.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_46A78E2F99744448822F1F41889ACEF2"
-            {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\gsttag-1.0-0.dll"
-            "TargetName" = "8:gsttag-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1346,26 +1346,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_50C2C2F2FCBB41B2B286FAA4B6132119"
-            {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\ffi-7.dll"
-            "TargetName" = "8:ffi-7.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_51A6E506614C41DCA5021976C573B89D"
             {
             "SourcePath" = "8:..\\target.vert"
@@ -1410,26 +1390,6 @@
             {
             "SourcePath" = "8:..\\handl_remote.mtl"
             "TargetName" = "8:handl_remote.mtl"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_64471F1A6A79404882DA1576D04C71D2"
-            {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\gstreamer-1.0-0.dll"
-            "TargetName" = "8:gstreamer-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1706,6 +1666,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8C61E9A75B504F91A38CF220E0C0D1EB"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\glib-2.0-0.dll"
+            "TargetName" = "8:glib-2.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8C737FB7F7494A078B0B8C979683CE0F"
             {
             "SourcePath" = "8:..\\l-hinge.mtl"
@@ -1766,10 +1746,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9322FF009F31435DABE8B0A9349B4099"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8E84850793394CD3A38F1F25C22EFA58"
             {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\gstvideo-1.0-0.dll"
-            "TargetName" = "8:gstvideo-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstpbutils-1.0-0.dll"
+            "TargetName" = "8:gstpbutils-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1966,6 +1946,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A8B8308B1E204145B694F5DFBC865FBB"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstvideo-1.0-0.dll"
+            "TargetName" = "8:gstvideo-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AAF81797211342398412F1BE5B5E4438"
             {
             "SourcePath" = "8:..\\l-hand.obj"
@@ -2066,26 +2066,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B09F2C4FAFC548708D31CD89D643CD51"
-            {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\gstaudio-1.0-0.dll"
-            "TargetName" = "8:gstaudio-1.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B2A63E8F15944D78951C34D4C8C322B6"
             {
             "SourcePath" = "8:..\\finger.mtl"
@@ -2106,10 +2086,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B3FD54783D5E4FF894316373B0AFDC07"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B4DF673A4D3640FEAE010738944FC3B3"
             {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\gobject-2.0-0.dll"
-            "TargetName" = "8:gobject-2.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gsttag-1.0-0.dll"
+            "TargetName" = "8:gsttag-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2246,10 +2226,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C0CF3F0FB0584CE2816CF86B3138D57B"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C2CC097A8FF64055B330D143B4DAF39E"
             {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\gstapp-1.0-0.dll"
-            "TargetName" = "8:gstapp-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\ffi-7.dll"
+            "TargetName" = "8:ffi-7.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2386,26 +2366,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CE6BF15953A94C9ABE06B3A3C22B7BB1"
-            {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\gmodule-2.0-0.dll"
-            "TargetName" = "8:gmodule-2.0-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CF89722AA6A54C428CD13DE2F80AC577"
             {
             "SourcePath" = "8:..\\l-elbow.mtl"
@@ -2430,6 +2390,46 @@
             {
             "SourcePath" = "8:..\\x64\\Release\\ted.exe"
             "TargetName" = "8:ted.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D452F0464D814531808721FFA85BCFB9"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gmodule-2.0-0.dll"
+            "TargetName" = "8:gmodule-2.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D45EF0F2F3DB42FA910520EDFCD4B149"
+            {
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gobject-2.0-0.dll"
+            "TargetName" = "8:gobject-2.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2566,10 +2566,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DF8BDA6ADF65442BA8373A7A92A532D0"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DE8D0F99065249AAA7EC4DB76FADE697"
             {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\gstpbutils-1.0-0.dll"
-            "TargetName" = "8:gstpbutils-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstriff-1.0-0.dll"
+            "TargetName" = "8:gstriff-1.0-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2786,10 +2786,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F665179D1C204B7CA2E7E5D377F4B13E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FBA2EDA36FF343CBA856FCF087577245"
             {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\gstriff-1.0-0.dll"
-            "TargetName" = "8:gstriff-1.0-0.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\z-1.dll"
+            "TargetName" = "8:z-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2913,15 +2913,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TelExistence Display"
-        "ProductCode" = "8:{3C37E7EE-DAF2-423B-9366-F93E082AA8A6}"
-        "PackageCode" = "8:{A2021EA5-EEB6-4206-A4C9-59EB8382A23D}"
+        "ProductCode" = "8:{B9FD0332-713C-4581-82D9-92096C5AA986}"
+        "PackageCode" = "8:{85CD8927-498B-425B-B463-FF4163D7D332}"
         "UpgradeCode" = "8:{7A39854F-F010-495F-856C-E53FA8330919}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.2.2"
+        "ProductVersion" = "8:0.2.3"
         "Manufacturer" = "8:Kohe Tokoi"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/tokoik/ted/"
