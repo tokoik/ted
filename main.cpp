@@ -148,9 +148,8 @@ int main(int argc, const char* const* const argv)
       size[camL][0] = cam->getWidth(camL);
       size[camL][1] = cam->getHeight(camL);
 
-      // 右カメラのサイズは左と同じにしておく
-      size[camR][0] = size[camL][0];
-      size[camR][1] = size[camL][1];
+      // 右カメラのサイズは 0 にしておく
+      size[camR][0] = size[camR][1] = 0;
 
       // 立体視表示を行うとき
       if (defaults.display_mode != MONO)
@@ -235,9 +234,8 @@ int main(int argc, const char* const* const argv)
         size[camL][0] = camera->getWidth(camL);
         size[camL][1] = camera->getHeight(camL);
 
-        // 右カメラのサイズは左と同じにしておく
-        size[camR][0] = size[camL][0];
-        size[camR][1] = size[camL][1];
+        // 右カメラのサイズは 0 にしておく
+        size[camR][0] = size[camR][1] = 0;
 
         // 立体視表示を行うとき
         if (defaults.display_mode != MONO)
@@ -281,13 +279,6 @@ int main(int argc, const char* const* const argv)
   // ウィンドウにそのカメラを結び付ける
   window.setControlCamera(camera.get());
 
-  // テクスチャのアスペクト比
-  const GLfloat texture_aspect[]
-  {
-    (GLfloat(size[camL][0]) / GLfloat(size[camL][1])),
-    (GLfloat(size[camR][0]) / GLfloat(size[camR][1]))
-  };
-
   // テクスチャの境界の処理
   const GLenum border{ static_cast<GLenum>(defaults.camera_texture_repeat ? GL_REPEAT : GL_CLAMP_TO_BORDER) };
 
@@ -308,7 +299,7 @@ int main(int argc, const char* const* const argv)
   glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
   // 右のカメラに入力するなら
-  if (defaults.camera_right >= 0 || !defaults.camera_right_movie.empty() || defaults.role == OPERATOR)
+  if (size[camR][0] > 0)
   {
     // 右のテクスチャを作成する
     glGenTextures(1, texture + camR);
@@ -538,7 +529,7 @@ int main(int argc, const char* const* const argv)
     camera->transmit(camL, texture[camL], size[camL]);
 
     // 右のテクスチャが有効になっていれば
-    if (texture[camR] != texture[camL])
+    if (size[camR] > 0)
     {
       // 右カメラをロックして画像を転送する
       camera->transmit(camR, texture[camR], size[camR]);

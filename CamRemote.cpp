@@ -93,17 +93,23 @@ int CamRemote::open(unsigned short port, const char* address, const GLfloat* fov
   // 符号化されたデータの一時保存先
   std::vector<GLubyte> encoded;
 
-  // 左フレームデータを vector に変換して
-  encoded.assign(data, data + head[camL]);
-
-  // 左フレームをデコードする
-  remote[camL] = cv::imdecode(cv::Mat(encoded), 1);
-
   // リモートから取得したフレームのサイズ
   cv::Size rsize[camCount];
 
-  // 左フレームのサイズを求める
+  // 左フレームデータを vector に変換して
+  encoded.assign(data, data + head[camL]);
+
+  // 左フレームをデコードし
+  remote[camL] = cv::imdecode(cv::Mat(encoded), 1);
+
+  // 左フレームのサイズを求めて
   rsize[camL] = remote[camL].size();
+
+  // 左画像を更新したら
+  image[camL] = remote[camL];
+
+  // 左フレームの取得の完了を記録する
+  captured[camL] = true;
 
   // 右フレームが存在すれば
   if (head[camR] > 0)
@@ -111,19 +117,17 @@ int CamRemote::open(unsigned short port, const char* address, const GLfloat* fov
     // 右フレームデータを vector に変換して
     encoded.assign(data + head[camL], data + head[camL] + head[camR]);
 
-    // 右フレームをデコードする
+    // 右フレームをデコードし
     remote[camR] = cv::imdecode(cv::Mat(encoded), 1);
 
-    // 右フレームのサイズを求める
+    // 右フレームのサイズを求めて
     rsize[camR] = remote[camR].size();
-  }
-  else
-  {
-    // 右フレームは左と同じにする
-    remote[camR] = remote[camL];
 
-    // 右フレームのサイズは左フレームと同じにする
-    rsize[camR] = rsize[camL];
+    // 右画像を更新したら
+    image[camR] = remote[camR];
+
+    // 右フレームの取得の完了を記録する
+    captured[camR] = true;
   }
 
   if (reshape)
@@ -246,8 +250,8 @@ void CamRemote::recv()
       // 符号化されたデータの一時保存先
       std::vector<GLubyte> encoded;
 
-      // 左バッファが空のとき左フレームが送られてきていれば
-      if (!captured[camL] && head[camL] > 0)
+      // 左フレームが送られてきていれば
+      if (head[camL] > 0)
       {
         // 左フレームデータを vector に変換して
         encoded.assign(data, data + head[camL]);
@@ -271,8 +275,8 @@ void CamRemote::recv()
         captureMutex[camL].unlock();
       }
 
-      // 右バッファが空のとき右フレームが送られてきていれば
-      if (!captured[camR] && head[camR] > 0)
+      // 右フレームが送られてきていれば
+      if (head[camR] > 0)
       {
         // 右フレームデータを vector に変換して
         encoded.assign(data + head[camL], data + head[camL] + head[camR]);
@@ -288,25 +292,6 @@ void CamRemote::recv()
 
         // 右画像を更新したら
         image[camR] = remote[camR];
-
-        // 右フレームの取得の完了を記録して
-        captured[camR] = true;
-
-        // 右画像のロックを解除する
-        captureMutex[camR].unlock();
-      }
-
-      // 右フレームが保存されていなければ
-      if (remote[camR].empty())
-      {
-        // 右フレームのサイズは左フレームと同じにして
-        rsize[camR] = rsize[camL];
-
-        // 右画像をロックし
-        captureMutex[camR].lock();
-
-        // 右画像は左フレームと同じにして
-        image[camR] = remote[camL];
 
         // 右フレームの取得の完了を記録して
         captured[camR] = true;
