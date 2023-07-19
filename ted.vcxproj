@@ -34,6 +34,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Oculus.h" />
+    <ClInclude Include="parseconfig.h" />
     <ClInclude Include="picojson.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="resource.h" />
@@ -62,7 +63,7 @@
     <ClCompile Include="libs\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="libs\ImGui\nfd_win.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="GgApp.cpp" />
+    <ClCompile Include="ted.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Oculus.cpp" />

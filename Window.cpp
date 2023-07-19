@@ -932,7 +932,11 @@ bool Window::startOculus()
 //
 void Window::stopOculus()
 {
-  if (oculus) oculus->terminate();
+  if (oculus)
+  {
+    oculus->terminate();
+    oculus = nullptr;
+  }
 }
 
 //
@@ -943,9 +947,6 @@ void Window::select(int eye)
   switch (defaults.display_mode)
   {
   case MONOCULAR:
-
-    // ウィンドウ全体をビューポートにする
-    glViewport(0, 0, width, height);
 
     // デプスバッファを消去する
     glClear(GL_DEPTH_BUFFER_BIT);

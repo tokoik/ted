@@ -145,7 +145,7 @@ void Menu::displayWindow()
     // Oculus Rift 以外に切り替えたなら
     else
     {
-      // Quadbuffer Stereo が使えないのにそれに切り替えようとしていないなら
+      // Quadbuffer Stereo が使えなければそれには切り替えない
       if (display_mode != QUADBUFFER || defaults.display_quadbuffer)
       {
         // それまで Oculus Rift を使っていたなら止める
@@ -153,11 +153,11 @@ void Menu::displayWindow()
 
         // 表示モードを切り替える
         defaults.display_mode = display_mode;
-
-        // ビューポートを更新する
-        window.resetViewport();
       }
     }
+
+    // ビューポートを更新する
+    window.resetViewport();
   }
 
   // ゲームパッドを有効にするかどうか

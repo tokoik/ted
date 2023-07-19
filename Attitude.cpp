@@ -3,6 +3,9 @@
 //
 #include "Attitude.h"
 
+// 構成ファイルの読み取り補助
+#include "parseconfig.h"
+
 // 標準ライブラリ
 #include <fstream>
 
@@ -63,10 +66,10 @@ bool Attitude::read(picojson::value &v)
   if (o.empty()) return false;
 
   // 初期位置
-  getVector(initialPosition, o, "position");
+  getVector(o, "position", initialPosition);
 
   // 初期姿勢
-  getVector(initialOrientation, o, "orientation");
+  getVector(o, "orientation", initialOrientation);
 
   // カメラ方向の補正値
   const auto &v_parallax_offset{ o.find("parallax_offset") };
@@ -82,19 +85,19 @@ bool Attitude::read(picojson::value &v)
   }
 
   // 視差の初期値
-  getValue(initialParallax, o, "parallax");
+  getValue(o, "parallax", initialParallax);
 
   // 前景の焦点距離・縦横比・中心位置の初期値
-  getVector(initialForeAdjust, o, "fore_intrinsic");
+  getValue(o, "fore_intrinsic", initialForeAdjust);
 
   // 背景の焦点距離・縦横比・中心位置の初期値
-  getVector(initialBackAdjust, o, "back_intrinsic");
+  getValue(o, "back_intrinsic", initialBackAdjust);
 
   // 背景テクスチャの半径と中心位置の初期値
-  getVector(initialCircleAdjust, o, "circle");
+  getValue(o, "circle", initialCircleAdjust);
 
   // スクリーンの間隔の初期値
-  getValue(initialOffset, o, "offset");
+  getValue(o, "offset", initialOffset);
 
   return true;
 }
@@ -131,19 +134,19 @@ bool Attitude::save(const std::string &file) const
   picojson::object o;
 
   // 位置
-  setVector(position, o, "position");
+  setVector(o, "position", position);
 
   // 姿勢
-  setVector(initialOrientation, o, "orientation");
+  setVector(o, "orientation", initialOrientation);
 
   // 前景に対する焦点距離と中心位置
-  setVector(foreAdjust, o, "fore_intrinsic");
+  setValue(o, "fore_intrinsic", foreAdjust);
 
   // 背景に対する焦点距離と中心位置
-  setVector(backAdjust, o, "back_intrinsic");
+  setValue(o, "back_intrinsic", backAdjust);
 
   // 視差
-  setValue(parallax, o, "parallax");
+  setValue(o, "parallax", parallax);
 
   // カメラ方向の補正値
   picojson::array e;
@@ -153,10 +156,10 @@ bool Attitude::save(const std::string &file) const
   o.insert(std::make_pair("parallax_offset", picojson::value(e)));
 
   // 背景テクスチャの半径と中心位置
-  setVector(circleAdjust, o, "circle");
+  setValue(o, "circle", circleAdjust);
 
   // スクリーンの間隔
-  setValue(offset, o, "offset");
+  setValue(o, "offset", offset);
 
   // 設定内容をシリアライズして保存
   picojson::value v(o);

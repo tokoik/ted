@@ -5,6 +5,9 @@
 // 各種設定
 #include "Config.h"
 
+// 構成ファイルの読み取り補助
+#include "parseconfig.h"
+
 // Ovrvision Pro
 #include "ovrvision_pro.h"
 
@@ -125,79 +128,79 @@ bool Config::read(picojson::value& v)
   if (o.empty()) return false;
 
   // 立体視の方式
-  getValue(display_mode, o, "stereo");
+  getValue(o, "stereo", display_mode);
 
   // クアッドバッファステレオ表示
-  getValue(display_quadbuffer, o, "quadbuffer");
+  getValue(o, "quadbuffer", display_quadbuffer);
 
   // フルスクリーン表示
-  getValue(display_fullscreen, o, "fullscreen");
+  getValue(o, "fullscreen", display_fullscreen);
 
   // フルスクリーン表示するディスプレイの番号
-  getValue(display_secondary, o, "use_secondary");
+  getValue(o, "use_secondary", display_secondary);
 
   // ディスプレイの横の画素数
-  getValue(display_size[0], o, "display_width");
+  getValue(o, "display_width", display_size[0]);
 
   // ディスプレイの縦の画素数
-  getValue(display_size[1], o, "display_height");
+  getValue(o, "display_height", display_size[1]);
 
   // ディスプレイの縦横比
-  getValue(display_aspect, o, "display_aspect");
+  getValue(o, "display_aspect", display_aspect);
 
   // ディスプレイの中心の高さ
-  getValue(display_center, o, "display_center");
+  getValue(o, "display_center", display_center);
 
   // 視点からディスプレイまでの距離
-  getValue(display_distance, o, "display_distance");
+  getValue(o, "display_distance", display_distance);
 
   // 視点から前方面までの距離 (焦点距離)
-  getValue(display_near, o, "depth_near");
+  getValue(o, "depth_near", display_near);
 
   // 視点から後方面までの距離
-  getValue(display_far, o, "depth_far");
+  getValue(o, "depth_far", display_far);
 
   // ニュー力ソース
-  getValue(input_mode, o, "input_mode");
+  getValue(o, "input_mode", input_mode);
 
   // 左目のキャプチャデバイスのデバイス番号
-  getValue(camera_id[camL], o, "left_camera");
+  getValue(o, "left_camera", camera_id[camL]);
 
   // 左目のムービーファイル
-  getString(camera_movie[camL], o, "left_movie");
+  getString(o, "left_movie", camera_movie[camL]);
 
   // 左目のキャプチャデバイス不使用時に表示する静止画像
-  getString(camera_image[camL], o, "left_image");
+  getString(o, "left_image", camera_image[camL]);
 
   // 右目のキャプチャデバイスのデバイス番号
-  getValue(camera_id[camR], o, "right_camera");
+  getValue(o, "right_camera", camera_id[camR]);
 
   // 右目のムービーファイル
-  getString(camera_movie[camR], o, "right_movie");
+  getString(o, "right_movie", camera_movie[camR]);
 
   // 右目のキャプチャデバイス不使用時に表示する静止画像
-  getString(camera_image[camR], o, "right_image");
+  getString(o, "right_image", camera_image[camR]);
 
   // スクリーンのサンプル数
-  getValue(camera_texture_samples, o, "screen_samples");
+  getValue(o, "screen_samples", camera_texture_samples);
 
   // 正距円筒図法の場合はテクスチャを繰り返す
-  getValue(camera_texture_repeat, o, "texture_repeat");
+  getValue(o, "texture_repeat", camera_texture_repeat);
 
   // ヘッドトラッキング
-  getValue(camera_tracking, o, "tracking");
+  getValue(o, "tracking", camera_tracking);
 
   // 安定化処理
-  getValue(remote_stabilize, o, "stabilize");
+  getValue(o, "stabilize", remote_stabilize);
 
   // カメラの横の画素数
-  getValue(camera_size[0], o, "capture_width");
+  getValue(o, "capture_width", camera_size[0]);
 
   // カメラの縦の画素数
-  getValue(camera_size[1], o, "capture_height");
+  getValue(o, "capture_height", camera_size[1]);
 
   // カメラのフレームレート
-  getValue(camera_fps, o, "capture_fps");
+  getValue(o, "capture_fps", camera_fps);
 
   // カメラのコーデック
   const auto& v_camera_fourcc{ o.find("capture_codec") };
@@ -218,73 +221,73 @@ bool Config::read(picojson::value& v)
   }
 
   // 魚眼レンズの横の中心位置
-  getValue(camera_center_x, o, "fisheye_center_x");
+  getValue(o, "fisheye_center_x", camera_center_x);
 
   // 魚眼レンズの縦の中心位置
-  getValue(camera_center_y, o, "fisheye_center_y");
+  getValue(o, "fisheye_center_y", camera_center_y);
 
   // 魚眼レンズの横の画角
-  getValue(camera_fov_x, o, "fisheye_fov_x");
+  getValue(o, "fisheye_fov_x", camera_fov_x);
 
   // 魚眼レンズの縦の画角
-  getValue(camera_fov_y, o, "fisheye_fov_y");
+  getValue(o, "fisheye_fov_y", camera_fov_y);
 
   // Ovrvision Pro のモード
-  getValue(ovrvision_property, o, "ovrvision_property");
+  getValue(o, "ovrvision_property", ovrvision_property);
 
   // ゲームコントローラの使用
-  getValue(use_controller, o, "leap_motion");
+  getValue(o, "leap_motion", use_controller);
 
   // Leap Motion の使用
-  getValue(use_leap_motion, o, "leap_motion");
+  getValue(o, "leap_motion", use_leap_motion);
 
   // バーテックスシェーダのソースファイル名
-  getString(vertex_shader, o, "vertex_shader");
+  getString(o, "vertex_shader", vertex_shader);
 
   // フラグメントシェーダのソースファイル名
-  getString(fragment_shader, o, "fragment_shader");
+  getString(o, "fragment_shader", fragment_shader);
 
   // リモート表示に使うポート
-  getValue(port, o, "port");
+  getValue(o, "port", port);
 
   // リモート表示の送信先の IP アドレス
-  getString(address, o, "host");
+  getString(o, "host", address);
 
   // ホストの役割
-  getValue(role, o, "role");
+  getValue(o, "role", role);
 
   // カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  if (getValue(remote_delay[0], o, "role")) remote_delay[1] = remote_delay[0];
+  if (getValue(o, "role", remote_delay[0])) remote_delay[1] = remote_delay[0];
 
   // 左カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  getValue(remote_delay[0], o, "tracking_delay_left");
+  getValue(o, "tracking_delay_left", remote_delay[0]);
 
   // 右カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  getValue(remote_delay[1], o, "tracking_delay_right");
+  getValue(o, "tracking_delay_right", remote_delay[1]);
 
   // 伝送画像の品質
-  getValue(remote_texture_quality, o, "texture_quality");
+  getValue(o, "texture_quality", remote_texture_quality);
 
   // 安定化処理（ドーム画像への変形）を行う
-  getValue(remote_texture_reshape, o, "texture_reshape");
+  getValue(o, "texture_reshape", remote_texture_reshape);
 
   // 安定化処理（ドーム画像への変形）に用いるテクスチャのサンプル数
-  getValue(remote_texture_samples, o, "texture_samples");
+  getValue(o, "texture_samples", remote_texture_samples);
 
   // リモートカメラの横の画角
-  getValue(remote_fov_x, o, "remote_fov_x");
+  getValue(o, "remote_fov_x", remote_fov_x);
 
   // リモートカメラの縦の画角
-  getValue(remote_fov_y, o, "remote_fov_y");
+  getValue(o, "remote_fov_y", remote_fov_y);
 
   // ローカルの姿勢変換行列の最大数
-  getValue(local_share_size, o, "local_share_size");
+  getValue(o, "local_share_size", local_share_size);
 
   // リモートの姿勢変換行列の最大数
-  getValue(remote_share_size, o, "remote_share_size");
+  getValue(o, "remote_share_size", remote_share_size);
 
   // シーングラフの最大の深さ
-  getValue(max_level, o, "max_level");
+  getValue(o, "max_level", max_level);
 
   // ワールド座標に固定するシーングラフ
   const auto& v_scene{ o.find("scene") };
@@ -328,145 +331,145 @@ bool Config::save(const std::string& file) const
   picojson::object o;
 
   // 立体視の方式
-  setValue(display_mode, o, "stereo");
+  setValue(o, "stereo", display_mode);
 
   // クアッドバッファステレオ表示
-  setValue(display_quadbuffer, o, "quadbuffer");
+  setValue(o, "quadbuffer", display_quadbuffer);
 
   // フルスクリーン表示
-  setValue(display_fullscreen, o, "fullscreen");
+  setValue(o, "fullscreen", display_fullscreen);
 
   // フルスクリーン表示するディスプレイの番号
-  setValue(display_secondary, o, "use_secondary");
+  setValue(o, "use_secondary", display_secondary);
 
   // ディスプレイの横の画素数
-  setValue(display_size[0], o, "display_width");
+  setValue(o, "display_width", display_size[0]);
 
   // ディスプレイの縦の画素数
-  setValue(display_size[1], o, "display_height");
+  setValue(o, "display_height", display_size[1]);
 
   // ディスプレイの縦横比
-  setValue(display_aspect, o, "display_aspect");
+  setValue(o, "display_aspect", display_aspect);
 
   // ディスプレイの中心の高さ
-  setValue(display_center, o, "display_center");
+  setValue(o, "display_center", display_center);
 
   // 視点からディスプレイまでの距離
-  setValue(display_distance, o, "display_distance");
+  setValue(o, "display_distance", display_distance);
 
   // 視点から前方面までの距離 (焦点距離)
-  setValue(display_near, o, "depth_near");
+  setValue(o, "depth_near", display_near);
 
   // 視点から後方面までの距離
-  setValue(display_far, o, "depth_far");
+  setValue(o, "depth_far", display_far);
 
   // 左目のキャプチャデバイスのデバイス番号
-  setValue(camera_id[camL], o, "left_camera");
+  setValue(o, "left_camera", camera_id[camL]);
 
   // 左目のムービーファイル
-  setString(camera_movie[camL], o, "left_movie");
+  setString(o, "left_movie", camera_movie[camL]);
 
   // 左目のキャプチャデバイス不使用時に表示する静止画像
-  setString(camera_image[camL], o, "left_image");
+  setString(o, "left_image", camera_image[camL]);
 
   // 右目のキャプチャデバイスのデバイス番号
-  setValue(camera_id[camR], o, "right_camera");
+  setValue(o, "right_camera", camera_id[camR]);
 
   // 右目のムービーファイル
-  setString(camera_movie[camL], o, "right_movie");
+  setString(o, "right_movie", camera_movie[camL]);
 
   // 右目のキャプチャデバイス不使用時に表示する静止画像
-  setString(camera_image[camR], o, "right_image");
+  setString(o, "right_image", camera_image[camR]);
 
   // スクリーンのサンプル数
-  setValue(camera_texture_samples, o, "screen_samples");
+  setValue(o, "screen_samples", camera_texture_samples);
 
   // 正距円筒図法の場合はテクスチャを繰り返す
-  setValue(camera_texture_repeat, o, "texture_repeat");
+  setValue(o, "texture_repeat", camera_texture_repeat);
 
   // ヘッドトラッキング
-  setValue(camera_tracking, o, "tracking");
+  setValue(o, "tracking", camera_tracking);
 
   // 安定化処理
-  setValue(remote_stabilize, o, "stabilize");
+  setValue(o, "stabilize", remote_stabilize);
 
   // カメラの横の画素数
-  setValue(camera_size[0], o, "capture_width");
+  setValue(o, "capture_width", camera_size[0]);
 
   // カメラの縦の画素数
-  setValue(camera_size[1], o, "capture_height");
+  setValue(o, "capture_height", camera_size[1]);
 
   // カメラのフレームレート
-  setValue(camera_fps, o, "capture_fps");
+  setValue(o, "capture_fps", camera_fps);
 
   // カメラのコーデック
-  setString(std::string(camera_fourcc.data(), camera_fourcc.size()), o, "capture_codec");
+  setString(o, "capture_codec", std::string(camera_fourcc.data(), camera_fourcc.size()));
 
   // 魚眼レンズの横の中心位置
-  setValue(camera_center_x, o, "fisheye_center_x");
+  setValue(o, "fisheye_center_x", camera_center_x);
 
   // 魚眼レンズの縦の中心位置
-  setValue(camera_center_y, o, "fisheye_center_y");
+  setValue(o, "fisheye_center_y", camera_center_y);
 
   // 魚眼レンズの横の画角
-  setValue(camera_fov_x, o, "fisheye_fov_x");
+  setValue(o, "fisheye_fov_x", camera_fov_x);
 
   // 魚眼レンズの縦の画角
-  setValue(camera_fov_y, o, "fisheye_fov_y");
+  setValue(o, "fisheye_fov_y", camera_fov_y);
 
   // Ovrvision Pro のモード
-  setValue(ovrvision_property, o, "ovrvision_property");
+  setValue(o, "ovrvision_property", ovrvision_property);
 
   // コントローラの使用
-  setValue(use_controller, o, "controller");
+  setValue(o, "controller", use_controller);
 
   // Leap Motion の使用
-  setValue(use_leap_motion, o, "leap_motion");
+  setValue(o, "leap_motion", use_leap_motion);
 
   // バーテックスシェーダのソースファイル名
-  setString(vertex_shader, o, "vertex_shader");
+  setString(o, "vertex_shader", vertex_shader);
 
   // フラグメントシェーダのソースファイル名
-  setString(fragment_shader, o, "fragment_shader");
+  setString(o, "fragment_shader", fragment_shader);
 
   // リモート表示に使うポート
-  setValue(port, o, "port");
+  setValue(o, "port", port);
 
   // リモート表示の送信先の IP アドレス
-  setString(address, o, "host");
+  setString(o, "host", address);
 
   // ホストの役割
-  setValue(role, o, "role");
+  setValue(o, "role", role);
 
   // 左カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  setValue(remote_delay[0], o, "tracking_delay_left");
+  setValue(o, "tracking_delay_left", remote_delay[0]);
 
   // 右カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  setValue(remote_delay[1], o, "tracking_delay_right");
+  setValue(o, "tracking_delay_right", remote_delay[1]);
 
   // 伝送画像の品質
-  setValue(remote_texture_quality, o, "texture_quality");
+  setValue(o, "texture_quality", remote_texture_quality);
 
   // 安定化処理（ドーム画像への変形）を行う
-  setValue(remote_texture_reshape, o, "texture_reshape");
+  setValue(o, "texture_reshape", remote_texture_reshape);
 
   // 安定化処理（ドーム画像への変形）に用いるテクスチャのサンプル数
-  setValue(remote_texture_samples, o, "texture_samples");
+  setValue(o, "texture_samples", remote_texture_samples);
 
   // リモートカメラの横の画角
-  setValue(remote_fov_x, o, "remote_fov_x");
+  setValue(o, "remote_fov_x", remote_fov_x);
 
   // リモートカメラの縦の画角
-  setValue(remote_fov_y, o, "remote_fov_y");
+  setValue(o, "remote_fov_y", remote_fov_y);
 
   // ローカルの姿勢変換行列の最大数
-  setValue(local_share_size, o, "local_share_size");
+  setValue(o, "local_share_size", local_share_size);
 
   // リモートの姿勢変換行列の最大数
-  setValue(remote_share_size, o, "remote_share_size");
+  setValue(o, "remote_share_size", remote_share_size);
 
   // シーングラフの最大の深さ
-  setValue(max_level, o, "max_level");
+  setValue(o, "max_level", max_level);
 
   // ワールド座標に固定するシーングラフ
   o.insert(std::make_pair("scene", scene));
