@@ -11,6 +11,7 @@
 
 // 冗長なデバッグメッセージ
 #undef VERBOSE
+#undef DEBUG
 
 // 長さのスケール
 constexpr GLfloat scale(0.001f);

@@ -79,6 +79,7 @@ struct Config
   double capture_width;
   double capture_height;
   double capture_fps;
+  std::string capture_backend;
   std::array<char, 5> capture_codec;
   GgVector circle;
   int ovrvision_property;

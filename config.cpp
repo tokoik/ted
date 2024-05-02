@@ -27,6 +27,7 @@ Config::Config()
   , capture_width{ 0.0 }
   , capture_height{ 0.0 }
   , capture_fps{ 0.0 }
+  , capture_backend{ "ANY" }
   , capture_codec{ '\0', '\0', '\0', '\0', '\0' }
   , circle{ 1.0f, 1.0f, 0.0f, 0.0f }
   , ovrvision_property{ OVR::OV_CAM5MP_FHD /* ※3 */ }
@@ -306,6 +307,9 @@ bool Config::load(const std::string &file)
   // カメラのフレームレート
   getValue(capture_fps, o, "capture_fps");
 
+  // カメラのバックエンド
+  getString(capture_backend, o, "capture_backend");
+
   // カメラのコーデック
   const auto& v_capture_codec(o.find("capture_codec"));
   if (v_capture_codec != o.end() && v_capture_codec->second.is<std::string>())
@@ -511,6 +515,9 @@ bool Config::save(const std::string& file) const
 
   // カメラのフレームレート
   setValue(capture_fps, o, "capture_fps");
+
+  // カメラのバックエンド
+  setString(capture_backend, o, "capture_backend");
 
   // カメラのコーデック
   o.insert(std::make_pair("capture_codec", picojson::value(std::string(capture_codec.data(), 4))));

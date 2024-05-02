@@ -35,7 +35,7 @@ public:
   virtual ~CamCv();
 
   // カメラから入力する
-  bool open(int device, int cam, const char* codec, double width, double height, double fps);
+  bool open(int cam, int device, const char* api, const char* codec, double width, double height, double fps);
 
   // ファイル／ネットワークからキャプチャを開始する
   bool open(const std::string& file, int cam);
@@ -54,4 +54,7 @@ public:
 
   // 利得を下げる
   virtual void decreaseGain();
+
+  // バックエンドのリスト
+  static const std::map<std::string, int> backend;
 };

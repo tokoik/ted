@@ -21,10 +21,10 @@ CamCv::~CamCv()
 }
 
 // カメラから入力する
-bool CamCv::open(int device, int cam, const char* codec, double width, double height, double fps)
+bool CamCv::open(int cam, int device, const char* api, const char* codec, double width, double height, double fps)
 {
   // カメラを開く
-  if (!camera[cam].open(device)) return false;
+  if (!camera[cam].open(device, backend.at(api))) return false;
 
   // カメラを設定する
   setup(cam, codec, width, height, fps);
@@ -92,7 +92,8 @@ void CamCv::setup(int cam, const char* codec, double width, double height, doubl
 {
   // カメラのコーデック・解像度・フレームレートを設定する
   if (codec[0] != '\0') camera[cam].set(cv::CAP_PROP_FOURCC,
-    cv::VideoWriter::fourcc(codec[0], codec[1], codec[2], codec[3]));
+//    cv::VideoWriter::fourcc(codec[0], codec[1], codec[2], codec[3]));
+    cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
   if (width > 0.0) camera[cam].set(cv::CAP_PROP_FRAME_WIDTH, width);
   if (height > 0.0) camera[cam].set(cv::CAP_PROP_FRAME_HEIGHT, height);
   if (fps > 0.0) camera[cam].set(cv::CAP_PROP_FPS, fps);
@@ -176,3 +177,13 @@ void CamCv::decreaseGain()
     if (camera[cam].isOpened()) camera[cam].set(cv::CAP_PROP_GAIN, g);
   }
 }
+
+// バックエンドのリスト
+const std::map<std::string, int> CamCv::backend
+{
+  { "ANY", cv::CAP_ANY },
+  { "DSHOW", cv::CAP_DSHOW },
+  { "MSMF", cv::CAP_MSMF },
+  { "GSTREAMER", cv::CAP_GSTREAMER },
+  { "FFMPEG", cv::CAP_FFMPEG }
+};

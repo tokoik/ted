@@ -644,9 +644,19 @@ Window::operator bool()
     int btnsCount;
     const auto* const btns{ glfwGetJoystickButtons(joy, &btnsCount) };
 
+    for (int i = 0; i < btnsCount; ++i)
+    {
+      if (btns[i] != 0) std::cout << "btns[" << i << "] = " << (int)btns[i] << "\n";
+    }
+
     // スティック
     int axesCount;
     const auto* const axes{ glfwGetJoystickAxes(joy, &axesCount) };
+
+    for (int i = 0; i < axesCount; ++i)
+    {
+      if (fabs(axes[i]) > 0.1f) std::cout << "axes[" << i << "] = " << axes[i] << "\n";
+    }
 
     // スティックの速度係数
     const auto axesSpeedFactor{ axesSpeedScale * speedFactor };
@@ -654,6 +664,7 @@ Window::operator bool()
     // L ボタンと R ボタンの状態
     const auto lrButton{ btns[4] | btns[5] };
 
+    // 右アナログスティック
     if (axesCount > 3)
     {
       // 物体を左右に移動する
@@ -679,7 +690,7 @@ Window::operator bool()
     }
 
     // B, X ボタンの状態
-    const auto parallaxButton{ btns[1] - btns[2] };
+    const auto parallaxButton{ btns[3] - btns[0] };
 
     // B, X ボタンに変化があれば
     if (parallaxButton)
@@ -707,7 +718,7 @@ Window::operator bool()
     }
 
     // Y, A ボタンの状態
-    const auto zoomButton{ btns[3] - btns[0] };
+    const auto zoomButton{ btns[2] - btns[3] };
 
     // Y, A ボタンに変化があれば
     if (zoomButton)
@@ -740,7 +751,7 @@ Window::operator bool()
     }
 
     // 十字キーの左右ボタンの状態
-    const auto textureXButton{ btns[11] - btns[13] };
+    const auto textureXButton{ btns[13] - btns[15] };
 
     // 十字キーの左右ボタンに変化があれば
     if (textureXButton)
@@ -759,7 +770,7 @@ Window::operator bool()
     }
 
     // 十字キーの上下ボタンの状態
-    const auto textureYButton{ btns[10] - btns[12] };
+    const auto textureYButton{ btns[12] - btns[14] };
 
     // 十字キーの上下ボタンに変化があれば
     if (textureYButton)

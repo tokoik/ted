@@ -136,7 +136,8 @@ int main(int argc, const char* const* const argv)
       else
       {
         // カメラデバイスを開く
-        if (!cam->open(defaults.camera_left, camL, defaults.capture_codec.data(),
+        if (!cam->open(camL,
+          defaults.camera_left, defaults.capture_backend.c_str(), defaults.capture_codec.data(),
           defaults.capture_width, defaults.capture_height, defaults.capture_fps))
         {
           NOTIFY("左のカメラが使用できません。");
@@ -171,7 +172,8 @@ int main(int argc, const char* const* const argv)
         else if (defaults.camera_right >= 0 && defaults.camera_right != defaults.camera_left)
         {
           // カメラデバイスを開く
-          if (!cam->open(defaults.camera_right, camR, defaults.capture_codec.data(),
+          if (!cam->open(camR,
+            defaults.camera_right, defaults.capture_backend.c_str(), defaults.capture_codec.data(),
             defaults.capture_width, defaults.capture_height, defaults.capture_fps))
           {
             NOTIFY("右のカメラが使用できません。");
