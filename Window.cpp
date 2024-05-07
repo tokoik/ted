@@ -644,19 +644,19 @@ Window::operator bool()
     int btnsCount;
     const auto* const btns{ glfwGetJoystickButtons(joy, &btnsCount) };
 
-    for (int i = 0; i < btnsCount; ++i)
-    {
-      if (btns[i] != 0) std::cout << "btns[" << i << "] = " << (int)btns[i] << "\n";
-    }
-
     // ÉXÉeÉBÉbÉN
     int axesCount;
     const auto* const axes{ glfwGetJoystickAxes(joy, &axesCount) };
 
-    for (int i = 0; i < axesCount; ++i)
-    {
-      if (fabs(axes[i]) > 0.1f) std::cout << "axes[" << i << "] = " << axes[i] << "\n";
-    }
+    //for (int i = 0; i < btnsCount; ++i)
+    //{
+    //  if (btns[i] != 0) std::cout << "btns[" << i << "] = " << (int)btns[i] << "\n";
+    //}
+
+    //for (int i = 0; i < axesCount; ++i)
+    //{
+    //  if (fabs(axes[i]) > 0.1f) std::cout << "axes[" << i << "] = " << axes[i] << "\n";
+    //}
 
     // ÉXÉeÉBÉbÉNÇÃë¨ìxåWêî
     const auto axesSpeedFactor{ axesSpeedScale * speedFactor };
@@ -718,16 +718,16 @@ Window::operator bool()
     }
 
     // Y, A É{É^ÉìÇÃèÛë‘
-    const auto zoomButton{ btns[2] - btns[3] };
+    const auto foculButton{ btns[2] - btns[3] };
 
     // Y, A É{É^ÉìÇ…ïœâªÇ™Ç†ÇÍÇŒ
-    if (zoomButton)
+    if (foculButton)
     {
       // L É{É^ÉìÇ© R É{É^ÉìÇìØéûÇ…âüÇµÇƒÇ¢ÇÍÇŒ
       if (lrButton)
       {
         // îwåiÇè„â∫Ç…âÒì]Ç∑ÇÈ
-        if (zoomButton > 0)
+        if (foculButton > 0)
         {
           config.parallax_offset[camL] *= qrStep[1];
           config.parallax_offset[camR] *= qrStep[1].conjugate();
@@ -740,8 +740,8 @@ Window::operator bool()
       }
       else
       {
-        // è≈ì_ãóó£Çí≤êÆÇ∑ÇÈ
-        const int change{ focalChange + zoomButton };
+        // îwåiÇÃè≈ì_ãóó£Çí≤êÆÇ∑ÇÈ
+        const int change{ focalChange + foculButton };
         if (change < focalMax)
         {
           focalChange = change;
@@ -761,11 +761,17 @@ Window::operator bool()
       {
         // îwåiÇ…ëŒÇ∑ÇÈâ°ï˚å¸ÇÃâÊäpÇí≤êÆÇ∑ÇÈ
         config.circle[0] = defaults.circle[0] + static_cast<GLfloat>(circleChange[0] += textureXButton) * shiftStep;
+#if defined(DEBUG)
+        std::cerr << "fov_x = " << config.circle[0] << "\n";
+#endif
       }
       else
       {
         // îwåiÇÃâ°à íuÇí≤êÆÇ∑ÇÈ
         config.circle[2] = defaults.circle[2] + static_cast<GLfloat>(circleChange[2] += textureXButton) * shiftStep;
+#if defined(DEBUG)
+        std::cerr << "center_x = " << config.circle[2] << "\n";
+#endif
       }
     }
 
@@ -780,11 +786,17 @@ Window::operator bool()
       {
         // îwåiÇ…ëŒÇ∑ÇÈècï˚å¸ÇÃâÊäpÇí≤êÆÇ∑ÇÈ
         config.circle[1] = defaults.circle[1] + static_cast<GLfloat>(circleChange[1] += textureYButton) * shiftStep;
+#if defined(DEBUG)
+        std::cerr << "fov_y = " << config.circle[1] << "\n";
+#endif
       }
       else
       {
         // îwåiÇÃècà íuÇí≤êÆÇ∑ÇÈ
         config.circle[3] = defaults.circle[3] + static_cast<GLfloat>(circleChange[3] += textureYButton) * shiftStep;
+#if defined(DEBUG)
+        std::cerr << "center_y = " << config.circle[3] << "\n";
+#endif
       }
     }
 
