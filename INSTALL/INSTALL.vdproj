@@ -81,6 +81,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_1512E3FF7F9E4DF28F133469BD14C17A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_1B4DF8E4516F4D97A7DCB7A2F08D24B3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -177,7 +183,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_48B41F7766E044E78E443FB56D7E89C5"
+        "MsmKey" = "8:_4029657B14AF4D50A993324034ADDE41"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -189,7 +195,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4D4A131A10C14FAD894A8FDD09C06752"
+        "MsmKey" = "8:_4D3A557DD06744A39C8B4513D9EBABD7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -202,6 +208,24 @@
         "Entry"
         {
         "MsmKey" = "8:_51A6E506614C41DCA5021976C573B89D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_54D4CF7E0FCF4EFAB0284B872D5B6336"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_56395D5EADEA4AD7B5F465AE95C39450"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_574040CE7A8743988ADDAA704DE8FE37"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -232,6 +256,12 @@
         "Entry"
         {
         "MsmKey" = "8:_712458819BD5411AAD9158BEDB0EE5C6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7318BE13021D47E5BCFF9BA11923BED9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -279,7 +309,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_891CF16CA9914F88A95BA66F68ED0D31"
+        "MsmKey" = "8:_88A1A0F230044E76A07E1750F6C8E45B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -309,12 +339,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8D1AE1F290684E00AFC23BFE7AFFFAE6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_8D4AC5DCFA314D8F871AFC19C3CD2131"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -322,6 +346,12 @@
         "Entry"
         {
         "MsmKey" = "8:_8E84850793394CD3A38F1F25C22EFA58"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8FE061EA88064FFBA66CF51CDFB367FD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -465,7 +495,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C0075FBC260C4738A5E6EC46F16764F8"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C2CC097A8FF64055B330D143B4DAF39E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C759CDD9078743F1AA07636EAB0A68E6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -508,6 +550,12 @@
         "Entry"
         {
         "MsmKey" = "8:_CF89722AA6A54C428CD13DE2F80AC577"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D1D3958216F4435B8C0A5870944A4F98"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -585,6 +633,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_E2EFD94C959448EBB64E06ECB95AD0D5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E6882EDBC73342BDBDC8D989CE59DD94"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -610,6 +664,12 @@
         "Entry"
         {
         "MsmKey" = "8:_F13DB3E577AD43FDBA9274BF75DC3EF6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F45EE77C0FED4367A4EEE73A02C84685"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -646,6 +706,12 @@
         "Entry"
         {
         "MsmKey" = "8:_FDEE3EAC89F64F3898A9E86844669F3B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FE5E05372D0345CDB39F9F251B965F71"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -930,6 +996,26 @@
             {
             "SourcePath" = "8:..\\scenegraph.pdf"
             "TargetName" = "8:scenegraph.pdf"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1512E3FF7F9E4DF28F133469BD14C17A"
+            {
+            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\opencv_imgcodecs481.dll"
+            "TargetName" = "8:opencv_imgcodecs481.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1266,10 +1352,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_48B41F7766E044E78E443FB56D7E89C5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4029657B14AF4D50A993324034ADDE41"
             {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\opencv_core455.dll"
-            "TargetName" = "8:opencv_core455.dll"
+            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\tbb12.dll"
+            "TargetName" = "8:tbb12.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1306,10 +1392,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4D4A131A10C14FAD894A8FDD09C06752"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4D3A557DD06744A39C8B4513D9EBABD7"
             {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\opencv_imgproc455.dll"
-            "TargetName" = "8:opencv_imgproc455.dll"
+            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\opencv_videoio481.dll"
+            "TargetName" = "8:opencv_videoio481.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1350,6 +1436,66 @@
             {
             "SourcePath" = "8:..\\target.vert"
             "TargetName" = "8:target.vert"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_54D4CF7E0FCF4EFAB0284B872D5B6336"
+            {
+            "SourcePath" = "8:..\\PayCam2560x960.jpg"
+            "TargetName" = "8:PayCam2560x960.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_56395D5EADEA4AD7B5F465AE95C39450"
+            {
+            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\OpenEXRUtil-3_2.dll"
+            "TargetName" = "8:OpenEXRUtil-3_2.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_574040CE7A8743988ADDAA704DE8FE37"
+            {
+            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\Iex-3_2.dll"
+            "TargetName" = "8:Iex-3_2.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1450,6 +1596,26 @@
             {
             "SourcePath" = "8:..\\target.obj"
             "TargetName" = "8:target.obj"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7318BE13021D47E5BCFF9BA11923BED9"
+            {
+            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\opencv_core481.dll"
+            "TargetName" = "8:opencv_core481.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1606,10 +1772,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_891CF16CA9914F88A95BA66F68ED0D31"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_88A1A0F230044E76A07E1750F6C8E45B"
             {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\opencv_imgcodecs455.dll"
-            "TargetName" = "8:opencv_imgcodecs455.dll"
+            "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\pcre2-8-0.dll"
+            "TargetName" = "8:pcre2-8-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1706,26 +1872,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8D1AE1F290684E00AFC23BFE7AFFFAE6"
-            {
-            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\opencv_videoio455.dll"
-            "TargetName" = "8:opencv_videoio455.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8D4AC5DCFA314D8F871AFC19C3CD2131"
             {
             "SourcePath" = "8:..\\handr.mtl"
@@ -1750,6 +1896,26 @@
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gstpbutils-1.0-0.dll"
             "TargetName" = "8:gstpbutils-1.0-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8FE061EA88064FFBA66CF51CDFB367FD"
+            {
+            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\deflate.dll"
+            "TargetName" = "8:deflate.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2226,10 +2392,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C0075FBC260C4738A5E6EC46F16764F8"
+            {
+            "SourcePath" = "8:..\\PayCam3040x1520.jpg"
+            "TargetName" = "8:PayCam3040x1520.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C2CC097A8FF64055B330D143B4DAF39E"
             {
             "SourcePath" = "8:C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\ffi-7.dll"
             "TargetName" = "8:ffi-7.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C759CDD9078743F1AA07636EAB0A68E6"
+            {
+            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\opencv_imgproc481.dll"
+            "TargetName" = "8:opencv_imgproc481.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2370,6 +2576,26 @@
             {
             "SourcePath" = "8:..\\l-elbow.mtl"
             "TargetName" = "8:l-elbow.mtl"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D1D3958216F4435B8C0A5870944A4F98"
+            {
+            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\IlmThread-3_2.dll"
+            "TargetName" = "8:IlmThread-3_2.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2626,6 +2852,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E2EFD94C959448EBB64E06ECB95AD0D5"
+            {
+            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\OpenEXRCore-3_2.dll"
+            "TargetName" = "8:OpenEXRCore-3_2.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E6882EDBC73342BDBDC8D989CE59DD94"
             {
             "SourcePath" = "8:..\\rectangle.vert"
@@ -2710,6 +2956,26 @@
             {
             "SourcePath" = "8:..\\panorama.json"
             "TargetName" = "8:panorama.json"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F45EE77C0FED4367A4EEE73A02C84685"
+            {
+            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\Imath-3_1.dll"
+            "TargetName" = "8:Imath-3_1.dll"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -2846,6 +3112,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FE5E05372D0345CDB39F9F251B965F71"
+            {
+            "SourcePath" = "8:..\\libs\\win\\x64\\bin\\OpenEXR-3_2.dll"
+            "TargetName" = "8:OpenEXR-3_2.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_22AD224362704684B1F969685D67EB44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -2913,15 +3199,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TelExistence Display"
-        "ProductCode" = "8:{B9FD0332-713C-4581-82D9-92096C5AA986}"
-        "PackageCode" = "8:{85CD8927-498B-425B-B463-FF4163D7D332}"
+        "ProductCode" = "8:{0AE967B6-8CEE-4716-A7B5-330A546A886B}"
+        "PackageCode" = "8:{2A7A5B3D-67CC-4970-9087-3961313B2C6F}"
         "UpgradeCode" = "8:{7A39854F-F010-495F-856C-E53FA8330919}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.2.3"
+        "ProductVersion" = "8:0.2.4"
         "Manufacturer" = "8:Kohe Tokoi"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/tokoik/ted/"
