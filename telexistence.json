@@ -1,10 +1,20 @@
 {
   "children": [
     {
+      "position": [ 0, 0.05, -0.2 ],
+      "model": "target.obj",
       "children": "hand.json"
     },
     {
-      "children": "hand_remote.json"
+      "controller": 0,
+      "children": [
+        {
+          "remote_controller": 0,
+          "position": [ 0, 0.05, -0.2 ],
+          "model": "remote.obj",
+          "children": "hand_remote.json"
+        }
+      ]
     }
   ]
 }

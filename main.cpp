@@ -29,7 +29,7 @@
 int main(int argc, const char* const* const argv)
 {
   // 引数を設定ファイル名に使う（指定されていなければ config.json にする）
-  const char* config_file(argc > 1 ? argv[1] : "config.json");
+  const char* config_file{ argc > 1 ? argv[1] : "config.json" };
 
   // 設定データ
   Config defaults;
@@ -49,7 +49,7 @@ int main(int argc, const char* const* const argv)
   atexit(glfwTerminate);
 
   // ウィンドウを開く
-  Window window(defaults);
+  Window window{ defaults };
 
   // ウィンドウオブジェクトが生成されなければ終了する
   if (!window.get()) return EXIT_FAILURE;
@@ -69,7 +69,7 @@ int main(int argc, const char* const* const argv)
   GLsizei size[camCount][2];
 
   // 背景画像を取得するカメラ
-  std::shared_ptr<Camera> camera(nullptr);
+  std::shared_ptr<Camera> camera{ nullptr };
 
   // ネットワークを使用する場合
   if (defaults.role != STANDALONE)
@@ -89,8 +89,8 @@ int main(int argc, const char* const* const argv)
     if (defaults.role == OPERATOR)
     {
       // リモートカメラからキャプチャするためのダミーカメラを使う
-      CamRemote* const cam(new CamRemote(defaults.remote_texture_width,
-        defaults.remote_texture_height, defaults.remote_texture_reshape));
+      CamRemote* const cam{ new CamRemote(defaults.remote_texture_width,
+        defaults.remote_texture_height, defaults.remote_texture_reshape) };
 
       // 生成したカメラを記録しておく
       camera.reset(cam);
@@ -192,7 +192,7 @@ int main(int argc, const char* const* const argv)
       if (defaults.camera_right >= 0)
       {
         // Ovrvision Pro を使う
-        CamOv* const cam(new CamOv);
+        CamOv* const cam{ new CamOv };
 
         // 生成したカメラを記録しておく
         camera.reset(cam);
@@ -326,7 +326,7 @@ int main(int argc, const char* const* const argv)
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   // 図形描画用のシェーダプログラムを読み込む
-  GgSimpleShader simple("simple.vert", "simple.frag");
+  GgSimpleShader simple{ "simple.vert", "simple.frag" };
   if (!simple.get())
   {
     // シェーダが読み込めなかった
@@ -335,10 +335,10 @@ int main(int argc, const char* const* const argv)
   }
 
   // シーングラフ
-  Scene scene(defaults.scene, simple);
+  Scene scene{ defaults.scene, simple };
 
   // 背景描画用の矩形を作成する
-  Rect rect(defaults.vertex_shader, defaults.fragment_shader);
+  Rect rect{ defaults.vertex_shader, defaults.fragment_shader };
 
   // シェーダプログラム名を調べる
   if (!rect.get())
@@ -349,10 +349,10 @@ int main(int argc, const char* const* const argv)
   }
 
   // 光源
-  const GgSimpleShader::LightBuffer light(lightData);
+  const GgSimpleShader::LightBuffer light{ lightData };
 
   // 材質
-  const GgSimpleShader::MaterialBuffer material(materialData);
+  const GgSimpleShader::MaterialBuffer material{ materialData };
 
   // カリング
   glCullFace(GL_BACK);
@@ -361,7 +361,7 @@ int main(int argc, const char* const* const argv)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // 描画回数
-  const int drawCount(defaults.display_mode == MONO ? 1 : camCount);
+  const int drawCount{ defaults.display_mode == MONO ? 1 : camCount };
 
 #if defined(IMGUI_VERSION)
   //
@@ -564,10 +564,10 @@ int main(int argc, const char* const* const argv)
         rect.setCircle(window.getCircle(), window.getOffset(eye));
 
         // ローカルのヘッドトラッキングの変換行列
-        const GgMatrix&& mo(defaults.camera_tracking ? window.getMo(eye) * window.getQa(eye).getMatrix() : window.getQa(eye).getMatrix());
+        const GgMatrix&& mo{ defaults.camera_tracking ? window.getMo(eye) * window.getQa(eye).getMatrix() : window.getQa(eye).getMatrix() };
 
         // リモートのヘッドトラッキングの変換行列
-        const GgMatrix&& mr(mo * Scene::getRemoteAttitude(eye));
+        const GgMatrix&& mr{ mo * Scene::getRemoteAttitude(eye) };
 
         // 背景を描く
         rect.draw(texture[eye], defaults.remote_stabilize ? mr : mo, window.getSamples());
@@ -583,7 +583,7 @@ int main(int argc, const char* const* const argv)
         simple.selectMaterial(material);
 
         // 図形を描画する
-        if (window.showScene) scene.draw(window.getMp(eye), window.getMv(eye) * window.getMo(eye));
+        if (window.showScene) scene.draw(window.getMp(eye), window.getMv(eye));
 
         // 片目の処理を完了する
         window.commit(eye);

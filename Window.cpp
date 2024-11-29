@@ -1179,20 +1179,11 @@ void Window::select(int eye)
     const auto& o(eyePose[eye].Orientation);
 #endif
 
-    // Oculus Rift の片目の位置を保存する
-    po[eye][0] = p.x;
-    po[eye][1] = p.y;
-    po[eye][2] = p.z;
-    po[eye][3] = 1.0f;
-
-    // Oculus Rift の片目の回転を保存する
-    qo[eye] = GgQuaternion(o.x, o.y, o.z, -o.w);
-
     // 四元数から変換行列を求める
-    mo[eye] = qo[eye].getMatrix();
+    mo[eye] = GgQuaternion(o.x, o.y, o.z, -o.w).getMatrix();
 
     // ヘッドトラッキングの変換行列を共有メモリに保存する
-    Scene::setLocalAttitude(eye, mo[eye].transpose());
+    Scene::setLocalAttitude(eye, mo[eye].translate(-p.y, -p.y, -p.z));
 
     // デプスバッファを消去する
     glClear(GL_DEPTH_BUFFER_BIT);

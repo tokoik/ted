@@ -87,12 +87,6 @@ class Window
   // ビュー変換
   //
 
-  // ヘッドトラッキングによる回転
-  std::array<GgQuaternion, camCount> qo;
-
-  // ヘッドトラッキングによる位置
-  std::array<GgVector, camCount> po;
-
   // カメラ方向の補正ステップ
   static std::array<GgQuaternion, camCount> qrStep;
 
@@ -314,22 +308,6 @@ public:
   const GgMatrix& getMv(int eye) const
   {
     return mv[eye];
-  }
-
-  //
-  // Oculus Rift のヘッドラッキングによる移動を得る
-  //
-  const GgVector& getPo(int eye) const
-  {
-    return po[eye];
-  }
-
-  //
-  // Oculus Rift のヘッドラッキングによる回転の四元数を得る
-  //
-  const GgQuaternion& getQo(int eye) const
-  {
-    return qo[eye];
   }
 
   //

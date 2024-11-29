@@ -1,188 +1,182 @@
 {
-  "remote_controller": 0,
-  "model": "remote.obj",
+  "position": [ 0, -0.05, 0 ],
+  "remote_controller": 2,
   "children": [
     {
-      "position": [ 0, -0.05, 0 ],
-      "remote_controller": 2,
-      "children": [
-        {
-          "remote_controller": 3,
-          "model": "handr_remote.obj"
-        },
-        {
-          "remote_controller": 4,
-          "model": "handl_remote.obj"
-        },
-        {
-          "remote_controller": 5,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 6,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 7,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 8,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 9,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 10,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 11,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 12,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 13,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 14,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 15,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 16,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 17,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 18,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 19,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 20,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 21,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 22,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 23,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 24,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 25,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 26,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 27,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 28,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 29,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 30,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 31,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 32,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 33,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 34,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 35,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 36,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 37,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 38,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 39,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 40,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 41,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 42,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 43,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 44,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 45,
-          "model": "finger.obj"
-        },
-        {
-          "remote_controller": 46,
-          "model": "finger.obj"
-        }
-      ]
+      "remote_controller": 3,
+      "model": "handr_remote.obj"
+    },
+    {
+      "remote_controller": 4,
+      "model": "handl_remote.obj"
+    },
+    {
+      "remote_controller": 5,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 6,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 7,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 8,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 9,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 10,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 11,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 12,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 13,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 14,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 15,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 16,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 17,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 18,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 19,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 20,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 21,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 22,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 23,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 24,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 25,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 26,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 27,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 28,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 29,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 30,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 31,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 32,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 33,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 34,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 35,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 36,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 37,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 38,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 39,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 40,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 41,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 42,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 43,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 44,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 45,
+      "model": "finger.obj"
+    },
+    {
+      "remote_controller": 46,
+      "model": "finger.obj"
     }
   ]
 }
