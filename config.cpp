@@ -24,6 +24,7 @@ Config::Config()
   , camera_texture_samples{ 1271 }
   , camera_texture_repeat{ false }
   , camera_tracking{ true }
+  , camera_translation{ false }
   , capture_width{ 0.0 }
   , capture_height{ 0.0 }
   , capture_fps{ 0.0 }
@@ -298,6 +299,9 @@ bool Config::load(const std::string &file)
   // ヘッドトラッキング
   getValue(camera_tracking, o, "tracking");
 
+  // カメラの平行移動
+  getValue(camera_translation, o, "translation");
+
   // カメラの横の画素数
   getValue(capture_width, o, "capture_width");
 
@@ -506,6 +510,9 @@ bool Config::save(const std::string& file) const
 
   // ヘッドトラッキング
   setValue(camera_tracking, o, "tracking");
+
+  // カメラの平行移動
+  setValue(camera_translation, o, "translation");
 
   // カメラの横の画素数
   setValue(capture_width, o, "capture_width");

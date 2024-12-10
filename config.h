@@ -76,6 +76,7 @@ struct Config
   int camera_texture_samples;
   bool camera_texture_repeat;
   bool camera_tracking;
+  bool camera_translation;
   double capture_width;
   double capture_height;
   double capture_fps;

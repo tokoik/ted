@@ -78,6 +78,10 @@ Window::Window(Config& defaults, GLFWwindow* share)
   , config{ defaults }
   , window{ nullptr }
   , camera{ nullptr }
+  , width{ 1280 }
+  , height{ 720 }
+  , aspect{ float(width) / float(height) }
+  , samples{ 1271 }
   , session{ nullptr }
   , showScene{ true }
   , showMirror{ true }
