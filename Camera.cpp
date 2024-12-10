@@ -16,8 +16,11 @@
 #  endif
 #  pragma comment(lib, "opencv_core" CV_VERSION_STR CV_EXT_STR)
 #  pragma comment(lib, "opencv_highgui" CV_VERSION_STR CV_EXT_STR)
+#  pragma comment(lib, "opencv_imgproc" CV_VERSION_STR CV_EXT_STR)
 #  pragma comment(lib, "opencv_imgcodecs" CV_VERSION_STR CV_EXT_STR)
 #  pragma comment(lib, "opencv_videoio" CV_VERSION_STR CV_EXT_STR)
+#  pragma comment(lib, "opencv_objdetect" CV_VERSION_STR CV_EXT_STR)
+#  pragma comment(lib, "opencv_dnn" CV_VERSION_STR CV_EXT_STR)
 #endif
 
 // コンストラクタ
@@ -89,6 +92,8 @@ bool Camera::transmit(int cam, GLuint texture, const GLsizei* size)
     // 新しいデータが到着していたら
     if (captured[cam])
     {
+      (*processFrame)(image[cam]);
+
       // データをテクスチャに転送する
       glBindTexture(GL_TEXTURE_2D, texture);
       glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size[0], size[1], format, GL_UNSIGNED_BYTE, image[cam].data);

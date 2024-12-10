@@ -34,6 +34,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SharedMemory.h" />
     <ClInclude Include="Window.h" />
+    <ClInclude Include="yolov8face.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C:\libs\ImGui\imgui.cpp" />
@@ -53,10 +54,12 @@
     <ClCompile Include="LeapListener.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Network.cpp" />
+    <ClCompile Include="CameraProcess.cpp" />
     <ClCompile Include="Rect.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SharedMemory.cpp" />
     <ClCompile Include="Window.cpp" />
+    <ClCompile Include="yolov8face.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config.json" />

@@ -161,4 +161,7 @@ public:
   {
     return network.isOperator();
   }
+
+  // キャプチャしたフレームを加工する
+  static void (*processFrame)(cv::Mat& frame);
 };
