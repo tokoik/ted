@@ -1180,10 +1180,10 @@ void Window::select(int eye)
 #endif
 
     // 四元数から変換行列を求める
-    mo[eye] = GgQuaternion(o.x, o.y, o.z, -o.w).getMatrix();
+    mo[eye] = ggTranslate(-p.y, -p.y, -p.z) * GgQuaternion(o.x, o.y, o.z, -o.w).getMatrix();
 
     // ヘッドトラッキングの変換行列を共有メモリに保存する
-    Scene::setLocalAttitude(eye, mo[eye].translate(-p.y, -p.y, -p.z));
+    Scene::setLocalAttitude(eye, mo[eye]);
 
     // デプスバッファを消去する
     glClear(GL_DEPTH_BUFFER_BIT);
