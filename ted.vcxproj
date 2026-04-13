@@ -165,22 +165,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)libs\win\include;$(ProjectDir)libs\include;$(ProjectDir)libs\ImGui;C:\Program Files (x86)\Intel RealSense SDK 2.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)libs\win\$(Platform)\include;$(ProjectDir)libs\win\include;$(ProjectDir)libs\include;$(ProjectDir)libs\ImGui;C:\Program Files (x86)\Intel RealSense SDK 2.0\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)libs\win\$(Platform)\lib;C:\Program Files (x86)\Intel RealSense SDK 2.0\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)libs\win\include;$(ProjectDir)libs\include;$(ProjectDir)libs\ImGui;C:\Program Files (x86)\Intel RealSense SDK 2.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)libs\win\$(Platform)\include;$(ProjectDir)libs\win\include;$(ProjectDir)libs\include;$(ProjectDir)libs\ImGui;C:\Program Files (x86)\Intel RealSense SDK 2.0\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)libs\win\$(Platform)\lib;C:\Program Files (x86)\Intel RealSense SDK 2.0\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(ProjectDir)libs\win\include;$(ProjectDir)libs\include;$(ProjectDir)libs\ImGui;C:\Program Files (x86)\Intel RealSense SDK 2.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)libs\win\$(Platform)\include;$(ProjectDir)libs\win\include;$(ProjectDir)libs\include;$(ProjectDir)libs\ImGui;C:\Program Files (x86)\Intel RealSense SDK 2.0\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)libs\win\$(Platform)\lib;C:\Program Files (x86)\Intel RealSense SDK 2.0\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(ProjectDir)libs\win\include;$(ProjectDir)libs\include;$(ProjectDir)libs\ImGui;C:\Program Files (x86)\Intel RealSense SDK 2.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)libs\win\$(Platform)\include;$(ProjectDir)libs\win\include;$(ProjectDir)libs\include;$(ProjectDir)libs\ImGui;C:\Program Files (x86)\Intel RealSense SDK 2.0\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)libs\win\$(Platform)\lib;C:\Program Files (x86)\Intel RealSense SDK 2.0\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
