@@ -504,7 +504,7 @@ Window::Window(Config& defaults, GLFWwindow* share)
   //
   // ユーザインタフェースの準備
   //
-  //ImGuiIO& io = ImGui::GetIO(); (void)io;
+  //ImGuiIO& io = ImGui::GetIO(); ()io;
   //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
   //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
