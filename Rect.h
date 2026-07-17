@@ -1,11 +1,11 @@
-﻿#pragma once
+#pragma once
 
 //
 // 矩形
 //
 
 // ウィンドウ関連の処理
-#include "Window.h"
+#include "GgApp.h"
 
 // 標準ライブラリ
 #include <string>

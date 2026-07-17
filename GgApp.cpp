@@ -2,6 +2,7 @@
 // ウィンドウ関連およびアプリケーションのメイン処理
 //
 #include "GgApp.h"
+#pragma comment(lib, "opengl32.lib")
 
 // 各種設定
 #include "./TedConfig.h"
@@ -52,37 +53,7 @@
   } while (0)
 #endif
 
-//
-// GLFW のエラー表示
-//
-static void glfwErrorCallback(int error, const char* description)
-{
-#if defined(__aarch64__)
-  if (error == 65544) return;
-#endif
-  throw std::runtime_error(description);
-}
 
-//
-// GgApp クラスのコンストラクタ
-//
-GgApp::GgApp()
-  : image{ nullptr, nullptr }
-  , size{ { 0, 0 }, { 0, 0 } }
-  , aspect{ 1.0f, 1.0f }
-  , texture{ 0, 0 }
-  , stereo{ false }
-{
-  // GLFW のエラー処理関数を登録する
-  glfwSetErrorCallback(glfwErrorCallback);
-}
-
-//
-// デストラクタ
-//
-GgApp::~GgApp()
-{
-}
 
 //
 // GgApp::Window コンストラクタ
@@ -269,6 +240,10 @@ GgApp::Window::operator bool()
 {
   // イベントを取り出す
   glfwPollEvents();
+
+#if defined(GG_USE_OPENXR)
+  pollEvents();
+#endif
 
   // ウィンドウを閉じるべきなら false
   if (glfwWindowShouldClose(window)) return false;
@@ -911,11 +886,6 @@ bool GgApp::Window::initOpenXR()
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-  XrSessionBeginInfo beginInfo{ XR_TYPE_SESSION_BEGIN_INFO };
-  beginInfo.primaryViewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
-  XR_CHECK(xrBeginSession(xrSession, &beginInfo));
-  xrSessionRunning = true;
-
   glEnable(GL_FRAMEBUFFER_SRGB);
   glfwSwapInterval(0);
 
@@ -991,6 +961,60 @@ void GgApp::Window::cleanupOpenXR()
   glDisable(GL_FRAMEBUFFER_SRGB);
   glfwSwapInterval(1);
 }
+
+//
+// OpenXR イベントのポーリングとセッション状態管理
+//
+void GgApp::Window::pollEvents()
+{
+  if (xrInstance == XR_NULL_HANDLE) return;
+
+  XrEventDataBuffer event{ XR_TYPE_EVENT_DATA_BUFFER };
+  while (xrPollEvent(xrInstance, &event) == XR_SUCCESS)
+  {
+    switch (event.type)
+    {
+    case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+      setClose(GLFW_TRUE);
+      break;
+
+    case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+      {
+        auto* sessionStateChangedEvent = reinterpret_cast<XrEventDataSessionStateChanged*>(&event);
+        if (sessionStateChangedEvent->session == xrSession)
+        {
+          XrSessionState state = sessionStateChangedEvent->state;
+          if (state == XR_SESSION_STATE_READY)
+          {
+            XrSessionBeginInfo beginInfo{ XR_TYPE_SESSION_BEGIN_INFO };
+            beginInfo.primaryViewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
+            if (XR_SUCCEEDED(xrBeginSession(xrSession, &beginInfo)))
+            {
+              xrSessionRunning = true;
+            }
+          }
+          else if (state == XR_SESSION_STATE_STOPPING)
+          {
+            if (XR_SUCCEEDED(xrEndSession(xrSession)))
+            {
+              xrSessionRunning = false;
+            }
+          }
+          else if (state == XR_SESSION_STATE_EXITING || state == XR_SESSION_STATE_LOSS_PENDING)
+          {
+            setClose(GLFW_TRUE);
+          }
+        }
+      }
+      break;
+
+    default:
+      break;
+    }
+
+    event = { XR_TYPE_EVENT_DATA_BUFFER };
+  }
+}
 #endif
 
 //
@@ -1058,7 +1082,7 @@ void GgApp::Window::select(int eye)
 
   case OCULUS:
 #if defined(GG_USE_OPENXR)
-    if (xrSession != XR_NULL_HANDLE)
+    if (xrSession != XR_NULL_HANDLE && xrSessionRunning)
     {
       XrSwapchainImageAcquireInfo acquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
       uint32_t activeIndex = 0;
@@ -1092,7 +1116,7 @@ void GgApp::Window::select(int eye)
 bool GgApp::Window::start()
 {
 #if defined(GG_USE_OPENXR)
-  if (xrSession == XR_NULL_HANDLE) return true;
+  if (xrSession == XR_NULL_HANDLE || !xrSessionRunning) return true;
 
   mm = ggTranslate(attitude.position) * attitude.orientation.getMatrix();
   Scene::setup(mm);
@@ -1104,6 +1128,8 @@ bool GgApp::Window::start()
   XrFrameBeginInfo beginInfo{ XR_TYPE_FRAME_BEGIN_INFO };
   XrResult beginResult = xrBeginFrame(xrSession, &beginInfo);
   if (XR_FAILED(beginResult)) return false;
+
+  xrFrameActive = true;
 
   if (xrFrameState.shouldRender)
   {
@@ -1148,7 +1174,9 @@ bool GgApp::Window::start()
   endInfo.displayTime = xrFrameState.predictedDisplayTime;
   endInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
   endInfo.layerCount = 0;
+  endInfo.layers = nullptr;
   xrEndFrame(xrSession, &endInfo);
+  xrFrameActive = false;
 
   return false;
 #else
@@ -1230,7 +1258,7 @@ void GgApp::Window::updateCircle()
 void GgApp::Window::commit(int eye)
 {
 #if defined(GG_USE_OPENXR)
-  if (xrSession != XR_NULL_HANDLE)
+  if (xrSession != XR_NULL_HANDLE && xrSessionRunning && xrFrameActive)
   {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -1248,7 +1276,7 @@ void GgApp::Window::swapBuffers()
   ggError();
 
 #if defined(GG_USE_OPENXR)
-  if (xrSession != XR_NULL_HANDLE)
+  if (xrSession != XR_NULL_HANDLE && xrSessionRunning && xrFrameActive)
   {
     XrCompositionLayerProjection projectionLayer{ XR_TYPE_COMPOSITION_LAYER_PROJECTION };
     projectionLayer.layerFlags = XR_COMPOSITION_LAYER_CORRECT_CHROMATIC_ABERRATION_BIT;
@@ -1282,6 +1310,7 @@ void GgApp::Window::swapBuffers()
     endInfo.layers = layers;
 
     xrEndFrame(xrSession, &endInfo);
+    xrFrameActive = false;
 
     if (showMirror)
     {

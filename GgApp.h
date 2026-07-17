@@ -417,6 +417,14 @@ public:
     }
 
     //
+    // ウィンドウのサイズを取り出す
+    //
+    const auto& getSize() const
+    {
+      return size;
+    }
+
+    //
     // ウィンドウのアスペクト比を取り出す
     //
     auto getAspect() const
@@ -458,6 +466,7 @@ public:
     std::array<XrView, 2> xrViews;
     XrFrameState xrFrameState{ XR_TYPE_FRAME_STATE };
     bool xrSessionRunning{ false };
+    bool xrFrameActive{ false };
 
     // デプステクスチャ（各目用）
     std::array<GLuint, 2> xrDepthTextures{ 0, 0 };
@@ -469,6 +478,7 @@ public:
     // OpenXR の初期化・終了
     bool initOpenXR();
     void cleanupOpenXR();
+    void pollEvents();
 #endif
 
   public:
