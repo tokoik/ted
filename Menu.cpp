@@ -7,7 +7,7 @@
 #include "Network.h"
 
 // カメラ関連の処理
-#include "CamCv.h"
+#include "CamMf.h"
 #include "CamOv.h"
 #include "CamImage.h"
 #include "CamRemote.h"
@@ -258,9 +258,80 @@ void Menu::inputWindow()
   ImGui::Text(defaults.camera_movie[camR].c_str());
 
   ImGui::RadioButton(u8"カメラ", &defaults.input_mode, InputMode::CAMERA);
-  ImGui::InputInt(u8"左カメラ番号", &defaults.camera_id[camL]);
-  ImGui::InputInt(u8"右カメラ番号", &defaults.camera_id[camR]);
-  ImGui::InputInt2(u8"カメラ画素数", defaults.camera_size.data());
+  
+  // デバイスリストの取得
+  const auto& devices = CamMf::getDeviceList();
+
+  for (int cam = 0; cam < camCount; ++cam)
+  {
+    ImGui::PushID(cam);
+    const char* sideLabel = (cam == camL) ? u8"左カメラ" : u8"右カメラ";
+    
+    // キャッシュ更新
+    updateCameraMenuCache(cam);
+    const auto& cache = cameraMenuCache[cam];
+
+    // デバイス選択コンボボックス
+    int currentDevice = defaults.camera_id[cam];
+    std::string deviceComboLabel = u8"未選択";
+    if (currentDevice >= 0 && currentDevice < devices.size()) {
+      deviceComboLabel = devices[currentDevice];
+    }
+    
+    if (ImGui::BeginCombo(sideLabel, deviceComboLabel.c_str()))
+    {
+      for (int i = 0; i < devices.size(); ++i)
+      {
+        bool isSelected = (currentDevice == i);
+        if (ImGui::Selectable(devices[i].c_str(), isSelected))
+        {
+          defaults.camera_id[cam] = i;
+        }
+        if (isSelected) {
+          ImGui::SetItemDefaultFocus();
+        }
+      }
+      ImGui::EndCombo();
+    }
+
+    // コーデック選択コンボボックス
+    std::string currentCodec = defaults.camera_codec[cam];
+    if (ImGui::BeginCombo(u8"コーデック", currentCodec.c_str()))
+    {
+      for (const auto& codec : cache.codecs)
+      {
+        bool isSelected = (currentCodec == codec);
+        if (ImGui::Selectable(codec.c_str(), isSelected))
+        {
+          defaults.camera_codec[cam] = codec;
+        }
+        if (isSelected) {
+          ImGui::SetItemDefaultFocus();
+        }
+      }
+      ImGui::EndCombo();
+    }
+
+    // 解像度選択コンボボックス
+    std::string currentResolution = defaults.camera_resolution[cam];
+    if (ImGui::BeginCombo(u8"解像度", currentResolution.c_str()))
+    {
+      for (const auto& res : cache.resolutions)
+      {
+        bool isSelected = (currentResolution == res);
+        if (ImGui::Selectable(res.c_str(), isSelected))
+        {
+          defaults.camera_resolution[cam] = res;
+        }
+        if (isSelected) {
+          ImGui::SetItemDefaultFocus();
+        }
+      }
+      ImGui::EndCombo();
+    }
+
+    ImGui::PopID();
+  }
 
   ImGui::RadioButton(u8"Ovrvision", &defaults.input_mode, InputMode::OVRVISION);
   static constexpr char *items[]{
@@ -279,18 +350,18 @@ void Menu::inputWindow()
   ImGui::RadioButton(u8"リモート", &defaults.input_mode, InputMode::REMOTE);
   char address[16]{ "0.0.0.0" };
   strcpy(address, defaults.address.c_str());
-  if (ImGui::InputText(u8"IP Address", address, sizeof address))
+  if (ImGui::InputText(u8"アドレス", address, sizeof address))
     defaults.address = address;
-  ImGui::InputInt(u8"Port", &defaults.port);
+  ImGui::InputInt(u8"ポート", &defaults.port);
 
   ImGui::Text(u8"シェーダ");
   char vertex_shader[MAX_PATH]{ "" };
   strcpy(vertex_shader, defaults.vertex_shader.c_str());
-  if (ImGui::InputText(u8"Vertex", vertex_shader, sizeof vertex_shader))
+  if (ImGui::InputText(u8"頂点", vertex_shader, sizeof vertex_shader))
     defaults.vertex_shader = vertex_shader;
   char fragment_shader[MAX_PATH]{ "" };
   strcpy(fragment_shader, defaults.fragment_shader.c_str());
-  if (ImGui::InputText(u8"Fragment", fragment_shader, sizeof fragment_shader))
+  if (ImGui::InputText(u8"画素", fragment_shader, sizeof fragment_shader))
     defaults.fragment_shader = fragment_shader;
 
   if (ImGui::Button(u8"設定")) app->selectInput();
@@ -522,6 +593,89 @@ Menu::Menu(GgApp* app, Window& window, Scene& scene, Attitude& attitude)
   NFD_Init();
 }
 
+// GUID から人間が読める形式の名前を返す
+static std::string SubTypeToNameLocal(const GUID& subType)
+{
+  if (subType == MFVideoFormat_YUY2) return "YUY2";
+  if (subType == MFVideoFormat_NV12) return "NV12";
+  if (subType == MFVideoFormat_MJPG) return "MJPG";
+  if (subType == MFVideoFormat_H264) return "H264";
+  if (subType == MFVideoFormat_RGB32) return "RGB32";
+  return "";
+}
+
+// キャッシュを更新するヘルパー関数
+void Menu::updateCameraMenuCache(int cam)
+{
+  auto& cache = cameraMenuCache[cam];
+  const auto& devices = CamMf::getDeviceList();
+  int currentDevice = defaults.camera_id[cam];
+
+  // デバイスが無効な場合はクリアして終了
+  if (currentDevice < 0 || currentDevice >= devices.size())
+  {
+    cache.lastDeviceId = currentDevice;
+    cache.formats.clear();
+    cache.codecs.clear();
+    cache.resolutions.clear();
+    cache.lastCodec = "";
+    return;
+  }
+
+  // デバイスが変わったとき
+  if (cache.lastDeviceId != currentDevice)
+  {
+    cache.lastDeviceId = currentDevice;
+    CamMf::getDeviceFormats(currentDevice, cache.formats);
+
+    // コーデックリスト構築
+    cache.codecs.clear();
+    for (const auto& fmt : cache.formats)
+    {
+      std::string name = SubTypeToNameLocal(fmt.subType);
+      if (!name.empty() && std::find(cache.codecs.begin(), cache.codecs.end(), name) == cache.codecs.end())
+      {
+        cache.codecs.push_back(name);
+      }
+    }
+
+    // もし現在の config コーデックがなければ最初のコーデックをセット
+    if (std::find(cache.codecs.begin(), cache.codecs.end(), defaults.camera_codec[cam]) == cache.codecs.end())
+    {
+      if (!cache.codecs.empty()) defaults.camera_codec[cam] = cache.codecs[0];
+      else defaults.camera_codec[cam] = "";
+    }
+  }
+
+  // コーデックが変わったとき
+  if (cache.lastCodec != defaults.camera_codec[cam])
+  {
+    cache.lastCodec = defaults.camera_codec[cam];
+    cache.resolutions.clear();
+
+    for (const auto& fmt : cache.formats)
+    {
+      if (SubTypeToNameLocal(fmt.subType) == cache.lastCodec)
+      {
+        char buf[32];
+        sprintf_s(buf, "%d x %d", fmt.width, fmt.height);
+        std::string resStr(buf);
+        if (std::find(cache.resolutions.begin(), cache.resolutions.end(), resStr) == cache.resolutions.end())
+        {
+          cache.resolutions.push_back(resStr);
+        }
+      }
+    }
+
+    // もし現在の config 解像度がなければ最初の解像度をセット
+    if (std::find(cache.resolutions.begin(), cache.resolutions.end(), defaults.camera_resolution[cam]) == cache.resolutions.end())
+    {
+      if (!cache.resolutions.empty()) defaults.camera_resolution[cam] = cache.resolutions[0];
+      else defaults.camera_resolution[cam] = "";
+    }
+  }
+}
+
 //
 // デストラクタ
 //
@@ -544,3 +698,4 @@ void Menu::show()
   if (showStartupWindow) startupWindow();
   ImGui::Render();
 }
+

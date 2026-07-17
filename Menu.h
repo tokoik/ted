@@ -12,9 +12,22 @@
 
 // 姿勢
 #include "Attitude.h"
+#include "CamMf.h"
 
 class Menu
 {
+  // 左右カメラのUI用キャッシュデータ
+  struct CameraMenuCache
+  {
+    int lastDeviceId = -2;
+    std::vector<CamMf::VideoFormat> formats;
+    std::vector<std::string> codecs;
+    std::vector<std::string> resolutions;
+    std::string lastCodec = "";
+  } cameraMenuCache[camCount];
+
+  // キャッシュを更新するヘルパー関数
+  void updateCameraMenuCache(int cam);
   // このアプリケーション
   GgApp* app;
 
@@ -69,3 +82,4 @@ public:
   // メニューの表示
   void show();
 };
+

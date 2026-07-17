@@ -17,6 +17,7 @@
 #  pragma comment(lib, "opencv_core" CV_VERSION_STR CV_EXT_STR)
 #  pragma comment(lib, "opencv_highgui" CV_VERSION_STR CV_EXT_STR)
 #  pragma comment(lib, "opencv_imgcodecs" CV_VERSION_STR CV_EXT_STR)
+#  pragma comment(lib, "opencv_imgproc" CV_VERSION_STR CV_EXT_STR)
 #  pragma comment(lib, "opencv_videoio" CV_VERSION_STR CV_EXT_STR)
 #endif
 
@@ -276,3 +277,4 @@ int Camera::startWorker(unsigned short port, const char* address)
 
   return 0;
 }
+

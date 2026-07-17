@@ -206,6 +206,12 @@ struct Config
   // カメラの４文字コーデック
   std::array<char, 5> camera_fourcc;
 
+  // 左右カメラのコーデック (Media Foundation)
+  std::array<std::string, camCount> camera_codec;
+
+  // 左右カメラの解像度 (Media Foundation)
+  std::array<std::string, camCount> camera_resolution;
+
   // 魚眼カメラの中心位置
   GLfloat camera_center_x;
   GLfloat camera_center_y;
@@ -316,3 +322,4 @@ struct Config
 
 // デフォルト値
 extern Config defaults;
+

@@ -9,7 +9,7 @@
 #include "Network.h"
 
 // カメラ関連の処理
-#include "CamCv.h"
+#include "CamMf.h"
 #include "CamOv.h"
 #include "CamImage.h"
 #include "CamRemote.h"
@@ -106,8 +106,8 @@ bool GgApp::useMovie()
     return false;
   }
 
-  // 左カメラに OpenCV のキャプチャデバイスを使う
-  CamCv *const cam{ new CamCv };
+  // 左カメラに Media Foundation のキャプチャデバイスを使う
+  CamMf *const cam{ new CamMf };
 
   // 生成したカメラを記録しておく
   camera.reset(cam);
@@ -149,8 +149,8 @@ bool GgApp::useCamera()
     return false;
   }
 
-  // 左カメラに OpenCV のキャプチャデバイスを使う
-  CamCv *const cam{ new CamCv };
+  // 左カメラに Media Foundation のキャプチャデバイスを使う
+  CamMf *const cam{ new CamMf };
 
   // 生成したカメラを記録しておく
   camera.reset(cam);
@@ -537,3 +537,4 @@ int GgApp::main(int argc, const char *const *const argv)
 
   return EXIT_SUCCESS;
 }
+

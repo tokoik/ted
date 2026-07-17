@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Attitude.h" />
-    <ClInclude Include="CamCv.h" />
+    <ClInclude Include="CamMf.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CamImage.h" />
     <ClInclude Include="CamOv.h" />
@@ -64,7 +64,7 @@
     <ClCompile Include="libs\ImGui\imgui_tables.cpp" />
     <ClCompile Include="libs\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="libs\ImGui\nfd_win.cpp" />
-    <ClCompile Include="CamCv.cpp" />
+    <ClCompile Include="CamMf.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CamImage.cpp" />
     <ClCompile Include="CamOv.cpp" />

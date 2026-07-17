@@ -84,6 +84,8 @@ Config::Config()
   , camera_size{ 0, 0 }                       // カメラの横の画素数
   , camera_fps{ 0.0 }                         // カメラのフレームレート
   , camera_fourcc{ '\0', '\0', '\0', '\0' }   // カメラの４文字コーデック
+  , camera_codec{ "MJPG", "MJPG" }
+  , camera_resolution{ "1280 x 720", "1280 x 720" }
   , camera_center_x{ 0.0 }                    // 魚眼カメラの横の中心位置
   , camera_center_y{ 0.0 }                    // 魚眼カメラの横の中心位置
   , camera_fov_x{ 1.0 }                       // 魚眼カメラの横の画角
@@ -228,6 +230,43 @@ bool Config::read(picojson::value& v)
 
     // 格納先の残りの要素を 0 で埋める
     std::fill(camera_fourcc.begin() + i, camera_fourcc.end(), '\0');
+  }
+
+  // 左右カメラの個別コーデックと解像度
+  if (!getString(o, "left_capture_codec", camera_codec[camL]))
+  {
+    if (v_camera_fourcc != o.end() && v_camera_fourcc->second.is<std::string>())
+    {
+      camera_codec[camL] = v_camera_fourcc->second.get<std::string>();
+    }
+    else
+    {
+      camera_codec[camL] = "MJPG";
+    }
+  }
+
+  if (!getString(o, "right_capture_codec", camera_codec[camR]))
+  {
+    camera_codec[camR] = camera_codec[camL];
+  }
+
+  if (!getString(o, "left_capture_resolution", camera_resolution[camL]))
+  {
+    if (camera_size[0] > 0 && camera_size[1] > 0)
+    {
+      char buf[32];
+      sprintf_s(buf, "%d x %d", camera_size[0], camera_size[1]);
+      camera_resolution[camL] = buf;
+    }
+    else
+    {
+      camera_resolution[camL] = "1280 x 720";
+    }
+  }
+
+  if (!getString(o, "right_capture_resolution", camera_resolution[camR]))
+  {
+    camera_resolution[camR] = camera_resolution[camL];
   }
 
   // 魚眼レンズの横の中心位置
@@ -403,17 +442,25 @@ bool Config::save(const std::string& file) const
   // 安定化処理
   setValue(o, "stabilize", remote_stabilize);
 
+  // 左右個別のコーデックと解像度を保存
+  setString(o, "left_capture_codec", camera_codec[camL]);
+  setString(o, "left_capture_resolution", camera_resolution[camL]);
+  setString(o, "right_capture_codec", camera_codec[camR]);
+  setString(o, "right_capture_resolution", camera_resolution[camR]);
+
   // カメラの横の画素数
-  setValue(o, "capture_width", camera_size[0]);
+  int w = 0, h = 0;
+  sscanf_s(camera_resolution[camL].c_str(), "%d x %d", &w, &h);
+  setValue(o, "capture_width", w);
 
   // カメラの縦の画素数
-  setValue(o, "capture_height", camera_size[1]);
+  setValue(o, "capture_height", h);
 
   // カメラのフレームレート
   setValue(o, "capture_fps", camera_fps);
 
-  // カメラのコーデック
-  setString(o, "capture_codec", std::string(camera_fourcc.data(), camera_fourcc.size()));
+  // カメラのコーデック (互換性のため左カメラの設定を保存)
+  setString(o, "capture_codec", camera_codec[camL]);
 
   // 魚眼レンズの横の中心位置
   setValue(o, "fisheye_center_x", camera_center_x);
@@ -491,3 +538,4 @@ bool Config::save(const std::string& file) const
 
   return true;
 }
+
