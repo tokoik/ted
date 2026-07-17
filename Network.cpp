@@ -1,4 +1,4 @@
-﻿//
+//
 // ネットワーク関連の処理
 //
 #include "Network.h"
@@ -10,7 +10,7 @@
 #endif
 
 // ウィンドウ関連の処理
-#include "Window.h"
+#include "GgApp.h"
 
 // 最大データサイズ
 const std::size_t maxSize{ 65507 };

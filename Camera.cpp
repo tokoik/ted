@@ -1,4 +1,4 @@
-﻿//
+//
 // カメラ関連の処理
 //
 #include "Camera.h"
@@ -25,15 +25,19 @@
 Camera::Camera(int quality)
   : recvbuf{ nullptr }
   , sendbuf{ nullptr }
-  , run{ false, false }
   , format{ GL_BGR }
   , interval{ 1.0 / 30.0 }
-  , captured{ false, false }
-  , unsent{ false, false }
   , send_interval{ minDelay * 0.001 }
   , exposure{ 0 }
   , gain{ 0 }
 {
+  for (int cam = 0; cam < camCount; ++cam)
+  {
+    run[cam] = false;
+    captured[cam] = false;
+    unsent[cam] = false;
+  }
+
   // 圧縮設定
   setQuality(quality);
 }
@@ -42,7 +46,8 @@ Camera::Camera(int quality)
 Camera::~Camera()
 {
   // 作業用のメモリを開放する
-  delete[] recvbuf, sendbuf;
+  delete[] recvbuf;
+  delete[] sendbuf;
   recvbuf = sendbuf = nullptr;
 }
 
@@ -255,7 +260,8 @@ void Camera::send()
 int Camera::startWorker(unsigned short port, const char* address)
 {
   // すでに確保されている作業用メモリを破棄する
-  delete[] recvbuf, sendbuf;
+  delete[] recvbuf;
+  delete[] sendbuf;
   recvbuf = sendbuf = nullptr;
 
   // 作業者として初期化する
@@ -277,4 +283,3 @@ int Camera::startWorker(unsigned short port, const char* address)
 
   return 0;
 }
-

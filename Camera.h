@@ -1,14 +1,14 @@
-﻿#pragma once
+#pragma once
 
 //
 // カメラ関連の処理
 //
 
 // 各種設定
-#include "config.h"
+#include "./TedConfig.h"
 
 // ネットワーク関連の処理
-#include "Network.h"
+#include "./Network.h"
 
 // OpenCV
 #include <opencv2/opencv.hpp>
@@ -16,6 +16,7 @@
 // 標準ライブラリ
 #include <thread>
 #include <mutex>
+#include <atomic>
 
 // ヘッダの長さ
 constexpr int headLength{ camCount + 1 };
@@ -37,7 +38,7 @@ protected:
   std::mutex captureMutex[camCount];
 
   // 実行状態
-  bool run[camCount];
+  std::atomic<bool> run[camCount];
 
   // スレッドを停止する
   void stop();
@@ -55,10 +56,10 @@ protected:
   double capture_interval;
 
   // キャプチャ完了なら true
-  bool captured[camCount];
+  std::atomic<bool> captured[camCount];
 
   // 未送信なら true
-  bool unsent[camCount];
+  std::atomic<bool> unsent[camCount];
 
   // 送信間隔
   double send_interval;

@@ -1,4 +1,4 @@
-﻿//
+//
 // リモートカメラからキャプチャ
 //
 #include "CamRemote.h"
@@ -56,7 +56,8 @@ CamRemote::~CamRemote()
 int CamRemote::open(unsigned short port, const char* address)
 {
   // すでに確保されている作業用メモリを破棄する
-  delete[] sendbuf, recvbuf;
+  delete[] sendbuf;
+  delete[] recvbuf;
   sendbuf = recvbuf = nullptr;
 
   // 指示者として初期化する
@@ -133,7 +134,7 @@ int CamRemote::open(unsigned short port, const char* address)
     slices = static_cast<GLsizei>(sqrt(aspect * static_cast<GLfloat>(defaults.remote_texture_samples)));
     stacks = defaults.remote_texture_samples / slices;
 
-    // 背景画像の変形に使うメッシュの縦横の格子間隔を求める
+    // 背景画像の変形に使うメッシュの縦横 of 格子間隔を求める
     gap[0] = 2.0f / static_cast<GLfloat>(slices - 1);
     gap[1] = 2.0f / static_cast<GLfloat>(stacks - 1);
 

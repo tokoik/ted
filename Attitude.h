@@ -1,10 +1,12 @@
-﻿#pragma once
+#pragma once
 //
 // 姿勢情報
 //
 
 // 各種設定
-#include "Window.h"
+#include "./TedConfig.h"
+
+using namespace gg;
 
 // 姿勢
 struct Attitude

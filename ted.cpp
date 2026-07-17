@@ -1,4 +1,4 @@
-﻿//
+//
 // TelExistence Display System
 //
 
@@ -25,6 +25,8 @@
 
 // メニュー
 #include "Menu.h"
+
+static Rect* rectPointer{ nullptr };
 
 //
 // コンストラクタ
@@ -298,7 +300,13 @@ bool GgApp::selectInput()
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
     // テクスチャのアスペクト比を求める
-    aspect[cam] = static_cast<GLfloat>(size[camL][0]) / static_cast<GLfloat>(size[camL][1]);
+    aspect[cam] = static_cast<GLfloat>(size[cam][0]) / static_cast<GLfloat>(size[cam][1]);
+  }
+
+  if (rectPointer)
+  {
+    rectPointer->setTexture(0, texture[0]);
+    rectPointer->setTexture(1, texture[stereo ? 1 : 0]);
   }
 
   return true;
@@ -410,6 +418,8 @@ int GgApp::main(int argc, const char *const *const argv)
     return EXIT_FAILURE;
   }
 
+  rectPointer = &rect;
+
   // 前景の描画に用いるシェーダプログラムを読み込む
   GgSimpleShader simple{ "simple.vert", "simple.frag" };
   if (!simple.get())
@@ -476,12 +486,12 @@ int GgApp::main(int argc, const char *const *const argv)
     if (window.showMenu) menu.show();
 
     // 有効なカメラの数
-    int cam_count{ 1 };
+    int cam_count{ stereo ? camCount : 1 };
 
     // 有効なカメラについて
     for (int cam = 0; cam < cam_count; ++cam)
     {
-      // カメラをロックして画像を転送する
+      // camera->transmit 内でアトミック変数 captured が true ならテクスチャへ転送する
       camera->transmit(cam, texture[cam], size[cam]);
     }
 
@@ -533,8 +543,7 @@ int GgApp::main(int argc, const char *const *const argv)
   }
 
   // 背景画像用のテクスチャを削除する
-  glDeleteBuffers(camCount, texture);
+  glDeleteTextures(camCount, texture);
 
   return EXIT_SUCCESS;
 }
-

@@ -1,9 +1,9 @@
-﻿//
+//
 // 初期設定関連の処理
 //
 
 // 各種設定
-#include "Config.h"
+#include "./TedConfig.h"
 
 // 構成ファイルの読み取り補助
 #include "parseconfig.h"
@@ -306,7 +306,7 @@ bool Config::read(picojson::value& v)
   getValue(o, "role", role);
 
   // カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  if (getValue(o, "role", remote_delay[0])) remote_delay[1] = remote_delay[0];
+  if (getValue(o, "tracking_delay", remote_delay[0])) remote_delay[1] = remote_delay[0];
 
   // 左カメラのフレームに対してトラッキング情報を遅らせるフレームの数
   getValue(o, "tracking_delay_left", remote_delay[0]);
@@ -425,7 +425,7 @@ bool Config::save(const std::string& file) const
   setValue(o, "right_camera", camera_id[camR]);
 
   // 右目のムービーファイル
-  setString(o, "right_movie", camera_movie[camL]);
+  setString(o, "right_movie", camera_movie[camR]);
 
   // 右目のキャプチャデバイス不使用時に表示する静止画像
   setString(o, "right_image", camera_image[camR]);
@@ -538,4 +538,3 @@ bool Config::save(const std::string& file) const
 
   return true;
 }
-

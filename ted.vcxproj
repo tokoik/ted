@@ -26,7 +26,7 @@
     <ClInclude Include="CamOv.h" />
     <ClInclude Include="CamRemote.h" />
     <ClInclude Include="Compute.h" />
-    <ClInclude Include="Config.h" />
+    <ClInclude Include="TedConfig.h" />
     <ClInclude Include="DepthCamera.h" />
     <ClInclude Include="gg.h" />
     <ClInclude Include="LeapListener.h" />
@@ -45,7 +45,7 @@
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Network.h" />
-    <ClInclude Include="Oculus.h" />
+
     <ClInclude Include="parseconfig.h" />
     <ClInclude Include="picojson.h" />
     <ClInclude Include="Rect.h" />
@@ -53,7 +53,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderList.h" />
     <ClInclude Include="SharedMemory.h" />
-    <ClInclude Include="Window.h" />
+    <ClInclude Include="GgApp.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Attitude.cpp" />
@@ -69,7 +69,7 @@
     <ClCompile Include="CamImage.cpp" />
     <ClCompile Include="CamOv.cpp" />
     <ClCompile Include="CamRemote.cpp" />
-    <ClCompile Include="Config.cpp" />
+    <ClCompile Include="TedConfig.cpp" />
     <ClCompile Include="DepthCamera.cpp" />
     <ClCompile Include="gg.cpp" />
     <ClCompile Include="LeapListener.cpp" />
@@ -77,12 +77,12 @@
     <ClCompile Include="ted.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Network.cpp" />
-    <ClCompile Include="Oculus.cpp" />
+
     <ClCompile Include="Rect.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="ShaderList.cpp" />
     <ClCompile Include="SharedMemory.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="GgApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fisheye.vert" />
@@ -198,6 +198,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -228,6 +230,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

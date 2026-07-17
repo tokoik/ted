@@ -1,4 +1,4 @@
-﻿//
+//
 // カメラ関連の処理
 //
 #include "Camera.h"
@@ -46,6 +46,8 @@ Camera::Camera()
 
     // スレッドが停止状態であることを記録しておく
     run[cam] = false;
+    captured[cam] = false;
+    unsent[cam] = false;
   }
 }
 
@@ -53,7 +55,8 @@ Camera::Camera()
 Camera::~Camera()
 {
   // 作業用のメモリを開放する
-  delete[] recvbuf, sendbuf;
+  delete[] recvbuf;
+  delete[] sendbuf;
   recvbuf = sendbuf = nullptr;
 }
 
@@ -220,7 +223,7 @@ bool Camera::transmit(int cam, GLuint texture, const GLsizei* size)
       glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size[0], size[1], format, GL_UNSIGNED_BYTE, buffer[cam]);
 
       // 他のスレッドがリソースにアクセスするために少し待つ
- // std::this_thread::sleep_for(std::chrono::milliseconds(minDelay));
+  // std::this_thread::sleep_for(std::chrono::milliseconds(minDelay));
 
       // データの転送完了を記録する
       buffer[cam] = nullptr;
@@ -306,7 +309,7 @@ bool Camera::transmit(int cam, GLuint texture, const GLsizei* size)
 
 //                YOLOv8_face_model.detect(imgwork);
 
- //　ここまで
+  //　ここまで
 
 
                 buffer[cam] = imgwork.data;
@@ -387,7 +390,7 @@ bool Camera::transmittedBuffer(int cam, GLuint texture, const GLsizei *size, cv:
 
 
 
-// リモートの姿勢を受信する
+// リモモートの姿勢を受信する
 void Camera::recv()
 {
   // スレッドが実行可の間
@@ -531,7 +534,8 @@ void Camera::send()
 int Camera::startWorker(unsigned short port, const char* address)
 {
   // すでに確保されている作業用メモリを破棄する
-  delete[] recvbuf, sendbuf;
+  delete[] recvbuf;
+  delete[] sendbuf;
   recvbuf = sendbuf = nullptr;
 
   // 作業者として初期化する

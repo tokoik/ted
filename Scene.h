@@ -1,11 +1,11 @@
-﻿#pragma once
+#pragma once
 
 //
 // シーングラフ
 //
 
 // 各種設定
-#include "config.h"
+#include "./TedConfig.h"
 
 // Leap Motion 関連の処理
 #include "LeapListener.h"
