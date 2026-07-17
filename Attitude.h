@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 //
 // 姿勢情報
 //
