@@ -127,9 +127,9 @@ void Menu::displayWindow()
   // 表示モードの選択
   int display_mode{ defaults.display_mode };
   ImGui::RadioButton("Monocular", &display_mode, MONOCULAR);
-  ImGui::RadioButton("Interlace", &display_mode, INTERLACE);
   ImGui::RadioButton("Top and Bottom", &display_mode, TOP_AND_BOTTOM);
   ImGui::RadioButton("Side by Side", &display_mode, SIDE_BY_SIDE);
+  ImGui::RadioButton("Overlay", &display_mode, OVERLAY);
   ImGui::RadioButton("Quad Buffer", &display_mode, QUADBUFFER);
   ImGui::RadioButton("Oculus", &display_mode, OCULUS);
 
@@ -275,8 +275,6 @@ void Menu::inputWindow()
     "640 x 480 @ 30fps (USB2.0)"
   };
   ImGui::Combo(u8"プロパティ", &defaults.ovrvision_property, items, IM_ARRAYSIZE(items));
-
-  ImGui::RadioButton(u8"RealSense", &defaults.input_mode, InputMode::REALSENSE);
 
   ImGui::RadioButton(u8"リモート", &defaults.input_mode, InputMode::REMOTE);
   char address[16]{ "0.0.0.0" };

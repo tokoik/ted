@@ -500,7 +500,7 @@ void Window::resize(GLFWwindow* window, int width, int height)
     // Oculus Rift 使用時以外
     if (!instance->oculus)
     {
-      if (defaults.display_mode == INTERLACE)
+      if (defaults.display_mode == OVERLAY)
       {
         // VR 室のディスプレイでは表示領域の横半分をビューポートにする
         width /= 2;
@@ -970,8 +970,8 @@ void Window::select(int eye)
     }
     break;
 
-  case INTERLACE:
   case SIDE_BY_SIDE:
+  case OVERLAY:
 
     if (eye == camL)
     {

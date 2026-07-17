@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //
 // 各種設定
@@ -118,9 +118,9 @@ constexpr char defaultAttitude[]{ "attitude.json" };
 enum DisplayMode
 {
   MONOCULAR = 0,            // 単眼視
-  INTERLACE,                // インターレース（未実装）
   TOP_AND_BOTTOM,           // 上下２分割
   SIDE_BY_SIDE,             // 左右２分割
+  OVERLAY,                // 左右２分割を重ねて表示
   QUADBUFFER,               // クワッドバッファステレオ
   OCULUS                    // Oculus Rift (HMD)
 };
@@ -132,7 +132,6 @@ enum InputMode
   MOVIE,                    // 動画
   CAMERA,                   // Web カメラ
   OVRVISION,                // Ovrvision Pro
-  REALSENSE,                // RealSense
   REMOTE                    // リモートの TED
 };
 

@@ -206,14 +206,6 @@ bool GgApp::useOvervision()
 }
 
 //
-// RealSense を使う
-//
-bool GgApp::useRealsense()
-{
-  return false;
-}
-
-//
 // リモートの TED から取得する
 //
 bool GgApp::useRemote()
@@ -257,9 +249,6 @@ bool GgApp::selectInput()
     break;
   case InputMode::OVRVISION:
     if (!useOvervision()) return false;
-    break;
-  case InputMode::REALSENSE:
-    if (!useRealsense()) return false;
     break;
   case InputMode::REMOTE:
     if (!useRemote()) return false;

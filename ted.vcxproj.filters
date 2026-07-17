@@ -84,9 +84,6 @@
     <ClInclude Include="Oculus.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Rs400.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderList.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -179,9 +176,6 @@
     <ClCompile Include="Attitude.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Rs400.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="DepthCamera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -235,7 +229,6 @@
     <None Include="theta.frag">
       <Filter>シェーダー ファイル</Filter>
     </None>
-    <None Include="config.json" />
     <None Include="fisheye.vert">
       <Filter>シェーダー ファイル</Filter>
     </None>

@@ -1,4 +1,4 @@
-/*
+﻿/*
   Native File Dialog Extended
   Repository: https://github.com/btzy/nativefiledialog-extended
   License: Zlib

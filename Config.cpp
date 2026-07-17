@@ -1,4 +1,4 @@
-//
+﻿//
 // 初期設定関連の処理
 //
 
@@ -21,9 +21,9 @@ Config defaults;
 // ※1 表示の設定 (DisplayMode)
 //
 //    MONOCULAR = 0,            // 単眼視
-//    INTERLACE,                // インターレース（未実装）
 //    TOP_AND_BOTTOM,           // 上下２分割
 //    SIDE_BY_SIDE,             // 左右２分割
+//    OVERLAY,                // 左右２分割を重ねて表示
 //    QUADBUFFER,               // クワッドバッファステレオ
 //    OCULUS                    // Oculus Rift (HMD)
 //
@@ -68,7 +68,7 @@ Config::Config()
   , display_quadbuffer{ false }               // クワッドバッファステレオ表示を行うとき true
   , display_fullscreen{ false }               // フルスクリーン表示を行うとき true
   , display_secondary{ 0 }                    // フルスクリーン表示するディスプレイの番号
-  , display_size{ 960, 540 }                  // 画面（ミラー表示）の画素数
+  , display_size{ 1280, 720 }                 // 画面（ミラー表示）の画素数
   , display_aspect{ 0.0f }                    // 画面の縦横比
   , display_center{ 0.5f }                    // 画面の中心の高さ
   , display_distance{ 1.5f }                  // 画面までの距離

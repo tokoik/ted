@@ -1,4 +1,4 @@
-//
+﻿//
 // OpenCV を使ったキャプチャ
 //
 #include "CamCv.h"
