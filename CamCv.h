@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 //
 // OpenCV を使ったキャプチャ
@@ -6,6 +6,9 @@
 
 // カメラ関連の処理
 #include "Camera.h"
+
+// 標準ライブラリ
+#include <map>
 
 // OpenCV を使ってキャプチャするクラス
 class CamCv
@@ -54,4 +57,7 @@ public:
 
   // 利得を下げる
   virtual void decreaseGain();
+
+  // バックエンドのリスト
+  static const std::map<std::string, int> backend;
 };

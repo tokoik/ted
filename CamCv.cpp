@@ -1,7 +1,17 @@
-﻿//
+//
 // OpenCV を使ったキャプチャ
 //
 #include "CamCv.h"
+
+// バックエンドのリスト
+const std::map<std::string, int> CamCv::backend
+{
+  { "ANY", cv::CAP_ANY },
+  { "DSHOW", cv::CAP_DSHOW },
+  { "MSMF", cv::CAP_MSMF },
+  { "GSTREAMER", cv::CAP_GSTREAMER },
+  { "FFMPEG", cv::CAP_FFMPEG }
+};
 
 // コンストラクタ
 CamCv::CamCv()
@@ -24,7 +34,7 @@ CamCv::~CamCv()
 bool CamCv::open(int device, int cam)
 {
   // カメラを開く
-  if (!camera[cam].open(device)) return false;
+  if (!camera[cam].open(device, backend.at(defaults.capture_backend))) return false;
 
   // カメラのコーデック・解像度・フレームレートを設定する
   setup(cam, defaults.camera_fourcc, defaults.camera_size, defaults.camera_fps);

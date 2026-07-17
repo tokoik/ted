@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 //
 // 各種設定
@@ -269,6 +269,32 @@ struct Config
 
   // シーングラフ
   picojson::value scene;
+
+  // カメラのバックエンド
+  std::string capture_backend;
+
+  // スクリーンの間隔
+  GLfloat display_offset;
+
+  // シーンに対するズーム
+  GLfloat display_zoom;
+
+  // 背景に対する焦点距離
+  GLfloat display_focal;
+
+  // 視差
+  GLfloat parallax;
+
+  // カメラの補正値
+  std::array<GgQuaternion, camCount> parallax_offset;
+
+  // リモートカメラの解像度
+  int remote_texture_width;
+  int remote_texture_height;
+
+  // 位置と姿勢
+  GgVector position;
+  GgQuaternion orientation;
 
   // 設定ファイルのファイル名
   std::string config_file;

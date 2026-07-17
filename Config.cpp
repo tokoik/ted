@@ -1,4 +1,4 @@
-﻿//
+//
 // 初期設定関連の処理
 //
 
@@ -107,6 +107,16 @@ Config::Config()
   , remote_share_size{ remoteShareSize }      // 受信に用いる共有メモリのブロック数
   , max_level{ 10 }                           // シーンファイルの入れ子の深さの上限
   , scene{}                                   // シーングラフ
+  , capture_backend{ "ANY" }                  // カメラのバックエンド
+  , display_offset{ 0.0f }                    // スクリーンの間隔
+  , display_zoom{ 1.0f }                      // シーンに対するズーム
+  , display_focal{ 1.0f }                     // 背景に対する焦点距離
+  , parallax{ 0.032f }                        // 視差
+  , parallax_offset{ ggIdentityQuaternion(), ggIdentityQuaternion() } // カメラの補正値
+  , remote_texture_width{ 640 }               // リモートカメラの横の画素数
+  , remote_texture_height{ 480 }              // リモートカメラの縦の画素数
+  , position{ 0.0f, 0.0f, 0.0f, 1.0f }        // 位置
+  , orientation{ 0.0f, 0.0f, 0.0f, 1.0f }     // 姿勢
   , config_file{ "" }                         // 設定ファイルのファイル名
 {
 }

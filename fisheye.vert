@@ -57,8 +57,8 @@ void main(void)
   vec2 p = position * screen.st + screen.pq;
 
   // 視線ベクトル
-  //   これを正規化して、その方向の視線単位ベクトルを得る。
-  vec4 vector = normalize(vec4(p, -focal, 0.0));
+  //   これを回転して正規化し、その方向の視線単位ベクトルを得る。
+  vec4 vector = normalize(rotation * vec4(p, -focal, 0.0));
 
   // テクスチャ座標
   texcoord = acos(-vector.z) * normalize(vector.xy) * scale + center;

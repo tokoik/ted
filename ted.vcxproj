@@ -58,6 +58,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Attitude.cpp" />
+    <ClCompile Include="libs\ImGui\imgui.cpp" />
+    <ClCompile Include="libs\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="libs\ImGui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="libs\ImGui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="libs\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="libs\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="libs\ImGui\nfd_win.cpp" />
     <ClCompile Include="CamCv.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CamImage.cpp" />
@@ -67,13 +74,6 @@
     <ClCompile Include="DepthCamera.cpp" />
     <ClCompile Include="gg.cpp" />
     <ClCompile Include="LeapListener.cpp" />
-    <ClCompile Include="libs\ImGui\imgui.cpp" />
-    <ClCompile Include="libs\ImGui\imgui_draw.cpp" />
-    <ClCompile Include="libs\ImGui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="libs\ImGui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="libs\ImGui\imgui_tables.cpp" />
-    <ClCompile Include="libs\ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="libs\ImGui\nfd_win.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ted.cpp" />
     <ClCompile Include="Menu.cpp" />

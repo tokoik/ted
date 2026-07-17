@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 //
 // カメラ関連の処理
@@ -51,6 +51,9 @@ protected:
   // キャプチャ間隔
   double interval[camCount];
 
+  // 待ちキャプチャ間隔
+  double capture_interval;
+
   // キャプチャ完了なら true
   bool captured[camCount];
 
@@ -87,6 +90,12 @@ public:
   int getHeight(int cam) const
   {
     return image[cam].rows;
+  }
+
+  // フレームレートからキャプチャ間隔を設定する
+  void setInterval(double fps)
+  {
+    capture_interval = fps > 0.0 ? 1.0 / fps : minDelay * 0.001;
   }
 
   // 圧縮設定
