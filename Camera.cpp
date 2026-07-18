@@ -23,21 +23,7 @@
 
 // コンストラクタ
 Camera::Camera(int quality)
-  : recvbuf{ nullptr }
-  , sendbuf{ nullptr }
-  , format{ GL_BGR }
-  , interval{ 1.0 / 30.0 }
-  , send_interval{ minDelay * 0.001 }
-  , exposure{ 0 }
-  , gain{ 0 }
 {
-  for (int cam = 0; cam < camCount; ++cam)
-  {
-    run[cam] = false;
-    captured[cam] = false;
-    unsent[cam] = false;
-  }
-
   // 圧縮設定
   setQuality(quality);
 }

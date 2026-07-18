@@ -18,13 +18,7 @@ const std::size_t maxSize{ 65507 };
 // 受信のタイムアウト (10秒)
 const unsigned long timeout{ 10000UL };
 
-// コンストラクタ
-Network::Network()
-  : role{ Role::STANDALONE }
-  , recvSock{ INVALID_SOCKET }
-  , sendSock{ INVALID_SOCKET }
-{
-}
+
 
 // デストラクタ
 Network::~Network()

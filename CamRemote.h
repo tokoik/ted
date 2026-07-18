@@ -15,31 +15,31 @@ class CamRemote
   const bool reshape;
 
   // 背景画像の変形に使うフレームバッファオブジェクト
-  GLuint fb;
+  GLuint fb{ 0 };
 
   // 背景画像の大きさ
   cv::Size size[camCount];
 
   // 背景画像の変形に使うメッシュの解像度
-  GLsizei slices, stacks;;
+  GLsizei slices{ 0 }, stacks{ 0 };
 
   // 背景画像の変形に使うメッシュの格子間隔
-  GLfloat gap[2];
+  GLfloat gap[2]{ 0.0f, 0.0f };
 
   // 背景画像を取得するリモートのカメラのスクリーンの大きさ
-  GLfloat screen[2];
+  GLfloat screen[2]{ 0.0f, 0.0f };
 
   // リモートから取得したフレーム
   cv::Mat remote[camCount];
 
   // リモートから取得したフレームのサンプリングに使うテクスチャ
-  GLuint resample[camCount];
+  GLuint resample[camCount]{ 0 };
 
   // 背景画像のタイリングに使うシェーダ
-  GLuint shader;
+  GLuint shader{ 0 };
 
   // 背景画像のタイリングに使うシェーダの uniform 変数の場所
-  GLint gapLoc, screenLoc, rotationLoc, imageLoc;
+  GLint gapLoc{ -1 }, screenLoc{ -1 }, rotationLoc{ -1 }, imageLoc{ -1 };
 
   // リモートの映像と姿勢を受信する
   void recv();

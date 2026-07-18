@@ -63,24 +63,24 @@ private:
     static ComInitializer instance;
 
     /// メディアソースのリスト
-    IMFActivate** ppSourceActivate;
+    IMFActivate** ppSourceActivate{ nullptr };
 
     /// メディアソースの数
-    UINT32 cSourceActivate;
+    UINT32 cSourceActivate{ 0 };
 
     /// ビデオキャプチャデバイスの表示名のリスト
     std::vector<std::string> deviceList;
 
     /// COM ライブラリが初期化されていれば true
-    bool coInitialized;
+    bool coInitialized{ false };
 
     /// Media Foundation が起動されていれば true
-    bool mfStarted;
+    bool mfStarted{ false };
 
     ///
     /// COM ライブラリの初期化と終了を行うクラスのコンストラクタ
     ///
-    ComInitializer();
+    ComInitializer() = default;
 
     ///
     /// COM ライブラリの初期化と終了を行うクラスのデストラクタ
@@ -210,7 +210,7 @@ public:
   ///
   /// コンストラクタ
   ///
-  CamMf();
+  CamMf() = default;
 
   ///
   /// デストラクタ

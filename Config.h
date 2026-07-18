@@ -11,6 +11,9 @@ using namespace gg;
 // JSON
 #include "picojson.h"
 
+// Ovrvision Pro
+#include "ovrvision_pro.h"
+
 // ウィンドウのタイトル
 constexpr char windowTitle[]{ "TED" };
 
@@ -147,171 +150,171 @@ enum Role
 struct Config
 {
   // 画面表示のモード
-  int display_mode;
+  int display_mode{ MONOCULAR };
 
   // クワッドバッファステレオ表示を行うとき true
-  bool display_quadbuffer;
+  bool display_quadbuffer{ false };
 
   // フルスクリーン表示を行うとき true
-  bool display_fullscreen;
+  bool display_fullscreen{ false };
 
   // フルスクリーン表示するディスプレイの番号
-  int display_secondary;
+  int display_secondary{ 0 };
 
   // 画面の解像度
-  std::array<int, 2> display_size;
+  std::array<int, 2> display_size{ 1280, 720 };
 
   // 画面の縦横比
-  GLfloat display_aspect;
+  GLfloat display_aspect{ 0.0f };
 
   // 画面の中心の高さ
-  GLfloat display_center;
+  GLfloat display_center{ 0.5f };
 
   // 画面までの距離
-  GLfloat display_distance;
+  GLfloat display_distance{ 1.5f };
 
   // 視点から前方面までの距離
-  GLfloat display_near;
+  GLfloat display_near{ 0.1f };
 
   // 視点から後方面までの距離
-  GLfloat display_far;
+  GLfloat display_far{ 5.0f };
 
   // 入力デバイスのモード
-  int input_mode;
+  int input_mode{ IMAGE };
 
   // カメラの番号
-  std::array<int, camCount> camera_id;
+  std::array<int, camCount> camera_id{ -1, -1 };
 
   // カメラの代わりに使う静止画
-  std::array<std::string, camCount> camera_image;
+  std::array<std::string, camCount> camera_image{ "left.jpg", "right.jpg" };
 
   // カメラの代わりに使う動画
-  std::array<std::string, camCount> camera_movie;
+  std::array<std::string, camCount> camera_movie{ "", "" };
 
   // 背景画像をマッピングするときのメッシュの分割数
-  int camera_texture_samples;
+  int camera_texture_samples{ 1271 };
 
   // 背景画像を繰り返しでマッピングするとき true
-  bool camera_texture_repeat;
+  bool camera_texture_repeat{ false };
 
   // 背景画像をヘッドトラッキングに追従させるとき true
-  bool camera_tracking;
+  bool camera_tracking{ true };
 
   // カメラの解像度
-  std::array<int, 2> camera_size;
+  std::array<int, 2> camera_size{ 0, 0 };
 
   // カメラのフレームレート
-  double camera_fps;
+  double camera_fps{ 0.0 };
 
   // カメラの４文字コーデック
-  std::array<char, 5> camera_fourcc;
+  std::array<char, 5> camera_fourcc{ '\0', '\0', '\0', '\0', '\0' };
 
   // 左右カメラのコーデック (Media Foundation)
-  std::array<std::string, camCount> camera_codec;
+  std::array<std::string, camCount> camera_codec{ "MJPG", "MJPG" };
 
   // 左右カメラの解像度 (Media Foundation)
-  std::array<std::string, camCount> camera_resolution;
+  std::array<std::string, camCount> camera_resolution{ "1280 x 720", "1280 x 720" };
 
   // 魚眼カメラの中心位置
-  GLfloat camera_center_x;
-  GLfloat camera_center_y;
+  GLfloat camera_center_x{ 0.0f };
+  GLfloat camera_center_y{ 0.0f };
 
   // 魚眼カメラの画角
-  GLfloat camera_fov_x;
-  GLfloat camera_fov_y;
+  GLfloat camera_fov_x{ 1.0f };
+  GLfloat camera_fov_y{ 1.0f };
 
   // Ovrvision Pro の設定
-  int ovrvision_property;
+  int ovrvision_property{ OVR::OV_CAMVR_FULL };
 
   // ゲームコントローラの使用
-  bool use_controller;
+  bool use_controller{ false };
 
   // Leap Motion の使用
-  bool use_leap_motion;
+  bool use_leap_motion{ false };
 
   // バーテックスシェーダのソースプログラム
-  std::string vertex_shader;
+  std::string vertex_shader{ "fixed.vert" };
 
   // フラグメントシェーダのソースプログラム
-  std::string fragment_shader;
+  std::string fragment_shader{ "normal.frag" };
 
   // 役割
-  int role;
+  int role{ STANDALONE };
 
   // 通信に使うポート番号
-  int port;
+  int port{ 0 };
 
   // 相手先の IP アドレス
-  std::string address;
+  std::string address{ "" };
 
   // 相手先の映像を安定化するとき true
-  bool remote_stabilize;
+  bool remote_stabilize{ true };
 
   // 相手先の映像を変形するとき true
-  bool remote_texture_reshape;
+  bool remote_texture_reshape{ false };
 
   // 相手先の表示に加える遅延
-  std::array<unsigned int, 2> remote_delay;
+  std::array<unsigned int, 2> remote_delay{ 0, 0 };
 
   // 送信する画像の品質
-  int remote_texture_quality;
+  int remote_texture_quality{ 50 };
 
   // 受信した画像をマッピングするときのメッシュの分割数
-  int remote_texture_samples;
+  int remote_texture_samples{ 1372 };
 
   // 相手先のレンズの画角
-  GLfloat remote_fov_x;
-  GLfloat remote_fov_y;
+  GLfloat remote_fov_x{ 1.0f };
+  GLfloat remote_fov_y{ 1.0f };
 
   // 送信に用いる共有メモリのブロック数
-  int local_share_size;
+  int local_share_size{ localShareSize };
 
   // 受信に用いる共有メモリのブロック数
-  int remote_share_size;
+  int remote_share_size{ remoteShareSize };
 
   // シーンファイルの入れ子の深さの上限
-  int max_level;
+  int max_level{ 10 };
 
   // シーングラフ
-  picojson::value scene;
+  picojson::value scene{};
 
   // カメラのバックエンド
-  std::string capture_backend;
+  std::string capture_backend{ "ANY" };
 
   // スクリーンの間隔
-  GLfloat display_offset;
+  GLfloat display_offset{ 0.0f };
 
   // シーンに対するズーム
-  GLfloat display_zoom;
+  GLfloat display_zoom{ 1.0f };
 
   // 背景に対する焦点距離
-  GLfloat display_focal;
+  GLfloat display_focal{ 1.0f };
 
   // 視差
-  GLfloat parallax;
+  GLfloat parallax{ 0.032f };
 
   // カメラの補正値
-  std::array<GgQuaternion, camCount> parallax_offset;
+  std::array<GgQuaternion, camCount> parallax_offset{ ggIdentityQuaternion(), ggIdentityQuaternion() };
 
   // リモートカメラの解像度
-  int remote_texture_width;
-  int remote_texture_height;
+  int remote_texture_width{ 640 };
+  int remote_texture_height{ 480 };
 
   // 位置と姿勢
-  GgVector position;
-  GgQuaternion orientation;
+  GgVector position{ 0.0f, 0.0f, 0.0f, 1.0f };
+  GgQuaternion orientation{ 0.0f, 0.0f, 0.0f, 1.0f };
 
   // メニューフォント
-  std::string menu_font;
+  std::string menu_font{ "NotoSansCJKjp-Regular.otf" };
 
   // メニューフォントのサイズ
-  float menu_font_size;
+  float menu_font_size{ 18.0f };
 
   // 設定ファイルのファイル名
-  std::string config_file;
+  std::string config_file{ "" };
 
   // コンストラクタ
-  Config();
+  Config() = default;
 
   // デストラクタ
   virtual ~Config();

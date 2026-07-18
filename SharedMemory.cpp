@@ -5,8 +5,7 @@
 
 // コンストラクタ
 SharedMemory::SharedMemory(const LPCTSTR strMutexName, const LPCTSTR strShareName, unsigned int size)
-  : pShare(nullptr)
-  , size(size)
+  : size{ size }
 {
   // ミューテックスオブジェクトを作成する
   hMutex = CreateMutex(NULL, FALSE, strMutexName);

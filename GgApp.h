@@ -85,10 +85,7 @@ class GgApp
   //
   bool useOvervision();
 
-  //
-  // RealSense を使う
-  //
-  bool useRealsense();
+
 
   //
   // リモートの TED から取得する

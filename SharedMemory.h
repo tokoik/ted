@@ -14,13 +14,13 @@ using namespace gg;
 class SharedMemory
 {
   // 共有メモリ用のミューテックスオブジェクト
-  HANDLE hMutex;
+  HANDLE hMutex{ nullptr };
 
   // 共有メモリのハンドル
-  HANDLE hShare;
+  HANDLE hShare{ nullptr };
 
   // 共有メモリの先頭へのポインタ
-  GgMatrix* pShare;
+  GgMatrix* pShare{ nullptr };
 
   // 共有メモリの全要素数
   const unsigned int size;

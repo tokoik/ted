@@ -11,16 +11,18 @@
 class Network
 {
   // ソケット
-  SOCKET recvSock, sendSock;
-  sockaddr_in recvAddr, sendAddr;
+  SOCKET recvSock{ INVALID_SOCKET };
+  SOCKET sendSock{ INVALID_SOCKET };
+  sockaddr_in recvAddr{};
+  sockaddr_in sendAddr{};
 
   // 役割
-  enum class Role : int { STANDALONE = 0, OPERATOR, WORKER } role;
+  enum class Role : int { STANDALONE = 0, OPERATOR, WORKER } role{ Role::STANDALONE };
 
 public:
 
   // コンストラクタ
-  Network();
+  Network() = default;
 
   // デストラクタ
   virtual ~Network();

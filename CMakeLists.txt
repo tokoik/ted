@@ -197,7 +197,6 @@ file(GLOB SOURCES_H "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 # Exclude unused files
 list(REMOVE_ITEM SOURCES_CPP
     "${CMAKE_CURRENT_SOURCE_DIR}/CameraYOLOv8.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Rs400.cpp"
 )
 
 # Dear ImGui / Native File Dialog sources

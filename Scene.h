@@ -29,7 +29,7 @@ class Scene
   std::vector<Scene*> children;
 
   // 描画するパーツ
-  const GgSimpleObj* obj;
+  const GgSimpleObj* obj{ nullptr };
 
   // 使用するシェーダ
   static const GgSimpleShader* shader;
@@ -41,7 +41,7 @@ class Scene
   GgMatrix mm;
 
   // このパーツが参照する外部モデル変換行列
-  const GgMatrix* me;
+  const GgMatrix* me{ nullptr };
 
   // リモートの外部モデル変換行列のテーブルのコピー
   static std::vector<GgMatrix> localMatrixTable, remoteMatrixTable;

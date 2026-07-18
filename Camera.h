@@ -38,34 +38,34 @@ protected:
   std::mutex captureMutex[camCount];
 
   // 実行状態
-  std::atomic<bool> run[camCount];
+  std::atomic<bool> run[camCount]{ false, false };
 
   // スレッドを停止する
   void stop();
 
   // キャプチャする画像のフォーマット
-  GLenum format;
+  GLenum format{ GL_BGR };
 
   // キャプチャデバイスから取得した画像
   cv::Mat image[camCount];
 
   // キャプチャ間隔
-  double interval[camCount];
+  double interval[camCount]{ 1.0 / 30.0, 1.0 / 30.0 };
 
   // 待ちキャプチャ間隔
-  double capture_interval;
+  double capture_interval{ 0.0 };
 
   // キャプチャ完了なら true
-  std::atomic<bool> captured[camCount];
+  std::atomic<bool> captured[camCount]{ false, false };
 
   // 未送信なら true
-  std::atomic<bool> unsent[camCount];
+  std::atomic<bool> unsent[camCount]{ false, false };
 
   // 送信間隔
-  double send_interval;
+  double send_interval{ minDelay * 0.001 };
 
   // 露出と利得
-  int exposure, gain;
+  int exposure{ 0 }, gain{ 0 };
 
 public:
 
@@ -141,10 +141,10 @@ protected:
   std::vector<int> param;
 
   // 映像受信用のメモリ
-  uchar* recvbuf;
+  uchar* recvbuf{ nullptr };
 
   // 映像送信用のメモリ
-  uchar* sendbuf;
+  uchar* sendbuf{ nullptr };
 
   // 通信データ
   Network network;

@@ -47,17 +47,7 @@ static std::string SubTypeToName(const GUID& subType)
   return "";
 }
 
-//
-// COM ライブラリの初期化と終了を行うクラスのコンストラクタ
-//
-CamMf::ComInitializer::ComInitializer()
-  : deviceList{}
-  , ppSourceActivate{ nullptr }
-  , cSourceActivate{ 0 }
-  , coInitialized{ false }
-  , mfStarted{ false }
-{
-}
+
 
 //
 // COM ライブラリの初期化と終了を行うクラスのデストラクタ
@@ -1058,20 +1048,7 @@ void CamMf::capture(int cam)
   }
 }
 
-CamMf::CamMf()
-{
-  for (int cam = 0; cam < camCount; ++cam)
-  {
-    caps[cam].pMediaSource = nullptr;
-    caps[cam].pSourceReader = nullptr;
-    caps[cam].pDecoder = nullptr;
-    caps[cam].pDecoderBuffer = nullptr;
-    caps[cam].pConverter = nullptr;
-    caps[cam].pConverterBuffer = nullptr;
-    caps[cam].selectedCodecIndex = -1;
-    caps[cam].selectedResolutionIndex = -1;
-  }
-}
+
 
 CamMf::~CamMf()
 {

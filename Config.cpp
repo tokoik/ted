@@ -62,68 +62,7 @@ Config defaults;
 
 //
 // コンストラクタ
-//
-Config::Config()
-  : display_mode{ MONOCULAR }                 // 画面表示のモード (※1)
-  , display_quadbuffer{ false }               // クワッドバッファステレオ表示を行うとき true
-  , display_fullscreen{ false }               // フルスクリーン表示を行うとき true
-  , display_secondary{ 0 }                    // フルスクリーン表示するディスプレイの番号
-  , display_size{ 1280, 720 }                 // 画面（ミラー表示）の画素数
-  , display_aspect{ 0.0f }                    // 画面の縦横比
-  , display_center{ 0.5f }                    // 画面の中心の高さ
-  , display_distance{ 1.5f }                  // 画面までの距離
-  , display_near{ 0.1f }                      // 視点から前方面までの距離
-  , display_far{ 5.0f }                       // 視点から後方面までの距離
-  , input_mode{ IMAGE }                      // 入力モード (※2)
-  , camera_id{ -1, -1 }                       // カメラの番号
-  , camera_image{ "left.jpg", "right.jpg" }   // カメラの代わりに使う静止画
-  , camera_movie{ "", "" }                    // カメラの代わりに使う動画
-  , camera_texture_samples{ 1271 }            // 背景画像をマッピングするときのメッシュの分割数
-  , camera_texture_repeat{ false }            // 背景画像を繰り返しでマッピングするとき true
-  , camera_tracking{ true }                   // 背景画像をヘッドトラッキングに追従させるとき true
-  , camera_size{ 0, 0 }                       // カメラの横の画素数
-  , camera_fps{ 0.0 }                         // カメラのフレームレート
-  , camera_fourcc{ '\0', '\0', '\0', '\0' }   // カメラの４文字コーデック
-  , camera_codec{ "MJPG", "MJPG" }
-  , camera_resolution{ "1280 x 720", "1280 x 720" }
-  , camera_center_x{ 0.0 }                    // 魚眼カメラの横の中心位置
-  , camera_center_y{ 0.0 }                    // 魚眼カメラの横の中心位置
-  , camera_fov_x{ 1.0 }                       // 魚眼カメラの横の画角
-  , camera_fov_y{ 1.0 }                       // 魚眼カメラの縦の画角
-  , ovrvision_property{ OVR::OV_CAMVR_FULL }  // Ovrvision Pro の設定 (※3)
-  , use_controller{ false }                   // ゲームコントローラの使用
-  , use_leap_motion{ false }                  // Leap Motion の使用
-  , vertex_shader{ "fixed.vert" }             // バーテックスシェーダのソースプログラム
-  , fragment_shader{ "normal.frag" }          // フラグメントシェーダのソースプログラム
-  , role{ STANDALONE }                        // ホストの役割 (※4)
-  , port{ 0 }                                 // 通信に使うポート番号
-  , address{ "" }                             // 相手先の IP アドレス
-  , remote_stabilize{ true }                  // 相手先の映像を安定化するとき true
-  , remote_texture_reshape{ false }           // 相手先の映像を変形するとき true
-  , remote_delay{ 0, 0 }                      // 相手先の表示に加える遅延
-  , remote_texture_quality{ 50 }              // 送信する画像の品質
-  , remote_texture_samples{ 1372 }            // 受信した画像をマッピングするときのメッシュの分割数
-  , remote_fov_x{ 1.0 }                       // 相手先のレンズの横の画角
-  , remote_fov_y{ 1.0 }                       // 相手先のレンズの縦の画角
-  , local_share_size{ localShareSize }        // 送信に用いる共有メモリのブロック数
-  , remote_share_size{ remoteShareSize }      // 受信に用いる共有メモリのブロック数
-  , max_level{ 10 }                           // シーンファイルの入れ子の深さの上限
-  , scene{}                                   // シーングラフ
-  , capture_backend{ "ANY" }                  // カメラのバックエンド
-  , display_offset{ 0.0f }                    // スクリーンの間隔
-  , display_zoom{ 1.0f }                      // シーンに対するズーム
-  , display_focal{ 1.0f }                     // 背景に対する焦点距離
-  , parallax{ 0.032f }                        // 視差
-  , parallax_offset{ ggIdentityQuaternion(), ggIdentityQuaternion() } // カメラの補正値
-  , remote_texture_width{ 640 }               // リモートカメラの横の画素数
-  , remote_texture_height{ 480 }              // リモートカメラの縦の画素数
-  , position{ 0.0f, 0.0f, 0.0f, 1.0f }        // 位置
-  , orientation{ 0.0f, 0.0f, 0.0f, 1.0f }     // 姿勢
-  , menu_font{ "NotoSansCJKjp-Regular.otf" }  // メニューフォント
-  , menu_font_size{ 18.0f }                   // メニューフォントのサイズ
-  , config_file{ "" }                         // 設定ファイルのファイル名
-{
-}
+
 
 //
 // デストラクタ

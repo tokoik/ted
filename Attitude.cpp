@@ -19,33 +19,7 @@ GgQuaternion Attitude::eyeOrientationStep[2];
 // コンストラクタ
 //
 Attitude::Attitude()
-  : position{ 0.0f, 0.0f, 0.0f, 1.0f }
-  , initialPosition{ 0.0f, 0.0f, 0.0f, 1.0f }
-  , parallax{ 0 }
-  , initialParallax{ 0 }
-  , foreAdjust{ 0, 0, 0, 0 }
-  , initialForeAdjust{ 0, 0, 0, 0 }
-  , backAdjust{ 0, 0, 0, 0 }
-  , initialBackAdjust{ 0, 0, 0, 0 }
-  , circleAdjust{ 0, 0, 0, 0 }
-  , initialCircleAdjust{ 0, 0, 0, 0 }
-  , offset{ 0 }
-  , initialOffset{ 0 }
 {
-  // カメラごとの姿勢の補正値
-  for (auto &o : eyeOrientation)
-  {
-    o[0] = o[1] = o[2] = 0.0f;
-    o[3] = 1.0f;
-  }
-
-  // カメラごとの姿勢の補正値の初期値
-  for (auto &o : initialEyeOrientation)
-  {
-    o[0] = o[1] = o[2] = 0.0f;
-    o[3] = 1.0f;
-  }
-
   // カメラ方向の補正ステップ
   static bool firstTime{ true };
   if (firstTime)
@@ -53,6 +27,7 @@ Attitude::Attitude()
     // カメラ方向の調整ステップを求める
     eyeOrientationStep[0].loadRotate(0.0f, 1.0f, 0.0f, 0.001f);
     eyeOrientationStep[1].loadRotate(1.0f, 0.0f, 0.0f, 0.001f);
+    firstTime = false;
   }
 }
 
