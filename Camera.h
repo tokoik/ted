@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 //
 // カメラ関連の処理
@@ -58,6 +58,9 @@ protected:
   // キャプチャ完了なら true
   std::atomic<bool> captured[camCount]{ false, false };
 
+  // レイテンシ優先なら true、全フレームキャプチャなら false
+  std::atomic<bool> prioritizeLatency[camCount]{ true, true };
+
   // 未送信なら true
   std::atomic<bool> unsent[camCount]{ false, false };
 
@@ -97,6 +100,18 @@ public:
   void setInterval(double fps)
   {
     capture_interval = fps > 0.0 ? 1.0 / fps : minDelay * 0.001;
+  }
+
+  // レイテンシ優先モードを設定する
+  void setPrioritizeLatency(int cam, bool mode)
+  {
+    prioritizeLatency[cam] = mode;
+  }
+
+  // レイテンシ優先モードを取得する
+  bool getPrioritizeLatency(int cam) const
+  {
+    return prioritizeLatency[cam];
   }
 
   // 圧縮設定

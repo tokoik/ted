@@ -50,19 +50,16 @@ void CamOv::capture()
   // スレッドが実行可の間
   while (run[camL])
   {
-    // キャプチャデバイスをロックしてから
-    captureMutex[camL].lock();
-    captureMutex[camR].lock();
+    // std::lockでデッドロック防止しつつ両方のミューテックスをロック
+    std::lock(captureMutex[camL], captureMutex[camR]);
+    std::lock_guard<std::mutex> lockL(captureMutex[camL], std::adopt_lock);
+    std::lock_guard<std::mutex> lockR(captureMutex[camR], std::adopt_lock);
 
     // フレームを切り出して
     ovrvision_pro->PreStoreCamData(OVR::Camqt::OV_CAMQT_DMS);
 
     // キャプチャの完了を記録したら
     unsent[camL] = unsent[camR] = captured[camL] = captured[camR] = true;
-
-    // ロックを解除する
-    captureMutex[camL].unlock();
-    captureMutex[camR].unlock();
   }
 }
 

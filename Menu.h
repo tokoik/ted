@@ -12,6 +12,8 @@
 
 // 姿勢
 #include "Attitude.h"
+
+// ビデオキャプチャ
 #include "CamMf.h"
 
 class Menu
@@ -29,7 +31,7 @@ class Menu
   // キャッシュを更新するヘルパー関数
   void updateCameraMenuCache(int cam);
   // このアプリケーション
-  GgApp* app;
+  GgApp* app{ nullptr };
 
   // メニューを表示するウィンドウ
   Window& window;
@@ -41,17 +43,17 @@ class Menu
   Attitude& attitude;
 
   // サブウィンドウのオン・オフ
-  bool showNodataWindow;
-  bool showDisplayWindow;
-  bool showAttitudeWindow;
-  bool showInputWindow;
-  bool showStartupWindow;
+  bool showNodataWindow{ false };
+  bool showDisplayWindow{ true };
+  bool showAttitudeWindow{ true };
+  bool showInputWindow{ true };
+  bool showStartupWindow{ false };
 
   // 起動時設定のコピー
-  int secondary;
-  bool fullscreen;
-  bool quadbuffer;
-  int memorysize[2];
+  int secondary{ 0 };
+  bool fullscreen{ false };
+  bool quadbuffer{ false };
+  int memorysize[2]{ localShareSize, remoteShareSize };
 
   // メニューバー
   void menuBar();

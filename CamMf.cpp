@@ -1,4 +1,4 @@
-﻿///
+///
 /// Microsoft Media Foundation を使ったビデオキャプチャクラスの実装 (ステレオ対応版)
 ///
 /// @file
@@ -213,10 +213,10 @@ bool CamMf::getDeviceFormats(int device, std::vector<VideoFormat>& formats)
     GUID subType{};
     if (FAILED(pMediaType->GetGUID(MF_MT_SUBTYPE, &subType))) continue;
 
-    UINT32 width = 0, height = 0;
+    UINT32 width{ 0 }, height{ 0 };
     if (FAILED(MFGetAttributeSize(pMediaType, MF_MT_FRAME_SIZE, &width, &height))) continue;
 
-    UINT32 numerator = 0, denominator = 0;
+    UINT32 numerator{ 0 }, denominator{ 0 };
     if (FAILED(MFGetAttributeRatio(pMediaType, MF_MT_FRAME_RATE, &numerator, &denominator))) continue;
 
     const auto& codecName = SubTypeToName(subType);
@@ -521,6 +521,8 @@ done:
 //
 bool CamMf::open(int device, int cam, bool setupFormat)
 {
+  prioritizeLatency[cam] = true;
+
   if (!ComInitializer::activate(device, &caps[cam].pMediaSource)) return false;
 
   HRESULT hr{ S_OK };
@@ -977,8 +979,17 @@ void CamMf::capture(int cam)
         SafeRelease(&decodedBuffer.pEvents);
         hasOutput = true;
 
-        // ted の低遅延を考慮
-        break;
+        // レイテンシ優先なら
+        if (prioritizeLatency[cam])
+        {
+          // 最新を取得し続けるためループを継続する
+          continue;
+        }
+        else
+        {
+          // 全フレーム処理モードならループを抜ける
+          break;
+        }
       }
 
       if (hasOutput && pLatestDecodedSample)
@@ -1025,6 +1036,17 @@ void CamMf::capture(int cam)
 
       if (SUCCEEDED(pBuffer->Lock(&pData, nullptr, &cbDataLength)) && pData)
       {
+        // 全フレーム処理モードなら
+        if (!prioritizeLatency[cam])
+        {
+          // キャプチャしている間は
+          while (run[cam] && captured[cam])
+          {
+            // スレッドを一時停止して CPU リソースを解放する
+            std::this_thread::yield();
+          }
+        }
+
         captureMutex[cam].lock();
 
         // BGRA (4チャンネル) を BGR (3チャンネル) に変換して image[cam] にコピー
@@ -1060,6 +1082,8 @@ CamMf::~CamMf()
 //
 bool CamMf::open(const std::string& file, int cam)
 {
+  prioritizeLatency[cam] = false;
+
   int wlen = MultiByteToWideChar(CP_UTF8, 0, file.c_str(), -1, nullptr, 0);
   if (wlen <= 0) return false;
   std::vector<wchar_t> wbuf(wlen);

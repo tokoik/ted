@@ -1,4 +1,4 @@
-﻿//
+//
 // メニュー
 //
 #include "Menu.h"
@@ -269,20 +269,20 @@ void Menu::inputWindow()
   ImGui::RadioButton(u8"カメラ", &defaults.input_mode, InputMode::CAMERA);
 
   // デバイスリストの取得
-  const auto& devices = CamMf::getDeviceList();
+  const auto& devices{ CamMf::getDeviceList() };
 
   for (int cam = 0; cam < camCount; ++cam)
   {
     ImGui::PushID(cam);
-    const char* sideLabel = (cam == camL) ? u8"左カメラ" : u8"右カメラ";
+    const char* sideLabel{ (cam == camL) ? u8"左カメラ" : u8"右カメラ" };
 
     // キャッシュ更新
     updateCameraMenuCache(cam);
-    const auto& cache = cameraMenuCache[cam];
+    const auto& cache{ cameraMenuCache[cam] };
 
     // デバイス選択コンボボックス
-    int currentDevice = defaults.camera_id[cam];
-    std::string deviceComboLabel = u8"未選択";
+    int currentDevice{ defaults.camera_id[cam] };
+    std::string deviceComboLabel{ u8"未選択" };
     if (currentDevice >= 0 && currentDevice < devices.size()) {
       deviceComboLabel = devices[currentDevice];
     }
@@ -595,15 +595,6 @@ Menu::Menu(GgApp* app, Window& window, Scene& scene, Attitude& attitude)
   , window { window }
   , scene{ scene }
   , attitude{ attitude }
-  , showNodataWindow{ false }
-  , showDisplayWindow{ true }
-  , showAttitudeWindow{ true }
-  , showInputWindow{ true }
-  , showStartupWindow{ false }
-  , secondary{ 0 }
-  , fullscreen{ false }
-  , quadbuffer{ false }
-  , memorysize{ localShareSize, remoteShareSize }
 {
   NFD_Init();
 }
@@ -622,9 +613,9 @@ static std::string SubTypeToNameLocal(const GUID& subType)
 // キャッシュを更新するヘルパー関数
 void Menu::updateCameraMenuCache(int cam)
 {
-  auto& cache = cameraMenuCache[cam];
-  const auto& devices = CamMf::getDeviceList();
-  int currentDevice = defaults.camera_id[cam];
+  auto& cache{ cameraMenuCache[cam] };
+  const auto& devices{ CamMf::getDeviceList() };
+  int currentDevice{ defaults.camera_id[cam] };
 
   // デバイスが無効な場合はクリアして終了
   if (currentDevice < 0 || currentDevice >= devices.size())

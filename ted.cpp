@@ -1,4 +1,4 @@
-﻿//
+//
 // TelExistence Display System
 //
 
@@ -28,17 +28,6 @@
 
 static Rect* rectPointer{ nullptr };
 
-//
-// コンストラクタ
-//
-GgApp::GgApp()
-  : image{ nullptr, nullptr }
-  , size{ { 0, 0 }, { 0, 0 } }
-  , aspect{ 1.0f, 1.0f }
-  , texture{ 0, 0 }
-  , stereo{ false }
-{
-}
 
 //
 // デストラクタ

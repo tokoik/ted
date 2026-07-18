@@ -48,22 +48,22 @@ using namespace gg;
 class GgApp
 {
   // 背景画像を取得するカメラ
-  std::shared_ptr<Camera> camera;
+  std::shared_ptr<Camera> camera{ nullptr };
 
   // 背景画像のデータ
-  const GLubyte *image[camCount];
+  const GLubyte *image[camCount]{ nullptr, nullptr };
 
   // 背景画像のサイズ
-  GLsizei size[camCount][2];
+  GLsizei size[camCount][2]{ { 0, 0 }, { 0, 0 } };
 
   // 背景画像のアスペクト比
-  GLfloat aspect[camCount];
+  GLfloat aspect[camCount]{ 1.0f, 1.0f };
 
   // 背景画像を保存するテクスチャ
-  GLuint texture[camCount];
+  GLuint texture[camCount]{ 0, 0 };
 
   // ステレオカメラなら true
-  bool stereo;
+  bool stereo{ false };
 
   //
   // 静止画像ファイルを使う
@@ -97,7 +97,7 @@ public:
   //
   // コンストラクタ
   //
-  GgApp();
+  GgApp() = default;
 
   //
   // デストラクタ
@@ -108,11 +108,6 @@ public:
   // 入力ソースを選択する
   //
   bool selectInput();
-
-  //
-  // 表示デバイスを選択する
-  //
-  bool selectDisplay();
 
   //
   // アプリケーション本体
@@ -128,19 +123,19 @@ public:
     GLFWwindow* const window{ nullptr };
 
     // ウィンドウのサイズ
-    std::array<GLsizei, 2> size;
+    std::array<GLsizei, 2> size{ 0, 0 };
 
     // ビューポートの幅と高さ
-    int width, height;
+    int width{ 0 }, height{ 0 };
 
     // ビューポートのアスペクト比
-    GLfloat aspect;
+    GLfloat aspect{ 1.0f };
 
     // メッシュの縦横の格子点数
-    std::array<GLsizei, 2> samples;
+    std::array<GLsizei, 2> samples{ 0, 0 };
 
     // メッシュの縦横の格子間隔
-    std::array<GLfloat, 2> gap;
+    std::array<GLfloat, 2> gap{ 0.0f, 0.0f };
 
     // 最後にタイプしたキー
     int key{ GLFW_KEY_UNKNOWN };
@@ -149,10 +144,10 @@ public:
     int joy{ -1 };
 
     // スティックの中立位置
-    std::array<float, 4> origin;
+    std::array<float, 4> origin{ 0.0f, 0.0f, 0.0f, 0.0f };
 
     // ドラッグ開始位置
-    double cx, cy;
+    double cx{ 0.0 }, cy{ 0.0 };
 
     // このウィンドウで制御するカメラ
     Camera* camera{ nullptr };
@@ -162,26 +157,46 @@ public:
     //
 
     // ヘッドトラッキングによる回転
-    std::array<GgQuaternion, camCount> qo;
+    std::array<GgQuaternion, camCount> qo
+    {
+      ggIdentityQuaternion(),
+      ggIdentityQuaternion()
+    };
 
     // ヘッドトラッキングによる位置
-    std::array<GgVector, camCount> po;
+    std::array<GgVector, camCount> po
+    {
+      GgVector{ 0.0f, 0.0f, 0.0f, 1.0f },
+      GgVector{ 0.0f, 0.0f, 0.0f, 1.0f }
+    };
 
     // ヘッドトラッキングの変換行列
-    std::array<GgMatrix, camCount> mo;
+    std::array<GgMatrix, camCount> mo
+    {
+      ggIdentity(),
+      ggIdentity()
+    };
 
     //
     // 座標変換
     //
 
     // モデル変換行列
-    GgMatrix mm;
+    GgMatrix mm{ ggIdentity() };
 
     // ビュー変換行列
-    std::array<GgMatrix, camCount> mv;
+    std::array<GgMatrix, camCount> mv
+    {
+      ggIdentity(),
+      ggIdentity()
+    };
 
     // 投影変換行列
-    std::array<GgMatrix, camCount> mp;
+    std::array<GgMatrix, camCount> mp
+    {
+      ggIdentity(),
+      ggIdentity()
+    };
 
     // ズーム率
     GLfloat zoom{ 1.0f };
@@ -191,10 +206,14 @@ public:
     //
 
     // 背景テクスチャの半径と中心
-    GgVector circle;
+    GgVector circle{ 0.0f, 0.0f, 0.0f, 1.0f };
 
     // スクリーンの幅と高さ
-    std::array<GgVector, camCount> screen;
+    std::array<GgVector, camCount> screen
+    {
+      GgVector{ 0.0f, 0.0f, 0.0f, 1.0f },
+      GgVector{ 0.0f, 0.0f, 0.0f, 1.0f }
+    };
 
     // 焦点距離
     GLfloat focal{ 1.0f };
