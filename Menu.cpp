@@ -119,7 +119,7 @@ void Menu::nodataWindow()
 void Menu::displayWindow()
 {
   ImGui::SetNextWindowPos(ImVec2(2, 25), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(165, 372), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(165, 400), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"表示設定", &showDisplayWindow);
@@ -186,6 +186,15 @@ void Menu::displayWindow()
   // 表示関係
   ImGui::Checkbox(u8"ミラー表示", &window.showMirror);
   ImGui::Checkbox(u8"シーン表示", &window.showScene);
+  char scene_file[MAX_PATH]{ "" };
+  if (defaults.scene.is<std::string>())
+  {
+    strcpy(scene_file, defaults.scene.get<std::string>().c_str());
+  }
+  if (ImGui::InputText(u8"シーン", scene_file, sizeof scene_file))
+  {
+    defaults.scene = picojson::value(std::string(scene_file));
+  }
   if (ImGui::SliderFloat(u8"前方面", &defaults.display_near, 0.01f, defaults.display_far))
     window.update();
   if (ImGui::SliderFloat(u8"後方面", &defaults.display_far, defaults.display_near, 10.0f))
