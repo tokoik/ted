@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /*
 ゲームグラフィックス特論用補助プログラム GLFW3 版

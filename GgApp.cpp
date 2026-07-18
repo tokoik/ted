@@ -76,10 +76,7 @@ GgApp::Window::Window(int width, int height, const char* title, GLFWmonitor* mon
   if (firstTime)
   {
     // クワッドバッファステレオモードを有効にする
-    if (defaults.display_quadbuffer)
-    {
-      glfwWindowHint(GLFW_STEREO, GLFW_TRUE);
-    }
+    if (defaults.display_quadbuffer) glfwWindowHint(GLFW_STEREO, GLFW_TRUE);
 
     // SRGB モードでレンダリングできるようにする
     glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
@@ -968,7 +965,6 @@ void GgApp::Window::cleanupOpenXR()
     xrInstance = XR_NULL_HANDLE;
   }
 
-  glDisable(GL_FRAMEBUFFER_SRGB);
   glfwSwapInterval(1);
 }
 
@@ -1270,6 +1266,21 @@ void GgApp::Window::commit(int eye)
 #if defined(GG_USE_OPENXR)
   if (xrSession != XR_NULL_HANDLE && xrSessionRunning && xrFrameActive)
   {
+    if (showMirror)
+    {
+      GLsizei wWidth = size[0];
+      GLsizei wHeight = size[1];
+
+      glBindFramebuffer(GL_READ_FRAMEBUFFER, xrSwapchains[eye].fbos[xrSwapchains[eye].activeImageIndex]);
+      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, xrMirrorFbo);
+
+      GLint dx0 = (eye == 0) ? 0 : wWidth / 2;
+      GLint dx1 = (eye == 0) ? wWidth / 2 : wWidth;
+
+      glBlitFramebuffer(0, 0, xrSwapchains[eye].width, xrSwapchains[eye].height,
+        dx0, 0, dx1, wHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    }
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
@@ -1326,18 +1337,6 @@ void GgApp::Window::swapBuffers()
     {
       GLsizei wWidth = size[0];
       GLsizei wHeight = size[1];
-
-      for (int eye = 0; eye < 2; ++eye)
-      {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, xrSwapchains[eye].fbos[xrSwapchains[eye].activeImageIndex]);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, xrMirrorFbo);
-
-        GLint dx0 = (eye == 0) ? 0 : wWidth / 2;
-        GLint dx1 = (eye == 0) ? wWidth / 2 : wWidth;
-
-        glBlitFramebuffer(0, 0, xrSwapchains[eye].width, xrSwapchains[eye].height,
-          dx0, 0, dx1, wHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-      }
 
       glBindFramebuffer(GL_READ_FRAMEBUFFER, xrMirrorFbo);
       glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
