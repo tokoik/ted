@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 //
 // シーングラフ
@@ -53,6 +53,9 @@ class Scene
   static LeapListener listener;
 
 public:
+
+  // シーンが空（パーツも子供も持たない）かどうか判定する
+  bool isEmpty() const { return obj == nullptr && children.empty(); }
 
   // コンストラクタ
   Scene(const GgSimpleObj* obj = nullptr);

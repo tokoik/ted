@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 /*
 ゲームグラフィックス特論用補助プログラム GLFW3 版
@@ -38,7 +38,7 @@ using namespace gg;
 #    define XR_USE_GRAPHICS_API_OPENGL
 #    include <openxr/openxr.h>
 #    include <openxr/openxr_platform.h>
-#    pragma comment(lib, "openxr_loader.lib")
+#    // #pragma comment(lib, "openxr_loader.lib")
 #  endif
 #endif
 

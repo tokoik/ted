@@ -1,4 +1,4 @@
-﻿//
+//
 // シーングラフ
 //
 #include "Scene.h"
@@ -82,7 +82,7 @@ bool Scene::initialize(unsigned int local_size, unsigned int remote_size)
 }
 
 // シーングラフを読み込む
-inline picojson::object Scene::load(const picojson::value& v)
+picojson::object Scene::load(const picojson::value& v)
 {
   // v が object ならそれを返す
   if (v.is<picojson::object>()) return v.get<picojson::object>();
@@ -296,6 +296,9 @@ const GgMatrix& Scene::getRemoteAttitude(int cam)
 // このパーツ以下のすべてのパーツを描画する
 void Scene::draw(const GgMatrix& mp, const GgMatrix& mv) const
 {
+  // シーンが空なら何もしない
+  if (isEmpty()) return;
+
   // このノードのモデル変換行列を累積する
   GgMatrix mw(mv * this->mm);
 

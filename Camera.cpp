@@ -1,4 +1,4 @@
-﻿//
+//
 // カメラ関連の処理
 //
 #include "Camera.h"
@@ -7,7 +7,7 @@
 #include "Scene.h"
 
 // OpenCV のライブラリのリンク
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(OPENCV_WORLD)
 #  define CV_VERSION_STR CVAUX_STR(CV_MAJOR_VERSION) CVAUX_STR(CV_MINOR_VERSION) CVAUX_STR(CV_SUBMINOR_VERSION)
 #  if defined(_DEBUG)
 #    define CV_EXT_STR "d.lib"

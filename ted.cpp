@@ -443,6 +443,9 @@ int GgApp::main(int argc, const char *const *const argv)
   // シーングラフ
   Scene scene{ defaults.scene };
 
+  // シーンが空の場合は初期表示フラグをオフにする
+  if (scene.isEmpty()) window.showScene = false;
+
   // シーンにシェーダを設定する
   scene.setShader(simple);
 

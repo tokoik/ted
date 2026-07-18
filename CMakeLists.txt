@@ -222,11 +222,10 @@ set(IMGUI_SOURCES
 source_group("Source Files" FILES ${SOURCES_CPP})
 source_group("Header Files" FILES ${SOURCES_H})
 source_group("Shader Files" FILES ${SHADER_FILES})
-source_group("Resource Files" FILES ${ASSET_FILES} "${CMAKE_CURRENT_SOURCE_DIR}/ted.rc")
 source_group("ImGui Files" FILES ${IMGUI_SOURCES})
 
-# Mark asset files and shaders as non-compilable headers so MSBuild does not try to compile or link them
-set_source_files_properties(${ASSET_FILES} ${SHADER_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
+# Mark config.json and shaders as non-compilable headers so MSBuild does not try to compile or link them
+set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/config.json" ${SHADER_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 
 # Target executable definition
 add_executable(ted
@@ -234,8 +233,8 @@ add_executable(ted
     ${SOURCES_H}
     ${IMGUI_SOURCES}
     "${CMAKE_CURRENT_SOURCE_DIR}/ted.rc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/config.json"
     ${SHADER_FILES}
-    ${ASSET_FILES}
 )
 
 # MSVC specific compile settings
