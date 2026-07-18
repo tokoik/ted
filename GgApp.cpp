@@ -59,17 +59,6 @@
 // GgApp::Window コンストラクタ
 //
 GgApp::Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share)
-  : window{ nullptr }
-  , camera{ nullptr }
-  , showScene{ true }
-  , showMirror{ true }
-  , showMenu{ true }
-  , key{ GLFW_KEY_UNKNOWN }
-  , joy{ -1 }
-  , zoom{ 1.0f }
-  , focal{ 1.0f }
-  , parallax{ defaultParallax }
-  , offset{ 0.0f }
 {
   // 最初のインスタンスで一度だけ実行
   static bool firstTime{ true };
@@ -468,9 +457,10 @@ void GgApp::Window::resize(GLFWwindow* window, int width, int height)
     instance->size[0] = width;
     instance->size[1] = height;
 
-    bool isHmd = false;
 #if defined(GG_USE_OPENXR)
-    isHmd = (instance->xrSession != XR_NULL_HANDLE);
+    const bool isHmd{ instance->xrSession != XR_NULL_HANDLE };
+#else
+    constexpr bool isHmd{ false };
 #endif
 
     // HMD 使用時以外
@@ -616,9 +606,8 @@ void GgApp::Window::keyboard(GLFWwindow* window, int key, int scancode, int acti
 
       instance->key = key;
 
-      bool isHmd = false;
 #if defined(GG_USE_OPENXR)
-      isHmd = (instance->xrSession != XR_NULL_HANDLE);
+      const bool isHmd{ instance->xrSession != XR_NULL_HANDLE };
 #endif
 
       switch (key)
@@ -640,7 +629,9 @@ void GgApp::Window::keyboard(GLFWwindow* window, int key, int scancode, int acti
         break;
 
       case GLFW_KEY_P:
+#if defined(GG_USE_OPENXR)
         if (isHmd) break;
+#endif
         if (shiftKey)
           --attitude.parallax;
         else
@@ -775,75 +766,97 @@ void GgApp::Window::reset()
 
 #if defined(GG_USE_OPENXR)
 //
-// OpenXR の初期化
+// OpenXR (VR) の初期化処理
 //
 bool GgApp::Window::initOpenXR()
 {
+  // OpenGLによるレンダリングを有効にするための拡張機能（XR_KHR_opengl_enable）を指定
   std::vector<const char*> extensions;
   extensions.push_back(XR_KHR_OPENGL_ENABLE_EXTENSION_NAME);
 
+  // インスタンス作成情報の初期設定
   XrInstanceCreateInfo instanceCreateInfo{ XR_TYPE_INSTANCE_CREATE_INFO };
   strcpy_s(instanceCreateInfo.applicationInfo.applicationName, "TED-OpenXR");
   instanceCreateInfo.applicationInfo.applicationVersion = 1;
   strcpy_s(instanceCreateInfo.applicationInfo.engineName, "None");
   instanceCreateInfo.applicationInfo.engineVersion = 1;
-  instanceCreateInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION;
+  instanceCreateInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION; // APIのバージョンを指定
   instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
   instanceCreateInfo.enabledExtensionNames = extensions.data();
 
+  // OpenXRインスタンスを作成
   XR_CHECK(xrCreateInstance(&instanceCreateInfo, &xrInstance));
 
+  // VRシステム（HMD）の情報を取得
   XrSystemGetInfo systemGetInfo{ XR_TYPE_SYSTEM_GET_INFO };
-  systemGetInfo.formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;
+  systemGetInfo.formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY; // HMDタイプを指定
   XR_CHECK(xrGetSystem(xrInstance, &systemGetInfo, &xrSystemId));
 
+  // OpenGLグラフィックス要件を取得するためのランタイム関数ポインタを取得
   PFN_xrGetOpenGLGraphicsRequirementsKHR pfnGetOpenGLGraphicsRequirementsKHR = nullptr;
   XR_CHECK(xrGetInstanceProcAddr(xrInstance, "xrGetOpenGLGraphicsRequirementsKHR",
     reinterpret_cast<PFN_xrVoidFunction*>(&pfnGetOpenGLGraphicsRequirementsKHR)));
 
+  // OpenGLのバージョンや動作要件をVRシステム側から取得
   XrGraphicsRequirementsOpenGLKHR graphicsRequirements{ XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_KHR };
   XR_CHECK(pfnGetOpenGLGraphicsRequirementsKHR(xrInstance, xrSystemId, &graphicsRequirements));
 
+  // Windows環境におけるOpenGLコンテキスト情報（HDC, HGLRC）をOpenXRにバインドするための構造体を作成
   XrGraphicsBindingOpenGLWin32KHR graphicsBinding{ XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR };
-  graphicsBinding.hDC = GetDC(glfwGetWin32Window(window));
-  graphicsBinding.hGLRC = wglGetCurrentContext();
+  graphicsBinding.hDC = GetDC(glfwGetWin32Window(window)); // デバイスコンテキストのハンドル
+  graphicsBinding.hGLRC = wglGetCurrentContext();        // レンダリングコンテキストのハンドル
 
+  // OpenXRセッションを作成（取得したグラフィックスコンテキストを紐付ける）
   XrSessionCreateInfo sessionCreateInfo{ XR_TYPE_SESSION_CREATE_INFO };
   sessionCreateInfo.next = &graphicsBinding;
   sessionCreateInfo.systemId = xrSystemId;
   XR_CHECK(xrCreateSession(xrInstance, &sessionCreateInfo, &xrSession));
 
+  // トラッキング空間（Stage空間：床面基準のプレイエリア空間）を作成
   XrReferenceSpaceCreateInfo playSpaceCreateInfo{ XR_TYPE_REFERENCE_SPACE_CREATE_INFO };
   playSpaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
   playSpaceCreateInfo.poseInReferenceSpace.orientation.w = 1.0f;
   XrResult spaceResult = xrCreateReferenceSpace(xrSession, &playSpaceCreateInfo, &xrPlaySpace);
+
+  // Stage空間の作成に失敗した場合は、フォールバックとしてLocal空間（頭部初期位置基準）を作成
   if (XR_FAILED(spaceResult))
   {
     playSpaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
     XR_CHECK(xrCreateReferenceSpace(xrSession, &playSpaceCreateInfo, &xrPlaySpace));
   }
 
+  // 視点空間（View空間：カメラ基準の空間）を作成
   XrReferenceSpaceCreateInfo viewSpaceCreateInfo{ XR_TYPE_REFERENCE_SPACE_CREATE_INFO };
   viewSpaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_VIEW;
   viewSpaceCreateInfo.poseInReferenceSpace.orientation.w = 1.0f;
   XR_CHECK(xrCreateReferenceSpace(xrSession, &viewSpaceCreateInfo, &xrViewSpace));
 
-  uint32_t viewCount = 0;
+  // ステレオ表示（左右の目）に必要な設定情報の数を取得
+  uint32_t viewCount{ 0 };
   XR_CHECK(xrEnumerateViewConfigurationViews(xrInstance, xrSystemId, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
     0, &viewCount, nullptr));
+
+  // 左右それぞれの表示領域の詳細設定を取得
   std::vector<XrViewConfigurationView> configViews(viewCount, { XR_TYPE_VIEW_CONFIGURATION_VIEW });
   XR_CHECK(xrEnumerateViewConfigurationViews(xrInstance, xrSystemId, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
     viewCount, &viewCount, configViews.data()));
 
+  // 左右それぞれのスワップチェーン（描画バッファ）をセットアップ
   for (uint32_t eye = 0; eye < 2; ++eye)
   {
-    auto& swapchain = xrSwapchains[eye];
+    // 左右の目に対応するスワップチェーンを取得
+    auto& swapchain{ xrSwapchains[eye] };
+
+    // VRシステム推奨の画像解像度を設定
     swapchain.width = configViews[eye].recommendedImageRectWidth;
     swapchain.height = configViews[eye].recommendedImageRectHeight;
 
+    // スワップチェーンの作成情報を設定
     XrSwapchainCreateInfo swapchainCreateInfo{ XR_TYPE_SWAPCHAIN_CREATE_INFO };
+
+    // レンダリング先（カラーアタッチメント）および転送元として使用可能に指定
     swapchainCreateInfo.usageFlags = XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT | XR_SWAPCHAIN_USAGE_TRANSFER_SRC_BIT;
-    swapchainCreateInfo.format = GL_SRGB8_ALPHA8;
+    swapchainCreateInfo.format = GL_SRGB8_ALPHA8; // カラーバッファのフォーマット
     swapchainCreateInfo.sampleCount = 1;
     swapchainCreateInfo.width = swapchain.width;
     swapchainCreateInfo.height = swapchain.height;
@@ -851,17 +864,23 @@ bool GgApp::Window::initOpenXR()
     swapchainCreateInfo.arraySize = 1;
     swapchainCreateInfo.mipCount = 1;
 
+    // スワップチェーンを作成する
     XR_CHECK(xrCreateSwapchain(xrSession, &swapchainCreateInfo, &swapchain.handle));
 
-    uint32_t imageCount = 0;
+    // スワップチェーン内のイメージ（テクスチャ）数を取得
+    uint32_t imageCount{ 0 };
     XR_CHECK(xrEnumerateSwapchainImages(swapchain.handle, 0, &imageCount, nullptr));
     swapchain.images.resize(imageCount, { XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR });
+
+    // スワップチェーンから実際のOpenGLテクスチャイメージの配列を取得
     XR_CHECK(xrEnumerateSwapchainImages(swapchain.handle, imageCount, &imageCount,
       reinterpret_cast<XrSwapchainImageBaseHeader*>(swapchain.images.data())));
 
+    // スワップチェーンイメージごとにFBO（フレームバッファオブジェクト）を割り当てる
     swapchain.fbos.resize(imageCount);
     glGenFramebuffers(imageCount, swapchain.fbos.data());
 
+    // 各イメージをFBOにアタッチして、OpenGLから描画可能にする
     for (uint32_t i = 0; i < imageCount; ++i)
     {
       glBindFramebuffer(GL_FRAMEBUFFER, swapchain.fbos[i]);
@@ -870,11 +889,16 @@ bool GgApp::Window::initOpenXR()
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+      // FBOのカラーアタッチメントとしてスワップチェーンのイメージ（テクスチャ）をバインド
       glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, swapchain.images[i].image, 0);
     }
 
+    // VR描画用の深度テクスチャを作成し、各設定を行う
     glGenTextures(1, &xrDepthTextures[eye]);
     glBindTexture(GL_TEXTURE_2D, xrDepthTextures[eye]);
+
+    // 深度情報用に32bit浮動小数点形式（GL_DEPTH_COMPONENT32F）を使用
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, swapchain.width, swapchain.height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -882,36 +906,46 @@ bool GgApp::Window::initOpenXR()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   }
 
+  // PCモニター上でVR映像を確認するためのミラーバッファ（FBOとテクスチャ）を作成
   glGenFramebuffers(1, &xrMirrorFbo);
   glGenTextures(1, &xrMirrorTexture);
   glBindTexture(GL_TEXTURE_2D, xrMirrorTexture);
+
+  // PC表示用のウインドウサイズに合わせてカラーバッファを生成
   glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, size[0], size[1], 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glBindFramebuffer(GL_FRAMEBUFFER, xrMirrorFbo);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, xrMirrorTexture, 0);
 
+  // FBOのバインドを解除してデフォルトフレームバッファに戻す
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+  // sRGB色空間への自動補正（ガンマ補正など）を有効化
   glEnable(GL_FRAMEBUFFER_SRGB);
+
+  // HMDと画面描画のズレを防ぐため、PCモニタの垂直同期を一時的に無効化(0)にする（描画はHMDの同期に任せるため）
   glfwSwapInterval(0);
 
   return true;
 }
 
 //
-// OpenXR のクリーンアップ
+// OpenXR のクリーンアップ処理
 //
 void GgApp::Window::cleanupOpenXR()
 {
+  // セッション関連のリソース解放
   if (xrSession != XR_NULL_HANDLE)
   {
+    // セッションがまだ実行中なら終了処理を行う
     if (xrSessionRunning)
     {
       xrEndSession(xrSession);
       xrSessionRunning = false;
     }
 
+    // ミラー表示用のFBOとテクスチャを削除
     if (xrMirrorFbo)
     {
       glDeleteFramebuffers(1, &xrMirrorFbo);
@@ -923,48 +957,64 @@ void GgApp::Window::cleanupOpenXR()
       xrMirrorTexture = 0;
     }
 
+    // 左右それぞれのスワップチェーンと深度バッファを削除
     for (uint32_t eye = 0; eye < 2; ++eye)
     {
-      auto& swapchain = xrSwapchains[eye];
+      // 左右の目に対応するスワップチェーンを取得
+      auto& swapchain{ xrSwapchains[eye] };
+
+      // スワップチェーンに紐付くFBOリストを削除
       if (!swapchain.fbos.empty())
       {
         glDeleteFramebuffers(static_cast<GLsizei>(swapchain.fbos.size()), swapchain.fbos.data());
         swapchain.fbos.clear();
       }
+
+      // スワップチェーンハンドルを破棄
       if (swapchain.handle != XR_NULL_HANDLE)
       {
         xrDestroySwapchain(swapchain.handle);
         swapchain.handle = XR_NULL_HANDLE;
       }
+
+      // 深度テクスチャを削除
       if (xrDepthTextures[eye])
       {
         glDeleteTextures(1, &xrDepthTextures[eye]);
         xrDepthTextures[eye] = 0;
       }
+
+      // スワップチェーンのイメージリストをクリア
       swapchain.images.clear();
     }
 
+    // 作成した参照空間（PlaySpace, ViewSpace）を破棄
     if (xrPlaySpace != XR_NULL_HANDLE)
     {
       xrDestroySpace(xrPlaySpace);
       xrPlaySpace = XR_NULL_HANDLE;
     }
+
+    // 作成した参照空間（PlaySpace, ViewSpace）を破棄
     if (xrViewSpace != XR_NULL_HANDLE)
     {
       xrDestroySpace(xrViewSpace);
       xrViewSpace = XR_NULL_HANDLE;
     }
 
+    // セッションオブジェクト自体を破棄
     xrDestroySession(xrSession);
     xrSession = XR_NULL_HANDLE;
   }
 
+  // OpenXR インスタンスオブジェクトを破棄
   if (xrInstance != XR_NULL_HANDLE)
   {
     xrDestroyInstance(xrInstance);
     xrInstance = XR_NULL_HANDLE;
   }
 
+  // PCモニタ側の垂直同期(V-Sync)設定を標準(1)に戻す
   glfwSwapInterval(1);
 }
 
@@ -973,39 +1023,55 @@ void GgApp::Window::cleanupOpenXR()
 //
 void GgApp::Window::pollEvents()
 {
+  // OpenXRインスタンスが作成されていなければ何もしない
   if (xrInstance == XR_NULL_HANDLE) return;
 
+  // イベントデータを格納するバッファを準備
   XrEventDataBuffer event{ XR_TYPE_EVENT_DATA_BUFFER };
+
+  // 利用可能なイベントがある限りループして取得する
   while (xrPollEvent(xrInstance, &event) == XR_SUCCESS)
   {
+    // イベントの種類に応じて処理を分岐
     switch (event.type)
     {
+    // OpenXRインスタンスの破棄要求イベント（強制終了など）
     case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
-      setClose(GLFW_TRUE);
+      setClose(GLFW_TRUE); // アプリケーションウィンドウの終了フラグをセット
       break;
 
+    // セッション（描画やトラッキングの状態）の変化イベント
     case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
       {
-        auto* sessionStateChangedEvent = reinterpret_cast<XrEventDataSessionStateChanged*>(&event);
+        // セッション状態変化イベントのデータを取得
+        auto* sessionStateChangedEvent{ reinterpret_cast<XrEventDataSessionStateChanged*>(&event) };
+
+        // このイベントが現在のセッションに関するものであれば処理する
         if (sessionStateChangedEvent->session == xrSession)
         {
-          XrSessionState state = sessionStateChangedEvent->state;
+          // セッション状態を取得
+          XrSessionState state{ sessionStateChangedEvent->state };
+
+          // セッションが描画可能な状態（READY）になったらセッションを開始する
           if (state == XR_SESSION_STATE_READY)
           {
+            // セッション開始情報を設定してセッションを開始する
             XrSessionBeginInfo beginInfo{ XR_TYPE_SESSION_BEGIN_INFO };
             beginInfo.primaryViewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
             if (XR_SUCCEEDED(xrBeginSession(xrSession, &beginInfo)))
             {
-              xrSessionRunning = true;
+              xrSessionRunning = true; // セッション実行中フラグを立てる
             }
           }
+          // セッションが停止要求（STOPPING）を受け取ったらセッションを終了する
           else if (state == XR_SESSION_STATE_STOPPING)
           {
             if (XR_SUCCEEDED(xrEndSession(xrSession)))
             {
-              xrSessionRunning = false;
+              xrSessionRunning = false; // セッション実行中フラグを降ろす
             }
           }
+          // セッション終了（EXITING）または消失（LOSS_PENDING）時にはアプリケーションも閉じる
           else if (state == XR_SESSION_STATE_EXITING || state == XR_SESSION_STATE_LOSS_PENDING)
           {
             setClose(GLFW_TRUE);
@@ -1018,15 +1084,16 @@ void GgApp::Window::pollEvents()
       break;
     }
 
+    // 次のイベントのためにバッファのタイプ情報を再セット
     event = { XR_TYPE_EVENT_DATA_BUFFER };
   }
 }
 #endif
 
 //
-// Oculus Rift を起動する
+// HMD を起動する
 //
-bool GgApp::Window::startOculus()
+bool GgApp::Window::startHMD()
 {
 #if defined(GG_USE_OPENXR)
   return initOpenXR();
@@ -1036,9 +1103,9 @@ bool GgApp::Window::startOculus()
 }
 
 //
-// Oculus Rift を停止する
+// HMD を停止する
 //
-void GgApp::Window::stopOculus()
+void GgApp::Window::stopHMD()
 {
 #if defined(GG_USE_OPENXR)
   cleanupOpenXR();
@@ -1086,24 +1153,31 @@ void GgApp::Window::select(int eye)
     glClear(GL_DEPTH_BUFFER_BIT);
     break;
 
-  case OCULUS:
+  case OPENXR:
 #if defined(GG_USE_OPENXR)
     if (xrSession != XR_NULL_HANDLE && xrSessionRunning)
     {
+      // スワップチェーンから書き込み可能なイメージを取得
       XrSwapchainImageAcquireInfo acquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
-      uint32_t activeIndex = 0;
+      uint32_t activeIndex{ 0 };
       xrAcquireSwapchainImage(xrSwapchains[eye].handle, &acquireInfo, &activeIndex);
-      xrSwapchains[eye].activeImageIndex = activeIndex;
+      xrSwapchains[eye].activeImageIndex = activeIndex; // 現在のアクティブイメージインデックスを記録
 
+      // 書き込み可能になるまで（GPUでイメージが解放されるまで）待機
       XrSwapchainImageWaitInfo waitInfo{ XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO, nullptr, XR_INFINITE_DURATION };
       xrWaitSwapchainImage(xrSwapchains[eye].handle, &waitInfo);
 
+      // 描画先として、スワップチェーンイメージに紐付いたFBOをバインド
       glBindFramebuffer(GL_FRAMEBUFFER, xrSwapchains[eye].fbos[activeIndex]);
+      // 深度バッファテクスチャをアタッチ
       glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, xrDepthTextures[eye], 0);
 
+      // カラーバッファと深度バッファをクリア
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      // ビューポートをVRシステム推奨サイズに設定
       glViewport(0, 0, xrSwapchains[eye].width, xrSwapchains[eye].height);
 
+      // HMDの姿勢情報（回転行列）を転置して、ローカル姿勢として共有メモリ等へ設定
       Scene::setLocalAttitude(eye, mo[eye].transpose());
       return;
     }
@@ -1118,37 +1192,47 @@ void GgApp::Window::select(int eye)
 
 //
 // 描画を開始する
+//   OpenXRのフレーム同期制御を行い、HMDの姿勢情報から左右それぞれの視点の射影行列を決定します。
 //
 bool GgApp::Window::start()
 {
 #if defined(GG_USE_OPENXR)
+  // セッションが有効でなければ、標準の描画（非OpenXR）として true を返す
   if (xrSession == XR_NULL_HANDLE || !xrSessionRunning) return true;
 
+  // 設定からローカルモデルの座標変換行列を作成し、シーングラフの基準行列として設定
   mm = ggTranslate(attitude.position) * attitude.orientation.getMatrix();
   Scene::setup(mm);
 
+  // VRランタイムに対し、フレームのレンダリング待機を要求（GPU/CPU同期およびフレームレート制御）
   XrFrameWaitInfo waitInfo{ XR_TYPE_FRAME_WAIT_INFO };
   XrResult waitResult = xrWaitFrame(xrSession, &waitInfo, &xrFrameState);
   if (XR_FAILED(waitResult)) return false;
 
+  // フレームのレンダリング開始を宣言
   XrFrameBeginInfo beginInfo{ XR_TYPE_FRAME_BEGIN_INFO };
   XrResult beginResult = xrBeginFrame(xrSession, &beginInfo);
   if (XR_FAILED(beginResult)) return false;
 
+  // アクティブなフレームであることを示すフラグをセット
   xrFrameActive = true;
 
+  // ランタイムがこのフレームの描画を必要としているか判定
   if (xrFrameState.shouldRender)
   {
+    // HMDの位置と姿勢（トラッキングデータ）を取得するためのリクエスト情報を設定
     XrViewLocateInfo viewLocateInfo{ XR_TYPE_VIEW_LOCATE_INFO };
-    viewLocateInfo.viewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
-    viewLocateInfo.displayTime = xrFrameState.predictedDisplayTime;
-    viewLocateInfo.space = xrPlaySpace;
+    viewLocateInfo.viewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO; // 左右ステレオ
+    viewLocateInfo.displayTime = xrFrameState.predictedDisplayTime;                  // 予測表示時刻を指定
+    viewLocateInfo.space = xrPlaySpace;                                             // 基準トラッキング空間
 
-    uint32_t viewCount = 2;
+    uint32_t viewCount{ 2 };
     XrViewState viewState{ XR_TYPE_VIEW_STATE };
     std::vector<XrView> locateViews(2, { XR_TYPE_VIEW });
+    // 左右それぞれの目の位置と向き、および視野角(FOV)を取得
     XrResult locateResult = xrLocateViews(xrSession, &viewLocateInfo, &viewState, viewCount, &viewCount, locateViews.data());
 
+    // 取得したトラッキングデータが有効であれば、各目の射影行列を更新
     if (XR_SUCCEEDED(locateResult) && (viewState.viewStateFlags & XR_VIEW_STATE_POSITION_VALID_BIT) &&
       (viewState.viewStateFlags & XR_VIEW_STATE_ORIENTATION_VALID_BIT))
     {
@@ -1156,16 +1240,21 @@ bool GgApp::Window::start()
       {
         xrViews[eye] = locateViews[eye];
 
+        // 位置と向きを抽出し、行列（mo）を生成
         const auto& p = xrViews[eye].pose.position;
         const auto& o = xrViews[eye].pose.orientation;
         po[eye] = GgVector(p.x, p.y, p.z, 1.0f);
         qo[eye] = GgQuaternion(o.x, o.y, o.z, o.w);
         mo[eye] = qo[eye].getMatrix();
 
+        // 視野角(FOV)情報を取得
         const auto& fov = xrViews[eye].fov;
+        // 近クリップ面の位置（ズーム対応）
         const GLfloat zf = defaults.display_near / zoom;
+        // 視差補正シフト量
         const float p_shift = static_cast<float>((1 - eye * 2) * attitude.parallax) * parallaxStep;
 
+        // 視野角（角度のタンジェント）からFrustum（視錐台）射影行列を構築
         mp[eye].loadFrustum(
           (p_shift + tanf(fov.angleLeft)) * zf, (p_shift + tanf(fov.angleRight)) * zf,
           tanf(fov.angleDown) * zf, tanf(fov.angleUp) * zf,
@@ -1173,9 +1262,10 @@ bool GgApp::Window::start()
         );
       }
     }
-    return true;
+    return true; // 描画処理へ進む
   }
 
+  // レンダリング不要（shouldRender == false）の場合は空フレームとしてフレーム終了を宣言
   XrFrameEndInfo endInfo{ XR_TYPE_FRAME_END_INFO };
   endInfo.displayTime = xrFrameState.predictedDisplayTime;
   endInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
@@ -1184,7 +1274,7 @@ bool GgApp::Window::start()
   xrEndFrame(xrSession, &endInfo);
   xrFrameActive = false;
 
-  return false;
+  return false; // 描画は行わない
 #else
   return true;
 #endif
@@ -1260,30 +1350,42 @@ void GgApp::Window::updateCircle()
   circle[3] = defaults.camera_center_y + shiftStep * attitude.circleAdjust[3];
 }
 
+//
 // 描画を完了する
+//
 void GgApp::Window::commit(int eye)
 {
 #if defined(GG_USE_OPENXR)
   if (xrSession != XR_NULL_HANDLE && xrSessionRunning && xrFrameActive)
   {
+    // PCモニターでのミラー表示が有効な場合
     if (showMirror)
     {
       GLsizei wWidth = size[0];
       GLsizei wHeight = size[1];
 
+      // 読み込み元FBOとして現在レンダリングしたスワップチェーンイメージのFBOを設定
       glBindFramebuffer(GL_READ_FRAMEBUFFER, xrSwapchains[eye].fbos[xrSwapchains[eye].activeImageIndex]);
+
+      // 書き込み先FBOとしてミラー用のFBOを設定
       glBindFramebuffer(GL_DRAW_FRAMEBUFFER, xrMirrorFbo);
 
+      // 左右の目に対応する画面上の描画領域（ピクセル座標）を決定
       GLint dx0 = (eye == 0) ? 0 : wWidth / 2;
       GLint dx1 = (eye == 0) ? wWidth / 2 : wWidth;
 
+      // スワップチェーンFBOの内容をミラーFBOの対応する領域へ転送（スケーリングと色補正を伴うコピー）
       glBlitFramebuffer(0, 0, xrSwapchains[eye].width, xrSwapchains[eye].height,
         dx0, 0, dx1, wHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     }
 
+    // デフォルトのフレームバッファにバインドを戻す
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    // スワップチェーンイメージの解放情報を指定
     XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
+
+    // イメージのコントロール権をVRシステムに返却（これによりVRシステム側で表示されるようになる）
     xrReleaseSwapchainImage(xrSwapchains[eye].handle, &releaseInfo);
   }
 #endif
@@ -1299,16 +1401,20 @@ void GgApp::Window::swapBuffers()
 #if defined(GG_USE_OPENXR)
   if (xrSession != XR_NULL_HANDLE && xrSessionRunning && xrFrameActive)
   {
+    // プロジェクション（投影）レイヤーを設定（HMDに表示する基本的な3Dシーンの構成要素）
     XrCompositionLayerProjection projectionLayer{ XR_TYPE_COMPOSITION_LAYER_PROJECTION };
-    projectionLayer.layerFlags = XR_COMPOSITION_LAYER_CORRECT_CHROMATIC_ABERRATION_BIT;
-    projectionLayer.space = xrPlaySpace;
 
+    // レンズの色収差補正フラグを設定
+    projectionLayer.layerFlags = XR_COMPOSITION_LAYER_CORRECT_CHROMATIC_ABERRATION_BIT;
+    projectionLayer.space = xrPlaySpace; // トラッキング基準空間を指定
+
+    // 左右の目それぞれの投影ビュー情報を格納するベクタ
     std::vector<XrCompositionLayerProjectionView> projectionViews(2, { XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW });
     for (int eye = 0; eye < 2; ++eye)
     {
-      projectionViews[eye].pose = xrViews[eye].pose;
-      projectionViews[eye].fov = xrViews[eye].fov;
-      projectionViews[eye].subImage.swapchain = xrSwapchains[eye].handle;
+      projectionViews[eye].pose = xrViews[eye].pose; // start() で取得した視点姿勢を設定
+      projectionViews[eye].fov = xrViews[eye].fov;   // start() で取得した視野角を設定
+      projectionViews[eye].subImage.swapchain = xrSwapchains[eye].handle; // 描画したスワップチェーン
       projectionViews[eye].subImage.imageRect.offset = { 0, 0 };
       projectionViews[eye].subImage.imageRect.extent = {
         static_cast<int32_t>(xrSwapchains[eye].width),
@@ -1320,36 +1426,44 @@ void GgApp::Window::swapBuffers()
     projectionLayer.viewCount = 2;
     projectionLayer.views = projectionViews.data();
 
+    // 合成処理に送るレイヤーのリストを構築
     const XrCompositionLayerBaseHeader* const layers[] = {
       reinterpret_cast<const XrCompositionLayerBaseHeader*>(&projectionLayer)
     };
 
+    // フレーム終了のパラメータを設定
     XrFrameEndInfo endInfo{ XR_TYPE_FRAME_END_INFO };
-    endInfo.displayTime = xrFrameState.predictedDisplayTime;
-    endInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
-    endInfo.layerCount = 1;
-    endInfo.layers = layers;
+    endInfo.displayTime = xrFrameState.predictedDisplayTime;          // 予測表示時刻
+    endInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE; // 不透明モード
+    endInfo.layerCount = 1;                                          // レイヤー数は1個
+    endInfo.layers = layers;                                         // レイヤーの配列
 
+    // VRシステムに対し、現在のフレームのすべての描画レイヤーを送信して表示を要求
     xrEndFrame(xrSession, &endInfo);
-    xrFrameActive = false;
+    xrFrameActive = false; // フレーム処理完了
 
+    // ミラー表示が有効なら、ミラーFBO（左右の目が合成されたもの）からデフォルトフレームバッファへコピー
     if (showMirror)
     {
       GLsizei wWidth = size[0];
       GLsizei wHeight = size[1];
 
       glBindFramebuffer(GL_READ_FRAMEBUFFER, xrMirrorFbo);
-      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // デフォルトフレームバッファを指定
+
+      // ミラーバッファのカラーデータを画面にコピー
       glBlitFramebuffer(0, 0, wWidth, wHeight, 0, 0, wWidth, wHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
       glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
 #if defined(IMGUI_VERSION)
+      // PC側モニター上に Dear ImGui のメニューを描画
       if (showMenu)
       {
         ImDrawData* const imDrawData{ ImGui::GetDrawData() };
         if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
       }
 #endif
+      // GLFWのダブルバッファリング：バックバッファをフロントバッファに入れ替えてPC画面に表示
       glfwSwapBuffers(window);
     }
     glFlush();
@@ -1358,11 +1472,14 @@ void GgApp::Window::swapBuffers()
 #endif
 
 #if defined(IMGUI_VERSION)
+  // 非OpenXR（通常モード）での ImGui メニューの描画
   if (showMenu)
   {
     ImDrawData* const imDrawData{ ImGui::GetDrawData() };
     if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
   }
 #endif
+
+// GLFWのダブルバッファリングによる通常画面の表示更新
   glfwSwapBuffers(window);
 }

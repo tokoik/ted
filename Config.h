@@ -63,7 +63,7 @@ constexpr GLfloat offsetDefault{ 0.0f };
 // スクリーンの間隔の変更ステップ
 constexpr GLfloat offsetStep{ 0.001f };
 
-// マルチサンプリングのサンプル数 (Oculus Rift)
+// マルチサンプリングのサンプル数 (OpenXR)
 constexpr int backBufferMultisample{ 0 };
 
 // 光源
@@ -123,9 +123,9 @@ enum DisplayMode
   MONOCULAR = 0,            // 単眼視
   TOP_AND_BOTTOM,           // 上下２分割
   SIDE_BY_SIDE,             // 左右２分割
-  OVERLAY,                // 左右２分割を重ねて表示
+  OVERLAY,                  // 左右２分割を重ねて表示
   QUADBUFFER,               // クワッドバッファステレオ
-  OCULUS                    // Oculus Rift (HMD)
+  OPENXR                    // OpenXR (HMD)
 };
 
 // 入力の設定

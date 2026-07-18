@@ -23,9 +23,9 @@ Config defaults;
 //    MONOCULAR = 0,            // 単眼視
 //    TOP_AND_BOTTOM,           // 上下２分割
 //    SIDE_BY_SIDE,             // 左右２分割
-//    OVERLAY,                // 左右２分割を重ねて表示
+//    OVERLAY,                  // 左右２分割を重ねて表示
 //    QUADBUFFER,               // クワッドバッファステレオ
-//    OCULUS                    // Oculus Rift (HMD)
+//    OPENXR                    // OpenXR (HMD)
 //
 
 //

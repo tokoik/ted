@@ -3,16 +3,16 @@
 遠隔地の視覚的環境を観測者の周囲に再現する実験システム
 
     Copyright (c) 2016 Kohe Tokoi. All Rights Reserved.
-    
+
     Permission is hereby granted, free of charge,  to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
     in the Software without restriction,  including without limitation the rights
     to use, copy,  modify, merge,  publish, distribute,  sublicense,  and/or sell
     copies or substantial portions of the Software.
-    
+
     The above  copyright notice  and this permission notice  shall be included in
     all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE  IS PROVIDED "AS IS",  WITHOUT WARRANTY OF ANY KIND,  EXPRESS OR
     IMPLIED,  INCLUDING  BUT  NOT LIMITED  TO THE WARRANTIES  OF MERCHANTABILITY,
     FITNESS  FOR  A PARTICULAR PURPOSE  AND NONINFRINGEMENT.  IN  NO EVENT  SHALL
@@ -36,7 +36,7 @@
 ## 機能
 
 * 本システムを 2 台の PC で動作させ、一方の HMD (作業者 HMD) の視界及びヘッドトラッキング情報を、ネットワークを介して、もう一方の HMD (指示者 HMD) と共有することができます。
-* 作業者及び指示者の HMD には、OpenXR に対応する各種ヘッドマウントディスプレイ（Meta Quest, Oculus Rift, HTC Vive, Windows Mixed Reality HMD 等）が使用できます。また、HMD 以外にも通常の平面ディスプレイ (単眼視) のほか、サイドバイサイド、トップアンドボトム、および時分割多重 (フレームシーケンシャル) 方式の3Dディスプレイへの表示も可能です。
+* 作業者及び指示者の HMD には、OpenXR に対応する各種ヘッドマウントディスプレイ（Meta Quest, HMD, HTC Vive, Windows Mixed Reality HMD 等）が使用できます。また、HMD 以外にも通常の平面ディスプレイ (単眼視) のほか、サイドバイサイド、トップアンドボトム、および時分割多重 (フレームシーケンシャル) 方式の3Dディスプレイへの表示も可能です。
 * 環境映像の取得には、全方位 (全天球) カメラの RICOH THETA S のほか、魚眼カメラの KODAK SP360 4K、魚眼レンズ (フジノンFE185C046HA-1) を取り付けた USB カメラ (センテックSTC-MCE132U3V)、一般の Web カメラ、および広角ステレオカメラ Ovrvision Pro が使用できます。
 * 映像の取得に魚眼カメラや全方位カメラを用いた場合は、それを平面投影像に展開し、環境映像から指示者の視野の映像を切り出す機能を有します。また、パンチルトカメラの映像を合成して全天球画像として用いる機能も持っています。
 * 広角ステレオカメラ Ovrvision Pro や 2 台の Web カメラにより取得した立体視映像を表示する機能をもつほか、HMD あるいはパンチルトヘッドに装着した 2 台の全天球カメラ (RICOH THETA S) の映像を安定化する (映像からカメラの方向変化を除去して並進のみにする) 機能を有します。
@@ -56,7 +56,7 @@
 * **開発ツール**: Visual Studio 2022 以降 (「C++ によるデスクトップ開発」ワークロードがインストールされていること)
 * **ビルドツール**: CMake 3.22 以降
 * **グラフィックスAPI**: OpenGL 4.3 以降
-* **HMD / VR 実行環境**: OpenXR 対応ランタイム (Oculus Link, SteamVR, WMR など)
+* **HMD / VR 実行環境**: OpenXR 対応ランタイム (Quest Link, SteamVR, WMR など)
   * 従来の Oculus SDK (LibOVR) から **OpenXR SDK** へ移行し、業界標準の規格に対応しました。
 * **インストーラーのビルド**:
   * [Visual Studio 2022 Installer Projects](https://marketplace.visualstudio.com/items?itemName=VisualStudioProductTeam.MicrosoftVisualStudio2022InstallerProjects) 拡張機能

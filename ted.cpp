@@ -476,8 +476,8 @@ int GgApp::main(int argc, const char *const *const argv)
   // 描画回数は単眼視なら 1、それ以外ならカメラの数
   int drawCount{ defaults.display_mode == MONOCULAR ? 1 : camCount };
 
-  // デフォルトが OCULUS なら Oculus Rift を起動する
-  if (defaults.display_mode == OCULUS) window.startOculus();
+  // デフォルトが OPENXR なら HMD を起動する
+  if (defaults.display_mode == OPENXR) window.startHMD();
 
   // メニュー
   Menu menu{ this, window, scene, attitude };

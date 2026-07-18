@@ -104,7 +104,7 @@ if(NOT EXISTS "${LIBS_DIR}/include/LeapC.h")
     file(DOWNLOAD "https://s3.eu-west-1.amazonaws.com/downloads.ultraleap.com/software/tracking-software/4.1.0/tracking-software-windows-4.1.0.zip" "${LIBS_DIR}/leap.zip" SHOW_PROGRESS)
     message(STATUS "Extracting Leap Motion SDK...")
     execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf leap.zip WORKING_DIRECTORY "${LIBS_DIR}")
-    
+
     file(GLOB_RECURSE LEAPC_H_FILE "${LIBS_DIR}/*/LeapC.h")
     if(LEAPC_H_FILE)
         get_filename_component(LEAPC_SDK_DIR "${LEAPC_H_FILE}" DIRECTORY)
@@ -124,7 +124,7 @@ if(NOT EXISTS "${LIBS_DIR}/include/ovrvision_pro.h")
     file(DOWNLOAD "https://github.com/Wizapply/OvrvisionPro/releases/download/v2.0/ovrvisionprosdk_windows.zip" "${LIBS_DIR}/ovrvision.zip" SHOW_PROGRESS)
     message(STATUS "Extracting OvrvisionPro SDK...")
     execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf ovrvision.zip WORKING_DIRECTORY "${LIBS_DIR}")
-    
+
     file(GLOB_RECURSE OVR_H_FILE "${LIBS_DIR}/*/ovrvision_pro.h")
     if(OVR_H_FILE)
         get_filename_component(OVR_SDK_DIR "${OVR_H_FILE}" DIRECTORY)

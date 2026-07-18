@@ -286,7 +286,7 @@ bool Camera::transmit(int cam, GLuint texture, const GLsizei* size)
 //            cv::Mat imgwork;
             cv::Mat imgwork(cv::Size(size[0], size[1]), CV_8UC3, const_cast<GLubyte*>(buffer[cam]));
 
-          
+
             if (1)
             {
 

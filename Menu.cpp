@@ -131,16 +131,16 @@ void Menu::displayWindow()
   ImGui::RadioButton(u8"左右分割", &display_mode, SIDE_BY_SIDE);
   ImGui::RadioButton(u8"左右重畳", &display_mode, OVERLAY);
   ImGui::RadioButton(u8"Quad Buffer", &display_mode, QUADBUFFER);
-  ImGui::RadioButton(u8"OpenXR", &display_mode, OCULUS);
+  ImGui::RadioButton(u8"OpenXR", &display_mode, OPENXR);
 
   // 表示モードが変更されたとき
   if (display_mode != defaults.display_mode)
   {
     // OpenXR に切り替えたなら
-    if (display_mode == OCULUS)
+    if (display_mode == OPENXR)
     {
       // OpenXR を起動して表示モードをそれに切り替える
-      if (window.startOculus()) defaults.display_mode = display_mode;
+      if (window.startHMD()) defaults.display_mode = display_mode;
     }
     // OpenXR 以外に切り替えたなら
     else
@@ -149,7 +149,7 @@ void Menu::displayWindow()
       if (display_mode != QUADBUFFER || defaults.display_quadbuffer)
       {
         // それまで OpenXR を使っていたなら止める
-        if (defaults.display_mode == OCULUS) window.stopOculus();
+        if (defaults.display_mode == OPENXR) window.stopHMD();
 
         // 表示モードを切り替える
         defaults.display_mode = display_mode;
@@ -258,7 +258,7 @@ void Menu::inputWindow()
   ImGui::Text(defaults.camera_movie[camR].c_str());
 
   ImGui::RadioButton(u8"カメラ", &defaults.input_mode, InputMode::CAMERA);
-  
+
   // デバイスリストの取得
   const auto& devices = CamMf::getDeviceList();
 
@@ -266,7 +266,7 @@ void Menu::inputWindow()
   {
     ImGui::PushID(cam);
     const char* sideLabel = (cam == camL) ? u8"左カメラ" : u8"右カメラ";
-    
+
     // キャッシュ更新
     updateCameraMenuCache(cam);
     const auto& cache = cameraMenuCache[cam];
@@ -277,7 +277,7 @@ void Menu::inputWindow()
     if (currentDevice >= 0 && currentDevice < devices.size()) {
       deviceComboLabel = devices[currentDevice];
     }
-    
+
     if (ImGui::BeginCombo(sideLabel, deviceComboLabel.c_str()))
     {
       for (int i = 0; i < devices.size(); ++i)

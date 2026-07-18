@@ -67,7 +67,7 @@ class Menu
 
   // 入力設定ウィンドウ
   void Menu::inputWindow();
-    
+
   // 起動時設定ウィンドウ
   void startupWindow();
 

@@ -125,7 +125,7 @@ public:
   class Window
   {
     // ウィンドウの識別子
-    GLFWwindow* const window;
+    GLFWwindow* const window{ nullptr };
 
     // ウィンドウのサイズ
     std::array<GLsizei, 2> size;
@@ -143,10 +143,10 @@ public:
     std::array<GLfloat, 2> gap;
 
     // 最後にタイプしたキー
-    int key;
+    int key{ GLFW_KEY_UNKNOWN };
 
     // ジョイスティックの番号
-    int joy;
+    int joy{ -1 };
 
     // スティックの中立位置
     std::array<float, 4> origin;
@@ -155,7 +155,7 @@ public:
     double cx, cy;
 
     // このウィンドウで制御するカメラ
-    Camera* camera;
+    Camera* camera{ nullptr };
 
     //
     // ヘッドトラッキング
@@ -184,7 +184,7 @@ public:
     std::array<GgMatrix, camCount> mp;
 
     // ズーム率
-    GLfloat zoom;
+    GLfloat zoom{ 1.0f };
 
     //
     // 背景画像
@@ -197,13 +197,13 @@ public:
     std::array<GgVector, camCount> screen;
 
     // 焦点距離
-    GLfloat focal;
+    GLfloat focal{ 1.0f };
 
     // 視差
-    GLfloat parallax;
+    GLfloat parallax{ defaultParallax };
 
     // スクリーンの間隔
-    GLfloat offset;
+    GLfloat offset{ 0.0f };
 
     // 背景の描画に使う矩形から参照する
     friend class Rect;
@@ -295,7 +295,7 @@ public:
 
     //
     // ビューポートの初期化
-    // 
+    //
     void resetViewport()
     {
       resize(window, size[0], size[1]);
@@ -432,13 +432,13 @@ public:
     }
 
     // シーン表示
-    bool showScene;
+    bool showScene{ true };
 
     // ミラー表示
-    bool showMirror;
+    bool showMirror{ true };
 
     // メニュー表示
-    bool showMenu;
+    bool showMenu{ true };
 
 #if defined(GG_USE_OPENXR)
   private:
@@ -481,11 +481,11 @@ public:
 #endif
 
   public:
-    // Oculus Rift を起動する
-    bool startOculus();
+    // HMD を起動する
+    bool startHMD();
 
-    // Oculus Rift を停止する
-    void stopOculus();
+    // HMD を停止する
+    void stopHMD();
 
     // 描画する目を選択する
     void select(int eye);

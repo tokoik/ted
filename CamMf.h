@@ -206,7 +206,7 @@ private:
   void capture(int cam);
 
 public:
-    
+
   ///
   /// コンストラクタ
   ///

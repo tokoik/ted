@@ -546,7 +546,7 @@ bool CamMf::open(int device, int cam, bool setupFormat)
     // config の希望する解像度とコーデックに合致するものを優先して選択する
     int selectedIdx = 0;
     double maxFps = 0.0;
-    
+
     int reqWidth = 1280, reqHeight = 720;
     sscanf_s(defaults.camera_resolution[cam].c_str(), "%d x %d", &reqWidth, &reqHeight);
     std::string reqCodec = defaults.camera_codec[cam];
@@ -788,7 +788,7 @@ void CamMf::capture(int cam)
       while (true)
       {
         DWORD prevLength = 0;
-        
+
         if (mftProvidesSamples)
         {
           pDecodedSample = nullptr;
@@ -976,9 +976,9 @@ void CamMf::capture(int cam)
         pDecodedSample = nullptr;
         SafeRelease(&decodedBuffer.pEvents);
         hasOutput = true;
-        
+
         // ted の低遅延を考慮
-        break; 
+        break;
       }
 
       if (hasOutput && pLatestDecodedSample)
