@@ -6,14 +6,16 @@ Copyright (c) 2011-2025 Kohe Tokoi. All Rights Reserved.
 */
 
 // 補助プログラム
-#include "./gg.h"
+#include "gg.h"
 using namespace gg;
 
 // 各種設定
 #include "Config.h"
 
 // カメラ関連の処理
-#include "./Camera.h"
+#include "Camera.h"
+
+// 標準ライブラリ
 #include <vector>
 #include <array>
 #include <memory>

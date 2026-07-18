@@ -8,7 +8,7 @@
 #include "Config.h"
 
 // ネットワーク関連の処理
-#include "./Network.h"
+#include "Network.h"
 
 // OpenCV
 #include <opencv2/opencv.hpp>
