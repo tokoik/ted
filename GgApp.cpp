@@ -5,7 +5,7 @@
 #pragma comment(lib, "opengl32.lib")
 
 // 各種設定
-#include "./TedConfig.h"
+#include "Config.h"
 
 // 姿勢
 #include "Attitude.h"
@@ -197,7 +197,17 @@ GgApp::Window::Window(int width, int height, const char* title, GLFWmonitor* mon
   // ユーザインタフェースの準備
   //
   ImGuiIO& io = ImGui::GetIO();
-  const ImFont* const font{ io.Fonts->AddFontFromFileTTF("Mplus1-Regular.ttf", 20.0f, NULL, io.Fonts->GetGlyphRangesJapanese()) };
+
+  // メニューフォントを読み込む
+  const ImFont* const font
+  {
+    io.Fonts->AddFontFromFileTTF(
+      defaults.menu_font.c_str(),
+      defaults.menu_font_size,
+      NULL,
+      io.Fonts->GetGlyphRangesJapanese()
+    )
+  };
   IM_ASSERT(font != NULL);
 #endif
 

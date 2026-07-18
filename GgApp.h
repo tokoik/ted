@@ -10,7 +10,7 @@ Copyright (c) 2011-2025 Kohe Tokoi. All Rights Reserved.
 using namespace gg;
 
 // 各種設定
-#include "./TedConfig.h"
+#include "Config.h"
 
 // カメラ関連の処理
 #include "./Camera.h"

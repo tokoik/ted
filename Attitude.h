@@ -4,7 +4,7 @@
 //
 
 // 各種設定
-#include "./TedConfig.h"
+#include "Config.h"
 
 using namespace gg;
 

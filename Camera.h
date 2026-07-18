@@ -5,7 +5,7 @@
 //
 
 // 各種設定
-#include "./TedConfig.h"
+#include "Config.h"
 
 // ネットワーク関連の処理
 #include "./Network.h"

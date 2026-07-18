@@ -118,37 +118,37 @@ void Menu::nodataWindow()
 //
 void Menu::displayWindow()
 {
-  ImGui::SetNextWindowPos(ImVec2(2, 28), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(178, 422), ImGuiCond_Once);
+  ImGui::SetNextWindowPos(ImVec2(2, 25), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(165, 372), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"表示設定", &showDisplayWindow);
 
   // 表示モードの選択
   int display_mode{ defaults.display_mode };
-  ImGui::RadioButton("Monocular", &display_mode, MONOCULAR);
-  ImGui::RadioButton("Top and Bottom", &display_mode, TOP_AND_BOTTOM);
-  ImGui::RadioButton("Side by Side", &display_mode, SIDE_BY_SIDE);
-  ImGui::RadioButton("Overlay", &display_mode, OVERLAY);
-  ImGui::RadioButton("Quad Buffer", &display_mode, QUADBUFFER);
-  ImGui::RadioButton("Oculus", &display_mode, OCULUS);
+  ImGui::RadioButton(u8"単眼視", &display_mode, MONOCULAR);
+  ImGui::RadioButton(u8"上下分割", &display_mode, TOP_AND_BOTTOM);
+  ImGui::RadioButton(u8"左右分割", &display_mode, SIDE_BY_SIDE);
+  ImGui::RadioButton(u8"左右重畳", &display_mode, OVERLAY);
+  ImGui::RadioButton(u8"Quad Buffer", &display_mode, QUADBUFFER);
+  ImGui::RadioButton(u8"OpenXR", &display_mode, OCULUS);
 
   // 表示モードが変更されたとき
   if (display_mode != defaults.display_mode)
   {
-    // Oculus Rift に切り替えたなら
+    // OpenXR に切り替えたなら
     if (display_mode == OCULUS)
     {
-      // Oculus Rift を起動して表示モードをそれに切り替える
+      // OpenXR を起動して表示モードをそれに切り替える
       if (window.startOculus()) defaults.display_mode = display_mode;
     }
-    // Oculus Rift 以外に切り替えたなら
+    // OpenXR 以外に切り替えたなら
     else
     {
       // Quadbuffer Stereo が使えなければそれには切り替えない
       if (display_mode != QUADBUFFER || defaults.display_quadbuffer)
       {
-        // それまで Oculus Rift を使っていたなら止める
+        // それまで OpenXR を使っていたなら止める
         if (defaults.display_mode == OCULUS) window.stopOculus();
 
         // 表示モードを切り替える
@@ -199,8 +199,8 @@ void Menu::displayWindow()
 //
 void Menu::attitudeWindow()
 {
-  ImGui::SetNextWindowPos(ImVec2(182, 28), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(218, 326), ImGuiCond_Once);
+  ImGui::SetNextWindowPos(ImVec2(168, 25), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(200, 304), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"姿勢設定", &showAttitudeWindow);
@@ -230,29 +230,29 @@ void Menu::attitudeWindow()
 void Menu::inputWindow()
 {
   // 入力設定ウィンドウ
-  ImGui::SetNextWindowPos(ImVec2(402, 28), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(294, 632), ImGuiCond_Once);
+  ImGui::SetNextWindowPos(ImVec2(369, 25), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(200, 674), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
   ImGui::Begin(u8"入力設定", &showInputWindow);
 
   ImGui::RadioButton(u8"静止画像", &defaults.input_mode, InputMode::IMAGE);
   static const nfdfilteritem_t image_filter[]{ "Images", "png,jpg,jpeg,jfif,bmp,dib" };
-  if (ImGui::Button(u8"左画像ファイル"))
+  if (ImGui::Button(u8"左画像"))
     getFilePath(defaults.camera_image[camL], image_filter);
   ImGui::SameLine();
   ImGui::Text(defaults.camera_image[camL].c_str());
-  if (ImGui::Button(u8"右画像ファイル"))
+  if (ImGui::Button(u8"右画像"))
     getFilePath(defaults.camera_image[camR], image_filter);
   ImGui::SameLine();
   ImGui::Text(defaults.camera_image[camR].c_str());
 
   ImGui::RadioButton(u8"動画像", &defaults.input_mode, InputMode::MOVIE);
   static const nfdfilteritem_t movie_filter[]{ "Movies", "mp4,m4v,mov,avi,wmv,ogg" };
-  if (ImGui::Button(u8"左動画ファイル"))
+  if (ImGui::Button(u8"左動画"))
     getFilePath(defaults.camera_movie[camL], movie_filter);
   ImGui::SameLine();
   ImGui::Text(defaults.camera_movie[camL].c_str());
-  if (ImGui::Button(u8"右動画ファイル"))
+  if (ImGui::Button(u8"右動画"))
     getFilePath(defaults.camera_movie[camR], movie_filter);
   ImGui::SameLine();
   ImGui::Text(defaults.camera_movie[camR].c_str());
@@ -296,7 +296,7 @@ void Menu::inputWindow()
 
     // コーデック選択コンボボックス
     std::string currentCodec = defaults.camera_codec[cam];
-    if (ImGui::BeginCombo(u8"コーデック", currentCodec.c_str()))
+    if (ImGui::BeginCombo(u8"符号化", currentCodec.c_str()))
     {
       for (const auto& codec : cache.codecs)
       {
@@ -334,7 +334,7 @@ void Menu::inputWindow()
   }
 
   ImGui::RadioButton(u8"Ovrvision", &defaults.input_mode, InputMode::OVRVISION);
-  static constexpr char *items[]{
+  static constexpr char *properties[]{
     "2560 x 1920 @ 15fps",
     "1920 x 1080 @ 30fps",
     "1280 x 960 @ 45fps",
@@ -345,9 +345,15 @@ void Menu::inputWindow()
     "1280 x 960 @ 15fps (USB2.0)",
     "640 x 480 @ 30fps (USB2.0)"
   };
-  ImGui::Combo(u8"プロパティ", &defaults.ovrvision_property, items, IM_ARRAYSIZE(items));
+  ImGui::Combo(u8"特性", &defaults.ovrvision_property, properties, IM_ARRAYSIZE(properties));
 
   ImGui::RadioButton(u8"リモート", &defaults.input_mode, InputMode::REMOTE);
+  static constexpr char* roles[]{
+    u8"単独",
+    u8"指導者",
+    u8"作業者"
+  };
+  ImGui::Combo(u8"役割", &defaults.role, roles, IM_ARRAYSIZE(roles));
   char address[16]{ "0.0.0.0" };
   strcpy(address, defaults.address.c_str());
   if (ImGui::InputText(u8"アドレス", address, sizeof address))

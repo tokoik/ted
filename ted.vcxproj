@@ -26,7 +26,7 @@
     <ClInclude Include="CamOv.h" />
     <ClInclude Include="CamRemote.h" />
     <ClInclude Include="Compute.h" />
-    <ClInclude Include="TedConfig.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="DepthCamera.h" />
     <ClInclude Include="gg.h" />
     <ClInclude Include="LeapListener.h" />
@@ -45,7 +45,6 @@
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Network.h" />
-
     <ClInclude Include="parseconfig.h" />
     <ClInclude Include="picojson.h" />
     <ClInclude Include="Rect.h" />
@@ -69,7 +68,7 @@
     <ClCompile Include="CamImage.cpp" />
     <ClCompile Include="CamOv.cpp" />
     <ClCompile Include="CamRemote.cpp" />
-    <ClCompile Include="TedConfig.cpp" />
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="DepthCamera.cpp" />
     <ClCompile Include="gg.cpp" />
     <ClCompile Include="LeapListener.cpp" />
@@ -77,7 +76,6 @@
     <ClCompile Include="ted.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Network.cpp" />
-
     <ClCompile Include="Rect.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="ShaderList.cpp" />
@@ -119,26 +117,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

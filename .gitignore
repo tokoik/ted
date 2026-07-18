@@ -9,6 +9,7 @@
 
 ## Ignore Visual Studio Code settings
 .vscode/
+.github/
 
 ## Ignore backup files
 *.swp
