@@ -37,6 +37,27 @@ Camera::~Camera()
   recvbuf = sendbuf = nullptr;
 }
 
+bool Camera::unpackFrame(const uchar* buffer, int length, const unsigned int*& head,
+  const GgMatrix*& body, const uchar*& imageData)
+{
+  // 外部入力の個数をポインタ加算へ直接使わず、減算形式で残量を検査して
+  // 整数オーバーフローや受信バッファ外参照を防ぐ。
+  constexpr std::size_t headerBytes{ headLength * sizeof(unsigned int) };
+  if (!buffer || length < 0 || static_cast<std::size_t>(length) < headerBytes) return false;
+
+  head = reinterpret_cast<const unsigned int*>(buffer);
+  const std::size_t matrixBytes{ static_cast<std::size_t>(head[camCount]) * sizeof(GgMatrix) };
+  const std::size_t frameBytes{ static_cast<std::size_t>(length) };
+  if (matrixBytes > frameBytes - headerBytes) return false;
+
+  const std::size_t imageBytes{ static_cast<std::size_t>(head[camL]) + head[camR] };
+  if (imageBytes > frameBytes - headerBytes - matrixBytes) return false;
+
+  body = reinterpret_cast<const GgMatrix*>(buffer + headerBytes);
+  imageData = buffer + headerBytes + matrixBytes;
+  return true;
+}
+
 // 圧縮設定
 void Camera::setQuality(int quality)
 {
@@ -117,14 +138,14 @@ void Camera::recv()
     // エラーがなければデータを読み込む
     if (ret > 0 && network.checkRemote())
     {
-      // ヘッダのフォーマット
-      const auto head{ reinterpret_cast<unsigned int*>(recvbuf) };
-
-      // 受信した変換行列の格納場所
-      const auto body{ reinterpret_cast<GgMatrix*>(head + headLength) };
-
-      // 変換行列を共有メモリに格納する (head[camCount] には変換行列の数が入っている)
-      remoteAttitude->store(body, head[camCount]);
+      const unsigned int* head;
+      const GgMatrix* body;
+      const uchar* imageData;
+      if (unpackFrame(recvbuf, ret, head, body, imageData))
+      {
+        // 検証済みの行列だけを共有メモリへ保存する
+        remoteAttitude->store(body, head[camCount]);
+      }
     }
 
     // 他のスレッドがリソースにアクセスするために少し待つ
@@ -153,6 +174,15 @@ void Camera::send()
     // 送信する変換行列の格納場所
     const auto body{ reinterpret_cast<GgMatrix*>(head + headLength) };
 
+    // 行列数は共有メモリ設定から決まるが、設定変更後も固定長送信領域を越えないか確認する
+    const std::size_t metadataBytes{ headLength * sizeof(unsigned int)
+      + static_cast<std::size_t>(head[camCount]) * sizeof(GgMatrix) };
+    if (metadataBytes > maxFrameSize)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(minDelay));
+      continue;
+    }
+
     // 変換行列を共有メモリから取り出す
     localAttitude->load(body, head[camCount]);
 
@@ -180,11 +210,13 @@ void Camera::send()
       // 左画像のロックを解除してから
       captureMutex[camL].unlock();
 
-      // 左フレームのサイズを保存して
-      head[camL] = static_cast<unsigned int>(encoded.size());
-
-      // 左フレームのデータをコピーしたら
-      memcpy(data, encoded.data(), head[camL]);
+      // JPEGは内容によりサイズが変わるため、収まらないフレームは姿勢だけ送信する
+      const std::size_t usedBytes{ static_cast<std::size_t>(data - sendbuf) };
+      if (encoded.size() <= maxFrameSize - usedBytes)
+      {
+        head[camL] = static_cast<unsigned int>(encoded.size());
+        memcpy(data, encoded.data(), head[camL]);
+      }
 
       // 右フレームの保存先 (左フレームの最後)
       data += head[camL];
@@ -204,11 +236,13 @@ void Camera::send()
         // 右画像のロックを解除してから
         captureMutex[camR].unlock();
 
-        // 右フレームのサイズを保存して
-        head[camR] = static_cast<unsigned int>(encoded.size());
-
-        // 右フレームのデータを左フレームのデータの後ろにコピーしたら
-        memcpy(data, encoded.data(), head[camR]);
+        // 左画像と行列を格納した残量へ収まる場合だけ右画像を連結する
+        const std::size_t usedBytes{ static_cast<std::size_t>(data - sendbuf) };
+        if (encoded.size() <= maxFrameSize - usedBytes)
+        {
+          head[camR] = static_cast<unsigned int>(encoded.size());
+          memcpy(data, encoded.data(), head[camR]);
+        }
 
         // 右フレームの最後
         data += head[camR];
@@ -220,8 +254,8 @@ void Camera::send()
       // 現在時刻
       const auto now{ glfwGetTime() };
 
-      // 次のフレームの送信時刻までの残り時間
-      const auto remain{ static_cast<long long>(last + send_interval - now) };
+      // GLFW時刻は秒、sleep_forはミリ秒なので、整数化する前に単位を変換する
+      const auto remain{ static_cast<long long>((last + send_interval - now) * 1000.0) };
 
 #if defined(DEBUG)
       std::cerr << "send remain = " << remain << '\n';

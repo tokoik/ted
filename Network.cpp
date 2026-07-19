@@ -12,6 +12,10 @@
 // ウィンドウ関連の処理
 #include "GgApp.h"
 
+#include <algorithm>
+#include <climits>
+#include <vector>
+
 // 最大データサイズ
 const std::size_t maxSize{ 65507 };
 
@@ -151,6 +155,9 @@ int Network::initializeSend(unsigned short port, const char* address)
 // ネットワーク設定の初期化
 int Network::initialize(int role, unsigned short port, const char* address)
 {
+  // 再初期化時や途中で失敗した初期化のソケットを残さない
+  finalize();
+
   // 役割
   this->role = static_cast<Role>(role);
 
@@ -159,21 +166,24 @@ int Network::initialize(int role, unsigned short port, const char* address)
 
   // 受信側を初期化する
   const int ret{ initializeRecv(port + role - 1) };
-  if (ret != 0) return ret;
+  if (ret != 0)
+  {
+    finalize();
+    return ret;
+  }
 
-  // 送信側を初期化する
-  return initializeSend(port + 2 - role, address);
+  // 送信側を初期化し、失敗時は先に作成した受信ソケットも閉じる
+  const int sendResult{ initializeSend(port + 2 - role, address) };
+  if (sendResult != 0) finalize();
+  return sendResult;
 }
 
 // 終了処理
 void Network::finalize()
 {
-  if (running())
-  {
-    if (recvSock != INVALID_SOCKET) closesocket(recvSock);
-    if (sendSock != INVALID_SOCKET) closesocket(sendSock);
-    sendSock = recvSock = INVALID_SOCKET;
-  }
+  if (recvSock != INVALID_SOCKET) closesocket(recvSock);
+  if (sendSock != INVALID_SOCKET) closesocket(sendSock);
+  sendSock = recvSock = INVALID_SOCKET;
 }
 
 // 実行中なら真
@@ -194,7 +204,7 @@ bool Network::isInstructor() const
   return role == Role::OPERATOR;
 }
 
-// WORKDER なら真
+// WORKER なら真
 bool Network::isWorker() const
 {
   return role == Role::WORKER;
@@ -230,7 +240,9 @@ int Network::sendPacket(const void* buf, int len) const
     0, reinterpret_cast<const sockaddr*>(&sendAddr), sizeof sendAddr);
 }
 
-// パケットのレイアウト
+// 1データグラムのレイアウト。
+// countはフレーム先頭だけ負の総パケット数、以降は正の残パケット数とする。
+// 受信側は total - count を格納位置として使うため、UDPで順序が入れ替わっても復元できる。
 struct Packet
 {
   // 残りのパケット数
@@ -243,6 +255,10 @@ struct Packet
 // 1 フレーム受信
 int Network::recvData(void* buf, int len)
 {
+  // UDPの内容は欠損・重複・偽装があり得るため、呼び出し側バッファへ書く前に
+  // 送信元、総数、連番、ペイロード長をすべて検査する。
+  if (!buf || len <= 0) return -1;
+
   // パケット
   Packet packet;
 
@@ -252,14 +268,15 @@ int Network::recvData(void* buf, int len)
   // 受信すべきパケット数
   int total{ -1 };
 
-  // 受信したデータサイズ
-  int bytes;
+  // 受信済みのシーケンス番号と、復元したフレームのバイト数
+  std::vector<bool> received;
+  int receivedBytes{ 0 };
 
   // 全部のパケットを受信するまで
   for (int count = 0, drop = 0;;)
   {
     // 1 パケット分データを受信する
-    bytes = recvPacket(&packet, sizeof packet);
+    const int bytes{ recvPacket(&packet, sizeof packet) };
 
     // 長さ 0 のパケットを受け取ったら終わり
     if (bytes == 0) return 0;
@@ -272,14 +289,23 @@ int Network::recvData(void* buf, int len)
       return bytes;
     }
 
-    // 先頭のパケットだったら
+    // 設定した相手以外から届いたパケットはフレームに混ぜない
+    if (!checkRemote()) continue;
+
+    // count フィールドを含まないパケットはプロトコル違反
+    if (bytes < static_cast<int>(sizeof packet.count)) return -1;
+
+    // 負のcountを持つパケットをフレーム境界として、以前の未完成フレームを破棄する
     if (packet.count < 0)
     {
       // 受信したデータを捨てて最初からやり直す
       count = 0;
 
       // 先頭パケットが保持するパケット数を保存する
+      if (packet.count == INT_MIN) return -1;
       total = packet.count = -packet.count;
+      if (total <= 0 || total > limit) return -1;
+      received.assign(total, false);
     }
 
     // total が負のままだったらまだ先頭パケットを受信していないので
@@ -298,21 +324,22 @@ int Network::recvData(void* buf, int len)
       }
     }
 
-    // 受信したパケット数をチェック
-    if (++count > limit)
+    // 残りパケット数は 1..total の範囲でなければならない
+    if (packet.count <= 0 || packet.count > total)
     {
       // パケット数が多すぎる
 #if defined(DEBUG)
-      std::cerr << "too many packets\n";
+      std::cerr << "invalid packet count\n";
 #endif
       return -1;
     }
 
-    // ペイロードのサイズ
+    // シーケンス番号とペイロードのサイズ
+    const int sequence{ total - packet.count };
     const int size{ bytes - static_cast<int>(sizeof packet.count) };
 
     // ペイロードのサイズをチェック
-    if (size < 0)
+    if (size < 0 || (sequence + 1 < total && size != static_cast<int>(sizeof packet.data)))
     {
       // 短すぎるパケット
 #if defined(DEBUG)
@@ -327,10 +354,10 @@ int Network::recvData(void* buf, int len)
 #endif
 
     // 保存先の位置
-    const int pos{ (total - packet.count) * static_cast<int>(sizeof packet.data) };
+    const int pos{ sequence * static_cast<int>(sizeof packet.data) };
 
     // 保存先に収まるかどうかチェック
-    if (pos > len - size)
+    if (pos < 0 || size > len || pos > len - size)
     {
       // オーバーフロー
 #if defined(DEBUG)
@@ -339,30 +366,39 @@ int Network::recvData(void* buf, int len)
       return -1;
     }
 
+    // UDPの再送・重複で未受信領域が残ったまま完了扱いにしない
+    if (received[sequence]) continue;
+
     // 保存先の領域の先頭
     char* const ptr{ static_cast<char*>(buf) + pos };
 
     // ペイロードを保存する
     memcpy(ptr, packet.data, size);
 
+    received[sequence] = true;
+    ++count;
+    receivedBytes = std::max(receivedBytes, pos + size);
+
     // 全部のパケットを受け取っていれば終わる
     if (count >= total) break;
   }
 
-  // 受け取ったパケット数
-  return total;
+  // 呼び出し側がフレーム内部の境界を検証できるよう、実バイト数を返す
+  return receivedBytes;
 }
 
 // 1 フレーム送信
 unsigned int Network::sendData(const void* buf, int len) const
 {
+  if (!buf || len <= 0) return static_cast<unsigned int>(-1);
+
   // パケット
   Packet packet;
 
   // 残りのパケット数はデータを送りきるのに必要なペイロードの数
   int total{ (len - 1) / static_cast<int>(sizeof packet.data) + 1 };
 
-  // 最初のパケットでは残りのパケット数の符号を反転する
+  // フレーム境界をTCPの接続なしで識別できるよう、先頭だけ総数を負にする
   packet.count = -total;
 
   // 送っていないパケットがある間

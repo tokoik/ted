@@ -190,7 +190,8 @@ void Menu::displayWindow()
   char scene_file[MAX_PATH]{ "" };
   if (defaults.scene.is<std::string>())
   {
-    strcpy(scene_file, defaults.scene.get<std::string>().c_str());
+    // JSONの長いパスでも固定長のImGui入力バッファを越えないよう末尾を切り詰める
+    strncpy_s(scene_file, defaults.scene.get<std::string>().c_str(), _TRUNCATE);
   }
   if (ImGui::InputText(u8"シーン", scene_file, sizeof scene_file))
   {
@@ -365,18 +366,20 @@ void Menu::inputWindow()
   };
   ImGui::Combo(u8"役割", &defaults.role, roles, IM_ARRAYSIZE(roles));
   char address[16]{ "0.0.0.0" };
-  strcpy(address, defaults.address.c_str());
+  // 外部設定を固定長UIバッファへ移すため、必ず終端できる長さに制限する
+  strncpy_s(address, defaults.address.c_str(), _TRUNCATE);
   if (ImGui::InputText(u8"アドレス", address, sizeof address))
     defaults.address = address;
   ImGui::InputInt(u8"ポート", &defaults.port);
 
   ImGui::Text(u8"シェーダ");
+  // 設定ファイル由来のパスをImGuiの固定長編集領域へ安全に複製し、編集後にstd::stringへ戻す
   char vertex_shader[MAX_PATH]{ "" };
-  strcpy(vertex_shader, defaults.vertex_shader.c_str());
+  strncpy_s(vertex_shader, defaults.vertex_shader.c_str(), _TRUNCATE);
   if (ImGui::InputText(u8"頂点", vertex_shader, sizeof vertex_shader))
     defaults.vertex_shader = vertex_shader;
   char fragment_shader[MAX_PATH]{ "" };
-  strcpy(fragment_shader, defaults.fragment_shader.c_str());
+  strncpy_s(fragment_shader, defaults.fragment_shader.c_str(), _TRUNCATE);
   if (ImGui::InputText(u8"画素", fragment_shader, sizeof fragment_shader))
     defaults.fragment_shader = fragment_shader;
 
@@ -385,85 +388,6 @@ void Menu::inputWindow()
   // 入力設定ウィンドウの設定終了
   ImGui::End();
 }
-
-#if 0
-//
-// 前景設定ウィンドウ
-//
-void Menu::objectWindow()
-{
-  // Object 設定ウィンドウ
-  ImGui::SetNextWindowPos(ImVec2(4, 30), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(336, 168), ImGuiCond_Once);
-  ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
-  ImGui::Begin(u8"表示設定", &showObjectWindow);
-
-  // 表示方式
-  int* type{ const_cast<int*>(&develop->type) };
-  ImGui::RadioButton(u8"縦置き", type, octatech::DevelopShader::PORTRAIT);
-  ImGui::SameLine();
-  ImGui::RadioButton(u8"天板・地板", type, octatech::DevelopShader::TOP_BOTTOM);
-  ImGui::SameLine();
-  ImGui::RadioButton(u8"横置き", type, octatech::DevelopShader::LANDSCAPE);
-  ImGui::RadioButton(u8"天板", type, octatech::DevelopShader::TOP);
-  ImGui::SameLine();
-  ImGui::RadioButton(u8"側板", type, octatech::DevelopShader::BODY);
-  ImGui::SameLine();
-  ImGui::RadioButton(u8"地板", type, octatech::DevelopShader::BOTTOM);
-  window.selectInterface(*type);
-
-  // テクスチャをリピートするか
-  ImGui::SameLine();
-  if (ImGui::Checkbox(u8"画像反復", &repeat)) image.setRepeat(repeat);
-
-  // 図形のスケール
-  auto& scale{ image.config.scale };
-  if (ImGui::DragFloat2(u8"ドラムサイズ", scale.data(), 0.01f, 0.0f, 20.0f, "%.3f"))
-    develop->setScale(scale[0], scale[1], scale[2] = scale[0]);
-
-  // 図形に投影するテクスチャの投影中心
-  auto& origin{ image.config.origin };
-  if (ImGui::DragFloat2(u8"カメラ位置", origin.data(), 0.01f, -10.0f, 10.0f, "%.3f"))
-    origin[2] = 0.0f;
-
-  // Object 設定ウィンドウの設定終了
-  ImGui::End();
-}
-
-//
-// トリムウィンドウ
-//
-void Menu::trimWindow()
-{
-  // ImGui のフレームに二つ目の ImGui のウィンドウを描く
-  ImGui::SetNextWindowPos(ImVec2(344, 30), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(380, 136), ImGuiCond_Once);
-  ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
-  ImGui::Begin(u8"ムービー切出し", &showTrimWindow);
-
-  // ムービーファイルの再生開始位置と終了位置
-  double in(camera.in), out(camera.out), start(0.0), end(camera.getFrames());
-  if (ImGui::SliderScalar(u8"開始点", ImGuiDataType_Double, &in, &start, &end, "%.0f")
-    && in >= start && in <= camera.out) camera.in = in;
-  if (ImGui::SliderScalar(u8"終了点", ImGuiDataType_Double, &out, &start, &end, "%.0f")
-    && out >= camera.in && out <= end) camera.out = out;
-
-  // 進捗
-  const auto frame(camera.getPosition());
-  const auto count(static_cast<unsigned int>(frame));
-  const auto total(static_cast<unsigned int>(end));
-  char buf[32];
-#if defined(__APPLE__)
-  sprintf(buf, "%u/%u", count, total);
-#else
-  sprintf_s(buf, sizeof buf, "%u/%u", count, total);
-#endif
-  ImGui::ProgressBar(static_cast<float>(frame / end), ImVec2(0.0f, 0.0f), buf);
-
-  // Trimming ウィンドウの設定終了
-  ImGui::End();
-}
-#endif
 
 //
 // 起動時設定ウィンドウ

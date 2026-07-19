@@ -146,7 +146,8 @@ enum Role
   WORKER                    // 作業者
 };
 
-// 設定値
+// config.jsonと対応する永続設定。
+// 入力機器、表示方式、遠隔通信、シーンの初期値を一括して保持し、UIもこの値を編集する。
 struct Config
 {
   // 画面表示のモード
@@ -253,16 +254,16 @@ struct Config
   // 相手先の映像を変形するとき true
   bool remote_texture_reshape{ false };
 
-  // 相手先の表示に加える遅延
+  // 映像と姿勢の時間差を合わせるため、相手側の眼姿勢に加える遅延（フレーム数）
   std::array<unsigned int, 2> remote_delay{ 0, 0 };
 
-  // 送信する画像の品質
+  // ネットワーク帯域と画質を調整するJPEG品質（OpenCVの0～100）
   int remote_texture_quality{ 50 };
 
   // 受信した画像をマッピングするときのメッシュの分割数
   int remote_texture_samples{ 1372 };
 
-  // 相手先のレンズの画角
+  // リモート画像の再投影に使う相手側レンズの水平・垂直画角（ラジアン）
   GLfloat remote_fov_x{ 1.0f };
   GLfloat remote_fov_y{ 1.0f };
 
@@ -281,7 +282,7 @@ struct Config
   // カメラのバックエンド
   std::string capture_backend{ "ANY" };
 
-  // スクリーンの間隔
+  // 左右背景面の中心間隔（シーン座標系）
   GLfloat display_offset{ 0.0f };
 
   // シーンに対するズーム
@@ -290,7 +291,7 @@ struct Config
   // 背景に対する焦点距離
   GLfloat display_focal{ 1.0f };
 
-  // 視差
+  // 左右眼の基準間隔（メートル）
   GLfloat parallax{ 0.032f };
 
   // カメラの補正値

@@ -18,7 +18,8 @@
 
 class Menu
 {
-  // 左右カメラのUI用キャッシュデータ
+  // Media Foundationの列挙は重いため、デバイスまたはコーデックが変わった時だけ
+  // UI候補を再生成するための左右カメラ別キャッシュ
   struct CameraMenuCache
   {
     int lastDeviceId = -2;
@@ -49,7 +50,7 @@ class Menu
   bool showInputWindow{ true };
   bool showStartupWindow{ false };
 
-  // 起動時設定のコピー
+  // 再起動が必要な設定を即時反映しないため、起動時設定画面で編集する一時コピー
   int secondary{ 0 };
   bool fullscreen{ false };
   bool quadbuffer{ false };

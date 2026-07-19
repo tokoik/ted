@@ -8,7 +8,8 @@
 
 using namespace gg;
 
-// 姿勢
+// 実行中に調整する視点・投影補正と、そのリセット先となる初期値を対で保持する。
+// attitude.jsonへ保存でき、通常表示とOpenXR表示の双方で同じ補正値を使用する。
 struct Attitude
 {
   // 前景の基準位置

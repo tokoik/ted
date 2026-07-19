@@ -43,14 +43,15 @@ using namespace gg;
 #endif
 
 ///
-/// ゲームグラフィックス特論宿題アプリケーションクラス.
+/// TED全体の入力選択、左右画像テクスチャ、ウィンドウ、描画ループを統括する。
+/// Camera派生クラスを共通インターフェースで切り替え、通常表示とOpenXR表示へ同じシーンを供給する。
 ///
 class GgApp
 {
-  // 背景画像を取得するカメラ
+  // 入力切替時に古いバックエンドを自動破棄するため、現在のCamera派生インスタンスを共有所有する
   std::shared_ptr<Camera> camera{ nullptr };
 
-  // 背景画像のデータ
+  // 静止画入力だけが初期テクスチャ作成時に渡すCPU画像。動画・カメラではnullptrになる。
   const GLubyte *image[camCount]{ nullptr, nullptr };
 
   // 背景画像のサイズ
@@ -62,7 +63,7 @@ class GgApp
   // 背景画像を保存するテクスチャ
   GLuint texture[camCount]{ 0, 0 };
 
-  // ステレオカメラなら true
+  // 左右に独立した入力がある場合true。falseなら右眼も左テクスチャを共有する。
   bool stereo{ false };
 
   //
@@ -461,14 +462,14 @@ public:
 
 #if defined(GG_USE_OPENXR)
   private:
-    // OpenXR 関連のメンバ
+    // OpenXRの所有資源。instanceを親としてsession、space、swapchainの順に作成し、逆順に破棄する。
     XrInstance xrInstance{ XR_NULL_HANDLE };
     XrSystemId xrSystemId{ XR_NULL_SYSTEM_ID };
     XrSession xrSession{ XR_NULL_HANDLE };
     XrSpace xrPlaySpace{ XR_NULL_HANDLE };
     XrSpace xrViewSpace{ XR_NULL_HANDLE };
 
-    // スワップチェーン関連
+    // 左右各眼のランタイム所有画像と、それをOpenGLで描画するためのFBOを対応付ける
     struct OpenXRSwapchain
     {
       XrSwapchain handle{ XR_NULL_HANDLE };
@@ -477,13 +478,16 @@ public:
       std::vector<XrSwapchainImageOpenGLKHR> images;
       std::vector<GLuint> fbos;
       uint32_t activeImageIndex{ 0 };
+      // acquire済み画像だけをcommitでreleaseし、二重解放や未取得画像への描画を防ぐ
+      bool imageAcquired{ false };
     };
     std::array<OpenXRSwapchain, 2> xrSwapchains;
 
-    // トラッキング状態
+    // startで取得した予測表示時刻の視点姿勢を、左右描画とswapBuffersまで保持する
     std::array<XrView, 2> xrViews;
     XrFrameState xrFrameState{ XR_TYPE_FRAME_STATE };
     bool xrSessionRunning{ false };
+    // xrBeginFrame後からxrEndFrameまでだけtrueにし、通常のGLFW描画経路と区別する
     bool xrFrameActive{ false };
 
     // シーン座標の原点にする、HMD 起動時または回復時の頭部中心位置

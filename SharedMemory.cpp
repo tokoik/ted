@@ -3,6 +3,8 @@
 //
 #include "SharedMemory.h"
 
+#include <algorithm>
+
 // コンストラクタ
 SharedMemory::SharedMemory(const LPCTSTR strMutexName, const LPCTSTR strShareName, unsigned int size)
   : size{ size }
@@ -17,9 +19,12 @@ SharedMemory::SharedMemory(const LPCTSTR strMutexName, const LPCTSTR strShareNam
 
     if (hShare)
     {
-      // ファイルマッピングオブジェクトをメモリにマップする
+      // 行列配列として直接読み書きできるよう、ファイルマッピングをプロセス空間へ割り当てる
       pShare = static_cast<GgMatrix*>(MapViewOfFile(hShare, FILE_MAP_WRITE, 0, 0, 0));
-      return;
+      if (pShare) return;
+      // マッピングに失敗しても、先に作成したカーネルオブジェクトを残さない
+      CloseHandle(hShare);
+      hShare = nullptr;
     }
 
     CloseHandle(hMutex);
@@ -29,14 +34,10 @@ SharedMemory::SharedMemory(const LPCTSTR strMutexName, const LPCTSTR strShareNam
 // デストラクタ
 SharedMemory::~SharedMemory()
 {
-  // 共有メモリが有効なら
-  if (pShare)
-  {
-    // 共有メモリを開放する
-    UnmapViewOfFile(pShare);
-    CloseHandle(hShare);
-    CloseHandle(hMutex);
-  }
+  // 構築途中で失敗した場合にも対応できるよう、各資源を独立に確認して解放する
+  if (pShare) UnmapViewOfFile(pShare);
+  if (hShare) CloseHandle(hShare);
+  if (hMutex) CloseHandle(hMutex);
 }
 
 // ミューテックスオブジェクトを獲得する（獲得できるまで待つ）
@@ -95,10 +96,11 @@ void SharedMemory::set(unsigned int i, const GgMatrix& m)
 void SharedMemory::set(unsigned int i, unsigned int count, const GgMatrix& m)
 {
   if (i >= size) return;
-  if (count += i >= size) count = size;
+  // iから共有領域末尾までの要素数に切り詰め、部分初期化を範囲内に限定する
+  count = std::min(count, size - i);
   if (lock())
   {
-    std::fill(pShare + i, pShare + count, m);
+    std::fill(pShare + i, pShare + i + count, m);
     unlock();
   }
 }

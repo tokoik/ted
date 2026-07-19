@@ -7,7 +7,8 @@
 // カメラ関連の処理
 #include "Camera.h"
 
-// リモートカメラからキャプチャするときのダミーカメラ
+// 別のTEDからUDPで受け取ったJPEGをカメラ入力として扱う。
+// reshape=trueでは一度FBOへ再投影し、遠隔カメラの画角を背景メッシュへ合わせる。
 class CamRemote
   : public Camera
 {
@@ -41,10 +42,10 @@ class CamRemote
   // 背景画像のタイリングに使うシェーダの uniform 変数の場所
   GLint gapLoc{ -1 }, screenLoc{ -1 }, rotationLoc{ -1 }, imageLoc{ -1 };
 
-  // リモートの映像と姿勢を受信する
+  // 検証済みフレームから姿勢とJPEGを取り出し、描画スレッド用の画像へ反映する
   void recv();
 
-  // ローカルの姿勢を送信する
+  // 相手側が視点を同期できるよう、画像とは逆方向にローカル姿勢だけを定期送信する
   void send();
 
 public:

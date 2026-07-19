@@ -20,6 +20,7 @@
 #include <iostream>
 #include <cassert>
 #include <stdexcept>
+#include <algorithm>
 
 // Dear ImGui
 #include "imgui.h"
@@ -808,16 +809,27 @@ bool GgApp::Window::initOpenXR()
   XrGraphicsRequirementsOpenGLKHR graphicsRequirements{ XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_KHR };
   XR_CHECK(pfnGetOpenGLGraphicsRequirementsKHR(xrInstance, xrSystemId, &graphicsRequirements));
 
-  // Windows環境におけるOpenGLコンテキスト情報（HDC, HGLRC）をOpenXRにバインドするための構造体を作成
+  // 現在のGLFW OpenGLコンテキストをOpenXRセッションへ関連付ける。
+  // GetDCのHDCは借用資源なので、xrCreateSessionが返った直後にReleaseDCする。
   XrGraphicsBindingOpenGLWin32KHR graphicsBinding{ XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR };
-  graphicsBinding.hDC = GetDC(glfwGetWin32Window(window)); // デバイスコンテキストのハンドル
+  const HWND windowHandle{ glfwGetWin32Window(window) };
+  graphicsBinding.hDC = GetDC(windowHandle);              // セッション作成時だけ借用するHDC
+  if (!graphicsBinding.hDC) return false;
   graphicsBinding.hGLRC = wglGetCurrentContext();        // レンダリングコンテキストのハンドル
 
   // OpenXRセッションを作成（取得したグラフィックスコンテキストを紐付ける）
   XrSessionCreateInfo sessionCreateInfo{ XR_TYPE_SESSION_CREATE_INFO };
   sessionCreateInfo.next = &graphicsBinding;
   sessionCreateInfo.systemId = xrSystemId;
-  XR_CHECK(xrCreateSession(xrInstance, &sessionCreateInfo, &xrSession));
+  const XrResult sessionResult{ xrCreateSession(xrInstance, &sessionCreateInfo, &xrSession) };
+  ReleaseDC(windowHandle, graphicsBinding.hDC);
+  if (XR_FAILED(sessionResult))
+  {
+    char buf[256];
+    sprintf_s(buf, "OpenXR session creation failed (Result: %d)", sessionResult);
+    NOTIFY(buf);
+    return false;
+  }
 
   // トラッキング空間（Stage空間：床面基準のプレイエリア空間）を作成
   XrReferenceSpaceCreateInfo playSpaceCreateInfo{ XR_TYPE_REFERENCE_SPACE_CREATE_INFO };
@@ -847,6 +859,30 @@ bool GgApp::Window::initOpenXR()
   std::vector<XrViewConfigurationView> configViews(viewCount, { XR_TYPE_VIEW_CONFIGURATION_VIEW });
   XR_CHECK(xrEnumerateViewConfigurationViews(xrInstance, xrSystemId, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
     viewCount, &viewCount, configViews.data()));
+  if (viewCount < xrSwapchains.size()) return false;
+
+  // OpenXRランタイムごとに対応形式が異なるため固定値を渡さず、列挙結果から
+  // sRGB、通常RGBA、浮動小数RGBAの優先順でOpenGLが描画可能な形式を選ぶ。
+  uint32_t formatCount{ 0 };
+  XR_CHECK(xrEnumerateSwapchainFormats(xrSession, 0, &formatCount, nullptr));
+  if (formatCount == 0) return false;
+  std::vector<int64_t> formats(formatCount);
+  XR_CHECK(xrEnumerateSwapchainFormats(xrSession, formatCount, &formatCount, formats.data()));
+  const std::array<int64_t, 3> preferredFormats{ GL_SRGB8_ALPHA8, GL_RGBA8, GL_RGBA16F };
+  int64_t colorFormat{ 0 };
+  for (const auto preferred : preferredFormats)
+  {
+    if (std::find(formats.begin(), formats.end(), preferred) != formats.end())
+    {
+      colorFormat = preferred;
+      break;
+    }
+  }
+  if (colorFormat == 0)
+  {
+    NOTIFY("OpenXR runtime has no supported OpenGL color swapchain format.");
+    return false;
+  }
 
   // 左右それぞれのスワップチェーン（描画バッファ）をセットアップ
   for (uint32_t eye = 0; eye < 2; ++eye)
@@ -863,7 +899,7 @@ bool GgApp::Window::initOpenXR()
 
     // レンダリング先（カラーアタッチメント）および転送元として使用可能に指定
     swapchainCreateInfo.usageFlags = XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT | XR_SWAPCHAIN_USAGE_TRANSFER_SRC_BIT;
-    swapchainCreateInfo.format = GL_SRGB8_ALPHA8; // カラーバッファのフォーマット
+    swapchainCreateInfo.format = colorFormat;
     swapchainCreateInfo.sampleCount = 1;
     swapchainCreateInfo.width = swapchain.width;
     swapchainCreateInfo.height = swapchain.height;
@@ -980,6 +1016,13 @@ void GgApp::Window::cleanupOpenXR()
       // スワップチェーンハンドルを破棄
       if (swapchain.handle != XR_NULL_HANDLE)
       {
+        // 通常描画の途中で終了した場合も、ランタイム所有画像を返してからswapchainを破棄する
+        if (swapchain.imageAcquired)
+        {
+          XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
+          xrReleaseSwapchainImage(swapchain.handle, &releaseInfo);
+          swapchain.imageAcquired = false;
+        }
         xrDestroySwapchain(swapchain.handle);
         swapchain.handle = XR_NULL_HANDLE;
       }
@@ -1166,15 +1209,28 @@ void GgApp::Window::select(int eye)
 #if defined(GG_USE_OPENXR)
     if (xrSession != XR_NULL_HANDLE && xrSessionRunning)
     {
-      // スワップチェーンから書き込み可能なイメージを取得
+      // ランタイムから画像を借り、使用可能になるまで待ってから対応FBOへ描画する。
+      // imageAcquiredはcommitで同じ画像を一度だけ返すための所有状態である。
       XrSwapchainImageAcquireInfo acquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
       uint32_t activeIndex{ 0 };
-      xrAcquireSwapchainImage(xrSwapchains[eye].handle, &acquireInfo, &activeIndex);
+      auto& swapchain{ xrSwapchains[eye] };
+      XR_CHECK_VOID(xrAcquireSwapchainImage(swapchain.handle, &acquireInfo, &activeIndex));
       xrSwapchains[eye].activeImageIndex = activeIndex; // 現在のアクティブイメージインデックスを記録
 
       // 書き込み可能になるまで（GPUでイメージが解放されるまで）待機
       XrSwapchainImageWaitInfo waitInfo{ XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO, nullptr, XR_INFINITE_DURATION };
-      xrWaitSwapchainImage(xrSwapchains[eye].handle, &waitInfo);
+      const XrResult waitResult{ xrWaitSwapchainImage(swapchain.handle, &waitInfo) };
+      if (XR_FAILED(waitResult))
+      {
+        // 待機失敗時もacquire済み画像を保持したままにせず、空のままランタイムへ返す
+        XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
+        xrReleaseSwapchainImage(swapchain.handle, &releaseInfo);
+        char buf[256];
+        sprintf_s(buf, "OpenXR swapchain wait failed (Result: %d)", waitResult);
+        NOTIFY(buf);
+        return;
+      }
+      swapchain.imageAcquired = true;
 
       // 描画先として、スワップチェーンイメージに紐付いたFBOをバインド
       glBindFramebuffer(GL_FRAMEBUFFER, xrSwapchains[eye].fbos[activeIndex]);
@@ -1311,14 +1367,15 @@ bool GgApp::Window::start()
     return true; // 描画処理へ進む
   }
 
-  // レンダリング不要（shouldRender == false）の場合は空フレームとしてフレーム終了を宣言
+  // HMDが非表示中などshouldRender=falseでも、BeginFrameと対になるEndFrameは必要なので
+  // レイヤーを持たない空フレームを送り、通常の左右描画は行わない。
   XrFrameEndInfo endInfo{ XR_TYPE_FRAME_END_INFO };
   endInfo.displayTime = xrFrameState.predictedDisplayTime;
   endInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
   endInfo.layerCount = 0;
   endInfo.layers = nullptr;
-  xrEndFrame(xrSession, &endInfo);
   xrFrameActive = false;
+  XR_CHECK(xrEndFrame(xrSession, &endInfo));
 
   return false; // 描画は行わない
 #else
@@ -1402,7 +1459,8 @@ void GgApp::Window::updateCircle()
 void GgApp::Window::commit(int eye)
 {
 #if defined(GG_USE_OPENXR)
-  if (xrSession != XR_NULL_HANDLE && xrSessionRunning && xrFrameActive)
+  if (xrSession != XR_NULL_HANDLE && xrSessionRunning && xrFrameActive
+    && xrSwapchains[eye].imageAcquired)
   {
     // PCモニターでのミラー表示が有効な場合
     if (showMirror)
@@ -1420,7 +1478,7 @@ void GgApp::Window::commit(int eye)
       GLint dx0 = (eye == 0) ? 0 : wWidth / 2;
       GLint dx1 = (eye == 0) ? wWidth / 2 : wWidth;
 
-      // スワップチェーンFBOの内容をミラーFBOの対応する領域へ転送（スケーリングと色補正を伴うコピー）
+      // スワップチェーンFBOをミラーFBOの対応領域へ拡大・縮小コピーする
       glBlitFramebuffer(0, 0, xrSwapchains[eye].width, xrSwapchains[eye].height,
         dx0, 0, dx1, wHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     }
@@ -1431,11 +1489,12 @@ void GgApp::Window::commit(int eye)
     // スワップチェーン画像をランタイムへ返す前に、描画コマンドを GPU へ送る
     glFlush();
 
-    // スワップチェーンイメージの解放情報を指定
+    // GLコマンドを投入した画像の所有権をランタイムへ返し、HMD合成処理で使用可能にする
     XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
 
     // イメージのコントロール権をVRシステムに返却（これによりVRシステム側で表示されるようになる）
-    xrReleaseSwapchainImage(xrSwapchains[eye].handle, &releaseInfo);
+    XR_CHECK_VOID(xrReleaseSwapchainImage(xrSwapchains[eye].handle, &releaseInfo));
+    xrSwapchains[eye].imageAcquired = false;
   }
 #endif
 }
@@ -1480,7 +1539,7 @@ void GgApp::Window::swapBuffers()
       reinterpret_cast<const XrCompositionLayerBaseHeader*>(&projectionLayer)
     };
 
-    // フレーム終了のパラメータを設定
+    // startで予測した同じ表示時刻と左右姿勢をレイヤーへまとめ、1回のEndFrameで提出する
     XrFrameEndInfo endInfo{ XR_TYPE_FRAME_END_INFO };
     endInfo.displayTime = xrFrameState.predictedDisplayTime;          // 予測表示時刻
     endInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE; // 不透明モード
@@ -1488,8 +1547,8 @@ void GgApp::Window::swapBuffers()
     endInfo.layers = layers;                                         // レイヤーの配列
 
     // VRシステムに対し、現在のフレームのすべての描画レイヤーを送信して表示を要求
-    xrEndFrame(xrSession, &endInfo);
-    xrFrameActive = false; // フレーム処理完了
+    xrFrameActive = false;
+    XR_CHECK_VOID(xrEndFrame(xrSession, &endInfo));
 
     // ミラー表示が有効なら、ミラーFBO（左右の目が合成されたもの）からデフォルトフレームバッファへコピー
     if (showMirror)

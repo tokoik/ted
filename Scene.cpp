@@ -18,7 +18,7 @@ std::unique_ptr<SharedMemory> localAttitude;
 // 共有メモリ上に置く作業者の変換行列
 std::unique_ptr<SharedMemory> remoteAttitude;
 
-// 外部モデル変換行列のテーブルのコピー
+// 共有メモリとの同期と描画に使うモデル変換行列の保持領域
 std::vector<GgMatrix> Scene::localMatrixTable, Scene::remoteMatrixTable;
 
 // リモートカメラの姿勢のタイミングをフレームに合わせて遅らせるためのキュー

@@ -68,28 +68,24 @@ int CamRemote::open(unsigned short port, const char* address)
   sendbuf = new uchar[maxFrameSize];
   recvbuf = new uchar[maxFrameSize];
 
-  // ヘッダのフォーマット
-  unsigned int* const head(reinterpret_cast<unsigned int*>(recvbuf));
+  const unsigned int* head{ nullptr };
+  const GgMatrix* body{ nullptr };
+  const uchar* data{ nullptr };
 
-  // 1 フレーム受け取って
+  // テクスチャ確保には画像寸法が必要なため、境界が正しく左画像を含むフレームまで待つ
   for (int i = 0;;)
   {
     const int ret(network.recvData(recvbuf, maxFrameSize));
 #if defined(DEBUG)
-    std::cerr << "CamRemote open:" << ret << ',' << head[camL] << ',' << head[camR] << '\n';
+    std::cerr << "CamRemote open:" << ret << '\n';
 #endif
-    if (ret > 0 && head[camL] > 0) break;
-    if (++i > receiveRetry) return ret;
+    if (ret > 0 && network.checkRemote() && unpackFrame(recvbuf, ret, head, body, data)
+      && head[camL] > 0) break;
+    if (++i > receiveRetry) return ret < 0 ? ret : -1;
   }
-
-  // 受信した変換行列の格納場所
-  GgMatrix* const body(reinterpret_cast<GgMatrix*>(head + headLength));
 
   // 変換行列を共有メモリに格納する
   remoteAttitude->store(body, head[camCount]);
-
-  // 左フレームの保存先 (変換行列の最後)
-  uchar* const data(reinterpret_cast<uchar*>(body + head[camCount]));
 
   // 符号化されたデータの一時保存先
   std::vector<GLubyte> encoded;
@@ -226,20 +222,16 @@ void CamRemote::recv()
     // サイズが 0 なら終了する
     if (ret == 0) return;
 
-    // エラーがなければデータを読み込む
+    // エラーがなく、送信元とフレーム内部の境界が正しければデータを読み込む
     if (ret > 0 && network.checkRemote())
     {
-      // ヘッダのフォーマット
-      const auto head{ reinterpret_cast<unsigned int*>(recvbuf) };
-
-      // 受信した変換行列の格納場所
-      const auto body{ reinterpret_cast<GgMatrix*>(head + headLength) };
+      const unsigned int* head;
+      const GgMatrix* body;
+      const uchar* data;
+      if (!unpackFrame(recvbuf, ret, head, body, data)) continue;
 
       // 変換行列を共有メモリに格納する
       remoteAttitude->store(body, head[camCount]);
-
-      // 左フレームの保存先 (変換行列の最後)
-      const auto data{ reinterpret_cast<uchar*>(body + head[camCount]) };
 
       // リモートから取得したフレームのサイズ
       cv::Size rsize[camCount];
@@ -355,8 +347,8 @@ void CamRemote::send()
     // 現在時刻
     const auto now{ glfwGetTime() };
 
-    // 次のフレームの送信時刻までの残り時間
-    const auto remain{ static_cast<long long>(last + send_interval - now) };
+    // GLFW時刻（秒）をsleep_forへ渡すミリ秒に変換する
+    const auto remain{ static_cast<long long>((last + send_interval - now) * 1000.0) };
 
 #if defined(DEBUG)
     std::cerr << "send remain = " << remain << '\n';

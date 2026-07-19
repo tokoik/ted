@@ -23,7 +23,8 @@
 #include <string>
 
 ///
-/// Microsoft Media Foundation を使ってビデオをキャプチャするクラス
+/// Microsoft Media Foundation を使ってカメラまたは動画を取り込む。
+/// 圧縮入力はMFTデコーダ、非BGR入力はカラーコンバータへ通し、Camera基底が扱うBGR画像へ統一する。
 ///
 class CamMf : public Camera
 {
@@ -59,7 +60,7 @@ private:
   ///
   class ComInitializer
   {
-    /// COM ライブラリの初期化と終了を行うオブジェクト (シングルトン)
+    /// COM/MFのプロセス内初期化とデバイス列挙結果を共有し、カメラごとの重複初期化を避ける
     static ComInitializer instance;
 
     /// メディアソースのリスト

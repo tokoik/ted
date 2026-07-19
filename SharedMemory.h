@@ -11,6 +11,8 @@ using namespace gg;
 // Win32 API
 #include <Windows.h>
 
+// 同一PC上の処理間で姿勢行列を共有する名前付きファイルマッピング。
+// 全アクセスを同名のWin32ミューテックスで直列化し、読み書き途中の行列を見せない。
 class SharedMemory
 {
   // 共有メモリ用のミューテックスオブジェクト
@@ -57,12 +59,13 @@ public:
   // 共有メモリの複数の要素に値を設定する
   void set(unsigned int i, unsigned int count, const GgMatrix& m);
 
-  // 共有メモリの内容をメモリに取り出す
+  // 共有領域の先頭 count 要素を呼び出し側バッファへコピーする
   void load(GgMatrix* dst, unsigned int count) const;
 
-  // メモリの内容を共有メモリに保存する
+  // 呼び出し側バッファの先頭 count 要素を共有領域へコピーする
   void store(const GgMatrix* src, unsigned int count) const;
 
-  // メモリの内容を共有メモリと同期する
+  // src[0,count) を共有領域へ公開し、残りを共有領域から src[count,size) へ取り込む。
+  // 1回のロック内で双方向コピーし、ローカル姿勢とリモート姿勢の対応を保つ。
   void sync(GgMatrix* src, unsigned int count) const;
 };

@@ -65,7 +65,12 @@ endif()
 # 3. picojson
 if(NOT EXISTS "${LIBS_DIR}/include/picojson.h")
     message(STATUS "Downloading picojson...")
-    file(DOWNLOAD "https://github.com/kazuho/picojson/raw/refs/heads/master/picojson.h" "${LIBS_DIR}/include/picojson.h" SHOW_PROGRESS)
+    # レビュー済みの内容をハッシュで固定し、上流の変更がビルドへ無断で混入するのを防ぐ。
+    file(DOWNLOAD "https://github.com/kazuho/picojson/raw/refs/heads/master/picojson.h"
+        "${LIBS_DIR}/include/picojson.h"
+        EXPECTED_HASH SHA256=eecfb89d1a72ab38a20322e4f959210c432167350fc84956856d94dfe6e4a526
+        TLS_VERIFY ON
+        SHOW_PROGRESS)
 endif()
 
 # 4. Dear ImGui
@@ -190,14 +195,27 @@ file(GLOB ASSET_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/*.ttf"
 )
 
-# Source and Header Files
-file(GLOB SOURCES_CPP "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB SOURCES_H "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-
-# Exclude unused files
-list(REMOVE_ITEM SOURCES_CPP
-    "${CMAKE_CURRENT_SOURCE_DIR}/CameraYOLOv8.cpp"
+# 実験用.cppを置いただけで製品へ混入しないよう、ビルド対象は明示的に列挙する。
+set(SOURCES_CPP
+    Attitude.cpp
+    Camera.cpp
+    CamImage.cpp
+    CamMf.cpp
+    CamOv.cpp
+    CamRemote.cpp
+    Config.cpp
+    gg.cpp
+    GgApp.cpp
+    LeapListener.cpp
+    main.cpp
+    Menu.cpp
+    Network.cpp
+    Rect.cpp
+    Scene.cpp
+    SharedMemory.cpp
+    ted.cpp
 )
+file(GLOB SOURCES_H "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 # Dear ImGui / Native File Dialog sources
 set(IMGUI_SOURCES

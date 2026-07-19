@@ -62,6 +62,6 @@ catch (const std::runtime_error &e)
   std::cerr << HEADER_STR << ": " << e.what() << '\n';
 #endif
 
-  // ブログラムを終了する
+  // プログラムを終了する
   return EXIT_FAILURE;
 }

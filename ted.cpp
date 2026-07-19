@@ -225,6 +225,8 @@ bool GgApp::useRemote()
 //
 bool GgApp::selectInput()
 {
+  // 入力バックエンドを切り替えた後、左右サイズとステレオ状態を正規化し、
+  // 描画側が入力方式を意識せず同じ2枚のOpenGLテクスチャを参照できるよう再構築する。
   std::fill(image, image + camCount, nullptr);
   // 入力を切り替えるたびに単眼として開始し、両眼入力を開けた場合だけ有効にする
   stereo = false;

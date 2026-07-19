@@ -10,6 +10,8 @@
 // 標準ライブラリ
 #include <string>
 
+// カメラ画像を表示方式に応じた背景面へ投影する描画オブジェクト。
+// Windowが計算した画角・中心・眼姿勢をuniformへ渡し、左右別のテクスチャを描画する。
 class Rect
 {
   // 描画するウィンドウ
@@ -59,6 +61,6 @@ public:
   // シェーダプログラム名を得る
   GLuint get() const;
 
-  // 描画
+  // eyeの画像を、samplesで指定した格子密度のインスタンス描画として背景面へ投影する
   void draw(int eye, const GgMatrix& rotation, const std::array<GLsizei, 2>& samples) const;
 };

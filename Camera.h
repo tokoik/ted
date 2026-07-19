@@ -18,18 +18,26 @@
 #include <mutex>
 #include <atomic>
 
-// ヘッダの長さ
+// 通信フレームは「左右JPEGサイズ、行列数、行列列、左右JPEG」の順に格納する。
+// headLength は先頭に置く unsigned int の個数で、camCount 番目が行列数になる。
 constexpr int headLength{ camCount + 1 };
 
-// 作業用メモリのサイズ
+// UDPで送受信する1フレームの上限。符号化後の画像が収まらない場合は画像を省略し、
+// 固定長バッファを越えて書き込まない。
 constexpr int maxFrameSize{ 1024 * 1024 };
 
 //
-// カメラ関連の処理を担当するクラス
+// 入力方式に共通する画像保持、OpenGLへの転送、姿勢・画像のネットワーク同期を担当する。
+// 派生クラスは image[] を更新し、captured/unsent で描画側・送信側へ更新を通知する。
 //
 class Camera
 {
 protected:
+
+  // 信頼できない受信値でポインタを作る前に各領域が length 内へ収まるか検証し、
+  // 成功時だけ各領域の読み取り専用ポインタを返す。
+  static bool unpackFrame(const uchar* buffer, int length, const unsigned int*& head,
+    const GgMatrix*& body, const uchar*& imageData);
 
   // カメラスレッド
   std::thread captureThread[camCount];
@@ -37,7 +45,7 @@ protected:
   // ミューテックス
   std::mutex captureMutex[camCount];
 
-  // 実行状態
+  // キャプチャ・通信スレッド間で停止要求を共有する実行状態
   std::atomic<bool> run[camCount]{ false, false };
 
   // スレッドを停止する
@@ -49,10 +57,10 @@ protected:
   // キャプチャデバイスから取得した画像
   cv::Mat image[camCount];
 
-  // キャプチャ間隔
+  // 各入力のキャプチャ間隔（秒）
   double interval[camCount]{ 1.0 / 30.0, 1.0 / 30.0 };
 
-  // 待ちキャプチャ間隔
+  // 全カメラに適用するキャプチャ間隔（秒）
   double capture_interval{ 0.0 };
 
   // キャプチャ完了なら true
@@ -64,7 +72,7 @@ protected:
   // 未送信なら true
   std::atomic<bool> unsent[camCount]{ false, false };
 
-  // 送信間隔
+  // ネットワークへ送るフレーム間隔（秒）。sleep_for の直前にミリ秒へ変換する。
   double send_interval{ minDelay * 0.001 };
 
   // 露出と利得

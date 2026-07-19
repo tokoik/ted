@@ -23,27 +23,29 @@ extern std::unique_ptr<SharedMemory> localAttitude;
 // 共有メモリ上に置く作業者の変換行列
 extern std::unique_ptr<SharedMemory> remoteAttitude;
 
+// JSONで定義された階層モデルを保持し、親から子へモデル変換を累積して描画する。
+// 共有メモリ上の姿勢行列をノードへ結び付け、Leap Motionや遠隔姿勢も同じ経路で反映する。
 class Scene
 {
-  // 子供のパーツのリスト
+  // このノードが所有し、デストラクタで破棄する子ノード
   std::vector<Scene*> children;
 
-  // 描画するパーツ
+  // parts が所有する共有モデル、または外部所有のモデル。Scene自身は破棄しない。
   const GgSimpleObj* obj{ nullptr };
 
   // 使用するシェーダ
   static const GgSimpleShader* shader;
 
-  // 読み込んだパーツを登録するパーツリスト
+  // 同じモデルファイルを重複ロードしないための、モデル名をキーにした所有キャッシュ
   static std::map<const std::string, std::unique_ptr<const GgSimpleObj>> parts;
 
   // このパーツのモデル変換行列
   GgMatrix mm;
 
-  // このパーツが参照する外部モデル変換行列
+  // controller指定がある場合に参照する共有姿勢行列。テーブルの要素を所有しない。
   const GgMatrix* me{ nullptr };
 
-  // リモートの外部モデル変換行列のテーブルのコピー
+  // リモート側から受信したモデル変換行列の保持領域
   static std::vector<GgMatrix> localMatrixTable, remoteMatrixTable;
 
   // リモートカメラの姿勢のタイミングをフレームに合わせて遅らせるためのキュー
@@ -81,7 +83,7 @@ public:
   // 子供にパーツに追加する
   Scene* addChild(GgSimpleObj* obj = nullptr);
 
-  // ローカルとリモートの変換行列を設定する
+  // 現在の視点・Leap姿勢を共有領域へ公開し、同時にリモート姿勢を取り込む
   static void setup(const GgMatrix& m);
 
 #if defined(LEAP_INTERPORATE_FRAME)
@@ -95,17 +97,17 @@ public:
   // リモートのカメラのトラッキング情報を遅延させて取り出す
   static const GgMatrix& getRemoteAttitude(int cam);
 
-  // Leap Motion を起動する
+  // Leap Motionサービスへ接続し、関節姿勢を更新するポーリングスレッドを開始する
   static bool startLeapMotion()
   {
     // Leap Motion の listener と controller を作る
     return listener.openConnection() != nullptr;
   }
 
-  // Leap Motion を起動する
+  // ポーリングスレッドを停止してLeap Motionサービスとの接続を閉じる
   static void stopLeapMotion()
   {
-    // Leap Motion の listener と controller を作る
+    // Scene破棄後にコールバックが残らないよう、共有listenerを明示的に停止する
     listener.closeConnection();
   }
 
