@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //
 // カメラ関連の処理

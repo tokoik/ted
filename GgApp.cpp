@@ -761,6 +761,11 @@ void GgApp::Window::reset()
   update();
   attitude.circleAdjust = attitude.initialCircleAdjust;
   updateCircle();
+
+#if defined(GG_USE_OPENXR)
+  // 次に取得する頭部位置を、シーン座標の新しい原点として採用する
+  xrOriginValid = false;
+#endif
 }
 
 
@@ -770,6 +775,8 @@ void GgApp::Window::reset()
 //
 bool GgApp::Window::initOpenXR()
 {
+  xrOriginValid = false;
+
   // OpenGLによるレンダリングを有効にするための拡張機能（XR_KHR_opengl_enable）を指定
   std::vector<const char*> extensions;
   extensions.push_back(XR_KHR_OPENGL_ENABLE_EXTENSION_NAME);
@@ -1120,6 +1127,8 @@ void GgApp::Window::select(int eye)
   switch (defaults.display_mode)
   {
   case MONOCULAR:
+    // 分割表示から戻った場合も、ビューポートをウィンドウ全体へ戻す
+    glViewport(0, 0, width, height);
     glClear(GL_DEPTH_BUFFER_BIT);
     break;
 
@@ -1240,17 +1249,28 @@ bool GgApp::Window::start()
       {
         xrViews[eye] = locateViews[eye];
 
-        // 位置と向きを抽出し、行列（mo）を生成
+        // libOVR と同じく、OpenXR の姿勢を逆回転のビュー行列として扱う
         const auto& p = xrViews[eye].pose.position;
         const auto& o = xrViews[eye].pose.orientation;
         po[eye] = GgVector(p.x, p.y, p.z, 1.0f);
-        qo[eye] = GgQuaternion(o.x, o.y, o.z, o.w);
+        qo[eye] = GgQuaternion(o.x, o.y, o.z, -o.w);
         mo[eye] = qo[eye].getMatrix();
 
         // 視野角(FOV)情報を取得
         const auto& fov = xrViews[eye].fov;
         // 近クリップ面の位置（ズーム対応）
         const GLfloat zf = defaults.display_near / zoom;
+
+        // 背景画像もシーンと同じ目別 FOV で投影する
+        const GLfloat left{ tanf(fov.angleLeft) * focal };
+        const GLfloat right{ tanf(fov.angleRight) * focal };
+        const GLfloat down{ tanf(fov.angleDown) * focal };
+        const GLfloat up{ tanf(fov.angleUp) * focal };
+        screen[eye][0] = (right - left) * 0.5f;
+        screen[eye][1] = (up - down) * 0.5f;
+        screen[eye][2] = (right + left) * 0.5f;
+        screen[eye][3] = (up + down) * 0.5f;
+
         // 視差補正シフト量
         const float p_shift = static_cast<float>((1 - eye * 2) * attitude.parallax) * parallaxStep;
 
@@ -1259,6 +1279,32 @@ bool GgApp::Window::start()
           (p_shift + tanf(fov.angleLeft)) * zf, (p_shift + tanf(fov.angleRight)) * zf,
           tanf(fov.angleDown) * zf, tanf(fov.angleUp) * zf,
           defaults.display_near, defaults.display_far
+        );
+      }
+
+      // 起動時または回復時の頭部中心を、シーン座標の原点として保存する
+      const auto& leftEye{ xrViews[camL].pose.position };
+      const auto& rightEye{ xrViews[camR].pose.position };
+      if (!xrOriginValid)
+      {
+        xrOriginPosition = GgVector
+        {
+          (leftEye.x + rightEye.x) * 0.5f,
+          (leftEye.y + rightEye.y) * 0.5f,
+          (leftEye.z + rightEye.z) * 0.5f,
+          1.0f
+        };
+        xrOriginValid = true;
+      }
+
+      // 頭部原点からの相対的な各眼位置を、シーン用のビュー変換へ反映する
+      for (int eye = 0; eye < eyeCount; ++eye)
+      {
+        const auto& eyePosition{ xrViews[eye].pose.position };
+        mv[eye].loadTranslate(
+          xrOriginPosition[0] - eyePosition.x,
+          xrOriginPosition[1] - eyePosition.y,
+          xrOriginPosition[2] - eyePosition.z
         );
       }
     }
@@ -1381,6 +1427,9 @@ void GgApp::Window::commit(int eye)
 
     // デフォルトのフレームバッファにバインドを戻す
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // スワップチェーン画像をランタイムへ返す前に、描画コマンドを GPU へ送る
+    glFlush();
 
     // スワップチェーンイメージの解放情報を指定
     XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };

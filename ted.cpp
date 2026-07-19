@@ -1,4 +1,4 @@
-//
+﻿//
 // TelExistence Display System
 //
 
@@ -226,6 +226,8 @@ bool GgApp::useRemote()
 bool GgApp::selectInput()
 {
   std::fill(image, image + camCount, nullptr);
+  // 入力を切り替えるたびに単眼として開始し、両眼入力を開けた場合だけ有効にする
+  stereo = false;
 
   switch (defaults.input_mode)
   {
@@ -520,7 +522,14 @@ int GgApp::main(int argc, const char *const *const argv)
         simple.use(light);
 
         // 図形を描画する
-        if (window.showScene) scene.draw(window.getMp(eye), window.getMv(eye) * window.getMo(eye));
+        if (window.showScene)
+        {
+          // OpenXR は各眼 pose の逆変換 R^-1 * T^-1 をビュー行列に使う
+          const GgMatrix sceneView{ defaults.display_mode == OPENXR
+            ? (defaults.camera_tracking ? window.getMo(eye) * window.getMv(eye) : ggIdentity())
+            : window.getMv(eye) * window.getMo(eye) };
+          scene.draw(window.getMp(eye), sceneView);
+        }
 
         // 片目の処理を完了する
         window.commit(eye);

@@ -1,4 +1,4 @@
-//
+﻿//
 // メニュー
 //
 #include "Menu.h"
@@ -119,7 +119,7 @@ void Menu::nodataWindow()
 void Menu::displayWindow()
 {
   ImGui::SetNextWindowPos(ImVec2(2, 25), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(165, 400), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(165, 428), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"表示設定", &showDisplayWindow);
@@ -184,6 +184,7 @@ void Menu::displayWindow()
   }
 
   // 表示関係
+  ImGui::Checkbox(u8"ヘッドトラッキング", &defaults.camera_tracking);
   ImGui::Checkbox(u8"ミラー表示", &window.showMirror);
   ImGui::Checkbox(u8"シーン表示", &window.showScene);
   char scene_file[MAX_PATH]{ "" };

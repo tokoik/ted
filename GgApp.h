@@ -486,6 +486,10 @@ public:
     bool xrSessionRunning{ false };
     bool xrFrameActive{ false };
 
+    // シーン座標の原点にする、HMD 起動時または回復時の頭部中心位置
+    GgVector xrOriginPosition{ 0.0f, 0.0f, 0.0f, 1.0f };
+    bool xrOriginValid{ false };
+
     // デプステクスチャ（各目用）
     std::array<GLuint, 2> xrDepthTextures{ 0, 0 };
 
