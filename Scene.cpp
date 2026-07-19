@@ -3,7 +3,7 @@
 ///
 /// @file
 /// @author Kohe Tokoi
-/// @date July 197, 2026
+/// @date July 19, 2026
 ///
 #include "Scene.h"
 
@@ -99,6 +99,9 @@ picojson::object Scene::load(const picojson::value& v)
   // v が object ならそれを返す
   if (v.is<picojson::object>()) return v.get<picojson::object>();
 
+  // null はシーンが指定されていない正常な状態
+  if (v.is<picojson::null>()) return picojson::object{};
+
   // v が文字列だったら
   if (v.is<std::string>())
   {
@@ -106,7 +109,11 @@ picojson::object Scene::load(const picojson::value& v)
     std::ifstream scene(v.get<std::string>());
 
     // 開けなかったら空のオブジェクトを返す
-    if (!scene) return picojson::object{};
+    if (!scene)
+    {
+      valid = false;
+      return picojson::object{};
+    }
 
     // 設定ファイルを読み込む
     picojson::value f;
@@ -118,6 +125,7 @@ picojson::object Scene::load(const picojson::value& v)
   }
 
   // これら以外なら空の object を返す
+  valid = false;
   return picojson::object{};
 }
 
@@ -243,6 +251,9 @@ Scene* Scene::read(const picojson::value& v, int level)
 //
 Scene* Scene::addChild(Scene* scene)
 {
+  // 子の読み込みに失敗していれば、このシーン全体も無効とする
+  if (scene && !scene->isValid()) valid = false;
+
   children.push_back(scene);
   return scene;
 }

@@ -5,7 +5,7 @@
 ///
 /// @file
 /// @author Kohe Tokoi
-/// @date July 197, 2026
+/// @date July 19, 2026
 ///
 
 // 各種設定
@@ -126,7 +126,6 @@ public:
   /// 代入を封じる
   ///
   /// @param w コピー元の Camera オブジェクト
-  /// @return コピー元の Camera オブジェクトへの参照
   ///
   Camera& operator=(const Camera& w) = delete;
 

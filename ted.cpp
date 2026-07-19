@@ -3,7 +3,7 @@
 ///
 /// @file
 /// @author Kohe Tokoi
-/// @date July 197, 2026
+/// @date July 19, 2026
 ///
 
 // ウィンドウ関連の処理
@@ -488,12 +488,13 @@ int GgApp::main(int argc, const char *const *const argv)
       newRect->setTexture(1, texture[stereo ? 1 : 0]);
 
       auto newScene{ std::make_unique<Scene>(defaults.scene) };
+      if (!newScene->isValid()) return false;
       newScene->setShader(simple);
 
       rect = std::move(newRect);
       rectPointer = rect.get();
       scene = std::move(newScene);
-      window.showScene = !scene->isEmpty();
+      if (scene->isEmpty()) window.showScene = false;
       return true;
     } };
 

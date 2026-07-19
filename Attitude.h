@@ -5,7 +5,7 @@
 ///
 /// @file
 /// @author Kohe Tokoi
-/// @date July 197, 2026
+/// @date July 19, 2026
 ///
 
 // 各種設定

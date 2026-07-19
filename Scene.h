@@ -5,7 +5,7 @@
 ///
 /// @file
 /// @author Kohe Tokoi
-/// @date July 197, 2026
+/// @date July 19, 2026
 ///
 
 // 各種設定
@@ -45,6 +45,9 @@ class Scene
   /// 使用するシェーダ
   static const GgSimpleShader* shader;
 
+  /// シーン定義を正常に読み込めた場合は true
+  bool valid{ true };
+
   /// 同じモデルファイルを重複ロードしないための、モデル名をキーにした所有キャッシュ
   static std::map<const std::string, std::unique_ptr<const GgSimpleObj>> parts;
 
@@ -74,6 +77,13 @@ public:
   /// @return 空なら true、そうでなければ false
   ///
   bool isEmpty() const { return obj == nullptr && children.empty(); }
+
+  ///
+  /// シーン定義を正常に読み込めたかどうか判定する
+  ///
+  /// @return 正常に読み込めた場合は true、失敗した場合は false
+  ///
+  bool isValid() const { return valid; }
 
   ///
   /// コンストラクタ
@@ -201,7 +211,7 @@ public:
   ///
   /// このパーツ以下のすべてのパーツを描画する
   ///
-  /// @param mp モデル変換行列
+  /// @param mp 投影変換行列
   /// @param mv ビュー変換行列
   ///
   void draw(const GgMatrix& mp, const GgMatrix& mv) const;

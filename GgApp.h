@@ -5,7 +5,7 @@
 ///
 /// @file
 /// @author Kohe Tokoi
-/// @date July 197, 2026
+/// @date July 19, 2026
 ///
 
 // 補助プログラム
@@ -259,7 +259,6 @@ public:
     /// @param title ウィンドウのタイトル
     /// @param monitor フルスクリーン表示するモニタの識別子
     /// @param share 共有するウィンドウの識別子
-    /// @return ウィンドウの識別子
     ///
     Window(int width = 640, int height = 480,
       const char* title = "GLFW Window",

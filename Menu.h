@@ -5,7 +5,7 @@
 ///
 /// @file
 /// @author Kohe Tokoi
-/// @date July 197, 2026
+/// @date July 19, 2026
 ///
 
 // ウィンドウ関連の処理
@@ -134,7 +134,6 @@ public:
   /// @param scene メニューで操作するシーン
   /// @param attitude メニューで操作する姿勢
   /// @param reloadVisuals 設定ファイルに含まれるシーンと背景シェーダを作り直す処理
-  /// @return メニューオブジェクト
   ///
   Menu(GgApp* app, GgApp::Window& window, std::unique_ptr<Scene>& scene,
     Attitude& attitude, const std::function<bool()>& reloadVisuals);
