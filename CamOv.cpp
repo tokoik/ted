@@ -1,6 +1,10 @@
-﻿//
-// Ovrvision Pro を使ったキャプチャ
-//
+﻿///
+/// Ovrvision を使ってキャプチャするクラスの実装
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 #include "CamOv.h"
 
 // Ovrvision Pro SDK
@@ -19,12 +23,14 @@
 #endif
 
 // Ovrvision Pro
-OVR::OvrvisionPro *CamOv::ovrvision_pro(nullptr);
+OVR::OvrvisionPro *CamOv::ovrvision_pro{ nullptr };
 
 // 接続されている Ovrvision Pro の台数
-int CamOv::count(0);
+int CamOv::count{ 0 };
 
+//
 // コンストラクタ
+//
 CamOv::CamOv()
 {
   // キャプチャする画像のフォーマット
@@ -34,7 +40,9 @@ CamOv::CamOv()
   device = count++;
 }
 
+//
 // デストラクタ
+//
 CamOv::~CamOv()
 {
   // スレッドを停止する
@@ -44,7 +52,9 @@ CamOv::~CamOv()
   if (ovrvision_pro && --count == 0) ovrvision_pro->Close();
 }
 
+//
 // Ovrvision Pro からキャプチャする
+//
 void CamOv::capture()
 {
   // スレッドが実行可の間
@@ -63,7 +73,9 @@ void CamOv::capture()
   }
 }
 
+//
 // Ovrvision Pro を起動する
+//
 bool CamOv::open(OVR::Camprop ovrvision_property)
 {
   // Ovrvision Pro のドライバに接続する
@@ -99,25 +111,33 @@ bool CamOv::open(OVR::Camprop ovrvision_property)
   return true;
 }
 
-// 露出を上げる
+//
+// Ovrvision Pro の露出を上げる
+//
 void CamOv::increaseExposure()
 {
   if (ovrvision_pro && exposure < 32767) ovrvision_pro->SetCameraExposure(exposure += 80);
 }
 
+//
 // Ovrvision Pro の露出を下げる
+//
 void CamOv::decreaseExposure()
 {
   if (ovrvision_pro && exposure > 0) ovrvision_pro->SetCameraExposure(exposure -= 80);
 }
 
+//
 // Ovrvision Pro の利得を上げる
+//
 void CamOv::increaseGain()
 {
   if (ovrvision_pro && gain < 47) ovrvision_pro->SetCameraGain(++gain);
 }
 
+//
 // Ovrvision Pro の利得を下げる
+//
 void CamOv::decreaseGain()
 {
   if (ovrvision_pro && gain > 0) ovrvision_pro->SetCameraGain(--gain);

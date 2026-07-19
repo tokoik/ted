@@ -1,6 +1,10 @@
-﻿//
-// Leap Motion 関連の処理
-//
+﻿///
+/// Leap Motion 関連のクラスの実装
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 #include "LeapListener.h"
 
 // Leap Motion のライブラリファイル

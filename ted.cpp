@@ -1,6 +1,10 @@
-﻿//
-// TelExistence Display System
-//
+﻿///
+/// TelExistence Display System
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 
 // ウィンドウ関連の処理
 #include "GgApp.h"
@@ -207,7 +211,7 @@ bool GgApp::useRemote()
   // 生成したカメラを記録しておく
   camera.reset(cam);
 
-  // 指示者側を起動する
+  // 指導者側を起動する
   if (cam->open(defaults.port, defaults.address.c_str()) < 0)
   {
     NOTIFY("作業者側のデータを受け取れません。");
@@ -403,15 +407,16 @@ int GgApp::main(int argc, const char *const *const argv)
   }
 
   // 背景の描画に用いる矩形を作成する
-  Rect rect{ window, defaults.vertex_shader, defaults.fragment_shader };
-  if (!rect.get())
+  auto rect{ std::make_unique<Rect>(window, defaults.vertex_shader, defaults.fragment_shader) };
+  if (!rect->get())
   {
     // シェーダが読み込めなかった
     NOTIFY("背景描画用のシェーダファイルの読み込みに失敗しました。");
     return EXIT_FAILURE;
   }
 
-  rectPointer = &rect;
+  // 矩形のポインタを保存しておく
+  rectPointer = rect.get();
 
   // 前景の描画に用いるシェーダプログラムを読み込む
   GgSimpleShader simple{ "simple.vert", "simple.frag" };
@@ -434,13 +439,13 @@ int GgApp::main(int argc, const char *const *const argv)
   atexit(reinterpret_cast<void(*)()>(WSACleanup));
 
   // シーングラフ
-  Scene scene{ defaults.scene };
+  auto scene{ std::make_unique<Scene>(defaults.scene) };
 
   // シーンが空の場合は初期表示フラグをオフにする
-  if (scene.isEmpty()) window.showScene = false;
+  if (scene->isEmpty()) window.showScene = false;
 
   // シーンにシェーダを設定する
-  scene.setShader(simple);
+  scene->setShader(simple);
 
   // 光源
   const GgSimpleShader::LightBuffer light{ lightData };
@@ -452,10 +457,10 @@ int GgApp::main(int argc, const char *const *const argv)
   window.setControlCamera(camera.get());
 
   // 左目用の背景画像を貼り付ける矩形にテクスチャを設定する
-  rect.setTexture(0, texture[0]);
+  rect->setTexture(0, texture[0]);
 
   // 右目用の背景画像を貼り付ける矩形にテクスチャを設定する
-  rect.setTexture(1, texture[stereo ? 1 : 0]);
+  rect->setTexture(1, texture[stereo ? 1 : 0]);
 
   // 通常のフレームバッファに描く
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -472,8 +477,28 @@ int GgApp::main(int argc, const char *const *const argv)
   // デフォルトが OPENXR なら HMD を起動する
   if (defaults.display_mode == OPENXR) window.startHMD();
 
+  // 描画用オブジェクトの再構築
+  const auto reloadVisuals{ [&]()
+    {
+      // 先に新しいオブジェクトを完成させ、成功した場合だけ現在のものと入れ替える
+      auto newRect{ std::make_unique<Rect>(window,
+        defaults.vertex_shader, defaults.fragment_shader) };
+      if (!newRect->get()) return false;
+      newRect->setTexture(0, texture[0]);
+      newRect->setTexture(1, texture[stereo ? 1 : 0]);
+
+      auto newScene{ std::make_unique<Scene>(defaults.scene) };
+      newScene->setShader(simple);
+
+      rect = std::move(newRect);
+      rectPointer = rect.get();
+      scene = std::move(newScene);
+      window.showScene = !scene->isEmpty();
+      return true;
+    } };
+
   // メニュー
-  Menu menu{ this, window, scene, attitude };
+  Menu menu{ this, window, scene, attitude, reloadVisuals };
 
   // ウィンドウが開いている間くり返し描画する
   while (window)
@@ -513,7 +538,7 @@ int GgApp::main(int argc, const char *const *const argv)
         const GgMatrix &&mr(mo * Scene::getRemoteAttitude(eye));
 
         // 背景を描く
-        rect.draw(eye, defaults.remote_stabilize ? mr : mo, window.getSamples());
+        rect->draw(eye, defaults.remote_stabilize ? mr : mo, window.getSamples());
 
         // 図形と照準の描画設定
         glEnable(GL_DEPTH_TEST);
@@ -530,7 +555,7 @@ int GgApp::main(int argc, const char *const *const argv)
           const GgMatrix sceneView{ defaults.display_mode == OPENXR
             ? (defaults.camera_tracking ? window.getMo(eye) * window.getMv(eye) : ggIdentity())
             : window.getMv(eye) * window.getMo(eye) };
-          scene.draw(window.getMp(eye), sceneView);
+          scene->draw(window.getMp(eye), sceneView);
         }
 
         // 片目の処理を完了する

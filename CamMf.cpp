@@ -6,13 +6,15 @@
 /// @date December 24, 2024
 ///
 #include "CamMf.h"
+
+// 標準ライブラリ
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <codecapi.h>
 #include <algorithm>
 
 // Microsoft Media Foundation
+#include <codecapi.h>
 #pragma comment(lib, "MF.lib")
 #pragma comment(lib, "MFplat.lib")
 #pragma comment(lib, "MFuuid.lib")
@@ -46,8 +48,6 @@ static std::string SubTypeToName(const GUID& subType)
   if (subType == MFVideoFormat_RGB32) return "RGB32";
   return "";
 }
-
-
 
 //
 // COM ライブラリの初期化と終了を行うクラスのデストラクタ

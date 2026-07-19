@@ -1,8 +1,12 @@
 ﻿#pragma once
 
-//
-// 各種設定
-//
+///
+/// 各種設定クラスの定義
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 
 // 補助プログラム
 #include "gg.h"
@@ -14,322 +18,373 @@ using namespace gg;
 // Ovrvision Pro
 #include "ovrvision_pro.h"
 
-// ウィンドウのタイトル
+/// ウィンドウのタイトル
 constexpr char windowTitle[]{ "TED" };
 
-// ウィンドウモード時のウィンドウサイズの初期値
+/// ウィンドウモード時のウィンドウの幅の初期値
 constexpr int defaultWindowWidth{ 960 };
+
+/// ウィンドウモード時のウィンドウの高さの初期値
 constexpr int defaultWindowHeight{ 540 };
 
-// ナビゲーションの速度調整
-constexpr GLfloat speedScale{ 0.005f };     // フレームあたりの移動速度係数
-constexpr GLfloat angleScale{ -0.05f };     // フレームあたりの回転速度係数
-constexpr GLfloat wheelXStep{ 0.005f };     // マウスホイールの X 方向の係数
-constexpr GLfloat wheelYStep{ 0.005f };     // マウスホイールの Y 方向の係数
-constexpr GLfloat axesSpeedScale{ 0.01f };  // ゲームパッドのスティックの速度の係数
-constexpr GLfloat axesAngleScale{ 0.01f };  // ゲームパッドのスティックの角速度の係数
-constexpr GLfloat btnsScale{ 0.02f };       // ゲームパッドのボタンの係数
+/// フレームあたりの移動速度係数
+constexpr GLfloat speedScale{ 0.005f };
 
-// ズーム率の変更ステップ
+/// フレームあたりの回転速度係数
+constexpr GLfloat angleScale{ -0.05f };
+
+/// マウスホイールの X 方向の係数
+constexpr GLfloat wheelXStep{ 0.005f };
+
+/// マウスホイールの Y 方向の係数
+constexpr GLfloat wheelYStep{ 0.005f };
+
+/// ゲームパッドのスティックの速度の係数
+constexpr GLfloat axesSpeedScale{ 0.01f };
+
+/// ゲームパッドのスティックの角速度の係数
+constexpr GLfloat axesAngleScale{ 0.01f };
+
+/// ゲームパッドのボタンの係数
+constexpr GLfloat btnsScale{ 0.02f };
+
+/// ズーム率の変更ステップ
 constexpr GLfloat zoomStep{ 0.01f };
 
-// 視差のデフォルト値
+/// 視差のデフォルト値
 constexpr GLfloat defaultParallax{ 0.032f };
 
-// 視差の変更ステップ (単位 m)
+/// 視差の変更ステップ (単位 m)
 constexpr GLfloat parallaxStep{ 0.001f };
 
-// 前景に対する焦点距離の変更ステップ
+/// 前景に対する焦点距離の変更ステップ
 constexpr GLfloat foreFocalStep{ 0.001f };
 
-// 前景に対する縦横比の変更ステップ
+/// 前景に対する縦横比の変更ステップ
 constexpr GLfloat foreAspectStep{ 0.001f };
 
-// 背景に対する焦点距離の変更ステップ
+/// 背景に対する焦点距離の変更ステップ
 constexpr GLfloat backFocalStep{ 0.001f };
 
-// 背景に対する縦横比の変更ステップ
+/// 背景に対する縦横比の変更ステップ
 constexpr GLfloat backAspectStep{ 0.001f };
 
-// レンズの画角の変更ステップ
+/// レンズの画角の変更ステップ
 constexpr GLfloat fovStep{ 0.001f };
 
-// レンズの位置の変更ステップ
+/// レンズの位置の変更ステップ
 constexpr GLfloat shiftStep{ 0.001f };
 
-// スクリーンの間隔のデフォルト値
+/// スクリーンの間隔のデフォルト値
 constexpr GLfloat offsetDefault{ 0.0f };
 
-// スクリーンの間隔の変更ステップ
+/// スクリーンの間隔の変更ステップ
 constexpr GLfloat offsetStep{ 0.001f };
 
-// マルチサンプリングのサンプル数 (OpenXR)
+/// マルチサンプリングのサンプル数 (OpenXR)
 constexpr int backBufferMultisample{ 0 };
 
-// 光源
+/// 光源
 constexpr GgSimpleShader::Light lightData
 {
-  { 0.2f, 0.2f, 0.2f, 1.0f },               // 環境光成分
-  { 1.0f, 1.0f, 1.0f, 0.0f },               // 拡散反射光成分
-  { 1.0f, 1.0f, 1.0f, 0.0f },               // 鏡面光成分
-  { 0.0f, 0.0f, 1.0f, 1.0f }                // 位置
+  { 0.2f, 0.2f, 0.2f, 1.0f },               ///< 環境光成分
+  { 1.0f, 1.0f, 1.0f, 0.0f },               ///< 拡散反射光成分
+  { 1.0f, 1.0f, 1.0f, 0.0f },               ///< 鏡面光成分
+  { 0.0f, 0.0f, 1.0f, 1.0f }                ///< 位置
 };
 
-// テクスチャの境界色
+/// テクスチャの境界色
 constexpr GLfloat borderColor[]{ 0.0f, 0.0f, 0.0f, 1.0f };
 
-// エンコード方法
+/// エンコード方法
 constexpr char encoderType[]{ ".jpg" };
 
-// 受信リトライ回数
+/// 受信リトライ回数
 constexpr int receiveRetry{ 30 };
 
-// 読み飛ばすパケットの最大数
+/// 読み飛ばすパケットの最大数
 constexpr int maxDropPackets{ 1000 };
 
-// フレーム送信の最小間隔
+/// フレーム送信の最小間隔
 constexpr long long minDelay{ 10 };
 
-// カメラの識別子と数
+/// カメラの識別子と数
 enum CameraId { camL = 0, camR, camCount };
 
-// リモートカメラの数
+/// リモートカメラの数
 constexpr int remoteCamCount{ camCount };
 
-// 目の数
+/// 目の数
 constexpr int eyeCount{ camCount };
 
-// ローカルの共有メモリのサイズ
+/// ローカルの共有メモリのサイズ
 constexpr int localShareSize{ 64 };
 
-// リモートの共有メモリのサイズ
+/// リモートの共有メモリのサイズ
 constexpr int remoteShareSize{ 64 };
 
-// ファイルマッピングオブジェクト名
+/// ローカル通信用のミューテックス名
 constexpr wchar_t* localMutexName{ L"TED_LOCAL_MUTEX" };
+
+/// ローカル通信用の共有メモリ名
 constexpr wchar_t* localShareName{ L"TED_LOCAL_SHARE" };
+
+/// リモート通信用のミューテックス名
 constexpr wchar_t* remoteMutexName{ L"TED_REMOTE_MUTEX" };
+
+/// リモート通信用の共有メモリ名
 constexpr wchar_t* remoteShareName{ L"TED_REMOTE_SHARE" };
 
-// 設定ファイル名
+/// 設定ファイル名
 constexpr char defaultConfig[]{ "config.json" };
 
-// 姿勢ファイル名
+/// 姿勢ファイル名
 constexpr char defaultAttitude[]{ "attitude.json" };
 
-// 表示の設定
+/// 表示の設定
 enum DisplayMode
 {
-  MONOCULAR = 0,            // 単眼視
-  TOP_AND_BOTTOM,           // 上下２分割
-  SIDE_BY_SIDE,             // 左右２分割
-  OVERLAY,                  // 左右２分割を重ねて表示
-  QUADBUFFER,               // クワッドバッファステレオ
-  OPENXR                    // OpenXR (HMD)
+  MONOCULAR = 0,            ///< 単眼視
+  TOP_AND_BOTTOM,           ///< 上下２分割
+  SIDE_BY_SIDE,             ///< 左右２分割
+  OVERLAY,                  ///< 左右２分割を重ねて表示
+  QUADBUFFER,               ///< クワッドバッファステレオ
+  OPENXR                    ///< OpenXR (HMD)
 };
 
-// 入力の設定
+/// 入力の設定
 enum InputMode
 {
-  IMAGE = 0,                // 静止画
-  MOVIE,                    // 動画
-  CAMERA,                   // Web カメラ
-  OVRVISION,                // Ovrvision Pro
-  REMOTE                    // リモートの TED
+  IMAGE = 0,                ///< 静止画
+  MOVIE,                    ///< 動画
+  CAMERA,                   ///< Web カメラ
+  OVRVISION,                ///< Ovrvision Pro
+  REMOTE                    ///< リモートの TED
 };
 
-// 役割
+/// 役割
 enum Role
 {
-  STANDALONE = 0,           // 単独
-  INSTRUCTOR,               // 指示者
-  WORKER                    // 作業者
+  STANDALONE = 0,           ///< 単独
+  INSTRUCTOR,               ///< 指導者
+  WORKER                    ///< 作業者
 };
 
-// config.jsonと対応する永続設定。
-// 入力機器、表示方式、遠隔通信、シーンの初期値を一括して保持し、UIもこの値を編集する。
+///
+/// 設定値
+///
+/// @detail
+/// config.jsonと対応する永続設定。
+/// 入力機器、表示方式、遠隔通信、シーンの初期値を一括して保持し、UIもこの値を編集する。
+///
 struct Config
 {
-  // 画面表示のモード
+  /// 画面表示のモード
   int display_mode{ MONOCULAR };
 
-  // クワッドバッファステレオ表示を行うとき true
+  /// クワッドバッファステレオ表示を行うとき true
   bool display_quadbuffer{ false };
 
-  // フルスクリーン表示を行うとき true
+  /// フルスクリーン表示を行うとき true
   bool display_fullscreen{ false };
 
-  // フルスクリーン表示するディスプレイの番号
+  /// フルスクリーン表示するディスプレイの番号
   int display_secondary{ 0 };
 
-  // 画面の解像度
+  /// 画面の解像度
   std::array<int, 2> display_size{ 1280, 720 };
 
-  // 画面の縦横比
+  /// 画面の縦横比
   GLfloat display_aspect{ 0.0f };
 
-  // 画面の中心の高さ
+  /// 画面の中心の高さ
   GLfloat display_center{ 0.5f };
 
-  // 画面までの距離
+  /// 画面までの距離
   GLfloat display_distance{ 1.5f };
 
-  // 視点から前方面までの距離
+  /// 視点から前方面までの距離
   GLfloat display_near{ 0.1f };
 
-  // 視点から後方面までの距離
+  /// 視点から後方面までの距離
   GLfloat display_far{ 5.0f };
 
-  // 入力デバイスのモード
+  /// 入力デバイスのモード
   int input_mode{ IMAGE };
 
-  // カメラの番号
+  /// カメラの番号
   std::array<int, camCount> camera_id{ -1, -1 };
 
-  // カメラの代わりに使う静止画
+  /// カメラの代わりに使う静止画
   std::array<std::string, camCount> camera_image{ "left.jpg", "right.jpg" };
 
-  // カメラの代わりに使う動画
+  /// カメラの代わりに使う動画
   std::array<std::string, camCount> camera_movie{ "", "" };
 
-  // 背景画像をマッピングするときのメッシュの分割数
+  /// 背景画像をマッピングするときのメッシュの分割数
   int camera_texture_samples{ 1271 };
 
-  // 背景画像を繰り返しでマッピングするとき true
+  /// 背景画像を繰り返しでマッピングするとき true
   bool camera_texture_repeat{ false };
 
-  // 背景画像をヘッドトラッキングに追従させるとき true
+  /// 背景画像をヘッドトラッキングに追従させるとき true
   bool camera_tracking{ true };
 
-  // カメラの解像度
+  /// カメラの解像度
   std::array<int, 2> camera_size{ 0, 0 };
 
-  // カメラのフレームレート
+  /// カメラのフレームレート
   double camera_fps{ 0.0 };
 
-  // カメラの４文字コーデック
+  /// カメラの４文字コーデック
   std::array<char, 5> camera_fourcc{ '\0', '\0', '\0', '\0', '\0' };
 
-  // 左右カメラのコーデック (Media Foundation)
+  /// 左右カメラのコーデック (Media Foundation)
   std::array<std::string, camCount> camera_codec{ "MJPG", "MJPG" };
 
-  // 左右カメラの解像度 (Media Foundation)
+  /// 左右カメラの解像度 (Media Foundation)
   std::array<std::string, camCount> camera_resolution{ "1280 x 720", "1280 x 720" };
 
-  // 魚眼カメラの中心位置
+  /// 魚眼カメラの中心位置の x 座標
   GLfloat camera_center_x{ 0.0f };
+
+  /// 魚眼カメラの中心位置の y 座標
   GLfloat camera_center_y{ 0.0f };
 
-  // 魚眼カメラの画角
+  /// 魚眼カメラの x 方向の画角
   GLfloat camera_fov_x{ 1.0f };
+
+  /// 魚眼カメラの y 方向の画角
   GLfloat camera_fov_y{ 1.0f };
 
-  // Ovrvision Pro の設定
+  /// Ovrvision Pro の設定
   int ovrvision_property{ OVR::OV_CAMVR_FULL };
 
-  // ゲームコントローラの使用
+  /// ゲームコントローラの使用
   bool use_controller{ false };
 
-  // Leap Motion の使用
+  /// Leap Motion の使用
   bool use_leap_motion{ false };
 
-  // バーテックスシェーダのソースプログラム
+  /// バーテックスシェーダのソースプログラム
   std::string vertex_shader{ "fixed.vert" };
 
-  // フラグメントシェーダのソースプログラム
+  /// フラグメントシェーダのソースプログラム
   std::string fragment_shader{ "normal.frag" };
 
-  // 役割
+  /// 役割
   int role{ STANDALONE };
 
-  // 通信に使うポート番号
+  /// 通信に使うポート番号
   int port{ 0 };
 
-  // 相手先の IP アドレス
+  /// 相手先の IP アドレス
   std::string address{ "" };
 
-  // 相手先の映像を安定化するとき true
+  /// 相手先の映像を安定化するとき true
   bool remote_stabilize{ true };
 
-  // 相手先の映像を変形するとき true
+  /// 相手先の映像を変形するとき true
   bool remote_texture_reshape{ false };
 
-  // 映像と姿勢の時間差を合わせるため、相手側の眼姿勢に加える遅延（フレーム数）
+  /// 映像と姿勢の時間差を合わせるため、相手側の眼姿勢に加える遅延（フレーム数）
   std::array<unsigned int, 2> remote_delay{ 0, 0 };
 
-  // ネットワーク帯域と画質を調整するJPEG品質（OpenCVの0～100）
+  /// ネットワーク帯域と画質を調整するJPEG品質（OpenCVの0～100）
   int remote_texture_quality{ 50 };
 
-  // 受信した画像をマッピングするときのメッシュの分割数
+  /// 受信した画像をマッピングするときのメッシュの分割数
   int remote_texture_samples{ 1372 };
 
-  // リモート画像の再投影に使う相手側レンズの水平・垂直画角（ラジアン）
+  /// リモート画像の再投影に使う相手側レンズの水平画角（ラジアン）
   GLfloat remote_fov_x{ 1.0f };
+
+  /// リモート画像の再投影に使う相手側レンズの垂直画角（ラジアン）
   GLfloat remote_fov_y{ 1.0f };
 
-  // 送信に用いる共有メモリのブロック数
+  /// 送信に用いる共有メモリのブロック数
   int local_share_size{ localShareSize };
 
-  // 受信に用いる共有メモリのブロック数
+  /// 受信に用いる共有メモリのブロック数
   int remote_share_size{ remoteShareSize };
 
-  // シーンファイルの入れ子の深さの上限
+  /// シーンファイルの入れ子の深さの上限
   int max_level{ 10 };
 
-  // シーングラフ
+  /// シーングラフ
   picojson::value scene{};
 
-  // カメラのバックエンド
+  /// カメラのバックエンド
   std::string capture_backend{ "ANY" };
 
-  // 左右背景面の中心間隔（シーン座標系）
+  /// 左右背景面の中心間隔（シーン座標系）
   GLfloat display_offset{ 0.0f };
 
-  // シーンに対するズーム
+  /// シーンに対するズーム
   GLfloat display_zoom{ 1.0f };
 
-  // 背景に対する焦点距離
+  /// 背景に対する焦点距離
   GLfloat display_focal{ 1.0f };
 
-  // 左右眼の基準間隔（メートル）
+  /// 左右眼の基準間隔（メートル）
   GLfloat parallax{ 0.032f };
 
-  // カメラの補正値
+  /// カメラの補正値
   std::array<GgQuaternion, camCount> parallax_offset{ ggIdentityQuaternion(), ggIdentityQuaternion() };
 
-  // リモートカメラの解像度
+  /// リモートカメラの横方向の画素数
   int remote_texture_width{ 640 };
+
+  /// リモートカメラの縦方向の画素数
   int remote_texture_height{ 480 };
 
-  // 位置と姿勢
+  /// 頭の位置
   GgVector position{ 0.0f, 0.0f, 0.0f, 1.0f };
+
+  /// 頭の姿勢
   GgQuaternion orientation{ 0.0f, 0.0f, 0.0f, 1.0f };
 
-  // メニューフォント
+  /// メニューフォント
   std::string menu_font{ "NotoSansCJKjp-Regular.otf" };
 
-  // メニューフォントのサイズ
+  /// メニューフォントのサイズ
   float menu_font_size{ 18.0f };
 
-  // 設定ファイルのファイル名
+  /// 読み込んだ設定ファイルのファイル名
   std::string config_file{ "" };
 
-  // コンストラクタ
+  ///
+  /// コンストラクタ
+  ///
   Config() = default;
 
-  // デストラクタ
-  virtual ~Config();
+  ///
+  /// デストラクタ
+  ///
+  virtual ~Config() {};
 
-  // 設定の解析
+  ///
+  /// 設定の解析
+  ///
+  /// @param v 設定の JSON 値
+  ///
   bool read(picojson::value &v);
 
-  // 設定の読み込み
+  ///
+  /// 設定ファイルの読み込み
+  ///
+  /// @param file 設定ファイルのパス
+  ///
   bool load(const std::string &file);
 
-  // 設定の書き込み
+  ///
+  /// 設定ファイルの書き込み
+  ///
+  /// @param file 設定ファイルのパス
+  ///
   bool save(const std::string &file) const;
 };
 
-// デフォルト値
+/// 設定のデフォルト値
 extern Config defaults;
 

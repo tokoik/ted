@@ -23,25 +23,34 @@
 #include <string>
 
 ///
-/// Microsoft Media Foundation を使ってカメラまたは動画を取り込む。
+/// Microsoft Media Foundation を使ってカメラまたは動画を取り込むクラス
+///
+/// @details
 /// 圧縮入力はMFTデコーダ、非BGR入力はカラーコンバータへ通し、Camera基底が扱うBGR画像へ統一する。
 ///
 class CamMf : public Camera
 {
 public:
+
   ///
   /// ビデオフォーマットの詳細を保持する構造体
   ///
   struct VideoFormat
   {
-    UINT32 width;     ///< 幅
-    UINT32 height;    ///< 高さ
+    UINT32 width;     ///< フレームの幅
+    UINT32 height;    ///< フレームの高さ
     UINT32 fpsNum;    ///< フレームレートの分子 (Numerator)
     UINT32 fpsDenom;  ///< フレームレートの分母 (Denominator)
     GUID subType;     ///< ピクセルフォーマット/コーデックの GUID
 
     ///
     /// コンストラクタ
+    ///
+    /// @param width フレームの幅
+    /// @param height フレームの高さ
+    /// @param fpsNum フレームレートの分子 (Numerator)
+    /// @param fpsDenom フレームレートの分母 (Denominator)
+    /// @param subType ピクセルフォーマット/コーデックの GUID
     ///
     VideoFormat(UINT32 width, UINT32 height,
       UINT32 fpsNum, UINT32 fpsDenom, GUID subType)
@@ -55,6 +64,7 @@ public:
   };
 
 private:
+
   ///
   /// COM ライブラリの初期化と終了を行うクラス
   ///
@@ -95,7 +105,12 @@ private:
 
   public:
 
-    // シングルトンなのでコピーは作らせない
+    ///
+    /// コピーコンストラクタとムーブコンストラクタを封じる
+    ///
+    /// @details
+    /// シングルトンなのでコピーは作らせない.
+    ///
     ComInitializer(const ComInitializer& com) = delete;
     ComInitializer(ComInitializer&& com) = delete;
     ComInitializer& operator=(const ComInitializer& com) = delete;
@@ -109,15 +124,23 @@ private:
     ///
     /// キャプチャデバイスを有効化してメディアソースを作成する
     ///
+    /// @param device デバイス番号
+    /// @param pMediaSource メディアソースのポインタへのポインタ
+    /// @return 成功した場合は true
+    ///
     static bool activate(int device, IMFMediaSource** pMediaSource);
 
     ///
     /// ビデオキャプチャデバイスの表示名のリストを返す
     ///
+    /// @return ビデオキャプチャデバイスの表示名のリスト
+    ///
     static const std::vector<std::string>& getDeviceList();
   };
 
+  ///
   /// 左右それぞれのカメラリソースを保持する構造体
+  ///
   struct CameraResource
   {
     /// メディアソースのポインタ
@@ -157,15 +180,26 @@ private:
     /// カメラの解像度
     int width = 0;
     int height = 0;
-  } caps[camCount];
+  }
+  caps[camCount];
 
   ///
   /// 使用可能な解像度、フレームレート、コーデックのリストを作成する
+  ///
+  /// @param cam カメラ番号
+  /// @return 成功した場合は true
   ///
   bool enumerateFormats(int cam);
 
   ///
   /// 指定されたサブタイプに対応するビデオデコーダを探す
+  ///
+  /// @param subtype サブタイプの GUID
+  /// @param ppDecoder デコーダのポインタへのポインタ
+  /// @param bAllowAsync 非同期デコーダを許可するか
+  /// @param bAllowHardware ハードウェアデコーダを許可するか
+  /// @param bAllowTranscode トランスコードを許可するか
+  /// @return 成功した場合は S_OK
   ///
   HRESULT findVideoDecoder(
     const GUID& subtype,
@@ -178,31 +212,50 @@ private:
   ///
   /// MFT のセットアップと接続を行う
   ///
+  /// @param pTransform MFT のポインタ
+  /// @param format ビデオフォーマットの詳細
+  /// @param subType ピクセルフォーマット/コーデックの GUID
+  /// @return 成功した場合は S_OK
+  ///
   HRESULT setUpPipeline(IMFTransform* pTransform,
     const VideoFormat& format, const GUID& subType) const;
 
   ///
   /// MFT を解放する
   ///
+  /// @param pTransform MFT のポインタへのポインタ
+  /// @return 成功した場合は S_OK
+  ///
   void cleanUpTransform(IMFTransform** pTransform) const;
 
   ///
   /// デコーダの出力バッファを作成する
+  ///
+  /// @param cam カメラ番号
+  /// @return 成功した場合は S_OK
   ///
   HRESULT createDecoderBuffer(int cam);
 
   ///
   /// カラーコンバータの出力バッファを作成する
   ///
+  /// @param cam カメラ番号
+  /// @return 成功した場合は S_OK
+  ///
   HRESULT createConverterBuffer(int cam);
 
   ///
   /// Source Reader の出力フォーマットを設定し、基底クラスの image を初期化する
   ///
+  /// @param cam カメラ番号
+  /// @return 成功した場合は true
+  ///
   bool setFormat(int cam, int index);
 
   ///
   /// フレームをキャプチャする（別スレッドでループ実行される）
+  ///
+  /// @param cam カメラ番号
   ///
   void capture(int cam);
 
@@ -221,6 +274,8 @@ public:
   ///
   /// Media Foundation のビデオデバイスの一覧を返す
   ///
+  /// @return ビデオデバイスの一覧
+  ///
   static const std::vector<std::string>& getDeviceList()
   {
     return ComInitializer::getDeviceList();
@@ -229,25 +284,43 @@ public:
   ///
   /// デバイス番号を指定して利用可能なビデオフォーマットを取得する (デバイスを開かない一時列挙用)
   ///
+  /// @param device デバイス番号
+  /// @param formats ビデオフォーマットのリスト
+  /// @return 成功した場合は true
+  ///
   static bool getDeviceFormats(int device, std::vector<VideoFormat>& formats);
 
   ///
   /// カメラを開く
+  ///
+  /// @param device デバイス番号
+  /// @param cam カメラ番号
+  /// @param setupFormat フォーマットを設定するかどうか
+  /// @return 成功した場合は true
   ///
   bool open(int device, int cam, bool setupFormat = true);
 
   ///
   /// ファイル／ネットワークからキャプチャを開始する
   ///
+  /// @param file ファイルパスまたはネットワーク URL
+  /// @param cam カメラ番号
+  /// @return 成功した場合は true
+  ///
   bool open(const std::string& file, int cam);
 
   ///
   /// カメラが使用可能か判定する
   ///
+  /// @param cam カメラ番号
+  /// @return 使用可能な場合は true
+  ///
   bool opened(int cam) const;
 
   ///
   /// 指定されたカメラを閉じる
+  ///
+  /// @param cam カメラ番号
   ///
   void close(int cam);
 
@@ -264,21 +337,68 @@ public:
   ///
   /// フォーマットを選択して設定する
   ///
+  /// @param cam カメラ番号
+  /// @param index フォーマットのインデックス
+  /// @return 成功した場合は true
+  ///
   bool select(int cam, int index);
 
   ///
   /// コーデックと解像度のコンボインデックスを指定してフォーマットを設定する
   ///
+  /// @param cam カメラ番号
+  /// @param codecIdx コーデックのインデックス
+  /// @param resIdx 解像度のインデックス
+  /// @return 成功した場合は true
+  ///
   bool selectFormat(int cam, int codecIdx, int resIdx);
 
   ///
-  /// 各種ゲッター
+  /// フォーマットのリストを得る
+  ///
+  /// @param cam カメラ番号
+  /// @return フォーマットのリスト
   ///
   const std::vector<std::string>& getFormatList(int cam) const { return caps[cam].formatList; }
+
+  ///
+  /// 利用可能なビデオフォーマットのリストを得る
+  ///
+  /// @param cam カメラ番号
+  /// @return 利用可能なビデオフォーマットのリスト
+  /// 
   const std::vector<VideoFormat>& getAvailableFormats(int cam) const { return caps[cam].availableFormats; }
+
+  ///
+  /// コーデックのリストを得る
+  ///
+  /// @param cam カメラ番号
+  /// @return コーデックのリスト
+  ///
   const std::vector<std::string>& getCodecList(int cam) const { return caps[cam].codecList; }
+
+  ///
+  /// 解像度のリストを得る
+  ///
+  /// @param cam カメラ番号
+  /// @return 解像度のリスト
+  ///
   const std::vector<std::string>& getResolutionList(int cam) const { return caps[cam].resolutionList; }
+
+  /// 
+  /// 選択されたコーデックのインデックスを取得する
+  ///
+  /// @param cam カメラ番号
+  /// @return 選択されたコーデックのインデックス
+  ///
   int getSelectedCodecIndex(int cam) const { return caps[cam].selectedCodecIndex; }
+
+  ///
+  /// 選択された解像度のインデックスを取得する
+  /// 
+  /// @param cam カメラ番号
+  /// @return 選択された解像度のインデックス
+  ///
   int getSelectedResolutionIndex(int cam) const { return caps[cam].selectedResolutionIndex; }
 };
 

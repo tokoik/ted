@@ -1,21 +1,30 @@
 ﻿#pragma once
 
-//
-// メッシュ
-//
+///
+/// 背景描画に使うメッシュクラスの定義
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 
 // 補助プログラム
 #include "gg.h"
 using namespace gg;
 
+///
+/// メッシュクラス
+///
 class Mesh
 {
-  // 頂点配列オブジェクト
+  /// 頂点配列オブジェクト
   GLuint vao;
 
 public:
 
-  // コンストラクタ
+  ///
+  /// コンストラクタ
+  ///
   Mesh()
   {
     // 頂点配列オブジェクトを作成する
@@ -23,20 +32,35 @@ public:
     glBindVertexArray(vao);
   }
 
-  // コピーコンストラクタを封じる
+  ///
+  /// コピーコンストラクタを封じる
+  ///
+  /// @param mesh コピー元のメッシュ
+  ///
   Mesh(const Mesh &mesh) = delete;
 
-  // 代入演算子を封じる
+  ///
+  /// 代入演算子を封じる
+  ///
+  /// @param mesh コピー元のメッシュ
+  ///
   Mesh &operator=(const Mesh &mesh) = delete;
 
-  // デストラクタ
+  ///
+  /// デストラクタ
+  ///
   virtual ~Mesh()
   {
     // 頂点配列オブジェクトを削除する
     glDeleteVertexArrays(1, &vao);
   }
 
-  // 描画
+  ///
+  /// 描画
+  ///
+  /// @param slices メッシュの横の数
+  /// @param stacks メッシュの縦の数
+  ///
   virtual void draw(GLint slices, GLint stacks) const
   {
     // 頂点配列オブジェクトを指定する

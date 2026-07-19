@@ -1,6 +1,10 @@
-﻿//
-// シーングラフ
-//
+﻿///
+/// シーン定義クラスの実装
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 #include "Scene.h"
 
 // 標準ライブラリ
@@ -12,7 +16,7 @@ const GgSimpleShader* Scene::shader{ nullptr };
 // 読み込んだパーツを登録するパーツリスト
 std::map<const std::string, std::unique_ptr<const GgSimpleObj>> Scene::parts;
 
-// 共有メモリ上に置く指示者の変換行列
+// 共有メモリ上に置く指導者の変換行列
 std::unique_ptr<SharedMemory> localAttitude;
 
 // 共有メモリ上に置く作業者の変換行列
@@ -27,7 +31,9 @@ std::queue<GgMatrix> Scene::fifo[remoteCamCount];
 // Leap Motion
 LeapListener Scene::listener;
 
+//
 // コンストラクタ
+//
 Scene::Scene(const GgSimpleObj* obj)
   : obj{ obj }
 {
@@ -35,20 +41,26 @@ Scene::Scene(const GgSimpleObj* obj)
     defaults.use_leap_motion = false;
 }
 
+//
 // シーングラフからシーンのオブジェクトを作成するコンストラクタ
+//
 Scene::Scene(const picojson::value& v, int level)
 {
   read(v, level);
 }
 
+//
 // デストラクタ
+//
 Scene::~Scene()
 {
   // すべての子供のパーツを削除する
   for (const auto o : children) delete o;
 }
 
+//
 // 共有メモリを確保して初期化する
+//
 bool Scene::initialize(unsigned int local_size, unsigned int remote_size)
 {
   // ローカルの変換行列を保持する共有メモリを確保する
@@ -79,7 +91,9 @@ bool Scene::initialize(unsigned int local_size, unsigned int remote_size)
   return true;
 }
 
+//
 // シーングラフを読み込む
+//
 picojson::object Scene::load(const picojson::value& v)
 {
   // v が object ならそれを返す
@@ -107,7 +121,9 @@ picojson::object Scene::load(const picojson::value& v)
   return picojson::object{};
 }
 
+//
 // シーングラフを解析する
+//
 Scene* Scene::read(const picojson::value& v, int level)
 {
   // 引数ををパースする
@@ -222,20 +238,26 @@ Scene* Scene::read(const picojson::value& v, int level)
   return this;
 }
 
+//
 // 子供にシーンを追加する
+//
 Scene* Scene::addChild(Scene* scene)
 {
   children.push_back(scene);
   return scene;
 }
 
+//
 // 子供にパーツに追加する
+//
 Scene* Scene::addChild(GgSimpleObj* obj)
 {
   return addChild(new Scene(obj));
 }
 
+//
 // ローカルとリモートの変換行列を設定する
+//
 void Scene::setup(const GgMatrix& m)
 {
   // モデル変換行列を変換行列のテーブルに保存する
@@ -257,7 +279,9 @@ void Scene::setup(const GgMatrix& m)
 }
 
 #if defined(LEAP_INTERPORATE_FRAME)
+//
 // ローカルとリモートの変換行列を更新する
+//
 void Scene::update()
 {
   // ローカルの変換行列に Leap Motion の関節の変換行列を取得する
@@ -271,14 +295,18 @@ void Scene::update()
 }
 #endif
 
+//
 // 左右眼の姿勢をローカルの変換行列テーブルと共有メモリへ同時に保存する
+//
 void Scene::setLocalAttitude(int cam, const GgMatrix& m)
 {
   localMatrixTable[cam] = m;
   localAttitude->set(cam, m);
 }
 
+//
 // リモートのカメラのトラッキング情報を遅延させて取り出す
+//
 const GgMatrix& Scene::getRemoteAttitude(int cam)
 {
   // 新しいトラッキングデータを追加する
@@ -291,7 +319,9 @@ const GgMatrix& Scene::getRemoteAttitude(int cam)
   return fifo[cam].front();
 }
 
+//
 // このパーツ以下のすべてのパーツを描画する
+//
 void Scene::draw(const GgMatrix& mp, const GgMatrix& mv) const
 {
   // シーンが空なら何もしない

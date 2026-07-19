@@ -1,8 +1,10 @@
-﻿//
-// 初期設定関連の処理
-//
-
-// 各種設定
+﻿///
+/// 各種設定クラスの実装
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 #include "Config.h"
 
 // 構成ファイルの読み取り補助
@@ -56,20 +58,9 @@ Config defaults;
 // ※4 ホストの役割
 //
 //    STANDALONE = 0,           // 単独
-//    INSTRUCTOR,               // 指示者
+//    INSTRUCTOR,               // 指導者
 //    WORKER                    // 作業者
 //
-
-//
-// コンストラクタ
-
-
-//
-// デストラクタ
-//
-Config::~Config()
-{
-}
 
 //
 // JSON の読み取り

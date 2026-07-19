@@ -1,6 +1,10 @@
-﻿//
-// リモートカメラからキャプチャ
-//
+﻿///
+/// リモートのカメラからキャプチャするクラスの実装
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 #include "CamRemote.h"
 
 // シーングラフ
@@ -9,7 +13,9 @@
 // 共有メモリ
 #include "SharedMemory.h"
 
+//
 // コンストラクタ
+//
 CamRemote::CamRemote(bool reshape)
   : reshape{ reshape }
 {
@@ -33,7 +39,9 @@ CamRemote::CamRemote(bool reshape)
   }
 }
 
+//
 // デストラクタ
+//
 CamRemote::~CamRemote()
 {
   // スレッドを停止する
@@ -52,7 +60,9 @@ CamRemote::~CamRemote()
   }
 }
 
-// 指示者側の起動
+//
+// 指導者側の起動
+//
 int CamRemote::open(unsigned short port, const char* address)
 {
   // すでに確保されている作業用メモリを破棄する
@@ -60,7 +70,7 @@ int CamRemote::open(unsigned short port, const char* address)
   delete[] recvbuf;
   sendbuf = recvbuf = nullptr;
 
-  // 指示者として初期化する
+  // 指導者として初期化する
   const int ret(network.initialize(1, port, address));
   if (ret != 0) return ret;
 
@@ -166,7 +176,9 @@ int CamRemote::open(unsigned short port, const char* address)
   return 0;
 }
 
+//
 // 左カメラをロックして画像をテクスチャに転送する
+//
 bool CamRemote::transmit(int cam, GLuint texture, const GLsizei* size)
 {
   // 画像のサイズ
@@ -206,7 +218,9 @@ bool CamRemote::transmit(int cam, GLuint texture, const GLsizei* size)
   return false;
 }
 
+//
 // リモートの映像と姿勢を受信する
+//
 void CamRemote::recv()
 {
   // スレッドが実行可の間
@@ -314,7 +328,9 @@ void CamRemote::recv()
   }
 }
 
+//
 // ローカルの姿勢を送信する
+//
 void CamRemote::send()
 {
   // 直前のフレームの送信時刻

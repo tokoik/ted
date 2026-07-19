@@ -1,8 +1,12 @@
 ﻿#pragma once
 
-//
-// メニュー
-//
+///
+/// メニュークラスの定義
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 
 // ウィンドウ関連の処理
 #include "GgApp.h"
@@ -16,10 +20,21 @@
 // ビデオキャプチャ
 #include "CamMf.h"
 
+// 標準ライブラリ
+#include <functional>
+#include <memory>
+
+///
+/// メニュークラス
+///
 class Menu
 {
-  // Media Foundationの列挙は重いため、デバイスまたはコーデックが変わった時だけ
-  // UI候補を再生成するための左右カメラ別キャッシュ
+  ///
+  /// カメラデータの UI 候補をキャッシュする構造体
+  ///
+  /// @details
+  /// Media Foundationの列挙は重いため、デバイスまたはコーデックが変わった時だけ
+  /// UI 候補を再生成するための左右カメラ別キャッシュ
   struct CameraMenuCache
   {
     int lastDeviceId = -2;
@@ -29,60 +44,109 @@ class Menu
     std::string lastCodec = "";
   } cameraMenuCache[camCount];
 
-  // キャッシュを更新するヘルパー関数
+  /// キャッシュを更新するヘルパー関数
   void updateCameraMenuCache(int cam);
-  // このアプリケーション
+
+  /// このアプリケーション
   GgApp* app{ nullptr };
 
-  // メニューを表示するウィンドウ
-  Window& window;
+  /// メニューを表示するウィンドウ
+  GgApp::Window& window;
 
-  // メニューで操作するシーン
-  Scene& scene;
+  /// メニューで操作するシーン
+  std::unique_ptr<Scene>& scene;
 
-  // メニューで操作する姿勢
+  /// 設定ファイルに含まれるシーンと背景シェーダを作り直す処理
+  const std::function<bool()>& reloadVisuals;
+
+  /// メニューで操作する姿勢
   Attitude& attitude;
 
-  // サブウィンドウのオン・オフ
+  /// データ読み込みエラー表示ウィンドウの表示フラグ
   bool showNodataWindow{ false };
+
+  /// 表示設定ウィンドウの表示フラグ
   bool showDisplayWindow{ true };
+
+  /// 姿勢設定ウィンドウの表示フラグ
   bool showAttitudeWindow{ true };
+
+  /// 入力設定ウィンドウの表示フラグ
   bool showInputWindow{ true };
+
+  /// 起動時設定ウィンドウの表示フラグ
   bool showStartupWindow{ false };
 
-  // 再起動が必要な設定を即時反映しないため、起動時設定画面で編集する一時コピー
+  /// セカンダリディスプレイの設定の一時コピー
   int secondary{ 0 };
+
+  /// フルスクリーン設定の一時コピー
   bool fullscreen{ false };
+
+  /// クアッドバッファ設定の一時コピー
   bool quadbuffer{ false };
+
+  /// 共有メモリのサイズの一時コピー
   int memorysize[2]{ localShareSize, remoteShareSize };
 
-  // メニューバー
+  ///
+  /// メニューバー
+  ///
   void menuBar();
 
-  // データ読み込みエラー表示ウィンドウ
+  ///
+  /// 設定ファイルを読み込み描画オブジェクトを差し替える
+  ///
+  int loadConfig();
+
+  ///
+  /// データ読み込みエラー表示ウィンドウ
+  ///
   void nodataWindow();
 
-  // 表示設定ウィンドウ
+  ///
+  /// 表示設定ウィンドウ
+  ///
   void displayWindow();
 
-  // 姿勢設定ウィンドウ
+  ///
+  /// 姿勢設定ウィンドウ
+  ///
   void attitudeWindow();
 
-  // 入力設定ウィンドウ
-  void Menu::inputWindow();
+  ///
+  /// 入力設定ウィンドウ
+  ///
+  void inputWindow();
 
-  // 起動時設定ウィンドウ
+  ///
+  /// 起動時設定ウィンドウ
+  ///
   void startupWindow();
 
 public:
 
-  // コンストラクタ
-  Menu(GgApp* app, Window& window, Scene& scene, Attitude& attitude);
+  ///
+  /// コンストラクタ
+  ///
+  /// @param app このアプリケーション
+  /// @param window メニューを表示するウィンドウ
+  /// @param scene メニューで操作するシーン
+  /// @param attitude メニューで操作する姿勢
+  /// @param reloadVisuals 設定ファイルに含まれるシーンと背景シェーダを作り直す処理
+  /// @return メニューオブジェクト
+  ///
+  Menu(GgApp* app, GgApp::Window& window, std::unique_ptr<Scene>& scene,
+    Attitude& attitude, const std::function<bool()>& reloadVisuals);
 
-  // デストラクタ
+  ///
+  /// デストラクタ
+  ///
   virtual ~Menu();
 
-  // メニューの表示
+  ///
+  /// メニューの表示
+  ///
   void show();
 };
 

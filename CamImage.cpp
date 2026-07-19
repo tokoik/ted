@@ -1,21 +1,31 @@
-﻿//
-// 静止画
-//
+﻿///
+/// 静止画を使うクラスの実装
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 #include "CamImage.h"
 
+//
 // コンストラクタ
+//
 CamImage::CamImage()
 {
 }
 
+//
 // デストラクタ
+//
 CamImage::~CamImage()
 {
   // 送信スレッドを止める
   stop();
 }
 
+//
 // ファイルから入力する
+//
 bool CamImage::open(const std::string& file, int cam)
 {
   // 画像をファイルから読み込む
@@ -25,19 +35,25 @@ bool CamImage::open(const std::string& file, int cam)
   return !image[cam].empty();
 }
 
+//
 // カメラが使用可能か判定する
+//
 bool CamImage::opened(int cam)
 {
   return !image[cam].empty();
 }
 
+//
 // このカメラでは画像の転送を行わない
+//
 bool CamImage::transmit(int cam, GLuint texture, const GLsizei* size)
 {
   return true;
 }
 
+//
 // 読み込んだ画像のデータを得る
+//
 const GLubyte* CamImage::getImage(int cam)
 {
   return image[cam].data;

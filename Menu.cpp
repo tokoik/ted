@@ -1,6 +1,10 @@
-﻿//
-// メニュー
-//
+﻿///
+/// メニュークラスの実装
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 #include "Menu.h"
 
 // ネットワーク関連の処理
@@ -24,7 +28,7 @@
 //
 // 設定ファイルの読み込み
 //
-int loadConfig()
+int Menu::loadConfig()
 {
   // ファイルパスの取得先
   nfdchar_t* openPath{ nullptr };
@@ -38,8 +42,13 @@ int loadConfig()
   // ファイルパスが取得できたら
   if (result == NFD_OKAY)
   {
-    // 設定ファイルを読み込んで
-    const bool status{ defaults.load(openPath) };
+    // 読み込みや描画オブジェクトの生成に失敗したとき戻せるよう設定を保存する
+    const Config previous{ defaults };
+
+    // 設定ファイルを読み込んで、シーンと背景シェーダも作り直す
+    const bool loaded{ defaults.load(openPath) };
+    const bool status{ loaded && reloadVisuals() };
+    if (!status) defaults = previous;
 
     // ファイルパスに使ったメモリを解放して
     NFD_FreePath(openPath);
@@ -171,14 +180,14 @@ void Menu::displayWindow()
     if (!defaults.use_leap_motion)
     {
       // Leap Motion を使うなら起動する
-      if (use_leap_motion && scene.startLeapMotion())
+      if (use_leap_motion && scene->startLeapMotion())
         defaults.use_leap_motion = true;
     }
     // それまで使っていた Leap Motion を止めるとき
     else if (!use_leap_motion)
     {
       // Leap Motion を止める
-      scene.stopLeapMotion();
+      scene->stopLeapMotion();
       defaults.use_leap_motion = false;
     }
   }
@@ -515,10 +524,12 @@ void Menu::menuBar()
 //
 // コンストラクタ
 //
-Menu::Menu(GgApp* app, Window& window, Scene& scene, Attitude& attitude)
+Menu::Menu(GgApp* app, GgApp::Window& window, std::unique_ptr<Scene>& scene,
+  Attitude& attitude, const std::function<bool()>& reloadVisuals)
   : app{ app }
   , window { window }
   , scene{ scene }
+  , reloadVisuals{ reloadVisuals }
   , attitude{ attitude }
 {
   NFD_Init();

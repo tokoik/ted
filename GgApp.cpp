@@ -1,8 +1,11 @@
-﻿//
-// ウィンドウ関連およびアプリケーションのメイン処理
-//
+﻿///
+/// アプリケーションのクラスの実装
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 #include "GgApp.h"
-#pragma comment(lib, "opengl32.lib")
 
 // 各種設定
 #include "Config.h"
@@ -53,8 +56,6 @@
     } \
   } while (0)
 #endif
-
-
 
 //
 // GgApp::Window コンストラクタ

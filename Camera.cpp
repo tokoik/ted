@@ -1,6 +1,10 @@
-﻿//
-// カメラ関連の処理
-//
+﻿///
+/// カメラ関連の基底クラスの実装
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 #include "Camera.h"
 
 // シーングラフ
@@ -21,14 +25,18 @@
 #  pragma comment(lib, "opencv_videoio" CV_VERSION_STR CV_EXT_STR)
 #endif
 
+//
 // コンストラクタ
+//
 Camera::Camera(int quality)
 {
   // 圧縮設定
   setQuality(quality);
 }
 
+//
 // デストラクタ
+//
 Camera::~Camera()
 {
   // 作業用のメモリを開放する
@@ -37,6 +45,9 @@ Camera::~Camera()
   recvbuf = sendbuf = nullptr;
 }
 
+//
+// 受信したフレームの解析
+//
 bool Camera::unpackFrame(const uchar* buffer, int length, const unsigned int*& head,
   const GgMatrix*& body, const uchar*& imageData)
 {
@@ -58,7 +69,9 @@ bool Camera::unpackFrame(const uchar* buffer, int length, const unsigned int*& h
   return true;
 }
 
+//
 // 圧縮設定
+//
 void Camera::setQuality(int quality)
 {
   // 圧縮設定
@@ -66,7 +79,9 @@ void Camera::setQuality(int quality)
   param.push_back(quality);
 }
 
+//
 // スレッドを停止する
+//
 void Camera::stop()
 {
   // キャプチャスレッドを止める
@@ -95,7 +110,9 @@ void Camera::stop()
   }
 }
 
+//
 // カメラをロックして画像をテクスチャに転送する
+//
 bool Camera::transmit(int cam, GLuint texture, const GLsizei* size)
 {
   // カメラのロックを試みる
@@ -123,7 +140,9 @@ bool Camera::transmit(int cam, GLuint texture, const GLsizei* size)
   return false;
 }
 
+//
 // リモートの姿勢を受信する
+//
 void Camera::recv()
 {
   // スレッドが実行可の間
@@ -153,7 +172,9 @@ void Camera::recv()
   }
 }
 
+//
 // ローカルの映像と姿勢を送信する
+//
 void Camera::send()
 {
   // 直前のフレームの送信時刻
@@ -276,7 +297,9 @@ void Camera::send()
   network.sendEof();
 }
 
+//
 // 作業者通信スレッド起動
+//
 int Camera::startWorker(unsigned short port, const char* address)
 {
   // すでに確保されている作業用メモリを破棄する

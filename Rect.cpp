@@ -1,10 +1,16 @@
-﻿//
-// 矩形
-//
+﻿///
+/// カメラ画像を背景面へ投影する描画オブジェクトのクラスの実装
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 #include "Rect.h"
 
+//
 // コンストラクタ
-Rect::Rect(const Window& window, const std::string& vert, const std::string& frag)
+//
+Rect::Rect(const GgApp::Window& window, const std::string& vert, const std::string& frag)
   : window(window)
   , shader(ggLoadShader(vert, frag))
   , gapLoc(glGetUniformLocation(shader, "gap"))
@@ -17,20 +23,29 @@ Rect::Rect(const Window& window, const std::string& vert, const std::string& fra
 {
 }
 
+//
 // デストラクタ
+//
 Rect::~Rect()
 {
+  // 背景描画用のシェーダプログラムを削除する
+  glDeleteProgram(shader);
+
   // 頂点配列オブジェクトを削除する
   glDeleteVertexArrays(1, &vao);
 }
 
+//
 // シェーダプログラム名を得る
+//
 GLuint Rect::get() const
 {
   return shader;
 }
 
+//
 // 描画
+//
 void Rect::draw(int eye, const GgMatrix& rotation, const std::array<GLsizei, 2>& samples) const
 {
   // シェーダプログラムを選択する

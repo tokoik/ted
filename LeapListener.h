@@ -1,8 +1,12 @@
 ﻿#pragma once
 
-//
-// Leap Motion 関連の処理
-//
+///
+/// Leap Motion 関連のクラスの定義
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 
 // Leap Motion SDK
 #include <LeapC.h>
@@ -15,37 +19,57 @@ using namespace gg;
 #include <thread>
 #include <mutex>
 
-// フレームの補間
+/// フレームの補間
 #undef LEAP_INTERPORATE_FRAME
 
-// 関節の数
+/// 関節の数
 constexpr int jointCount((2 + 5 * 4) * 2);
 
 struct LeapListener
 {
-  // コンストラクタ
+  ///
+  /// コンストラクタ
+  ///
   LeapListener();
 
-  // デストラクタ
+  ///
+  /// デストラクタ
+  ///
   virtual ~LeapListener();
 
-  // Leap Motion と接続する
+  ///
+  /// Leap Motion と接続する
+  ///
+  /// @return 接続に成功した場合は LEAP_CONNECTION のポインタ、失敗した場合は nullptr
+  ///
   const LEAP_CONNECTION* openConnection();
 
-  // Leap Motion から切断する
+  ///
+  /// Leap Motion から切断する
+  ///
   void closeConnection();
 
-  // Leap Motion との接続を破棄する
+  /// Leap Motion との接続を破棄する
   void destroyConnection();
 
 #if defined(LEAP_INTERPORATE_FRAME)
-  // Leap Motion と CPU の同期をとる
+  ///
+  /// Leap Motion と CPU の同期をとる
+  ///
   void synchronize();
 #endif
 
-  // 関節の変換行列のテーブルに値を取得する
+  ///
+  /// 関節の変換行列のテーブルに値を取得する
+  ///
+  /// @param matrix 関節の変換行列を格納する GgMatrix 型の配列変数
+  ///
   void getHandPose(GgMatrix* matrix) const;
 
-  // 頭の姿勢の変換行列のテーブルに値を取得する
+  ///
+  /// 頭の姿勢の変換行列のテーブルに値を取得する
+  ///
+  /// @param matrix 頭の変換行列を格納する GgMatrix 型の配列変数
+  ///
   void getHeadPose(GgMatrix* matrix) const;
 };

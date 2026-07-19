@@ -1,6 +1,10 @@
-﻿//
-// 姿勢情報
-//
+﻿///
+/// 姿勢情報クラスの実装
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 #include "Attitude.h"
 
 // 構成ファイルの読み取り補助

@@ -1,7 +1,14 @@
-﻿//
-// ネットワーク関連の処理
-//
+﻿///
+/// ネットワーク関連の処理クラスの実装
+///
+/// @file
+/// @author Kohe Tokoi
+/// @date July 197, 2026
+///
 #include "Network.h"
+
+// ウィンドウ関連の処理
+#include "GgApp.h"
 
 // Winsock 2 
 #if defined(_WIN32)
@@ -9,9 +16,7 @@
 #  pragma comment(lib, "ws2_32.lib")
 #endif
 
-// ウィンドウ関連の処理
-#include "GgApp.h"
-
+// 標準ライブラリ
 #include <algorithm>
 #include <climits>
 #include <vector>
@@ -22,20 +27,22 @@ const std::size_t maxSize{ 65507 };
 // 受信のタイムアウト (10秒)
 const unsigned long timeout{ 10000UL };
 
-
-
+//
 // デストラクタ
+//
 Network::~Network()
 {
   finalize();
 }
 
+//
 // エラーコードの表示
+//
 int Network::getError() const
 {
   const int err(WSAGetLastError());
 
-#if defined(DEBUG)
+#if defined(_DEBUG)
   switch (err)
   {
   case WSAEACCES: std::cerr << "WSAEACCES\n"; break;
@@ -77,7 +84,9 @@ int Network::getError() const
   return err;
 }
 
+//
 // 受信側の初期化
+//
 int Network::initializeRecv(unsigned short port)
 {
   // 受信用 UDP ソケットの作成
@@ -120,7 +129,9 @@ int Network::initializeRecv(unsigned short port)
   return 0;
 }
 
+//
 // 送信側の初期化
+//
 int Network::initializeSend(unsigned short port, const char* address)
 {
   // 送信用 UDP ソケットの作成
@@ -152,7 +163,9 @@ int Network::initializeSend(unsigned short port, const char* address)
   return 0;
 }
 
+//
 // ネットワーク設定の初期化
+//
 int Network::initialize(int role, unsigned short port, const char* address)
 {
   // 再初期化時や途中で失敗した初期化のソケットを残さない
@@ -178,7 +191,9 @@ int Network::initialize(int role, unsigned short port, const char* address)
   return sendResult;
 }
 
+//
 // 終了処理
+//
 void Network::finalize()
 {
   if (recvSock != INVALID_SOCKET) closesocket(recvSock);
@@ -186,34 +201,44 @@ void Network::finalize()
   sendSock = recvSock = INVALID_SOCKET;
 }
 
-// 実行中なら真
+//
+// 実行中かどうか調べる
+//
 bool Network::running() const
 {
   return sendSock != INVALID_SOCKET;
 }
 
-// STANDALONE なら真
+//
+// STANDALONE かどうか調べる
+//
 bool Network::isStandalone() const
 {
   return role == Role::STANDALONE;
 }
 
-// OPERATOR なら真
+//
+// OPERATOR かどうか調べる
+//
 bool Network::isInstructor() const
 {
   return role == Role::OPERATOR;
 }
 
-// WORKER なら真
+//
+// WORKER かどうか調べる
+//
 bool Network::isWorker() const
 {
   return role == Role::WORKER;
 }
 
-// リモートのアドレス
+//
+// リモートのアドレスを確認する
+//
 bool Network::checkRemote() const
 {
-#if defined(DEBUG)
+#if defined(_DEBUG)
   std::cerr << '['
     << static_cast<int>(recvAddr.sin_addr.S_un.S_un_b.s_b1) << '.'
     << static_cast<int>(recvAddr.sin_addr.S_un.S_un_b.s_b2) << '.'
@@ -223,7 +248,9 @@ bool Network::checkRemote() const
   return recvAddr.sin_addr.s_addr == sendAddr.sin_addr.s_addr;
 }
 
+//
 // 1 パケット受信
+//
 int Network::recvPacket(void* buf, int len)
 {
   // アドレスデータの長さ
@@ -233,16 +260,22 @@ int Network::recvPacket(void* buf, int len)
     reinterpret_cast<sockaddr*>(&recvAddr), &fromlen);
 }
 
+//
 // 1 パケット送信
+//
 int Network::sendPacket(const void* buf, int len) const
 {
   return sendto(sendSock, static_cast<const char*>(buf), len,
     0, reinterpret_cast<const sockaddr*>(&sendAddr), sizeof sendAddr);
 }
 
-// 1データグラムのレイアウト。
+//
+// 1 データグラムのレイアウト
+//
 // countはフレーム先頭だけ負の総パケット数、以降は正の残パケット数とする。
 // 受信側は total - count を格納位置として使うため、UDPで順序が入れ替わっても復元できる。
+// 受信側は count が負のパケットをフレーム境界として、以前の未完成フレームを破棄する。
+//
 struct Packet
 {
   // 残りのパケット数
@@ -252,7 +285,9 @@ struct Packet
   char data[maxSize - sizeof Packet::count];
 };
 
+//
 // 1 フレーム受信
+//
 int Network::recvData(void* buf, int len)
 {
   // UDPの内容は欠損・重複・偽装があり得るため、呼び出し側バッファへ書く前に
@@ -328,7 +363,7 @@ int Network::recvData(void* buf, int len)
     if (packet.count <= 0 || packet.count > total)
     {
       // パケット数が多すぎる
-#if defined(DEBUG)
+#if defined(_DEBUG)
       std::cerr << "invalid packet count\n";
 #endif
       return -1;
@@ -342,13 +377,13 @@ int Network::recvData(void* buf, int len)
     if (size < 0 || (sequence + 1 < total && size != static_cast<int>(sizeof packet.data)))
     {
       // 短すぎるパケット
-#if defined(DEBUG)
+#if defined(_DEBUG)
       std::cerr << "too short\n";
 #endif
       return -1;
     }
 
-#if defined(DEBUG)
+#if defined(_DEBUG)
     // シーケンス番号・データサイズ
     std::cerr << "recv seq:" << total - packet.count << ", size:" << size << "\n";
 #endif
@@ -360,7 +395,7 @@ int Network::recvData(void* buf, int len)
     if (pos < 0 || size > len || pos > len - size)
     {
       // オーバーフロー
-#if defined(DEBUG)
+#if defined(_DEBUG)
       std::cerr << "buffer overflow\n";
 #endif
       return -1;
@@ -387,7 +422,9 @@ int Network::recvData(void* buf, int len)
   return receivedBytes;
 }
 
+//
 // 1 フレーム送信
+//
 unsigned int Network::sendData(const void* buf, int len) const
 {
   if (!buf || len <= 0) return static_cast<unsigned int>(-1);
@@ -414,7 +451,7 @@ unsigned int Network::sendData(const void* buf, int len) const
     // ペイロードに 1 パケット分データをコピーする
     memcpy(packet.data, ptr, size);
 
-#if defined(DEBUG)
+#if defined(_DEBUG)
     // シーケンス番号・データサイズ
     std::cerr << "send seq:" << count << ", size:" << size << "\n";
 #endif
@@ -441,7 +478,9 @@ unsigned int Network::sendData(const void* buf, int len) const
   return len;
 }
 
+//
 // EOF 送信
+//
 int Network::sendEof() const
 {
   char c;
