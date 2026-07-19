@@ -233,7 +233,7 @@ void Menu::attitudeWindow()
   ImGui::Text(u8"背景");
   if (ImGui::SliderInt(u8"焦点距離", attitude.backAdjust.data(), -99, 99))
     window.update();
-  if (ImGui::SliderInt(u8"間隔", &attitude.offset, -99, 99))
+  if (ImGui::SliderInt(u8"視差", &attitude.offset, -99, 99))
     window.update();
   if (ImGui::SliderInt2(u8"画角", &attitude.circleAdjust[0], -99, 99))
     window.updateCircle();

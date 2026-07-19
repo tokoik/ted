@@ -179,18 +179,21 @@ add_subdirectory("${LIBS_DIR}/OpenXR-SDK-release-1.1.61" "${CMAKE_CURRENT_BINARY
 file(GLOB SHADER_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/*.vert"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.frag"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.geom"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.comp"
 )
 
 # Assets / Resources
 file(GLOB ASSET_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/*.json"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.jpg"
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.obj"
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.mtl"
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.lwo"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.jpeg"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.jfif"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.gif"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.png"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.ico"
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.gif"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.obj"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.mtl"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.otf"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.ttf"
 )
@@ -224,7 +227,6 @@ set(IMGUI_SOURCES
     "${LIBS_DIR}/ImGui/imgui_draw.cpp"
     "${LIBS_DIR}/ImGui/imgui_widgets.cpp"
     "${LIBS_DIR}/ImGui/imgui_tables.cpp"
-    "${LIBS_DIR}/ImGui/imgui_demo.cpp"
     "${LIBS_DIR}/ImGui/backends/imgui_impl_glfw.cpp"
     "${LIBS_DIR}/ImGui/backends/imgui_impl_glfw.h"
     "${LIBS_DIR}/ImGui/backends/imgui_impl_opengl3.cpp"
@@ -279,11 +281,11 @@ target_link_directories(ted PRIVATE
 
 # Link dependencies
 target_link_libraries(ted PRIVATE
-    openxr_loader
     glfw3
+    openxr_loader
+    LeapC
     debug opencv_world4130d
     optimized opencv_world4130
-    LeapC
     debug ovrvision64d
     optimized ovrvision64
     opengl32
@@ -350,4 +352,3 @@ foreach(td ${TEMP_DIRS})
         file(REMOVE_RECURSE "${LIBS_DIR}/${td}")
     endif()
 endforeach()
-
