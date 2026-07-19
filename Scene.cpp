@@ -271,7 +271,7 @@ void Scene::update()
 }
 #endif
 
-// ローカルの変換行列のテーブルに保存する
+// 左右眼の姿勢をローカルの変換行列テーブルと共有メモリへ同時に保存する
 void Scene::setLocalAttitude(int cam, const GgMatrix& m)
 {
   localMatrixTable[cam] = m;

@@ -91,7 +91,7 @@ public:
   static void update();
 #endif
 
-  // ローカルの変換行列のテーブルに保存する
+  // 左右眼の完全な姿勢 T*R をcontroller 0/1としてテーブルと共有領域へ保存する
   static void setLocalAttitude(int cam, const GgMatrix& m);
 
   // リモートのカメラのトラッキング情報を遅延させて取り出す

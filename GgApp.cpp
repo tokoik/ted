@@ -1242,8 +1242,6 @@ void GgApp::Window::select(int eye)
       // ビューポートをVRシステム推奨サイズに設定
       glViewport(0, 0, xrSwapchains[eye].width, xrSwapchains[eye].height);
 
-      // HMDの姿勢情報（回転行列）を転置して、ローカル姿勢として共有メモリ等へ設定
-      Scene::setLocalAttitude(eye, mo[eye].transpose());
       return;
     }
 #endif
@@ -1357,11 +1355,18 @@ bool GgApp::Window::start()
       for (int eye = 0; eye < eyeCount; ++eye)
       {
         const auto& eyePosition{ xrViews[eye].pose.position };
-        mv[eye].loadTranslate(
-          xrOriginPosition[0] - eyePosition.x,
-          xrOriginPosition[1] - eyePosition.y,
-          xrOriginPosition[2] - eyePosition.z
-        );
+        const GLfloat tx{ eyePosition.x - xrOriginPosition[0] };
+        const GLfloat ty{ eyePosition.y - xrOriginPosition[1] };
+        const GLfloat tz{ eyePosition.z - xrOriginPosition[2] };
+
+        // ワールド座標から眼座標へ移すビュー平行移動 T^-1
+        mv[eye].loadTranslate(-tx, -ty, -tz);
+
+        // controller 0/1にはビュー変換 R^-1*T^-1 の逆変換 T*Rを格納する。
+        // これにより眼へ追従するノードでは頭部の回転と平行移動が相殺され、
+        // 左右眼の相対位置だけを保ったまま視界上の位置が固定される。
+        const GgMatrix eyePose{ ggTranslate(tx, ty, tz) * mo[eye].transpose() };
+        Scene::setLocalAttitude(eye, eyePose);
       }
     }
     return true; // 描画処理へ進む

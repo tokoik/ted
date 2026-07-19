@@ -65,23 +65,39 @@ child->loadModelMatrix(ggTranslate(xl, yl, zl) * ggRotateZ(new_rl));
 | `"position"` | 配列 `[x, y, z]` | 親ノードの原点に対するこのオブジェクトの位置オフセット |
 | `"rotation"` | 配列 `[x, y, z, angle]` | 回転軸ベクトル `[x, y, z]` と、その軸まわりの回転角 `angle`（単位: ラジアン） |
 | `"scale"` | 配列 `[x, y, z]` | オブジェクトの拡大率（X, Y, Z方向） |
-| `"controller"`| 数値 | ローカルのモーションコントローラ（Leap Motion等）の変換行列番号を指定します。※1 |
-| `"remote_controller"`| 数値 | リモート（通信相手先）のモーションコントローラの変換行列番号を指定します。※1 |
+| `"controller"`| 数値 | ローカルのHMD、ゲームパッド、Leap Motion等の変換行列番号を指定します。※1 |
+| `"remote_controller"`| 数値 | リモート（通信相手先）のHMD、ゲームパッド、Leap Motion等の変換行列番号を指定します。※1 |
 | `"model"` | 文字列 | 描画する Alias OBJ 形式のファイル名（例: `"handl.obj"`, `"finger.obj"` など） |
 | `"children"` | 配列 | このノードの下位（子）に接続するシーングラフノードの配列 |
 
 ---
 
-## ※1 モーションコントローラの変換行列番号マッピング
+## ※1 位置姿勢の変換行列番号マッピング
 
-Leap Motion やデバイスのトラッキング情報から取得した各パーツ（関節）の位置姿勢情報は、共有メモリ上の変換行列のテーブルに格納されます。JSONの `"controller"` または `"remote_controller"` でそのインデックス番号を指定することで、対応する関節の動きに3Dモデルを追従させることができます。
+HMD、ゲームパッド、Leap Motionから取得した位置姿勢は、共有メモリ上の変換行列テーブルに格納されます。JSONの `"controller"` または `"remote_controller"` でインデックスを指定すると、対応する位置姿勢に3Dモデルを追従させられます。
+
+0番と1番には、OpenXRの基準位置から見た左右眼の完全な姿勢行列 `T * R` を格納します。描画時のビュー行列はその逆変換 `R^-1 * T^-1` なので、同じ眼を参照するノードでは両者が相殺されます。このため、たとえば `"controller": 0` の照準は、頭部の回転だけでなく平行移動に対しても左眼の視界上で固定されます。
+
+```json
+{
+  "controller": 0,
+  "children": [
+    {
+      "position": [ 0, 0, -0.5 ],
+      "model": "target.obj"
+    }
+  ]
+}
+```
+
+この例では子ノードの位置が左眼を基準とするため、頭を動かしても照準の見かけの位置は変わりません。右眼から描画した場合は左右眼の相対変換だけが残るため、頭部への固定と両眼視差を両立できます。
 
 ### 行列番号の対応表
 
 | 番号 | 対応する部位 / データ源 |
 | :--- | :--- |
-| **0** | HMD の左目の位置 (camL) |
-| **1** | HMD の右目の位置 (camR) |
+| **0** | HMD の左目の位置姿勢 `T * R` (camL) |
+| **1** | HMD の右目の位置姿勢 `T * R` (camR) |
 | **2** | ゲームパッドの2本のスティック入力から算出された座標変換行列 |
 | **3** | 左手の手のひら (Palm) |
 | **4** | 右手の手のひら (Palm) |
@@ -115,37 +131,25 @@ $$\text{インデックス} = 7 + (d \times 8) + (b \times 2) + \text{base}$$
 * **右手の親指の母指球**: `7 + (0 * 8) + (0 * 2) + 1 = 8`
 * **左手の人差し指の指先**: `7 + (1 * 8) + (3 * 2) + 0 = 21`
 * **右手の人差し指の指先**: `7 + (1 * 8) + (3 * 2) + 1 = 22`
-* **右手の小指の指先**: `7 + (4 * 8) + (3 * 2) + 1 = 45`
+* **右手の小指の指先**: `7 + (4 * 8) + (3 * 2) + 1 = 46`
 
 ---
 
 ## シーングラフファイル (scene.json) の具体例
 
-以下は、Leap Motion からの手のトラッキングデータ（手のひら、手首、各指の骨）に追従する手の3Dモデル（`handr.obj`, `handl.obj`, `finger.obj`）の階層構造を定義した `scene.json` の記述例です。
+以下は、Leap Motionの手のひら、手首、各指の骨に割り当てた3～46番を使う `scene.json` の記述例です。0番と1番は左右眼、2番はゲームパッド用なので、Leap Motionのモデルには使用しません。
 
 ```json
 {
   "position": [ 0, -0.05, 0 ],
   "children": [
     {
-      "controller": 0,
+      "controller": 3,
       "model": "handr.obj"
     },
     {
-      "controller": 1,
-      "model": "handl.obj"
-    },
-    {
-      "controller": 2,
-      "model": "finger.obj"
-    },
-    {
-      "controller": 3,
-      "model": "finger.obj"
-    },
-    {
       "controller": 4,
-      "model": "finger.obj"
+      "model": "handl.obj"
     },
     {
       "controller": 5,
@@ -301,6 +305,18 @@ $$\text{インデックス} = 7 + (d \times 8) + (b \times 2) + \text{base}$$
     },
     {
       "controller": 43,
+      "model": "finger.obj"
+    },
+    {
+      "controller": 44,
+      "model": "finger.obj"
+    },
+    {
+      "controller": 45,
+      "model": "finger.obj"
+    },
+    {
+      "controller": 46,
       "model": "finger.obj"
     }
   ]
