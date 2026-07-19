@@ -44,8 +44,17 @@ Scene::Scene(const GgSimpleObj* obj)
 //
 // シーングラフからシーンのオブジェクトを作成するコンストラクタ
 //
-Scene::Scene(const picojson::value& v, int level)
+Scene::Scene(const picojson::value& v, int level, const std::filesystem::path& basePath)
+  : basePath{ basePath }
 {
+  // ルートシーンの相対パスは設定ファイルのあるディレクトリを基準にする
+  if (this->basePath.empty() && !defaults.config_file.empty())
+  {
+    std::error_code error;
+    const auto configPath{ std::filesystem::absolute(defaults.config_file, error) };
+    if (!error) this->basePath = configPath.parent_path();
+  }
+
   read(v, level);
 }
 
@@ -105,8 +114,13 @@ picojson::object Scene::load(const picojson::value& v)
   // v が文字列だったら
   if (v.is<std::string>())
   {
+    // 相対パスは、そのパスを記述しているファイルのディレクトリを基準にする
+    std::filesystem::path scenePath{ v.get<std::string>() };
+    if (scenePath.is_relative()) scenePath = basePath / scenePath;
+    scenePath = scenePath.lexically_normal();
+
     // v をファイル名だとしてシーングラフファイルを開く
-    std::ifstream scene(v.get<std::string>());
+    std::ifstream scene(scenePath);
 
     // 開けなかったら空のオブジェクトを返す
     if (!scene)
@@ -119,6 +133,9 @@ picojson::object Scene::load(const picojson::value& v)
     picojson::value f;
     scene >> f;
     scene.close();
+
+    // このファイル内の子シーンとモデルは、このファイルの場所を基準にする
+    basePath = scenePath.parent_path();
 
     // 読み込んだ設定が object ならそれを返す
     if (f.is<picojson::object>()) return f.get<picojson::object>();
@@ -203,7 +220,9 @@ Scene* Scene::read(const picojson::value& v, int level)
   if (v_model != o.end() && v_model->second.is<std::string>())
   {
     // パーツのファイル名を取り出す
-    const auto& model(v_model->second.get<std::string>());
+    std::filesystem::path modelPath{ v_model->second.get<std::string>() };
+    if (modelPath.is_relative()) modelPath = basePath / modelPath;
+    const auto model{ modelPath.lexically_normal().u8string() };
 
     // パーツリストに登録されていれば
     const auto& p(parts.find(model));
@@ -233,12 +252,12 @@ Scene* Scene::read(const picojson::value& v, int level)
       {
         for (const auto c : v_children->second.get<picojson::array>())
         {
-          if (!c.is<picojson::null>()) addChild(new Scene(c, level));
+          if (!c.is<picojson::null>()) addChild(new Scene(c, level, basePath));
         }
       }
       else if (v_children->second.is<std::string>())
       {
-        addChild(new Scene(v_children->second, level));
+        addChild(new Scene(v_children->second, level, basePath));
       }
     }
   }

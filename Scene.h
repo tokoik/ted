@@ -20,6 +20,7 @@
 // 標準ライブラリ
 #include <map>
 #include <queue>
+#include <filesystem>
 
 /// 共有メモリ上に置く指導者の変換行列
 extern std::unique_ptr<SharedMemory> localAttitude;
@@ -47,6 +48,9 @@ class Scene
 
   /// シーン定義を正常に読み込めた場合は true
   bool valid{ true };
+
+  /// このノード内の相対パスを解決する基準ディレクトリ
+  std::filesystem::path basePath;
 
   /// 同じモデルファイルを重複ロードしないための、モデル名をキーにした所有キャッシュ
   static std::map<const std::string, std::unique_ptr<const GgSimpleObj>> parts;
@@ -100,8 +104,10 @@ public:
   ///
   /// @param v シーングラフの JSON オブジェクト
   /// @param level シーングラフの階層レベル
+  /// @param basePath 相対パスを解決する基準ディレクトリ
   ///
-  Scene(const picojson::value& v, int level = 0);
+  Scene(const picojson::value& v, int level = 0,
+    const std::filesystem::path& basePath = {});
 
   ///
   /// デストラクタ
