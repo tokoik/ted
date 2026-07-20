@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
+project(ted LANGUAGES C CXX)
+
 # Ignore MSYS2 / MinGW directories when compiling with MSVC to prevent header/library conflicts
 if(MSVC)
     list(APPEND CMAKE_IGNORE_PREFIX_PATH "C:/msys64" "C:/msys64/ucrt64")
@@ -7,8 +9,6 @@ if(MSVC)
     set(CMAKE_DISABLE_FIND_PACKAGE_JsonCpp TRUE CACHE BOOL "Disable JsonCpp find" FORCE)
     set(CMAKE_DISABLE_FIND_PACKAGE_jsoncpp TRUE CACHE BOOL "Disable jsoncpp find" FORCE)
 endif()
-
-project(ted LANGUAGES C CXX)
 
 # Enforce 64-bit builds on Windows
 if(MSVC)
