@@ -335,6 +335,24 @@ void Scene::setLocalAttitude(int cam, const GgMatrix& m)
 }
 
 //
+// OpenXRの片手分の姿勢を、左右交互に並ぶLeap互換テーブルへ保存する
+//
+void Scene::setLocalHandAttitudes(int hand, const GgMatrix* matrices)
+{
+  if (hand < 0 || hand >= 2 || !matrices || !localAttitude) return;
+
+  constexpr int jointsPerHand{ jointCount / 2 };
+  const int firstJoint{ camCount + 1 };
+  for (int joint = 0; joint < jointsPerHand; ++joint)
+  {
+    localMatrixTable[firstJoint + joint * 2 + hand] = matrices[joint];
+  }
+
+  // setup()で共有領域から取り込んだ末尾要素も保持したまま、更新結果を一括公開する。
+  localAttitude->store(localMatrixTable.data(), static_cast<unsigned int>(localMatrixTable.size()));
+}
+
+//
 // リモートのカメラのトラッキング情報を遅延させて取り出す
 //
 const GgMatrix& Scene::getRemoteAttitude(int cam)

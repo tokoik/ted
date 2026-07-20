@@ -586,6 +586,13 @@ public:
     // xrBeginFrame後からxrEndFrameまでだけtrueにし、通常のGLFW描画経路と区別する
     bool xrFrameActive{ false };
 
+    // XR_EXT_hand_tracking は任意拡張なので、ランタイムが公開した場合だけ使用する。
+    bool xrHandTrackingSupported{ false };
+    std::array<XrHandTrackerEXT, 2> xrHandTrackers{ XR_NULL_HANDLE, XR_NULL_HANDLE };
+    PFN_xrCreateHandTrackerEXT xrCreateHandTracker{ nullptr };
+    PFN_xrDestroyHandTrackerEXT xrDestroyHandTracker{ nullptr };
+    PFN_xrLocateHandJointsEXT xrLocateHandJoints{ nullptr };
+
     // シーン座標の原点にする、HMD 起動時または回復時の頭部中心位置
     GgVector xrOriginPosition{ 0.0f, 0.0f, 0.0f, 1.0f };
     bool xrOriginValid{ false };
@@ -601,6 +608,7 @@ public:
     bool initOpenXR();
     void cleanupOpenXR();
     void pollEvents();
+    void updateOpenXRHands(XrTime time);
 #endif
 
   public:

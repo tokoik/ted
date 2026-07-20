@@ -93,7 +93,7 @@ public:
   /// コンストラクタ
   ///
   /// @param obj このパーツが参照するモデル、nullptr の場合は空のシーン
-  /// 
+  ///
   /// @details
   /// このコンストラクタは、指定されたモデルを参照するシーンを作成します。
   ///
@@ -160,7 +160,7 @@ public:
   /// 現在の視点・Leap姿勢を共有領域へ公開し、同時にリモート姿勢を取り込む
   ///
   /// @param m 現在の視点・Leap姿勢の変換行列
-  /// 
+  ///
   static void setup(const GgMatrix& m);
 
 #if defined(LEAP_INTERPORATE_FRAME)
@@ -177,6 +177,9 @@ public:
   /// @param m 保存する変換行列
   ///
   static void setLocalAttitude(int cam, const GgMatrix& m);
+
+  /// OpenXRから取得した片手分の姿勢を、従来のLeap用関節スロットへ保存する
+  static void setLocalHandAttitudes(int hand, const GgMatrix* matrices);
 
   ///
   /// リモートのカメラのトラッキング情報を遅延させて取り出す

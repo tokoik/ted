@@ -779,9 +779,21 @@ bool GgApp::Window::initOpenXR()
 {
   xrOriginValid = false;
 
-  // OpenGLによるレンダリングを有効にするための拡張機能（XR_KHR_opengl_enable）を指定
+  // OpenGLは必須、ハンドトラッキングはランタイムが公開する場合だけ有効にする。
   std::vector<const char*> extensions;
   extensions.push_back(XR_KHR_OPENGL_ENABLE_EXTENSION_NAME);
+  uint32_t extensionCount{ 0 };
+  XR_CHECK(xrEnumerateInstanceExtensionProperties(nullptr, 0, &extensionCount, nullptr));
+  std::vector<XrExtensionProperties> extensionProperties(extensionCount,
+    { XR_TYPE_EXTENSION_PROPERTIES });
+  XR_CHECK(xrEnumerateInstanceExtensionProperties(nullptr, extensionCount, &extensionCount,
+    extensionProperties.data()));
+  xrHandTrackingSupported = std::any_of(extensionProperties.begin(), extensionProperties.end(),
+    [](const XrExtensionProperties& property)
+    {
+      return strcmp(property.extensionName, XR_EXT_HAND_TRACKING_EXTENSION_NAME) == 0;
+    });
+  if (xrHandTrackingSupported) extensions.push_back(XR_EXT_HAND_TRACKING_EXTENSION_NAME);
 
   // インスタンス作成情報の初期設定
   XrInstanceCreateInfo instanceCreateInfo{ XR_TYPE_INSTANCE_CREATE_INFO };
@@ -800,6 +812,25 @@ bool GgApp::Window::initOpenXR()
   XrSystemGetInfo systemGetInfo{ XR_TYPE_SYSTEM_GET_INFO };
   systemGetInfo.formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY; // HMDタイプを指定
   XR_CHECK(xrGetSystem(xrInstance, &systemGetInfo, &xrSystemId));
+
+  if (xrHandTrackingSupported)
+  {
+    XrSystemHandTrackingPropertiesEXT handProperties{ XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_EXT };
+    XrSystemProperties systemProperties{ XR_TYPE_SYSTEM_PROPERTIES };
+    systemProperties.next = &handProperties;
+    XR_CHECK(xrGetSystemProperties(xrInstance, xrSystemId, &systemProperties));
+    xrHandTrackingSupported = handProperties.supportsHandTracking == XR_TRUE;
+
+    if (xrHandTrackingSupported)
+    {
+      XR_CHECK(xrGetInstanceProcAddr(xrInstance, "xrCreateHandTrackerEXT",
+        reinterpret_cast<PFN_xrVoidFunction*>(&xrCreateHandTracker)));
+      XR_CHECK(xrGetInstanceProcAddr(xrInstance, "xrDestroyHandTrackerEXT",
+        reinterpret_cast<PFN_xrVoidFunction*>(&xrDestroyHandTracker)));
+      XR_CHECK(xrGetInstanceProcAddr(xrInstance, "xrLocateHandJointsEXT",
+        reinterpret_cast<PFN_xrVoidFunction*>(&xrLocateHandJoints)));
+    }
+  }
 
   // OpenGLグラフィックス要件を取得するためのランタイム関数ポインタを取得
   PFN_xrGetOpenGLGraphicsRequirementsKHR pfnGetOpenGLGraphicsRequirementsKHR = nullptr;
@@ -830,6 +861,23 @@ bool GgApp::Window::initOpenXR()
     sprintf_s(buf, "OpenXR session creation failed (Result: %d)", sessionResult);
     NOTIFY(buf);
     return false;
+  }
+
+  if (xrHandTrackingSupported)
+  {
+    const std::array<XrHandEXT, 2> hands{ XR_HAND_LEFT_EXT, XR_HAND_RIGHT_EXT };
+    for (int hand = 0; hand < 2; ++hand)
+    {
+      XrHandTrackerCreateInfoEXT createInfo{ XR_TYPE_HAND_TRACKER_CREATE_INFO_EXT };
+      createInfo.hand = hands[hand];
+      createInfo.handJointSet = XR_HAND_JOINT_SET_DEFAULT_EXT;
+      const XrResult result{ xrCreateHandTracker(xrSession, &createInfo, &xrHandTrackers[hand]) };
+      if (XR_FAILED(result))
+      {
+        xrHandTrackingSupported = false;
+        break;
+      }
+    }
   }
 
   // トラッキング空間（Stage空間：床面基準のプレイエリア空間）を作成
@@ -989,6 +1037,18 @@ void GgApp::Window::cleanupOpenXR()
       xrSessionRunning = false;
     }
 
+    if (xrDestroyHandTracker)
+    {
+      for (auto& tracker : xrHandTrackers)
+      {
+        if (tracker != XR_NULL_HANDLE)
+        {
+          xrDestroyHandTracker(tracker);
+          tracker = XR_NULL_HANDLE;
+        }
+      }
+    }
+
     // ミラー表示用のFBOとテクスチャを削除
     if (xrMirrorFbo)
     {
@@ -1065,8 +1125,72 @@ void GgApp::Window::cleanupOpenXR()
     xrInstance = XR_NULL_HANDLE;
   }
 
+  xrHandTrackingSupported = false;
+  xrCreateHandTracker = nullptr;
+  xrDestroyHandTracker = nullptr;
+  xrLocateHandJoints = nullptr;
+
   // PCモニタ側の垂直同期(V-Sync)設定を標準(1)に戻す
   glfwSwapInterval(1);
+}
+
+//
+// Quest等のOpenXRランタイムから手の関節姿勢を取得し、Leap互換の22姿勢へ変換する
+//
+void GgApp::Window::updateOpenXRHands(XrTime time)
+{
+  if (!xrHandTrackingSupported || !xrLocateHandJoints || !xrOriginValid) return;
+
+  // Leap側の各指4骨は、OpenXRでは各骨の末端に当たる4関節へ対応させる。
+  constexpr std::array<XrHandJointEXT, 22> jointMap
+  {
+    XR_HAND_JOINT_PALM_EXT, XR_HAND_JOINT_WRIST_EXT,
+    XR_HAND_JOINT_THUMB_METACARPAL_EXT, XR_HAND_JOINT_THUMB_PROXIMAL_EXT,
+    XR_HAND_JOINT_THUMB_DISTAL_EXT, XR_HAND_JOINT_THUMB_TIP_EXT,
+    XR_HAND_JOINT_INDEX_PROXIMAL_EXT, XR_HAND_JOINT_INDEX_INTERMEDIATE_EXT,
+    XR_HAND_JOINT_INDEX_DISTAL_EXT, XR_HAND_JOINT_INDEX_TIP_EXT,
+    XR_HAND_JOINT_MIDDLE_PROXIMAL_EXT, XR_HAND_JOINT_MIDDLE_INTERMEDIATE_EXT,
+    XR_HAND_JOINT_MIDDLE_DISTAL_EXT, XR_HAND_JOINT_MIDDLE_TIP_EXT,
+    XR_HAND_JOINT_RING_PROXIMAL_EXT, XR_HAND_JOINT_RING_INTERMEDIATE_EXT,
+    XR_HAND_JOINT_RING_DISTAL_EXT, XR_HAND_JOINT_RING_TIP_EXT,
+    XR_HAND_JOINT_LITTLE_PROXIMAL_EXT, XR_HAND_JOINT_LITTLE_INTERMEDIATE_EXT,
+    XR_HAND_JOINT_LITTLE_DISTAL_EXT, XR_HAND_JOINT_LITTLE_TIP_EXT
+  };
+
+  for (int hand = 0; hand < 2; ++hand)
+  {
+    if (xrHandTrackers[hand] == XR_NULL_HANDLE) continue;
+
+    std::array<XrHandJointLocationEXT, XR_HAND_JOINT_COUNT_EXT> locations{};
+    XrHandJointLocationsEXT joints{ XR_TYPE_HAND_JOINT_LOCATIONS_EXT };
+    joints.jointCount = static_cast<uint32_t>(locations.size());
+    joints.jointLocations = locations.data();
+    XrHandJointsLocateInfoEXT locateInfo{ XR_TYPE_HAND_JOINTS_LOCATE_INFO_EXT };
+    locateInfo.baseSpace = xrPlaySpace;
+    locateInfo.time = time;
+    if (XR_FAILED(xrLocateHandJoints(xrHandTrackers[hand], &locateInfo, &joints)) || !joints.isActive)
+      continue;
+
+    std::array<GgMatrix, jointMap.size()> matrices;
+    bool valid{ true };
+    for (size_t i = 0; i < jointMap.size(); ++i)
+    {
+      const auto& joint{ locations[static_cast<size_t>(jointMap[i])] };
+      constexpr XrSpaceLocationFlags requiredFlags{
+        XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT };
+      if ((joint.locationFlags & requiredFlags) != requiredFlags)
+      {
+        valid = false;
+        break;
+      }
+
+      const auto& p{ joint.pose.position };
+      const auto& q{ joint.pose.orientation };
+      matrices[i] = ggTranslate(p.x - xrOriginPosition[0], p.y - xrOriginPosition[1],
+        p.z - xrOriginPosition[2]) * GgQuaternion(q.x, q.y, q.z, q.w).getMatrix();
+    }
+    if (valid) Scene::setLocalHandAttitudes(hand, matrices.data());
+  }
 }
 
 //
@@ -1369,6 +1493,9 @@ bool GgApp::Window::start()
         const GgMatrix eyePose{ ggTranslate(tx, ty, tz) * mo[eye].transpose() };
         Scene::setLocalAttitude(eye, eyePose);
       }
+
+      // 視点と同じ予測表示時刻・基準空間で手を取得し、映像との時間差を抑える。
+      updateOpenXRHands(xrFrameState.predictedDisplayTime);
     }
     return true; // 描画処理へ進む
   }
