@@ -51,7 +51,8 @@ Scene::Scene(const picojson::value& v, int level, const std::filesystem::path& b
   if (this->basePath.empty() && !defaults.config_file.empty())
   {
     std::error_code error;
-    const auto configPath{ std::filesystem::absolute(defaults.config_file, error) };
+    const auto configPath{
+      std::filesystem::absolute(std::filesystem::u8path(defaults.config_file), error) };
     if (!error) this->basePath = configPath.parent_path();
   }
 
@@ -115,7 +116,7 @@ picojson::object Scene::load(const picojson::value& v)
   if (v.is<std::string>())
   {
     // 相対パスは、そのパスを記述しているファイルのディレクトリを基準にする
-    std::filesystem::path scenePath{ v.get<std::string>() };
+    std::filesystem::path scenePath{ std::filesystem::u8path(v.get<std::string>()) };
     if (scenePath.is_relative()) scenePath = basePath / scenePath;
     scenePath = scenePath.lexically_normal();
 
@@ -220,7 +221,8 @@ Scene* Scene::read(const picojson::value& v, int level)
   if (v_model != o.end() && v_model->second.is<std::string>())
   {
     // パーツのファイル名を取り出す
-    std::filesystem::path modelPath{ v_model->second.get<std::string>() };
+    std::filesystem::path modelPath{
+      std::filesystem::u8path(v_model->second.get<std::string>()) };
     if (modelPath.is_relative()) modelPath = basePath / modelPath;
     const auto model{ modelPath.lexically_normal().u8string() };
 

@@ -20,10 +20,6 @@
 // ビデオキャプチャ
 #include "CamMf.h"
 
-// 標準ライブラリ
-#include <functional>
-#include <memory>
-
 ///
 /// メニュークラス
 ///
@@ -53,14 +49,14 @@ class Menu
   /// メニューを表示するウィンドウ
   GgApp::Window& window;
 
-  /// メニューで操作するシーン
-  std::unique_ptr<Scene>& scene;
-
-  /// 設定ファイルに含まれるシーンと背景シェーダを作り直す処理
-  const std::function<bool()>& reloadVisuals;
-
   /// メニューで操作する姿勢
   Attitude& attitude;
+
+  /// 設定ファイルの再読み込みが描画側での反映を待っている場合は true
+  bool configReloadPending{ false };
+
+  /// 再読み込みした設定を描画側で反映できなかった場合に戻す設定
+  Config previousConfig;
 
   /// データ読み込みエラー表示ウィンドウの表示フラグ
   bool showNodataWindow{ false };
@@ -131,17 +127,28 @@ public:
   ///
   /// @param app このアプリケーション
   /// @param window メニューを表示するウィンドウ
-  /// @param scene メニューで操作するシーン
   /// @param attitude メニューで操作する姿勢
-  /// @param reloadVisuals 設定ファイルに含まれるシーンと背景シェーダを作り直す処理
   ///
-  Menu(GgApp* app, GgApp::Window& window, std::unique_ptr<Scene>& scene,
-    Attitude& attitude, const std::function<bool()>& reloadVisuals);
+  Menu(GgApp* app, GgApp::Window& window, Attitude& attitude);
 
   ///
   /// デストラクタ
   ///
   virtual ~Menu();
+
+  ///
+  /// 設定ファイルの再読み込みが要求されているか調べる
+  ///
+  /// @return 再読み込みした設定が描画側での反映を待っている場合は true
+  ///
+  bool isConfigReloadPending() const { return configReloadPending; }
+
+  ///
+  /// 設定ファイルの描画側への反映結果を通知する
+  ///
+  /// @param status 反映に成功した場合は true
+  ///
+  void finishConfigReload(bool status);
 
   ///
   /// メニューの表示

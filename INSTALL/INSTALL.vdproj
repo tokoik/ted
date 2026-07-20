@@ -536,7 +536,7 @@
         {
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0204F72A0B77ED5AB5866291C0B3A2A0"
             {
-            "SourcePath" = "8:..\\build\\Release\\target.json"
+            "SourcePath" = "8:..\\target.json"
             "TargetName" = "8:target.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -556,7 +556,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_03852DD995326923E0416FA39E28F1D2"
             {
-            "SourcePath" = "8:..\\build\\Release\\fisheye.vert"
+            "SourcePath" = "8:..\\fisheye.vert"
             "TargetName" = "8:fisheye.vert"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -576,7 +576,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0470F1DDC866DA3A7684CAC1D7E62554"
             {
-            "SourcePath" = "8:..\\build\\Release\\mesh.frag"
+            "SourcePath" = "8:..\\mesh.frag"
             "TargetName" = "8:mesh.frag"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -596,7 +596,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_06B2D3B23DCE96E1619D2B53D6C947EC"
             {
-            "SourcePath" = "8:..\\build\\Release\\config.json"
+            "SourcePath" = "8:..\\config.json"
             "TargetName" = "8:config.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -616,7 +616,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_09216C7C9CB7A868E67DB64AE3D93FA8"
             {
-            "SourcePath" = "8:..\\build\\Release\\mesh.vert"
+            "SourcePath" = "8:..\\mesh.vert"
             "TargetName" = "8:mesh.vert"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -636,7 +636,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0F373C128CEC82950FE3F1A34E8E4E3D"
             {
-            "SourcePath" = "8:..\\build\\Release\\target.vert"
+            "SourcePath" = "8:..\\target.vert"
             "TargetName" = "8:target.vert"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -656,7 +656,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_100489A267923760BFC87218D19367C6"
             {
-            "SourcePath" = "8:..\\build\\Release\\wall.mtl"
+            "SourcePath" = "8:..\\wall.mtl"
             "TargetName" = "8:wall.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -696,7 +696,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_12BEA3F4E8918549ED987D16C3B60056"
             {
-            "SourcePath" = "8:..\\build\\Release\\normal.frag"
+            "SourcePath" = "8:..\\normal.frag"
             "TargetName" = "8:normal.frag"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -716,7 +716,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1D40A8B94304208FA443C3ABEB422BD5"
             {
-            "SourcePath" = "8:..\\build\\Release\\box.obj"
+            "SourcePath" = "8:..\\box.obj"
             "TargetName" = "8:box.obj"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -736,7 +736,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_256CB0ACCCA79F7F8CBFD40B421B4779"
             {
-            "SourcePath" = "8:..\\build\\Release\\scene.json"
+            "SourcePath" = "8:..\\scene.json"
             "TargetName" = "8:scene.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -756,7 +756,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_25B09E2A7E59E9AD0CFAB642C121DBB5"
             {
-            "SourcePath" = "8:..\\build\\Release\\zed.json"
+            "SourcePath" = "8:..\\zed.json"
             "TargetName" = "8:zed.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -776,7 +776,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_29D9AC890C3BA945FCE4DF03EB77D3E0"
             {
-            "SourcePath" = "8:..\\build\\Release\\remote.obj"
+            "SourcePath" = "8:..\\remote.obj"
             "TargetName" = "8:remote.obj"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -796,7 +796,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_344617850A743CDF3DA7FA4E8E41FBBF"
             {
-            "SourcePath" = "8:..\\build\\Release\\fisheye_left.jpg"
+            "SourcePath" = "8:..\\fisheye_left.jpg"
             "TargetName" = "8:fisheye_left.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -816,7 +816,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_38D5D1CCBD544C4C23C1F3B6B82C2998"
             {
-            "SourcePath" = "8:..\\build\\Release\\target.mtl"
+            "SourcePath" = "8:..\\target.mtl"
             "TargetName" = "8:target.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -856,7 +856,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3A9012D4A558611C615DC449BDC2559B"
             {
-            "SourcePath" = "8:..\\build\\Release\\hand_remote.json"
+            "SourcePath" = "8:..\\hand_remote.json"
             "TargetName" = "8:hand_remote.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -896,7 +896,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3C56B6FC8B8DCAA689B75B196612B2D1"
             {
-            "SourcePath" = "8:..\\build\\Release\\handl.obj"
+            "SourcePath" = "8:..\\handl.obj"
             "TargetName" = "8:handl.obj"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -916,7 +916,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3D132A4C0B4BB24DDD59251331DF840A"
             {
-            "SourcePath" = "8:..\\build\\Release\\rectangle.json"
+            "SourcePath" = "8:..\\rectangle.json"
             "TargetName" = "8:rectangle.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -936,7 +936,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3D5404C2D316F4F9F59D31E32C119C11"
             {
-            "SourcePath" = "8:..\\build\\Release\\pixpro_left.jpg"
+            "SourcePath" = "8:..\\pixpro_left.jpg"
             "TargetName" = "8:pixpro_left.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -956,7 +956,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3F611F7008393DC030FE05A13BE250BF"
             {
-            "SourcePath" = "8:..\\build\\Release\\PayCam3040x1520.jpg"
+            "SourcePath" = "8:..\\PayCam3040x1520.jpg"
             "TargetName" = "8:PayCam3040x1520.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -976,8 +976,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_40F89EDBEF350E4E8C664195F610398B"
             {
-            "SourcePath" = "8:..\\build\\Release\\panorama.vert"
-            "TargetName" = "8:panorama.vert"
+            "SourcePath" = "8:..\\theta_v.vert"
+            "TargetName" = "8:theta_v.vert"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -996,7 +996,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_43D5872394D182B8C1C4325165D32493"
             {
-            "SourcePath" = "8:..\\build\\Release\\finger.mtl"
+            "SourcePath" = "8:..\\finger.mtl"
             "TargetName" = "8:finger.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1016,8 +1016,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_495C852FCADAA61D7CDB5E19FC8F7E42"
             {
-            "SourcePath" = "8:..\\build\\Release\\panorama.json"
-            "TargetName" = "8:panorama.json"
+            "SourcePath" = "8:..\\theta_v.json"
+            "TargetName" = "8:theta_v.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1056,7 +1056,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5260221DF957DFA2577A52128511E67D"
             {
-            "SourcePath" = "8:..\\build\\Release\\fixed.vert"
+            "SourcePath" = "8:..\\fixed.vert"
             "TargetName" = "8:fixed.vert"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1076,7 +1076,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5674ECE8856DE70F488C89393ECA43B1"
             {
-            "SourcePath" = "8:..\\build\\Release\\handr.obj"
+            "SourcePath" = "8:..\\handr.obj"
             "TargetName" = "8:handr.obj"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1096,7 +1096,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_579F848E4E3087AFDAF82DCDAF0B2F6C"
             {
-            "SourcePath" = "8:..\\build\\Release\\server.json"
+            "SourcePath" = "8:..\\server.json"
             "TargetName" = "8:server.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1116,7 +1116,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5899A0DA99FD399CEFBF136463A21841"
             {
-            "SourcePath" = "8:..\\build\\Release\\bunny.obj"
+            "SourcePath" = "8:..\\bunny.obj"
             "TargetName" = "8:bunny.obj"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1136,7 +1136,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_59DA52FFC19F44F1805955E5C0249F82"
             {
-            "SourcePath" = "8:..\\build\\Release\\dual_fisheye.jpg"
+            "SourcePath" = "8:..\\dual_fisheye.jpg"
             "TargetName" = "8:dual_fisheye.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1156,7 +1156,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5B652B069056143E41B64B3F7ACE371C"
             {
-            "SourcePath" = "8:..\\build\\Release\\pixpro_right.jpg"
+            "SourcePath" = "8:..\\pixpro_right.jpg"
             "TargetName" = "8:pixpro_right.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1176,7 +1176,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6129E832AF0A3BB8165061D09E817BFB"
             {
-            "SourcePath" = "8:..\\build\\Release\\PayCam2560x960.json"
+            "SourcePath" = "8:..\\PayCam2560x960.json"
             "TargetName" = "8:PayCam2560x960.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1196,7 +1196,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6147A1EA89B3C4BDC716F1D05DFFBAFB"
             {
-            "SourcePath" = "8:..\\build\\Release\\simple.vert"
+            "SourcePath" = "8:..\\simple.vert"
             "TargetName" = "8:simple.vert"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1216,7 +1216,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_65B5985CE7EEAB7C6706B368AAB85069"
             {
-            "SourcePath" = "8:..\\build\\Release\\arm.obj"
+            "SourcePath" = "8:..\\arm.obj"
             "TargetName" = "8:arm.obj"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1236,7 +1236,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6659341DA08D6E4127F8D7DA141D4DE0"
             {
-            "SourcePath" = "8:..\\build\\Release\\handl.mtl"
+            "SourcePath" = "8:..\\handl.mtl"
             "TargetName" = "8:handl.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1256,7 +1256,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_672CAE6B2F1D3B5C8676DC4606E50415"
             {
-            "SourcePath" = "8:..\\build\\Release\\left.jpg"
+            "SourcePath" = "8:..\\left.jpg"
             "TargetName" = "8:left.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1276,7 +1276,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6D09B0380CB658EE9270272FA9664F3D"
             {
-            "SourcePath" = "8:..\\build\\Release\\box.mtl"
+            "SourcePath" = "8:..\\box.mtl"
             "TargetName" = "8:box.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1296,8 +1296,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6E06F8F3D30CAF0A7CDC7433BBA35CA0"
             {
-            "SourcePath" = "8:..\\build\\Release\\panorama.frag"
-            "TargetName" = "8:panorama.frag"
+            "SourcePath" = "8:..\\theta_v.frag"
+            "TargetName" = "8:theta_v.frag"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1316,7 +1316,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6E7FCAC77BD61524F5FFF088221FA04C"
             {
-            "SourcePath" = "8:..\\build\\Release\\ted.png"
+            "SourcePath" = "8:..\\ted.png"
             "TargetName" = "8:ted.png"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1336,7 +1336,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6F2E7B64B0397097017A684F54D4E699"
             {
-            "SourcePath" = "8:..\\build\\Release\\hide.json"
+            "SourcePath" = "8:..\\hide.json"
             "TargetName" = "8:hide.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1356,7 +1356,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_738AA7A47A6CC0472BF211A96A4E1643"
             {
-            "SourcePath" = "8:..\\build\\Release\\handl_remote.mtl"
+            "SourcePath" = "8:..\\handl_remote.mtl"
             "TargetName" = "8:handl_remote.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1376,7 +1376,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_73E0E623EAF04271BA8C2A52D71DDAEF"
             {
-            "SourcePath" = "8:..\\build\\Release\\hand.json"
+            "SourcePath" = "8:..\\hand.json"
             "TargetName" = "8:hand.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1416,7 +1416,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8234930B2E95617EF82935DEFEFAFB41"
             {
-            "SourcePath" = "8:..\\build\\Release\\rectangle.vert"
+            "SourcePath" = "8:..\\rectangle.vert"
             "TargetName" = "8:rectangle.vert"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1436,7 +1436,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8386CD7644B6A9BB693FC068C2181F86"
             {
-            "SourcePath" = "8:..\\build\\Release\\fisheye_right.jpg"
+            "SourcePath" = "8:..\\fisheye_right.jpg"
             "TargetName" = "8:fisheye_right.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1456,7 +1456,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_86AA6A161A776BC7CC070DFFEA6020AE"
             {
-            "SourcePath" = "8:..\\build\\Release\\handr_remote.obj"
+            "SourcePath" = "8:..\\handr_remote.obj"
             "TargetName" = "8:handr_remote.obj"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1476,7 +1476,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_89C7C7EE138F0316C410CA1889320A24"
             {
-            "SourcePath" = "8:..\\build\\Release\\right.jpg"
+            "SourcePath" = "8:..\\right.jpg"
             "TargetName" = "8:right.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1496,7 +1496,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_89CB20EC619F84E95357EDDADDC0EF58"
             {
-            "SourcePath" = "8:..\\build\\Release\\wall.obj"
+            "SourcePath" = "8:..\\wall.obj"
             "TargetName" = "8:wall.obj"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1516,8 +1516,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8A34698F2B7BC4BD4BD955DF3C6DC341"
             {
-            "SourcePath" = "8:..\\build\\Release\\theta.vert"
-            "TargetName" = "8:theta.vert"
+            "SourcePath" = "8:..\\theta_s.vert"
+            "TargetName" = "8:theta_s.vert"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1536,7 +1536,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_90A4F2296A53D5E839461CC3F04401EC"
             {
-            "SourcePath" = "8:..\\build\\Release\\fisheye.json"
+            "SourcePath" = "8:..\\fisheye.json"
             "TargetName" = "8:fisheye.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1556,7 +1556,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_96AD52F7A5E96BE1587A875ED2F4F969"
             {
-            "SourcePath" = "8:..\\build\\Release\\simple.frag"
+            "SourcePath" = "8:..\\simple.frag"
             "TargetName" = "8:simple.frag"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1576,7 +1576,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9B203B9BD5ABBCE5A098E398EAEDC855"
             {
-            "SourcePath" = "8:..\\build\\Release\\finger.obj"
+            "SourcePath" = "8:..\\finger.obj"
             "TargetName" = "8:finger.obj"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1596,8 +1596,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9BC234CD58B677A070BC55C99D53E6D3"
             {
-            "SourcePath" = "8:..\\build\\Release\\theta.frag"
-            "TargetName" = "8:theta.frag"
+            "SourcePath" = "8:..\\theta_s.frag"
+            "TargetName" = "8:theta_s.frag"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1616,7 +1616,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9FCB94A4B118621839111511068D0FE4"
             {
-            "SourcePath" = "8:..\\build\\Release\\target.frag"
+            "SourcePath" = "8:..\\target.frag"
             "TargetName" = "8:target.frag"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1636,7 +1636,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A29546D6A57BB87FBA7495F675002AE1"
             {
-            "SourcePath" = "8:..\\build\\Release\\arm.mtl"
+            "SourcePath" = "8:..\\arm.mtl"
             "TargetName" = "8:arm.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1656,7 +1656,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AA47FC13171DDD94683F4AA7A8E5CB59"
             {
-            "SourcePath" = "8:..\\build\\Release\\handr.mtl"
+            "SourcePath" = "8:..\\handr.mtl"
             "TargetName" = "8:handr.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1676,7 +1676,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AA974FFC5B19BC8F33454C15CC1735C2"
             {
-            "SourcePath" = "8:..\\build\\Release\\bunny.mtl"
+            "SourcePath" = "8:..\\bunny.mtl"
             "TargetName" = "8:bunny.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1696,7 +1696,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AAD6C9846C2EFC40C301BA8974ADFB01"
             {
-            "SourcePath" = "8:..\\build\\Release\\pixpro.json"
+            "SourcePath" = "8:..\\pixpro.json"
             "TargetName" = "8:pixpro.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1716,7 +1716,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B035C4C9BF1C005F1CE0AD81257DB04E"
             {
-            "SourcePath" = "8:..\\build\\Release\\PayCam2560x960.jpg"
+            "SourcePath" = "8:..\\PayCam2560x960.jpg"
             "TargetName" = "8:PayCam2560x960.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1756,7 +1756,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B47ED3B7F5C39C7CD071290FEBD550BD"
             {
-            "SourcePath" = "8:..\\build\\Release\\remote.mtl"
+            "SourcePath" = "8:..\\remote.mtl"
             "TargetName" = "8:remote.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1776,7 +1776,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C540E25DADD9B2F59E7E30E853B9C673"
             {
-            "SourcePath" = "8:..\\build\\Release\\handr_remote.mtl"
+            "SourcePath" = "8:..\\handr_remote.mtl"
             "TargetName" = "8:handr_remote.mtl"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1796,8 +1796,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CD8820836CD4EB29C4252A74543121F8"
             {
-            "SourcePath" = "8:..\\build\\Release\\theta_left.jpg"
-            "TargetName" = "8:theta_left.jpg"
+            "SourcePath" = "8:..\\theta_s_left.jpg"
+            "TargetName" = "8:theta_s_left.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1816,8 +1816,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CF64DDFD0289E2A445C7D1BD6F2A0558"
             {
-            "SourcePath" = "8:..\\build\\Release\\theta_right.jpg"
-            "TargetName" = "8:theta_right.jpg"
+            "SourcePath" = "8:..\\theta_s_right.jpg"
+            "TargetName" = "8:theta_s_right.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1836,7 +1836,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D45192CB9216E902CC163062A28FD33C"
             {
-            "SourcePath" = "8:..\\build\\Release\\target.obj"
+            "SourcePath" = "8:..\\target.obj"
             "TargetName" = "8:target.obj"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1856,8 +1856,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D7574D800BDCBDB4C551614A8DB81BA1"
             {
-            "SourcePath" = "8:..\\build\\Release\\panorama_left.jpg"
-            "TargetName" = "8:panorama_left.jpg"
+            "SourcePath" = "8:..\\theta_v_left.jpg"
+            "TargetName" = "8:theta_v_left.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1876,8 +1876,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D7FF8C3DFB4198CA914A3CA68108CDBD"
             {
-            "SourcePath" = "8:..\\build\\Release\\theta.json"
-            "TargetName" = "8:theta.json"
+            "SourcePath" = "8:..\\theta_s.json"
+            "TargetName" = "8:theta_s.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1916,8 +1916,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DEA8E8CA72864221CC32EE531A58530C"
             {
-            "SourcePath" = "8:..\\build\\Release\\panorama_right.jpg"
-            "TargetName" = "8:panorama_right.jpg"
+            "SourcePath" = "8:..\\theta_v_right.jpg"
+            "TargetName" = "8:theta_v_right.jpg"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
             "Condition" = "8:"
@@ -1936,7 +1936,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E5C40725AA9B4964B07342C9CB8DC5D4"
             {
-            "SourcePath" = "8:..\\build\\Release\\fixed.json"
+            "SourcePath" = "8:..\\fixed.json"
             "TargetName" = "8:fixed.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1956,7 +1956,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F25786D201EA4E6F2B7E658EBD38957C"
             {
-            "SourcePath" = "8:..\\build\\Release\\handl_remote.obj"
+            "SourcePath" = "8:..\\handl_remote.obj"
             "TargetName" = "8:handl_remote.obj"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1976,7 +1976,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FBE4238DAC38AC551ADE99EFD78534BA"
             {
-            "SourcePath" = "8:..\\build\\Release\\telexistence.json"
+            "SourcePath" = "8:..\\telexistence.json"
             "TargetName" = "8:telexistence.json"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"
@@ -1996,7 +1996,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FE29BD28D2A971F743F615F892722EB5"
             {
-            "SourcePath" = "8:..\\build\\Release\\pixpro.vert"
+            "SourcePath" = "8:..\\pixpro.vert"
             "TargetName" = "8:pixpro.vert"
             "Tag" = "8:"
             "Folder" = "8:_22AD224362704684B1F969685D67EB44"

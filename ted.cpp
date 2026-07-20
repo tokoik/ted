@@ -30,6 +30,9 @@
 // メニュー
 #include "Menu.h"
 
+// 標準ライブラリ
+#include <iostream>
+
 static Rect* rectPointer{ nullptr };
 
 
@@ -477,35 +480,56 @@ int GgApp::main(int argc, const char *const *const argv)
   // デフォルトが OPENXR なら HMD を起動する
   if (defaults.display_mode == OPENXR) window.startHMD();
 
-  // 描画用オブジェクトの再構築
-  const auto reloadVisuals{ [&]()
-    {
-      // 先に新しいオブジェクトを完成させ、成功した場合だけ現在のものと入れ替える
-      auto newRect{ std::make_unique<Rect>(window,
-        defaults.vertex_shader, defaults.fragment_shader) };
-      if (!newRect->get()) return false;
-      newRect->setTexture(0, texture[0]);
-      newRect->setTexture(1, texture[stereo ? 1 : 0]);
-
-      auto newScene{ std::make_unique<Scene>(defaults.scene) };
-      if (!newScene->isValid()) return false;
-      newScene->setShader(simple);
-
-      rect = std::move(newRect);
-      rectPointer = rect.get();
-      scene = std::move(newScene);
-      if (scene->isEmpty()) window.showScene = false;
-      return true;
-    } };
-
   // メニュー
-  Menu menu{ this, window, scene, attitude, reloadVisuals };
+  Menu menu{ this, window, attitude };
 
   // ウィンドウが開いている間くり返し描画する
   while (window)
   {
     // メニューを表示する
     if (window.showMenu) menu.show();
+
+    // 設定ファイルが読み込まれたら描画オブジェクトを再構築する
+    if (menu.isConfigReloadPending())
+    {
+      bool status{ false };
+      try
+      {
+        // 先に新しいオブジェクトを完成させ、成功した場合だけ現在のものと入れ替える
+        auto newRect{ std::make_unique<Rect>(window,
+          defaults.vertex_shader, defaults.fragment_shader) };
+        if (newRect->get())
+        {
+          newRect->setTexture(0, texture[0]);
+          newRect->setTexture(1, texture[stereo ? 1 : 0]);
+
+          auto newScene{ std::make_unique<Scene>(defaults.scene) };
+          if (newScene->isValid())
+          {
+            newScene->setShader(simple);
+            rect = std::move(newRect);
+            rectPointer = rect.get();
+            scene = std::move(newScene);
+            if (scene->isEmpty()) window.showScene = false;
+            status = true;
+          }
+        }
+      }
+      catch (const std::exception& error)
+      {
+#if defined(_DEBUG)
+        std::cerr << "Failed to apply configuration: " << error.what() << std::endl;
+#endif
+      }
+      catch (...)
+      {
+#if defined(_DEBUG)
+        std::cerr << "Failed to apply configuration: unknown exception" << std::endl;
+#endif
+      }
+
+      menu.finishConfigReload(status);
+    }
 
     // 有効なカメラの数
     int cam_count{ stereo ? camCount : 1 };

@@ -24,6 +24,7 @@
 
 // 標準ライブラリ
 #include <cstdlib>
+#include <iostream>
 
 //
 // 設定ファイルの読み込み
@@ -42,13 +43,32 @@ int Menu::loadConfig()
   // ファイルパスが取得できたら
   if (result == NFD_OKAY)
   {
-    // 読み込みや描画オブジェクトの生成に失敗したとき戻せるよう設定を保存する
-    const Config previous{ defaults };
+    // 描画オブジェクトの生成に失敗したとき戻せるよう設定を保存する
+    previousConfig = defaults;
 
-    // 設定ファイルを読み込んで、シーンと背景シェーダも作り直す
-    const bool loaded{ defaults.load(openPath) };
-    const bool status{ loaded && reloadVisuals() };
-    if (!status) defaults = previous;
+    // 設定ファイルを読み込み、描画側へ再構築を要求する
+    bool status{ false };
+    try
+    {
+      status = defaults.load(openPath);
+      configReloadPending = status;
+    }
+    catch (const std::exception& error)
+    {
+#if defined(_DEBUG)
+      std::cerr << "Failed to reload configuration: " << error.what() << std::endl;
+#endif
+      showNodataWindow = true;
+    }
+    catch (...)
+    {
+#if defined(_DEBUG)
+      std::cerr << "Failed to reload configuration: unknown exception" << std::endl;
+#endif
+      showNodataWindow = true;
+    }
+
+    if (!status) defaults = previousConfig;
 
     // ファイルパスに使ったメモリを解放して
     NFD_FreePath(openPath);
@@ -180,14 +200,14 @@ void Menu::displayWindow()
     if (!defaults.use_leap_motion)
     {
       // Leap Motion を使うなら起動する
-      if (use_leap_motion && scene->startLeapMotion())
+      if (use_leap_motion && Scene::startLeapMotion())
         defaults.use_leap_motion = true;
     }
     // それまで使っていた Leap Motion を止めるとき
     else if (!use_leap_motion)
     {
       // Leap Motion を止める
-      scene->stopLeapMotion();
+      Scene::stopLeapMotion();
       defaults.use_leap_motion = false;
     }
   }
@@ -228,12 +248,12 @@ void Menu::attitudeWindow()
   ImGui::InputFloat3(u8"位置", attitude.position.data(), "%6.2f");
   if (ImGui::SliderInt(u8"ズーム率", attitude.foreAdjust.data(), -99, 99))
     window.update();
-  if (ImGui::SliderInt(u8"視差", &attitude.parallax, -99, 99))
+  if (ImGui::SliderInt(u8"視差##前景", &attitude.parallax, -99, 99))
     window.update();
   ImGui::Text(u8"背景");
   if (ImGui::SliderInt(u8"焦点距離", attitude.backAdjust.data(), -99, 99))
     window.update();
-  if (ImGui::SliderInt(u8"視差", &attitude.offset, -99, 99))
+  if (ImGui::SliderInt(u8"視差##背景", &attitude.offset, -99, 99))
     window.update();
   if (ImGui::SliderInt2(u8"画角", &attitude.circleAdjust[0], -99, 99))
     window.updateCircle();
@@ -524,15 +544,24 @@ void Menu::menuBar()
 //
 // コンストラクタ
 //
-Menu::Menu(GgApp* app, GgApp::Window& window, std::unique_ptr<Scene>& scene,
-  Attitude& attitude, const std::function<bool()>& reloadVisuals)
+Menu::Menu(GgApp* app, GgApp::Window& window, Attitude& attitude)
   : app{ app }
   , window { window }
-  , scene{ scene }
-  , reloadVisuals{ reloadVisuals }
   , attitude{ attitude }
 {
   NFD_Init();
+}
+
+//
+// 設定ファイルの描画側への反映結果を通知する
+//
+void Menu::finishConfigReload(bool status)
+{
+  // 反映できなければ読み込み前の設定に戻す
+  if (!status) defaults = previousConfig;
+
+  configReloadPending = false;
+  showNodataWindow = !status;
 }
 
 // GUID から人間が読める形式の名前を返す
