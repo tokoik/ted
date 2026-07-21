@@ -121,7 +121,11 @@ void getFilePath(std::string& path, const nfdfilteritem_t* filter)
   nfdchar_t* filepath{ nullptr };
 
   // ファイルダイアログを開く
-  if (NFD_OpenDialog(&filepath, filter, 1, nullptr) == NFD_OKAY) path = filepath;
+  if (NFD_OpenDialog(&filepath, filter, 1, nullptr) == NFD_OKAY)
+  {
+    path = filepath;
+    NFD_FreePath(filepath);
+  }
 }
 
 //
