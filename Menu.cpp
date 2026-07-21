@@ -43,7 +43,7 @@ int Menu::loadConfig()
   if (result == NFD_OKAY)
   {
     // 現在の設定を変更せず、候補設定を読み込む
-    Config candidate{ defaults };
+    Config candidate{ config };
     bool status{ false };
     try
     {
@@ -79,7 +79,7 @@ int Menu::loadConfig()
 //
 // 設定ファイルの保存
 //
-int saveConfig()
+int Menu::saveConfig()
 {
   // ファイルパスの取得先
   nfdchar_t* savePath{ nullptr };
@@ -88,13 +88,13 @@ int saveConfig()
   static constexpr nfdfilteritem_t filter[]{ {"JSON", "json"} };
   const nfdresult_t result{ NFD_SaveDialog(&savePath,
     filter, static_cast<nfdfiltersize_t>(std::size(filter)),
-    nullptr, defaults.config_file.c_str()) };
+    nullptr, config.config_file.c_str()) };
 
   // ファイルパスが取得できたら
   if (result == NFD_OKAY)
   {
     // 設定ファイルを読み込んで
-    const bool status{ defaults.save(savePath) };
+    const bool status{ config.save(savePath) };
 
     // ファイルパスに使ったメモリを解放して
     NFD_FreePath(savePath);
@@ -110,7 +110,7 @@ int saveConfig()
 //
 // ファイルパスの取得
 //
-void getFilePath(std::string& path, const nfdfilteritem_t* filter)
+void Menu::getFilePath(std::string& path, const nfdfilteritem_t* filter)
 {
   // ファイルダイアログから得るパス
   nfdchar_t* filepath{ nullptr };
@@ -153,7 +153,7 @@ void Menu::displayWindow()
   ImGui::Begin(u8"表示設定", &showDisplayWindow);
 
   // 表示モードの選択
-  int display_mode{ defaults.display_mode };
+  int display_mode{ config.display_mode };
   ImGui::RadioButton(u8"単眼視", &display_mode, MONOCULAR);
   ImGui::RadioButton(u8"上下分割", &display_mode, TOP_AND_BOTTOM);
   ImGui::RadioButton(u8"左右分割", &display_mode, SIDE_BY_SIDE);
@@ -162,41 +162,41 @@ void Menu::displayWindow()
   ImGui::RadioButton(u8"OpenXR", &display_mode, OPENXR);
 
   // 表示モードが変更されたとき
-  if (display_mode != defaults.display_mode)
+  if (display_mode != config.display_mode)
   {
     window.setDisplayMode(display_mode);
   }
 
   // ゲームパッドを有効にするかどうか
-  ImGui::Checkbox("Game Pad", &defaults.use_controller);
+  ImGui::Checkbox("Game Pad", &config.use_controller);
 
   // Leap Motion を有効にするかどうか
-  bool use_leap_motion{ defaults.use_leap_motion };
+  bool use_leap_motion{ config.use_leap_motion };
   if (ImGui::Checkbox("Leap Motion", &use_leap_motion))
     app.setLeapMotionEnabled(use_leap_motion);
 
   // 表示関係
-  ImGui::Checkbox(u8"ヘッドトラッキング", &defaults.camera_tracking);
+  ImGui::Checkbox(u8"ヘッドトラッキング", &config.camera_tracking);
   bool showMirror{ window.isMirrorVisible() };
   if (ImGui::Checkbox(u8"ミラー表示", &showMirror)) window.setMirrorVisible(showMirror);
   bool showScene{ window.isSceneVisible() };
   if (ImGui::Checkbox(u8"シーン表示", &showScene)) window.setSceneVisible(showScene);
   char scene_file[MAX_PATH]{ "" };
-  if (defaults.scene.is<std::string>())
+  if (config.scene.is<std::string>())
   {
     // JSONの長いパスでも固定長のImGui入力バッファを越えないよう末尾を切り詰める
-    strncpy_s(scene_file, defaults.scene.get<std::string>().c_str(), _TRUNCATE);
+    strncpy_s(scene_file, config.scene.get<std::string>().c_str(), _TRUNCATE);
   }
   if (ImGui::InputText(u8"シーン", scene_file, sizeof scene_file))
   {
-    defaults.scene = picojson::value(std::string(scene_file));
+    config.scene = picojson::value(std::string(scene_file));
   }
-  float nearPlane{ defaults.display_near };
-  if (ImGui::SliderFloat(u8"前方面", &nearPlane, 0.01f, defaults.display_far))
-    window.setClipPlanes(nearPlane, defaults.display_far);
-  float farPlane{ defaults.display_far };
-  if (ImGui::SliderFloat(u8"後方面", &farPlane, defaults.display_near, 10.0f))
-    window.setClipPlanes(defaults.display_near, farPlane);
+  float nearPlane{ config.display_near };
+  if (ImGui::SliderFloat(u8"前方面", &nearPlane, 0.01f, config.display_far))
+    window.setClipPlanes(nearPlane, config.display_far);
+  float farPlane{ config.display_far };
+  if (ImGui::SliderFloat(u8"後方面", &farPlane, config.display_near, 10.0f))
+    window.setClipPlanes(config.display_near, farPlane);
 
   ImGui::End();
 }
@@ -267,29 +267,29 @@ void Menu::inputWindow()
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
   ImGui::Begin(u8"入力設定", &showInputWindow);
 
-  ImGui::RadioButton(u8"静止画像", &defaults.input_mode, InputMode::IMAGE);
+  ImGui::RadioButton(u8"静止画像", &config.input_mode, InputMode::IMAGE);
   static const nfdfilteritem_t image_filter[]{ "Images", "png,jpg,jpeg,jfif,bmp,dib" };
   if (ImGui::Button(u8"左画像"))
-    getFilePath(defaults.camera_image[camL], image_filter);
+    getFilePath(config.camera_image[camL], image_filter);
   ImGui::SameLine();
-  ImGui::Text(defaults.camera_image[camL].c_str());
+  ImGui::TextUnformatted(config.camera_image[camL].c_str());
   if (ImGui::Button(u8"右画像"))
-    getFilePath(defaults.camera_image[camR], image_filter);
+    getFilePath(config.camera_image[camR], image_filter);
   ImGui::SameLine();
-  ImGui::Text(defaults.camera_image[camR].c_str());
+  ImGui::TextUnformatted(config.camera_image[camR].c_str());
 
-  ImGui::RadioButton(u8"動画像", &defaults.input_mode, InputMode::MOVIE);
+  ImGui::RadioButton(u8"動画像", &config.input_mode, InputMode::MOVIE);
   static const nfdfilteritem_t movie_filter[]{ "Movies", "mp4,m4v,mov,avi,wmv,ogg" };
   if (ImGui::Button(u8"左動画"))
-    getFilePath(defaults.camera_movie[camL], movie_filter);
+    getFilePath(config.camera_movie[camL], movie_filter);
   ImGui::SameLine();
-  ImGui::Text(defaults.camera_movie[camL].c_str());
+  ImGui::TextUnformatted(config.camera_movie[camL].c_str());
   if (ImGui::Button(u8"右動画"))
-    getFilePath(defaults.camera_movie[camR], movie_filter);
+    getFilePath(config.camera_movie[camR], movie_filter);
   ImGui::SameLine();
-  ImGui::Text(defaults.camera_movie[camR].c_str());
+  ImGui::TextUnformatted(config.camera_movie[camR].c_str());
 
-  ImGui::RadioButton(u8"カメラ", &defaults.input_mode, InputMode::CAMERA);
+  ImGui::RadioButton(u8"カメラ", &config.input_mode, InputMode::CAMERA);
 
   // デバイスリストの取得
   const auto& devices{ CameraCapabilities::getDeviceList() };
@@ -304,7 +304,7 @@ void Menu::inputWindow()
     const auto& cache{ cameraMenuCache[cam] };
 
     // デバイス選択コンボボックス
-    int currentDevice{ defaults.camera_id[cam] };
+    int currentDevice{ config.camera_id[cam] };
     std::string deviceComboLabel{ u8"未選択" };
     if (currentDevice >= 0 && currentDevice < devices.size()) {
       deviceComboLabel = devices[currentDevice];
@@ -317,7 +317,7 @@ void Menu::inputWindow()
         bool isSelected = (currentDevice == i);
         if (ImGui::Selectable(devices[i].c_str(), isSelected))
         {
-          defaults.camera_id[cam] = i;
+          config.camera_id[cam] = i;
         }
         if (isSelected) {
           ImGui::SetItemDefaultFocus();
@@ -327,7 +327,7 @@ void Menu::inputWindow()
     }
 
     // コーデック選択コンボボックス
-    std::string currentCodec = defaults.camera_codec[cam];
+    std::string currentCodec = config.camera_codec[cam];
     if (ImGui::BeginCombo(u8"符号化", currentCodec.c_str()))
     {
       for (const auto& codec : cache.codecs)
@@ -335,7 +335,7 @@ void Menu::inputWindow()
         bool isSelected = (currentCodec == codec);
         if (ImGui::Selectable(codec.c_str(), isSelected))
         {
-          defaults.camera_codec[cam] = codec;
+          config.camera_codec[cam] = codec;
         }
         if (isSelected) {
           ImGui::SetItemDefaultFocus();
@@ -345,7 +345,7 @@ void Menu::inputWindow()
     }
 
     // 解像度選択コンボボックス
-    std::string currentResolution = defaults.camera_resolution[cam];
+    std::string currentResolution = config.camera_resolution[cam];
     if (ImGui::BeginCombo(u8"解像度", currentResolution.c_str()))
     {
       for (const auto& res : cache.resolutions)
@@ -353,7 +353,7 @@ void Menu::inputWindow()
         bool isSelected = (currentResolution == res);
         if (ImGui::Selectable(res.c_str(), isSelected))
         {
-          defaults.camera_resolution[cam] = res;
+          config.camera_resolution[cam] = res;
         }
         if (isSelected) {
           ImGui::SetItemDefaultFocus();
@@ -365,7 +365,7 @@ void Menu::inputWindow()
     ImGui::PopID();
   }
 
-  ImGui::RadioButton(u8"Ovrvision", &defaults.input_mode, InputMode::OVRVISION);
+  ImGui::RadioButton(u8"Ovrvision", &config.input_mode, InputMode::OVRVISION);
   static constexpr char *properties[]{
     "2560 x 1920 @ 15fps",
     "1920 x 1080 @ 30fps",
@@ -377,32 +377,32 @@ void Menu::inputWindow()
     "1280 x 960 @ 15fps (USB2.0)",
     "640 x 480 @ 30fps (USB2.0)"
   };
-  ImGui::Combo(u8"特性", &defaults.ovrvision_property, properties, IM_ARRAYSIZE(properties));
+  ImGui::Combo(u8"特性", &config.ovrvision_property, properties, IM_ARRAYSIZE(properties));
 
-  ImGui::RadioButton(u8"リモート", &defaults.input_mode, InputMode::REMOTE);
+  ImGui::RadioButton(u8"リモート", &config.input_mode, InputMode::REMOTE);
   static constexpr char* roles[]{
     u8"単独",
     u8"指導者",
     u8"作業者"
   };
-  ImGui::Combo(u8"役割", &defaults.role, roles, IM_ARRAYSIZE(roles));
+  ImGui::Combo(u8"役割", &config.role, roles, IM_ARRAYSIZE(roles));
   char address[16]{ "0.0.0.0" };
   // 外部設定を固定長UIバッファへ移すため、必ず終端できる長さに制限する
-  strncpy_s(address, defaults.address.c_str(), _TRUNCATE);
+  strncpy_s(address, config.address.c_str(), _TRUNCATE);
   if (ImGui::InputText(u8"アドレス", address, sizeof address))
-    defaults.address = address;
-  ImGui::InputInt(u8"ポート", &defaults.port);
+    config.address = address;
+  ImGui::InputInt(u8"ポート", &config.port);
 
   ImGui::Text(u8"シェーダ");
   // 設定ファイル由来のパスをImGuiの固定長編集領域へ安全に複製し、編集後にstd::stringへ戻す
   char vertex_shader[MAX_PATH]{ "" };
-  strncpy_s(vertex_shader, defaults.vertex_shader.c_str(), _TRUNCATE);
+  strncpy_s(vertex_shader, config.vertex_shader.c_str(), _TRUNCATE);
   if (ImGui::InputText(u8"頂点", vertex_shader, sizeof vertex_shader))
-    defaults.vertex_shader = vertex_shader;
+    config.vertex_shader = vertex_shader;
   char fragment_shader[MAX_PATH]{ "" };
-  strncpy_s(fragment_shader, defaults.fragment_shader.c_str(), _TRUNCATE);
+  strncpy_s(fragment_shader, config.fragment_shader.c_str(), _TRUNCATE);
   if (ImGui::InputText(u8"画素", fragment_shader, sizeof fragment_shader))
-    defaults.fragment_shader = fragment_shader;
+    config.fragment_shader = fragment_shader;
 
   if (ImGui::Button(u8"設定")) app.selectInput();
 
@@ -438,21 +438,21 @@ void Menu::startupWindow()
   if (ImGui::Button(u8"設定を保存"))
   {
     // 保存に失敗したときのために元の値を取っておく
-    std::swap(defaults.display_secondary,secondary);
-    std::swap(defaults.display_fullscreen, fullscreen);
-    std::swap(defaults.display_quadbuffer, quadbuffer);
-    std::swap(defaults.local_share_size, memorysize[0]);
-    std::swap(defaults.remote_share_size, memorysize[1]);
+    std::swap(config.display_secondary, secondary);
+    std::swap(config.display_fullscreen, fullscreen);
+    std::swap(config.display_quadbuffer, quadbuffer);
+    std::swap(config.local_share_size, memorysize[0]);
+    std::swap(config.remote_share_size, memorysize[1]);
 
     // 設定ファイルを保存する
     if (saveConfig() <= 0)
     {
       // 保存に失敗したかキャンセルしたので元の値を復帰する
-      defaults.display_secondary = secondary;
-      defaults.display_fullscreen = fullscreen;
-      defaults.display_quadbuffer = quadbuffer;
-      defaults.local_share_size = memorysize[0];
-      defaults.remote_share_size = memorysize[1];
+      config.display_secondary = secondary;
+      config.display_fullscreen = fullscreen;
+      config.display_quadbuffer = quadbuffer;
+      config.local_share_size = memorysize[0];
+      config.remote_share_size = memorysize[1];
     }
     else
     {
@@ -495,11 +495,11 @@ void Menu::menuBar()
       else if (ImGui::MenuItem(u8"起動時設定", nullptr, &showStartupWindow))
       {
         // 起動時設定のコピーを取っておく
-        secondary = defaults.display_secondary;
-        fullscreen = defaults.display_fullscreen;
-        quadbuffer = defaults.display_quadbuffer;
-        memorysize[0] = defaults.local_share_size;
-        memorysize[1] = defaults.remote_share_size;
+        secondary = config.display_secondary;
+        fullscreen = config.display_fullscreen;
+        quadbuffer = config.display_quadbuffer;
+        memorysize[0] = config.local_share_size;
+        memorysize[1] = config.remote_share_size;
       }
 
       // 終了
@@ -510,7 +510,7 @@ void Menu::menuBar()
     }
 
     // Window メニュー
-    else if (ImGui::BeginMenu(u8"ウィンドウ"))
+    if (ImGui::BeginMenu(u8"ウィンドウ"))
     {
       // 表示設定ウィンドウを開くか
       ImGui::MenuItem(u8"表示設定", NULL, &showDisplayWindow);
@@ -536,10 +536,11 @@ void Menu::menuBar()
 //
 // コンストラクタ
 //
-Menu::Menu(GgApp& app, GgApp::Window& window, Attitude& attitude)
+Menu::Menu(GgApp& app, GgApp::Window& window, Attitude& attitude, Config& config)
   : app{ app }
   , window { window }
   , attitude{ attitude }
+  , config{ config }
 {
   NFD_Init();
 }
@@ -550,7 +551,7 @@ Menu::Menu(GgApp& app, GgApp::Window& window, Attitude& attitude)
 void Menu::finishConfigReload(bool status)
 {
   // 描画オブジェクトを構築できた場合だけ候補設定を確定する
-  if (status && pendingConfig) defaults = std::move(*pendingConfig);
+  if (status && pendingConfig) config = std::move(*pendingConfig);
 
   pendingConfig.reset();
   showNodataWindow = !status;
@@ -561,7 +562,7 @@ void Menu::updateCameraMenuCache(int cam)
 {
   auto& cache{ cameraMenuCache[cam] };
   const auto& devices{ CameraCapabilities::getDeviceList() };
-  int currentDevice{ defaults.camera_id[cam] };
+  int currentDevice{ config.camera_id[cam] };
 
   // デバイスが無効な場合はクリアして終了
   if (currentDevice < 0 || currentDevice >= devices.size())
@@ -592,17 +593,17 @@ void Menu::updateCameraMenuCache(int cam)
     }
 
     // もし現在の config コーデックがなければ最初のコーデックをセット
-    if (std::find(cache.codecs.begin(), cache.codecs.end(), defaults.camera_codec[cam]) == cache.codecs.end())
+    if (std::find(cache.codecs.begin(), cache.codecs.end(), config.camera_codec[cam]) == cache.codecs.end())
     {
-      if (!cache.codecs.empty()) defaults.camera_codec[cam] = cache.codecs[0];
-      else defaults.camera_codec[cam] = "";
+      if (!cache.codecs.empty()) config.camera_codec[cam] = cache.codecs[0];
+      else config.camera_codec[cam] = "";
     }
   }
 
   // コーデックが変わったとき
-  if (cache.lastCodec != defaults.camera_codec[cam])
+  if (cache.lastCodec != config.camera_codec[cam])
   {
-    cache.lastCodec = defaults.camera_codec[cam];
+    cache.lastCodec = config.camera_codec[cam];
     cache.resolutions.clear();
 
     for (const auto& capability : cache.capabilities)
@@ -620,10 +621,10 @@ void Menu::updateCameraMenuCache(int cam)
     }
 
     // もし現在の config 解像度がなければ最初の解像度をセット
-    if (std::find(cache.resolutions.begin(), cache.resolutions.end(), defaults.camera_resolution[cam]) == cache.resolutions.end())
+    if (std::find(cache.resolutions.begin(), cache.resolutions.end(), config.camera_resolution[cam]) == cache.resolutions.end())
     {
-      if (!cache.resolutions.empty()) defaults.camera_resolution[cam] = cache.resolutions[0];
-      else defaults.camera_resolution[cam] = "";
+      if (!cache.resolutions.empty()) config.camera_resolution[cam] = cache.resolutions[0];
+      else config.camera_resolution[cam] = "";
     }
   }
 }

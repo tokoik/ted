@@ -481,7 +481,7 @@ int GgApp::main(int argc, const char *const *const argv)
   if (defaults.display_mode == OPENXR) window.startHMD();
 
   // メニュー
-  Menu menu{ *this, window, attitude };
+  Menu menu{ *this, window, attitude, defaults };
 
   // ウィンドウが開いている間くり返し描画する
   while (window)

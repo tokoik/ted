@@ -17,6 +17,9 @@
 // カメラ入力形式
 #include "CameraCapabilities.h"
 
+// Native File Dialog
+#include "nfd.h"
+
 // 標準ライブラリ
 #include <optional>
 
@@ -51,6 +54,9 @@ class Menu
 
   /// メニューで操作する姿勢
   Attitude& attitude;
+
+  /// アプリケーションの設定
+  Config& config;
 
   /// 描画側での検証と反映を待っている設定
   std::optional<Config> pendingConfig;
@@ -93,6 +99,16 @@ class Menu
   int loadConfig();
 
   ///
+  /// 設定ファイルを保存する
+  ///
+  int saveConfig();
+
+  ///
+  /// ファイルパスを取得する
+  ///
+  void getFilePath(std::string& path, const nfdfilteritem_t* filter);
+
+  ///
   /// データ読み込みエラー表示ウィンドウ
   ///
   void nodataWindow();
@@ -125,8 +141,9 @@ public:
   /// @param app このアプリケーション
   /// @param window メニューを表示するウィンドウ
   /// @param attitude メニューで操作する姿勢
+  /// @param config アプリケーションの設定
   ///
-  Menu(GgApp& app, GgApp::Window& window, Attitude& attitude);
+  Menu(GgApp& app, GgApp::Window& window, Attitude& attitude, Config& config);
 
   ///
   /// デストラクタ

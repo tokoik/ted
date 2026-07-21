@@ -217,7 +217,7 @@ bool Config::read(picojson::value& v)
   getValue(o, "ovrvision_property", ovrvision_property);
 
   // ゲームコントローラの使用
-  getValue(o, "leap_motion", use_controller);
+  getValue(o, "controller", use_controller);
 
   // Leap Motion の使用
   getValue(o, "leap_motion", use_leap_motion);
