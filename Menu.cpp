@@ -147,7 +147,7 @@ void Menu::nodataWindow()
 void Menu::displayWindow()
 {
   ImGui::SetNextWindowPos(ImVec2(2, 25), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(165, 428), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(165, 484), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"表示設定", &showDisplayWindow);
@@ -159,7 +159,7 @@ void Menu::displayWindow()
   ImGui::RadioButton(u8"左右分割", &display_mode, SIDE_BY_SIDE);
   ImGui::RadioButton(u8"左右重畳", &display_mode, OVERLAY);
   ImGui::RadioButton(u8"Quad Buffer", &display_mode, QUADBUFFER);
-  ImGui::RadioButton(u8"OpenXR", &display_mode, OPENXR);
+  ImGui::RadioButton(u8"HMD (OpenXR)", &display_mode, OPENXR);
 
   // 表示モードが変更されたとき
   if (display_mode != config.display_mode)
@@ -170,13 +170,34 @@ void Menu::displayWindow()
   // ゲームパッドを有効にするかどうか
   ImGui::Checkbox("Game Pad", &config.use_controller);
 
-  // Leap Motion を有効にするかどうか
-  bool use_leap_motion{ config.use_leap_motion };
-  if (ImGui::Checkbox("Leap Motion", &use_leap_motion))
-    app.setLeapMotionEnabled(use_leap_motion);
+  // ヘッドトラッキングするかどうか
+  ImGui::Checkbox(u8"ヘッドトラッキング", &config.camera_tracking);
+
+  // ハンドトラッキングを有効にするかどうか
+  bool use_hand_tracking{ config.hand_tracking != HAND_TRACKING_NONE };
+  if (ImGui::Checkbox(u8"ハンドトラッキング", &use_hand_tracking))
+  {
+    app.setHandTrackingMode(use_hand_tracking ? HAND_TRACKING_LEAP_MOTION : HAND_TRACKING_NONE);
+  }
+
+  // デバイスを選択する（常に表示するが、チェックボックスが OFF のときはグレーアウト）
+  ImGui::BeginDisabled(!use_hand_tracking);
+  ImGui::Indent(16.0f);
+
+  int device{ config.hand_tracking == HAND_TRACKING_OPENXR ? HAND_TRACKING_OPENXR : HAND_TRACKING_LEAP_MOTION };
+  if (ImGui::RadioButton(u8"Leap Motion", &device, HAND_TRACKING_LEAP_MOTION))
+  {
+    app.setHandTrackingMode(HAND_TRACKING_LEAP_MOTION);
+  }
+  if (ImGui::RadioButton(u8"OpenXR", &device, HAND_TRACKING_OPENXR))
+  {
+    app.setHandTrackingMode(HAND_TRACKING_OPENXR);
+  }
+
+  ImGui::Unindent(16.0f);
+  ImGui::EndDisabled();
 
   // 表示関係
-  ImGui::Checkbox(u8"ヘッドトラッキング", &config.camera_tracking);
   bool showMirror{ window.isMirrorVisible() };
   if (ImGui::Checkbox(u8"ミラー表示", &showMirror)) window.setMirrorVisible(showMirror);
   bool showScene{ window.isSceneVisible() };

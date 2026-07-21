@@ -124,12 +124,13 @@ public:
   ///
   bool selectInput();
 
-  /// Leap Motion の使用状態を変更する
   ///
-  /// @param enabled 使用する場合は true
+  /// ハンドトラッキングの使用状態を変更する
+  ///
+  /// @param mode 使用するハンドトラッキングのモード
   /// @return 要求した状態へ変更できた場合は true
   ///
-  bool setLeapMotionEnabled(bool enabled);
+  bool setHandTrackingMode(int mode);
 
   ///
   /// アプリケーション本体
@@ -348,7 +349,7 @@ public:
     /// @param button マウスボタンの識別子
     /// @param action マウスボタンの操作
     /// @param mods 修飾キーの状態
-    /// 
+    ///
     static void mouse(GLFWwindow* window, int button, int action, int mods);
 
     ///

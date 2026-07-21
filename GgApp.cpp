@@ -31,22 +31,25 @@
 #include "imgui_impl_opengl3.h"
 
 //
-// Leap Motion の使用状態を変更する
+// ハンドトラッキングの使用状態を変更する
 //
-bool GgApp::setLeapMotionEnabled(bool enabled)
+bool GgApp::setHandTrackingMode(int mode)
 {
-  if (enabled == defaults.use_leap_motion) return true;
+  if (mode == defaults.hand_tracking) return true;
 
-  if (enabled)
-  {
-    if (!Scene::startLeapMotion()) return false;
-  }
-  else
+  // 以前のモードのクリーンアップ
+  if (defaults.hand_tracking == HAND_TRACKING_LEAP_MOTION)
   {
     Scene::stopLeapMotion();
   }
 
-  defaults.use_leap_motion = enabled;
+  // 新しいモードの初期化
+  if (mode == HAND_TRACKING_LEAP_MOTION)
+  {
+    if (!Scene::startLeapMotion()) return false;
+  }
+
+  defaults.hand_tracking = mode;
   return true;
 }
 
@@ -1196,6 +1199,7 @@ void GgApp::Window::cleanupOpenXR()
 //
 void GgApp::Window::updateOpenXRHands(XrTime time)
 {
+  if (defaults.hand_tracking != HAND_TRACKING_OPENXR) return;
   if (!xrHandTrackingSupported || !xrLocateHandJoints || !xrOriginValid) return;
 
   // Leap側の各指4骨は、OpenXRでは各骨の末端に当たる4関節へ対応させる。

@@ -170,6 +170,14 @@ enum Role
   WORKER                    ///< 作業者
 };
 
+/// ハンドトラッキングの設定
+enum HandTrackingMode
+{
+  HAND_TRACKING_NONE = 0,   ///< なし
+  HAND_TRACKING_LEAP_MOTION,///< Leap Motion
+  HAND_TRACKING_OPENXR      ///< OpenXR
+};
+
 ///
 /// 設定値
 ///
@@ -263,8 +271,8 @@ struct Config
   /// ゲームコントローラの使用
   bool use_controller{ false };
 
-  /// Leap Motion の使用
-  bool use_leap_motion{ false };
+  /// ハンドトラッキングの使用
+  int hand_tracking{ HAND_TRACKING_NONE };
 
   /// バーテックスシェーダのソースプログラム
   std::string vertex_shader{ "fixed.vert" };

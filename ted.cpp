@@ -441,12 +441,12 @@ int GgApp::main(int argc, const char *const *const argv)
   // winsock2 の終了処理を登録する
   atexit(reinterpret_cast<void(*)()>(WSACleanup));
 
-  // Leap Motion を起動する
-  if (defaults.use_leap_motion)
+  // ハンドトラッキングの初期起動
+  if (defaults.hand_tracking == HAND_TRACKING_LEAP_MOTION)
   {
     if (!Scene::startLeapMotion())
     {
-      defaults.use_leap_motion = false;
+      defaults.hand_tracking = HAND_TRACKING_NONE;
     }
   }
 

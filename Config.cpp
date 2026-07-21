@@ -219,8 +219,18 @@ bool Config::read(picojson::value& v)
   // ゲームコントローラの使用
   getValue(o, "controller", use_controller);
 
-  // Leap Motion の使用
-  getValue(o, "leap_motion", use_leap_motion);
+  // ハンドトラッキングの使用
+  getValue(o, "hand_tracking", hand_tracking);
+
+  // 互換性維持：leap_motion キーが存在し、かつ hand_tracking が未設定の場合のフォールバック
+  bool old_leap_motion{ false };
+  if (getValue(o, "leap_motion", old_leap_motion) && hand_tracking == HAND_TRACKING_NONE)
+  {
+    if (old_leap_motion)
+    {
+      hand_tracking = HAND_TRACKING_LEAP_MOTION;
+    }
+  }
 
   // バーテックスシェーダのソースファイル名
   getString(o, "vertex_shader", vertex_shader);
@@ -418,8 +428,8 @@ bool Config::save(const std::string& file) const
   // コントローラの使用
   setValue(o, "controller", use_controller);
 
-  // Leap Motion の使用
-  setValue(o, "leap_motion", use_leap_motion);
+  // ハンドトラッキングの使用
+  setValue(o, "hand_tracking", hand_tracking);
 
   // バーテックスシェーダのソースファイル名
   setString(o, "vertex_shader", vertex_shader);
