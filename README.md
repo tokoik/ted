@@ -45,6 +45,77 @@
 * 指示者の手の動きをモーションコントローラの Leap Motion で取得し、それを剛体変換の行列として前述の共有メモリに格納します。これにより、任意の形状を Leap Motion で制御する「手」のモデルとして使用することができます。
 
 
+## 現在のプログラム構成
+
+現在の実装では、主に次のクラスが機能を分担しています。
+
+* `GgApp`: 入力ソース、画像テクスチャ、描画ループを統括するアプリケーション本体
+* `GgApp::Window`: GLFW ウィンドウ、通常表示、OpenXR 表示、投影行列、入力イベントを管理
+* `Menu`: Dear ImGui による設定 UI。設定値を編集し、状態変更は各クラスの操作 API へ要求
+* `Config`: JSON 設定と対応する永続設定値を保持
+* `Attitude`: 視点、投影補正、背景テクスチャ補正と、その初期値を保持
+* `Scene`: JSON シーングラフ、共有姿勢、Leap Motion による手モデルを管理
+* `Camera` と派生クラス: 静止画、動画、Webカメラ、Ovrvision、遠隔映像の入力を共通化
+* `CameraCapabilities`: UI にバックエンド非依存のカメラ能力情報を提供
+
+`GgApp` には現時点で TED 固有の `Config`、`Attitude`、`Scene`、`Camera` への依存が残っています。今後、GLFW・OpenGL・OpenXR を扱う汎用ウィンドウ層と TED 本体へ段階的に分離する方針です。
+
+### 設定ファイルの再読み込み
+
+メニューから設定ファイルを再読み込みする際は、実行中の `defaults` を直ちに上書きしません。
+
+1. 現在の設定をもとに候補 `Config` を作成し、選択されたファイルを候補へ読み込みます。
+2. 候補設定のシェーダとシーン定義から、新しい `Rect` と `Scene` を構築します。
+3. 両方の構築に成功した場合だけ、描画資源を交換して候補設定を確定します。
+4. 失敗した場合は候補を破棄し、現在の設定と描画資源を維持してエラーを表示します。
+
+これにより、旧描画資源が新しい設定値を参照する中間状態を避けています。
+
+### 状態変更 API
+
+メニューは OpenXR や Leap Motion を直接開始・停止せず、次の API を使用します。
+
+* `GgApp::Window::setDisplayMode(mode)`
+  * OpenXR の開始・停止、Quad Buffer の利用可否判定、表示モードの確定、ビューポート更新を一括して行います。
+* `GgApp::Window::setClipPlanes(nearPlane, farPlane)`
+  * 前方面と後方面の値を検証し、設定値と透視投影変換行列をまとめて更新します。
+* `GgApp::setLeapMotionEnabled(enabled)`
+  * Leap Motion の開始・停止に成功した場合だけ設定値を更新します。
+* `isMirrorVisible()`／`setMirrorVisible()`、`isSceneVisible()`／`setSceneVisible()`、`isMenuVisible()`／`setMenuVisible()`
+  * `Window` 内の表示状態を、公開フィールドへ直接アクセスせず取得・変更します。
+
+`Menu` が保持する `GgApp` は必須依存であるため、nullable なポインタではなく参照として渡します。
+
+### 姿勢調整 API
+
+姿勢設定 UI は `Attitude` の内部値へ直接ポインタを渡しません。`getPosition()`、`getForeAdjust()`、`getParallax()`、`getBackAdjust()`、`getOffset()`、`getCircleAdjust()` で現在値を取得して一時値を編集し、対応する setter で変更を確定します。
+
+この構造により、今後 `Attitude` 側へ範囲検証、変更通知、再計算処理を追加しても、UI側のコードを変更せず対応できます。
+
+### カメラ能力 API
+
+`CameraCapabilities` はカメラ選択 UI と Media Foundation の間の境界です。
+
+```cpp
+struct CaptureCapability
+{
+  std::string codec;
+  int width;
+  int height;
+  double fps;
+};
+```
+
+* `CameraCapabilities::getDeviceList()` は利用可能なカメラ名を返します。
+* `CameraCapabilities::getCapabilities(device, capabilities)` は、指定デバイスのコーデック、解像度、フレームレートを返します。
+
+Media Foundation の `GUID` と `CamMf::VideoFormat` は `CamMf.cpp` 内で `CaptureCapability` へ変換され、`Menu` には公開されません。カメラメニューはデバイスまたはコーデックが変わった場合だけ候補を再生成します。
+
+### 外部資源の所有権
+
+Native File Dialog が返すパスはライブラリ側で確保されます。文字列へコピーした後、すべての成功経路で `NFD_FreePath()` を呼び出して解放します。
+
+
 ## 開発環境とビルドシステム
 
 本システムは **CMake 3.22+** および **Visual Studio 2022 (C++17, x64)** をベースとしたモダンなビルドシステムに移行しました。
@@ -110,6 +181,10 @@ cmake --build build --config Release
   + 設定ファイル (`config.json`) の詳細仕様および動作モードの説明
 * [scenegraph.md](scenegraph.md)
   + シーングラフ記述ファイル (`scene.json`) の書式および C++ `Scene` クラスの仕様
+* [GEMINI.md](GEMINI.md)
+  + 開発環境、アーキテクチャ、API、資源管理、検証に関する開発方針
+* [REQUESTS.md](REQUESTS.md)
+  + 改善依頼、実施した変更、今後の分離方針の作業履歴
 
 
 ## 謝辞
