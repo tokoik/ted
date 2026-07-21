@@ -28,7 +28,7 @@
 CamMf::ComInitializer CamMf::ComInitializer::instance;
 
 //
-// メモリの解放
+// COM インターフェースを解放し、解放済みポインタの再利用を防ぐため nullptr に戻す
 //
 template <class T> void SafeRelease(T** ppT)
 {
@@ -57,6 +57,7 @@ static std::string SubTypeToName(const GUID& subType)
 //
 CamMf::ComInitializer::~ComInitializer()
 {
+  // 列挙時に Media Foundation から受け取った Activate オブジェクトと配列をまとめて解放する
   if (ppSourceActivate)
   {
     for (DWORD i = 0; i < cSourceActivate; ++i) SafeRelease(&ppSourceActivate[i]);
@@ -65,6 +66,7 @@ CamMf::ComInitializer::~ComInitializer()
     deviceList.clear();
   }
 
+  // 初期化に成功したサービスだけを、開始時とは逆の順序で終了する
   if (mfStarted) MFShutdown();
   if (coInitialized) CoUninitialize();
 }
@@ -77,11 +79,13 @@ const char* CamMf::ComInitializer::initialize()
   const char* message{ nullptr };
   IMFAttributes* pAttributes{ nullptr };
 
+  // Source Reader と MFT をキャプチャスレッドから利用できるよう、COM を MTA で初期化する
   HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
   if (FAILED(hr))
   {
     if (hr == RPC_E_CHANGED_MODE)
     {
+      // 呼び出し元が別のアパートメント方式で COM を初期化済みでも、その COM 環境を借用して続行する
       coInitialized = false;
     }
     else
@@ -95,6 +99,7 @@ const char* CamMf::ComInitializer::initialize()
     coInitialized = true;
   }
 
+  // デバイス列挙や Source Reader の生成に先立って Media Foundation 全体を起動する
   if (FAILED(MFStartup(MF_VERSION, MFSTARTUP_FULL)))
   {
     message = "Failed to start Media Foundation.";
@@ -108,6 +113,7 @@ const char* CamMf::ComInitializer::initialize()
     goto done;
   }
 
+  // MFEnumDeviceSources の検索対象をビデオキャプチャデバイスだけに限定する
   if (FAILED(pAttributes->SetGUID(
     MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE,
     MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID)))
@@ -122,6 +128,7 @@ const char* CamMf::ComInitializer::initialize()
     goto done;
   }
 
+  // UI で同名デバイスを区別できるよう、表示名に列挙インデックスを ImGui の隠し ID として付加する
   for (DWORD i = 0; i < cSourceActivate; ++i)
   {
     WCHAR* szFriendlyName{ nullptr };
@@ -147,6 +154,7 @@ done:
 //
 const CamMf::ComInitializer& CamMf::ComInitializer::getInstance()
 {
+  // 初回アクセス時だけ列挙を行い、以後は同じ Activate オブジェクトと表示名一覧を共有する
   if (!instance.ppSourceActivate)
   {
     auto message{ instance.initialize() };
@@ -160,6 +168,7 @@ const CamMf::ComInitializer& CamMf::ComInitializer::getInstance()
 //
 bool CamMf::ComInitializer::activate(int device, IMFMediaSource** pMediaSource)
 {
+  // UI のデバイス番号を検証してから、対応する物理カメラを Media Source として実体化する
   return device >= 0 && static_cast<UINT32>(device) < instance.cSourceActivate
     && SUCCEEDED(instance.ppSourceActivate[device]->ActivateObject(IID_PPV_ARGS(pMediaSource)))
     && pMediaSource;
@@ -178,6 +187,7 @@ const std::vector<std::string>& CamMf::ComInitializer::getDeviceList()
 //
 bool CamMf::getDeviceFormats(int device, std::vector<VideoFormat>& formats)
 {
+  // 問い合わせ結果を呼び出しごとに作り直し、失敗時に古い形式が残らないようにする
   formats.clear();
   IMFMediaSource* pSource = nullptr;
   if (!ComInitializer::activate(device, &pSource)) return false;
@@ -189,6 +199,7 @@ bool CamMf::getDeviceFormats(int device, std::vector<VideoFormat>& formats)
     return false;
   }
 
+  // 形式列挙では変換処理を実行しないが、実際の open() と同じ低遅延条件で Source Reader を作る
   pAttributes->SetUINT32(MF_READWRITE_ENABLE_HARDWARE_TRANSFORMS, TRUE);
   pAttributes->SetUINT32(MF_READWRITE_DISABLE_CONVERTERS, FALSE);
   pAttributes->SetUINT32(MF_SOURCE_READER_ENABLE_VIDEO_PROCESSING, FALSE);
@@ -204,6 +215,7 @@ bool CamMf::getDeviceFormats(int device, std::vector<VideoFormat>& formats)
   }
   SafeRelease(&pAttributes);
 
+  // Source Reader が公開するネイティブ形式から、アプリが扱える映像形式だけを抽出する
   IMFMediaType* pMediaType = nullptr;
   for (DWORD dwMediaTypeIndex = 0;
     SUCCEEDED(pReader->GetNativeMediaType(MF_SOURCE_READER_FIRST_VIDEO_STREAM, dwMediaTypeIndex, &pMediaType));
@@ -222,6 +234,7 @@ bool CamMf::getDeviceFormats(int device, std::vector<VideoFormat>& formats)
     UINT32 numerator{ 0 }, denominator{ 0 };
     if (FAILED(MFGetAttributeRatio(pMediaType, MF_MT_FRAME_RATE, &numerator, &denominator))) continue;
 
+    // 未対応コーデックや計算不能なフレームレートは UI の選択肢に含めない
     const auto& codecName = SubTypeToName(subType);
     if (codecName.empty() || denominator == 0 || numerator == 0) continue;
 
@@ -244,6 +257,7 @@ const std::vector<std::string>& CameraCapabilities::getDeviceList()
 bool CameraCapabilities::getCapabilities(int device,
   std::vector<CaptureCapability>& capabilities)
 {
+  // Media Foundation 固有の GUID と分数表現を、上位層が扱える文字列と実数値へ変換する
   std::vector<CamMf::VideoFormat> formats;
   if (!CamMf::getDeviceFormats(device, formats))
   {
@@ -274,11 +288,13 @@ bool CamMf::enumerateFormats(int cam)
 {
   if (!caps[cam].pSourceReader) return false;
 
+  // 再オープン時に以前のカメラの選択肢が混在しないよう、関連する一覧をすべて再構築する
   caps[cam].availableFormats.clear();
   caps[cam].formatList.clear();
   caps[cam].codecList.clear();
   caps[cam].resolutionList.clear();
 
+  // ネイティブ形式のインデックス順を保ったまま、内部選択用データと UI 表示文字列を対で保存する
   IMFMediaType* pMediaType{ nullptr };
   for (DWORD dwMediaTypeIndex = 0;
     SUCCEEDED(caps[cam].pSourceReader->GetNativeMediaType(MF_SOURCE_READER_FIRST_VIDEO_STREAM,
@@ -303,6 +319,7 @@ bool CamMf::enumerateFormats(int cam)
     const auto& codecName{ SubTypeToName(subType) };
     if (codecName.empty() || denominator == 0 || numerator == 0) continue;
 
+    // 実用上キャプチャに向かない低フレームレート形式を候補から除外する
     const double fps{ static_cast<double>(numerator) / static_cast<double>(denominator) };
     if (fps < 5.0) continue;
 
@@ -339,9 +356,11 @@ HRESULT CamMf::findVideoDecoder(
   UINT32 count{ 0 };
   IMFActivate** ppActivate{ nullptr };
 
+  // カメラの圧縮形式を受け取り、後段の色変換器が扱える NV12 を出力するデコーダを検索する
   MFT_REGISTER_TYPE_INFO inputInfo{ MFMediaType_Video, subtype };
   MFT_REGISTER_TYPE_INFO outputInfo{ MFMediaType_Video, MFVideoFormat_NV12 };
 
+  // まず同期・ローカル MFT を対象とし、呼び出し側の許可に応じて非同期・ハードウェア実装も候補に加える
   UINT32 unFlags
   {
     MFT_ENUM_FLAG_SYNCMFT
@@ -355,6 +374,7 @@ HRESULT CamMf::findVideoDecoder(
 
   hr = MFTEnumEx(MFT_CATEGORY_VIDEO_DECODER, unFlags, &inputInfo, &outputInfo, &ppActivate, &count);
 
+  // 優先順位付きの列挙結果の先頭を採用し、Activate 配列は成否にかかわらずここで解放する
   if (SUCCEEDED(hr) && count == 0) hr = MF_E_TOPO_CODEC_NOT_FOUND;
   if (SUCCEEDED(hr)) hr = ppActivate[0]->ActivateObject(IID_PPV_ARGS(ppDecoder));
 
@@ -373,6 +393,7 @@ HRESULT CamMf::setUpPipeline(IMFTransform* pTransform, const VideoFormat& format
   IMFMediaType* pOutputType{ nullptr };
   HRESULT hr{ S_OK };
 
+  // 入力側には直前の処理段が出力する形式・寸法・レートをそのまま通知する
   hr = MFCreateMediaType(&pInputType);
   if (SUCCEEDED(hr)) hr = pInputType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
   if (SUCCEEDED(hr)) hr = pInputType->SetGUID(MF_MT_SUBTYPE, format.subType);
@@ -382,6 +403,7 @@ HRESULT CamMf::setUpPipeline(IMFTransform* pTransform, const VideoFormat& format
   if (SUCCEEDED(hr)) hr = pTransform->SetInputType(0, pInputType, 0);
   if (FAILED(hr)) goto done;
 
+  // 出力側は寸法とレートを維持し、ピクセル形式だけを次段が要求する形式へ変える
   hr = MFCreateMediaType(&pOutputType);
   if (SUCCEEDED(hr)) hr = pOutputType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
   if (SUCCEEDED(hr)) hr = pOutputType->SetGUID(MF_MT_SUBTYPE, subType);
@@ -391,6 +413,7 @@ HRESULT CamMf::setUpPipeline(IMFTransform* pTransform, const VideoFormat& format
   if (SUCCEEDED(hr)) hr = pTransform->SetOutputType(0, pOutputType, 0);
   if (FAILED(hr)) goto done;
 
+  // 古い内部状態を捨ててから、新しい形式でストリーム処理を開始させる
   hr = pTransform->ProcessMessage(MFT_MESSAGE_COMMAND_FLUSH, NULL);
   if (SUCCEEDED(hr)) hr = pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_START_OF_STREAM, NULL);
   if (SUCCEEDED(hr)) hr = pTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_BEGIN_STREAMING, NULL);
@@ -408,6 +431,7 @@ void CamMf::cleanUpTransform(IMFTransform** pTransform) const
 {
   if (*pTransform)
   {
+    // MFT にストリーム終了を通知して内部キューを片付けてから COM オブジェクトを解放する
     (*pTransform)->ProcessMessage(MFT_MESSAGE_NOTIFY_END_STREAMING, NULL);
     (*pTransform)->ProcessMessage(MFT_MESSAGE_NOTIFY_END_OF_STREAM, NULL);
     (*pTransform)->Release();
@@ -423,9 +447,11 @@ HRESULT CamMf::createDecoderBuffer(int cam)
   MFT_OUTPUT_STREAM_INFO streamInfo{ 0 };
   if (SUCCEEDED(caps[cam].pDecoder->GetOutputStreamInfo(0, &streamInfo))) {}
 
+  // NV12 デコーダには16画素境界を前提とする実装があるため、表示寸法を切り上げて必要量を見積もる
   const auto alignedWidth{ static_cast<UINT32>((caps[cam].width + 15) & ~15) };
   const auto alignedHeight{ static_cast<UINT32>((caps[cam].height + 15) & ~15) };
   const auto cbDecoderCalc{ static_cast<UINT32>((alignedWidth * alignedHeight * 3) / 2) };
+  // MFT の要求値と計算値の大きい方を使い、実装固有の余白不足による ProcessOutput 失敗を避ける
   const auto cbDecoder{ static_cast<UINT32>((streamInfo.cbSize > cbDecoderCalc) ? streamInfo.cbSize : cbDecoderCalc) };
   const auto alignmentDecoder{ static_cast<DWORD>((streamInfo.cbAlignment > 0) ? (streamInfo.cbAlignment - 1) : 63) };
 
@@ -441,6 +467,7 @@ HRESULT CamMf::createConverterBuffer(int cam)
   MFT_OUTPUT_STREAM_INFO convStreamInfo{ 0 };
   if (SUCCEEDED(caps[cam].pConverter->GetOutputStreamInfo(0, &convStreamInfo))) {}
 
+  // RGB32 一画面分の計算値と MFT の要求値を比較し、要求アラインメントで再利用バッファを確保する
   UINT32 cbConverterCalc{ 0 };
   MFCalculateImageSize(MFVideoFormat_RGB32, caps[cam].width, caps[cam].height, &cbConverterCalc);
   UINT32 cbConverter = (convStreamInfo.cbSize > cbConverterCalc) ? convStreamInfo.cbSize : cbConverterCalc;
@@ -457,6 +484,7 @@ bool CamMf::setFormat(int cam, int index)
 {
   VideoFormat selectedFormat{ caps[cam].availableFormats[index] };
 
+  // 入力形式に応じて、圧縮解除と色変換のどこまでを明示的な MFT パイプラインで行うか決める
   enum class DecodeMethod { None = 0, Convert, Decode } decodeMethod
   {
     selectedFormat.subType == MFVideoFormat_MJPG ? DecodeMethod::Decode :
@@ -466,11 +494,13 @@ bool CamMf::setFormat(int cam, int index)
     DecodeMethod::None
   };
 
+  // 形式変更前の MFT とバッファを破棄し、新しい形式だけに対応するパイプラインを作り直す
   cleanUpTransform(&caps[cam].pDecoder);
   cleanUpTransform(&caps[cam].pConverter);
 
   HRESULT hr{ S_OK };
   IMFMediaType* pMediaType{ nullptr };
+  // Source Reader には列挙時に得たネイティブ形式を指定し、不要な暗黙変換を避ける
   hr = MFCreateMediaType(&pMediaType);
   if (FAILED(hr)) goto done;
 
@@ -492,10 +522,10 @@ bool CamMf::setFormat(int cam, int index)
   caps[cam].width = selectedFormat.width;
   caps[cam].height = selectedFormat.height;
 
-  // ted の Camera 基底クラスのメンバ image[cam] をアロケートする (BGR)
+  // 後段へ渡す共有画像を、最終出力である OpenCV の BGR 形式で確保する
   image[cam] = cv::Mat::zeros(caps[cam].height, caps[cam].width, CV_8UC3);
 
-  // interval を計算して設定
+  // フレームレートの逆数を送出間隔として保存し、取得側のペーシングに利用する
   interval[cam] = (selectedFormat.fpsDenom != 0)
     ? (static_cast<double>(selectedFormat.fpsDenom) / selectedFormat.fpsNum)
     : (1.0 / 30.0);
@@ -504,12 +534,14 @@ bool CamMf::setFormat(int cam, int index)
   {
     if (decodeMethod == DecodeMethod::Decode)
     {
+      // MJPG/H.264 はまず NV12 へ伸張し、その NV12 を共通の色変換段へ渡す
       hr = findVideoDecoder(selectedFormat.subType, &caps[cam].pDecoder);
       if (FAILED(hr)) goto done;
 
       ICodecAPI* pCodecAPI{ nullptr };
       if (SUCCEEDED(caps[cam].pDecoder->QueryInterface(IID_PPV_ARGS(&pCodecAPI))))
       {
+        // 対応デコーダでは低遅延モードを有効にする。実装差に合わせて UINT32 と BOOL の両表現を試す
         VARIANT var;
         VariantInit(&var);
         var.vt = VT_UI4;
@@ -534,6 +566,7 @@ bool CamMf::setFormat(int cam, int index)
       if (FAILED(hr)) goto done;
     }
 
+    // NV12/YUY2 を OpenCV へコピーしやすい RGB32 に統一するため、カラーコンバータを後段に接続する
     hr = CoCreateInstance(CLSID_CColorConvertDMO, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&caps[cam].pConverter));
     if (FAILED(hr)) goto done;
 
@@ -547,6 +580,7 @@ bool CamMf::setFormat(int cam, int index)
 done:
   SafeRelease(&pMediaType);
 
+  // 中途半端なパイプラインを残さないよう、設定失敗時は対象カメラをまとめて閉じる
   if (SUCCEEDED(hr)) return true;
 
   close(cam);
@@ -558,6 +592,7 @@ done:
 //
 bool CamMf::open(int device, int cam, bool setupFormat)
 {
+  // ライブカメラでは滞留フレームを捨て、常に最新映像を優先する
   prioritizeLatency[cam] = true;
 
   if (!ComInitializer::activate(device, &caps[cam].pMediaSource)) return false;
@@ -567,6 +602,7 @@ bool CamMf::open(int device, int cam, bool setupFormat)
   hr = MFCreateAttributes(&pAttributes, 1);
   if (FAILED(hr)) goto done;
 
+  // ハードウェア変換と低遅延を許可し、映像処理の自動挿入は避けて後段を明示的に構成する
   pAttributes->SetUINT32(MF_READWRITE_ENABLE_HARDWARE_TRANSFORMS, TRUE);
   pAttributes->SetUINT32(MF_READWRITE_DISABLE_CONVERTERS, FALSE);
   pAttributes->SetUINT32(MF_SOURCE_READER_ENABLE_VIDEO_PROCESSING, FALSE);
@@ -581,8 +617,7 @@ bool CamMf::open(int device, int cam, bool setupFormat)
   {
     if (!setupFormat) return true;
 
-    // デフォルトでフォーマットを自動決定する
-    // config の希望する解像度とコーデックに合致するものを優先して選択する
+    // 設定されたコーデックと解像度に一致する候補のうち、最も高い FPS の形式を初期値に選ぶ
     int selectedIdx = 0;
     double maxFps = 0.0;
 
@@ -604,6 +639,7 @@ bool CamMf::open(int device, int cam, bool setupFormat)
       }
     }
 
+    // パイプラインが完成してから取得スレッドを起動し、未初期化資源へのアクセスを防ぐ
     if (setFormat(cam, selectedIdx))
     {
       // スレッドを起動
@@ -614,6 +650,7 @@ bool CamMf::open(int device, int cam, bool setupFormat)
   }
 
 done:
+  // open の途中で失敗した場合は、再試行できる空の状態まで列挙結果と COM 資源を戻す
   SafeRelease(&caps[cam].pSourceReader);
   SafeRelease(&pAttributes);
   caps[cam].availableFormats.clear();
@@ -637,7 +674,7 @@ bool CamMf::opened(int cam) const
 //
 void CamMf::close(int cam)
 {
-  // キャプチャスレッドが実行中なら停止
+  // ReadSample の待機を Flush で解除し、スレッドが終了してから共有する COM 資源を解放する
   if (run[cam])
   {
     run[cam] = false;
@@ -651,6 +688,7 @@ void CamMf::close(int cam)
     }
   }
 
+  // スレッド停止後に変換パイプライン、再利用バッファ、Source Reader、Media Source を破棄する
   cleanUpTransform(&caps[cam].pDecoder);
   cleanUpTransform(&caps[cam].pConverter);
   SafeRelease(&caps[cam].pDecoderBuffer);
@@ -658,6 +696,7 @@ void CamMf::close(int cam)
   SafeRelease(&caps[cam].pSourceReader);
   SafeRelease(&caps[cam].pMediaSource);
 
+  // 次の open で以前のデバイス情報やフレーム完了状態が参照されないよう、付随状態も初期化する
   caps[cam].availableFormats.clear();
   caps[cam].formatList.clear();
   caps[cam].codecList.clear();
@@ -682,6 +721,7 @@ void CamMf::close()
 //
 void CamMf::stop()
 {
+  // 同期 ReadSample 中の各スレッドを先に起こし、基底クラスの join が待ち続けないようにする
   for (int cam = 0; cam < camCount; ++cam)
   {
     if (run[cam])
@@ -702,7 +742,7 @@ bool CamMf::select(int cam, int index)
 {
   if (!caps[cam].pSourceReader || index < 0 || index >= caps[cam].availableFormats.size()) return false;
 
-  // スレッド停止
+  // Source Reader と MFT を安全に組み替えるため、一時的に取得スレッドを完全停止する
   bool wasRunning = run[cam];
   if (wasRunning)
   {
@@ -711,6 +751,7 @@ bool CamMf::select(int cam, int index)
     if (captureThread[cam].joinable()) captureThread[cam].join();
   }
 
+  // 新形式の設定に成功した場合だけ、変更前に動作していた取得スレッドを再開する
   bool success = setFormat(cam, index);
 
   if (success && wasRunning)
@@ -732,7 +773,7 @@ bool CamMf::selectFormat(int cam, int codecIdx, int resIdx)
 
   std::string targetCodec = caps[cam].codecList[codecIdx];
 
-  // 選択された解像度文字列の取得
+  // UI の解像度インデックスを、選択コーデック内で重複を除いた解像度文字列へ変換する
   std::string targetResStr = "";
   // 選択されたコーデックに対する解像度リストを一時的に構築する
   std::vector<std::string> tempResolutions;
@@ -756,7 +797,7 @@ bool CamMf::selectFormat(int cam, int codecIdx, int resIdx)
   int reqWidth = 0, reqHeight = 0;
   sscanf_s(targetResStr.c_str(), "%d x %d", &reqWidth, &reqHeight);
 
-  // 一致するフォーマットの中で最高FPSのものを探す
+  // 同じコーデック・解像度に複数のレートがある場合は、最も高い FPS のネイティブ形式を採用する
   int foundIdx = -1;
   double maxFps = 0.0;
   for (int i = 0; i < caps[cam].availableFormats.size(); ++i)
@@ -775,7 +816,7 @@ bool CamMf::selectFormat(int cam, int codecIdx, int resIdx)
 
   if (foundIdx != -1)
   {
-    // config を更新
+    // 実際に選択できる形式が確定してから、設定値と UI の選択位置を同期する
     defaults.camera_codec[cam] = targetCodec;
     defaults.camera_resolution[cam] = targetResStr;
     caps[cam].selectedCodecIndex = codecIdx;
@@ -792,6 +833,7 @@ bool CamMf::selectFormat(int cam, int codecIdx, int resIdx)
 //
 void CamMf::capture(int cam)
 {
+  // Source Reader からサンプルを同期取得し、必要な変換を経て共有 BGR 画像へ渡し続ける
   while (run[cam])
   {
     DWORD dwStreamIndex{ 0 };
@@ -799,6 +841,7 @@ void CamMf::capture(int cam)
     LONGLONG llTimestamp{ 0 };
     IMFSample* pSample{ nullptr };
 
+    // Flush や一時的な読み取り失敗は終了条件にせず、run が有効な間は次のサンプルを待つ
     if (FAILED(caps[cam].pSourceReader->ReadSample(MF_SOURCE_READER_FIRST_VIDEO_STREAM,
       0, &dwStreamIndex, &dwStreamFlags, &llTimestamp, &pSample))) continue;
 
@@ -811,9 +854,11 @@ void CamMf::capture(int cam)
 
     if (caps[cam].pDecoder)
     {
+      // 圧縮サンプルをデコーダへ投入し、後段が扱う NV12 サンプルを取り出す
       HRESULT hr{ caps[cam].pDecoder->ProcessInput(0, pSample, 0) };
       if (FAILED(hr)) goto done;
 
+      // MFT が出力 Sample を所有する型か、呼び出し側が Sample と Buffer を渡す型かを判別する
       MFT_OUTPUT_STREAM_INFO streamInfo{};
       bool mftProvidesSamples{ false };
       if (SUCCEEDED(caps[cam].pDecoder->GetOutputStreamInfo(0, &streamInfo)))
@@ -821,6 +866,7 @@ void CamMf::capture(int cam)
         mftProvidesSamples = (streamInfo.dwFlags & MFT_OUTPUT_STREAM_PROVIDES_SAMPLES) != 0;
       }
 
+      // 一入力から複数出力される場合に備え、低遅延モードでは最後に得た Sample だけを保持する
       IMFSample* pLatestDecodedSample{ nullptr };
       bool hasOutput{ false };
 
@@ -834,6 +880,7 @@ void CamMf::capture(int cam)
         }
         else
         {
+          // 呼び出し側バッファ方式の MFT には、繰り返し利用する整列済みバッファを Sample に付けて渡す
           hr = MFCreateSample(&pDecodedSample);
           if (FAILED(hr)) goto done;
 
@@ -863,12 +910,14 @@ void CamMf::capture(int cam)
 
         if (hr == MF_E_TRANSFORM_STREAM_CHANGE)
         {
+          // H.264 などがストリーム内で形式を確定・変更した場合、NV12 出力と後段資源を再交渉する
           IMFMediaType* pNewOutputType{ nullptr };
           GUID subtype{ 0 };
           DWORD dwTypeIndex = 0;
           bool foundNV12 = false;
           hr = S_OK;
 
+          // デコーダが提示する候補から NV12 を優先し、カラーコンバータへの入力形式を統一する
           while (SUCCEEDED(caps[cam].pDecoder->GetOutputAvailableType(0, dwTypeIndex++, &pNewOutputType)))
           {
             GUID subType{};
@@ -883,6 +932,7 @@ void CamMf::capture(int cam)
 
           if (!foundNV12)
           {
+            // NV12 が明示列挙されない実装でも、先頭候補を基に NV12 を要求して交渉を試みる
             hr = caps[cam].pDecoder->GetOutputAvailableType(0, 0, &pNewOutputType);
             if (SUCCEEDED(hr))
             {
@@ -893,6 +943,7 @@ void CamMf::capture(int cam)
 
           if (SUCCEEDED(hr) && pNewOutputType)
           {
+            // 出力候補に不足する寸法・レート・画素比などを現在の入力形式から引き継ぐ
             IMFMediaType* pInputType{ nullptr };
             if (SUCCEEDED(caps[cam].pDecoder->GetInputCurrentType(0, &pInputType)))
             {
@@ -929,6 +980,7 @@ void CamMf::capture(int cam)
 
           if (SUCCEEDED(hr) && pNewOutputType)
           {
+            // 確定した出力形式に合わせてデコーダバッファ、色変換器、共有画像を一体で作り直す
             UINT32 newWidth{ 0 }, newHeight{ 0 };
             if (SUCCEEDED(MFGetAttributeSize(pNewOutputType, MF_MT_FRAME_SIZE, &newWidth, &newHeight)) && newWidth > 0 && newHeight > 0)
             {
@@ -953,13 +1005,14 @@ void CamMf::capture(int cam)
 
             if (SUCCEEDED(hr))
             {
-              // BGR cv::Mat を再割り当て
+              // 描画スレッドと競合しないようロック中に BGR 共有画像の寸法を更新する
               captureMutex[cam].lock();
               image[cam] = cv::Mat::zeros(caps[cam].height, caps[cam].width, CV_8UC3);
               captureMutex[cam].unlock();
             }
           }
 
+          // 形式変更前に確保した Sample とイベントを破棄し、新しい条件で ProcessOutput をやり直す
           if (!mftProvidesSamples) SafeRelease(&pDecodedSample);
           else SafeRelease(&decodedBuffer.pSample);
           SafeRelease(&decodedBuffer.pEvents);
@@ -981,6 +1034,7 @@ void CamMf::capture(int cam)
 
         if (hr == MF_E_TRANSFORM_NEED_MORE_INPUT)
         {
+          // 現入力から出力が得られなければ一時資源を戻し、次の Source Reader サンプルへ進む
           if (!mftProvidesSamples)
           {
             if (caps[cam].pDecoderBuffer) caps[cam].pDecoderBuffer->SetCurrentLength(prevLength);
@@ -995,6 +1049,7 @@ void CamMf::capture(int cam)
 
         if (FAILED(hr))
         {
+          // その他のデコード失敗では所有方式に合わせて Sample を解放し、この入力の処理を打ち切る
           if (!mftProvidesSamples)
           {
             if (caps[cam].pDecoderBuffer) caps[cam].pDecoderBuffer->SetCurrentLength(prevLength);
@@ -1008,6 +1063,7 @@ void CamMf::capture(int cam)
           goto done;
         }
 
+        // 正常出力を得るたびに直前の候補を解放し、最新 Sample の所有権だけを保持する
         SafeRelease(&pLatestDecodedSample);
         if (mftProvidesSamples) pLatestDecodedSample = decodedBuffer.pSample;
         else pLatestDecodedSample = pDecodedSample;
@@ -1031,6 +1087,7 @@ void CamMf::capture(int cam)
 
       if (hasOutput && pLatestDecodedSample)
       {
+        // 元の圧縮 Sample を、デコーダから得た NV12 Sample に差し替えて後段へ渡す
         pSample->Release();
         pSample = pLatestDecodedSample;
         pLatestDecodedSample = nullptr;
@@ -1045,6 +1102,7 @@ void CamMf::capture(int cam)
 
     if (caps[cam].pConverter)
     {
+      // NV12/YUY2 Sample を RGB32 に変換し、以降のコピー処理を入力コーデックから独立させる
       HRESULT hr{ caps[cam].pConverter->ProcessInput(0, pSample, 0) };
       if (FAILED(hr)) goto done;
 
@@ -1064,6 +1122,7 @@ void CamMf::capture(int cam)
       pConvertedSample = nullptr;
     }
 
+    // 最終 Sample の先頭バッファをロックし、CPU から参照できる画素配列を取得する
     if (FAILED(pSample->GetBufferByIndex(0, &pBuffer))) goto done;
 
     if (pBuffer)
@@ -1076,6 +1135,7 @@ void CamMf::capture(int cam)
         // 全フレーム処理モードなら
         if (!prioritizeLatency[cam])
         {
+          // ファイル／ネットワーク入力では前フレームが消費されるまで待ち、フレーム欠落を防ぐ
           // キャプチャしている間は
           while (run[cam] && captured[cam])
           {
@@ -1084,6 +1144,7 @@ void CamMf::capture(int cam)
           }
         }
 
+        // 描画・送信側と排他しながら BGRA を BGR に変換し、新フレーム到着フラグを公開する
         captureMutex[cam].lock();
 
         // BGRA (4チャンネル) を BGR (3チャンネル) に変換して image[cam] にコピー
@@ -1101,6 +1162,7 @@ void CamMf::capture(int cam)
     }
 
   done:
+    // 途中のどの段で失敗しても、この反復で所有した Sample を解放して次の読み取りへ進む
     if (pDecodedSample) pDecodedSample->Release();
     if (pConvertedSample) pConvertedSample->Release();
     if (pSample) pSample->Release();
@@ -1111,6 +1173,7 @@ void CamMf::capture(int cam)
 
 CamMf::~CamMf()
 {
+  // オブジェクト破棄前に全取得スレッドを止め、参照中の Media Foundation 資源を解放する
   close();
 }
 
@@ -1119,13 +1182,16 @@ CamMf::~CamMf()
 //
 bool CamMf::open(const std::string& file, int cam)
 {
+  // ファイル／ネットワーク入力ではフレーム順序を維持し、未消費フレームを破棄しない
   prioritizeLatency[cam] = false;
 
+  // Media Foundation の URL API に渡すため、公開 API の UTF-8 パスを UTF-16 に変換する
   int wlen = MultiByteToWideChar(CP_UTF8, 0, file.c_str(), -1, nullptr, 0);
   if (wlen <= 0) return false;
   std::vector<wchar_t> wbuf(wlen);
   MultiByteToWideChar(CP_UTF8, 0, file.c_str(), -1, wbuf.data(), wlen);
 
+  // URL から直接 Source Reader を作り、公開された先頭映像形式で共通キャプチャループを開始する
   HRESULT hr = MFCreateSourceReaderFromURL(wbuf.data(), nullptr, &caps[cam].pSourceReader);
   if (FAILED(hr)) return false;
 
@@ -1139,6 +1205,7 @@ bool CamMf::open(const std::string& file, int cam)
     }
   }
 
+  // 列挙または形式設定に失敗した Reader を残さず、呼び出し側が再試行できる状態へ戻す
   SafeRelease(&caps[cam].pSourceReader);
   return false;
 }
