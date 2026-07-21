@@ -20,6 +20,9 @@
 // ビデオキャプチャ
 #include "CamMf.h"
 
+// 標準ライブラリ
+#include <optional>
+
 ///
 /// メニュークラス
 ///
@@ -52,11 +55,8 @@ class Menu
   /// メニューで操作する姿勢
   Attitude& attitude;
 
-  /// 設定ファイルの再読み込みが描画側での反映を待っている場合は true
-  bool configReloadPending{ false };
-
-  /// 再読み込みした設定を描画側で反映できなかった場合に戻す設定
-  Config previousConfig;
+  /// 描画側での検証と反映を待っている設定
+  std::optional<Config> pendingConfig;
 
   /// データ読み込みエラー表示ウィンドウの表示フラグ
   bool showNodataWindow{ false };
@@ -141,7 +141,14 @@ public:
   ///
   /// @return 再読み込みした設定が描画側での反映を待っている場合は true
   ///
-  bool isConfigReloadPending() const { return configReloadPending; }
+  bool isConfigReloadPending() const { return pendingConfig.has_value(); }
+
+  ///
+  /// 描画側での検証と反映を待っている設定を取得する
+  ///
+  /// @return 再読み込みした候補設定
+  ///
+  const Config& getPendingConfig() const { return pendingConfig.value(); }
 
   ///
   /// 設定ファイルの描画側への反映結果を通知する

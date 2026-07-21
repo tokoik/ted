@@ -492,18 +492,20 @@ int GgApp::main(int argc, const char *const *const argv)
     // 設定ファイルが読み込まれたら描画オブジェクトを再構築する
     if (menu.isConfigReloadPending())
     {
+      const auto& candidate{ menu.getPendingConfig() };
       bool status{ false };
       try
       {
         // 先に新しいオブジェクトを完成させ、成功した場合だけ現在のものと入れ替える
         auto newRect{ std::make_unique<Rect>(window,
-          defaults.vertex_shader, defaults.fragment_shader) };
+          candidate.vertex_shader, candidate.fragment_shader) };
         if (newRect->get())
         {
           newRect->setTexture(0, texture[0]);
           newRect->setTexture(1, texture[stereo ? 1 : 0]);
 
-          auto newScene{ std::make_unique<Scene>(defaults.scene) };
+          auto newScene{ std::make_unique<Scene>(candidate.scene, 0,
+            std::filesystem::path{}, candidate) };
           if (newScene->isValid())
           {
             newScene->setShader(simple);

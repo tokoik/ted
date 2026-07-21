@@ -43,15 +43,13 @@ int Menu::loadConfig()
   // ファイルパスが取得できたら
   if (result == NFD_OKAY)
   {
-    // 描画オブジェクトの生成に失敗したとき戻せるよう設定を保存する
-    previousConfig = defaults;
-
-    // 設定ファイルを読み込み、描画側へ再構築を要求する
+    // 現在の設定を変更せず、候補設定を読み込む
+    Config candidate{ defaults };
     bool status{ false };
     try
     {
-      status = defaults.load(openPath);
-      configReloadPending = status;
+      status = candidate.load(openPath);
+      if (status) pendingConfig = std::move(candidate);
     }
     catch (const std::exception& error)
     {
@@ -67,8 +65,6 @@ int Menu::loadConfig()
 #endif
       showNodataWindow = true;
     }
-
-    if (!status) defaults = previousConfig;
 
     // ファイルパスに使ったメモリを解放して
     NFD_FreePath(openPath);
@@ -561,10 +557,10 @@ Menu::Menu(GgApp* app, GgApp::Window& window, Attitude& attitude)
 //
 void Menu::finishConfigReload(bool status)
 {
-  // 反映できなければ読み込み前の設定に戻す
-  if (!status) defaults = previousConfig;
+  // 描画オブジェクトを構築できた場合だけ候補設定を確定する
+  if (status && pendingConfig) defaults = std::move(*pendingConfig);
 
-  configReloadPending = false;
+  pendingConfig.reset();
   showNodataWindow = !status;
 }
 

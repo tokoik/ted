@@ -105,9 +105,11 @@ public:
   /// @param v シーングラフの JSON オブジェクト
   /// @param level シーングラフの階層レベル
   /// @param basePath 相対パスを解決する基準ディレクトリ
+  /// @param config シーンの構築に使用する設定
   ///
   Scene(const picojson::value& v, int level = 0,
-    const std::filesystem::path& basePath = {});
+    const std::filesystem::path& basePath = {},
+    const Config& config = defaults);
 
   ///
   /// デストラクタ
@@ -136,9 +138,10 @@ public:
   ///
   /// @param v シーングラフの JSON オブジェクト
   /// @param level シーングラフの階層レベル
+  /// @param config シーンの構築に使用する設定
   /// @return 解析したシーングラフのオブジェクト
   ///
-  Scene* read(const picojson::value& v, int level);
+  Scene* read(const picojson::value& v, int level, const Config& config);
 
   ///
   /// 子供にシーンを追加する

@@ -44,19 +44,20 @@ Scene::Scene(const GgSimpleObj* obj)
 //
 // シーングラフからシーンのオブジェクトを作成するコンストラクタ
 //
-Scene::Scene(const picojson::value& v, int level, const std::filesystem::path& basePath)
+Scene::Scene(const picojson::value& v, int level, const std::filesystem::path& basePath,
+  const Config& config)
   : basePath{ basePath }
 {
   // ルートシーンの相対パスは設定ファイルのあるディレクトリを基準にする
-  if (this->basePath.empty() && !defaults.config_file.empty())
+  if (this->basePath.empty() && !config.config_file.empty())
   {
     std::error_code error;
     const auto configPath{
-      std::filesystem::absolute(std::filesystem::u8path(defaults.config_file), error) };
+      std::filesystem::absolute(std::filesystem::u8path(config.config_file), error) };
     if (!error) this->basePath = configPath.parent_path();
   }
 
-  read(v, level);
+  read(v, level, config);
 }
 
 //
@@ -150,7 +151,7 @@ picojson::object Scene::load(const picojson::value& v)
 //
 // シーングラフを解析する
 //
-Scene* Scene::read(const picojson::value& v, int level)
+Scene* Scene::read(const picojson::value& v, int level, const Config& config)
 {
   // 引数ををパースする
   const auto&& o(load(v));
@@ -244,7 +245,7 @@ Scene* Scene::read(const picojson::value& v, int level)
   }
 
   // シーングラフの入れ子レベルが設定値以下なら
-  if (++level <= defaults.max_level)
+  if (++level <= config.max_level)
   {
     // シーングラフに下位ノードを接続する
     const auto& v_children{ o.find("children") };
@@ -254,12 +255,12 @@ Scene* Scene::read(const picojson::value& v, int level)
       {
         for (const auto c : v_children->second.get<picojson::array>())
         {
-          if (!c.is<picojson::null>()) addChild(new Scene(c, level, basePath));
+          if (!c.is<picojson::null>()) addChild(new Scene(c, level, basePath, config));
         }
       }
       else if (v_children->second.is<std::string>())
       {
-        addChild(new Scene(v_children->second, level, basePath));
+        addChild(new Scene(v_children->second, level, basePath, config));
       }
     }
   }
