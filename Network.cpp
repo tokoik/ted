@@ -22,10 +22,10 @@
 #include <vector>
 
 // 最大データサイズ
-const std::size_t maxSize{ 65507 };
+const std::size_t maxSize{ 1470 };
 
-// 受信のタイムアウト (10秒)
-const unsigned long timeout{ 10000UL };
+// 受信のタイムアウト (500ミリ秒)
+const unsigned long timeout{ 500UL };
 
 //
 // デストラクタ

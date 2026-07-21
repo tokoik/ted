@@ -441,6 +441,15 @@ int GgApp::main(int argc, const char *const *const argv)
   // winsock2 の終了処理を登録する
   atexit(reinterpret_cast<void(*)()>(WSACleanup));
 
+  // Leap Motion を起動する
+  if (defaults.use_leap_motion)
+  {
+    if (!Scene::startLeapMotion())
+    {
+      defaults.use_leap_motion = false;
+    }
+  }
+
   // シーングラフ
   auto scene{ std::make_unique<Scene>(defaults.scene) };
 

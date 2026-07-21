@@ -37,8 +37,6 @@ LeapListener Scene::listener;
 Scene::Scene(const GgSimpleObj* obj)
   : obj{ obj }
 {
-  if (defaults.use_leap_motion && !startLeapMotion())
-    defaults.use_leap_motion = false;
 }
 
 //

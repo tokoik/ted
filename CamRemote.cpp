@@ -266,16 +266,15 @@ void CamRemote::recv()
         rsize[camL] = remote[camL].size();
 
         // 左画像をロックし
-        captureMutex[camL].lock();
+        {
+          std::lock_guard<std::mutex> lock(captureMutex[camL]);
 
-        // 左画像を更新したら
-        image[camL] = remote[camL];
+          // 左画像を更新したら
+          image[camL] = remote[camL];
 
-        // 左フレームの取得の完了を記録して
-        captured[camL] = true;
-
-        // 左画像のロックを解除する
-        captureMutex[camL].unlock();
+          // 左フレームの取得の完了を記録する
+          captured[camL] = true;
+        }
       }
 
       // 右バッファが空のとき右フレームが送られてきていれば
@@ -291,16 +290,15 @@ void CamRemote::recv()
         rsize[camR] = remote[camR].size();
 
         // 右画像をロックし
-        captureMutex[camR].lock();
+        {
+          std::lock_guard<std::mutex> lock(captureMutex[camR]);
 
-        // 右画像を更新したら
-        image[camR] = remote[camR];
+          // 右画像を更新したら
+          image[camR] = remote[camR];
 
-        // 右フレームの取得の完了を記録して
-        captured[camR] = true;
-
-        // 右画像のロックを解除する
-        captureMutex[camR].unlock();
+          // 右フレームの取得の完了を記録する
+          captured[camR] = true;
+        }
       }
 
       // 右フレームが保存されていなければ
@@ -310,16 +308,15 @@ void CamRemote::recv()
         rsize[camR] = rsize[camL];
 
         // 右画像をロックし
-        captureMutex[camR].lock();
+        {
+          std::lock_guard<std::mutex> lock(captureMutex[camR]);
 
-        // 右画像は左フレームと同じにして
-        image[camR] = remote[camL];
+          // 右画像は左フレームと同じにして
+          image[camR] = remote[camL];
 
-        // 右フレームの取得の完了を記録して
-        captured[camR] = true;
-
-        // 右画像のロックを解除する
-        captureMutex[camR].unlock();
+          // 右フレームの取得の完了を記録する
+          captured[camR] = true;
+        }
       }
     }
 
