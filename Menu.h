@@ -14,8 +14,8 @@
 // 姿勢
 #include "Attitude.h"
 
-// ビデオキャプチャ
-#include "CamMf.h"
+// カメラ入力形式
+#include "CameraCapabilities.h"
 
 // 標準ライブラリ
 #include <optional>
@@ -34,7 +34,7 @@ class Menu
   struct CameraMenuCache
   {
     int lastDeviceId = -2;
-    std::vector<CamMf::VideoFormat> formats;
+    std::vector<CaptureCapability> capabilities;
     std::vector<std::string> codecs;
     std::vector<std::string> resolutions;
     std::string lastCodec = "";

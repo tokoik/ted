@@ -7,6 +7,9 @@
 ///
 #include "CamMf.h"
 
+// バックエンド非依存のカメラ入力形式
+#include "CameraCapabilities.h"
+
 // 標準ライブラリ
 #include <iostream>
 #include <sstream>
@@ -228,6 +231,40 @@ bool CamMf::getDeviceFormats(int device, std::vector<VideoFormat>& formats)
   SafeRelease(&pReader);
   SafeRelease(&pSource);
   return !formats.empty();
+}
+
+//
+// UIや設定処理へバックエンド非依存のカメラ情報を提供する
+//
+const std::vector<std::string>& CameraCapabilities::getDeviceList()
+{
+  return CamMf::getDeviceList();
+}
+
+bool CameraCapabilities::getCapabilities(int device,
+  std::vector<CaptureCapability>& capabilities)
+{
+  std::vector<CamMf::VideoFormat> formats;
+  if (!CamMf::getDeviceFormats(device, formats))
+  {
+    capabilities.clear();
+    return false;
+  }
+
+  capabilities.clear();
+  capabilities.reserve(formats.size());
+  for (const auto& format : formats)
+  {
+    capabilities.push_back(CaptureCapability
+      {
+        SubTypeToName(format.subType),
+        static_cast<int>(format.width),
+        static_cast<int>(format.height),
+        static_cast<double>(format.fpsNum) / static_cast<double>(format.fpsDenom)
+      });
+  }
+
+  return !capabilities.empty();
 }
 
 //

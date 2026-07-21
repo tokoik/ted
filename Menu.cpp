@@ -11,7 +11,6 @@
 #include "Network.h"
 
 // カメラ関連の処理
-#include "CamMf.h"
 #include "CamOv.h"
 #include "CamImage.h"
 #include "CamRemote.h"
@@ -293,7 +292,7 @@ void Menu::inputWindow()
   ImGui::RadioButton(u8"カメラ", &defaults.input_mode, InputMode::CAMERA);
 
   // デバイスリストの取得
-  const auto& devices{ CamMf::getDeviceList() };
+  const auto& devices{ CameraCapabilities::getDeviceList() };
 
   for (int cam = 0; cam < camCount; ++cam)
   {
@@ -557,29 +556,18 @@ void Menu::finishConfigReload(bool status)
   showNodataWindow = !status;
 }
 
-// GUID から人間が読める形式の名前を返す
-static std::string SubTypeToNameLocal(const GUID& subType)
-{
-  if (subType == MFVideoFormat_YUY2) return "YUY2";
-  if (subType == MFVideoFormat_NV12) return "NV12";
-  if (subType == MFVideoFormat_MJPG) return "MJPG";
-  if (subType == MFVideoFormat_H264) return "H264";
-  if (subType == MFVideoFormat_RGB32) return "RGB32";
-  return "";
-}
-
 // キャッシュを更新するヘルパー関数
 void Menu::updateCameraMenuCache(int cam)
 {
   auto& cache{ cameraMenuCache[cam] };
-  const auto& devices{ CamMf::getDeviceList() };
+  const auto& devices{ CameraCapabilities::getDeviceList() };
   int currentDevice{ defaults.camera_id[cam] };
 
   // デバイスが無効な場合はクリアして終了
   if (currentDevice < 0 || currentDevice >= devices.size())
   {
     cache.lastDeviceId = currentDevice;
-    cache.formats.clear();
+    cache.capabilities.clear();
     cache.codecs.clear();
     cache.resolutions.clear();
     cache.lastCodec = "";
@@ -590,13 +578,13 @@ void Menu::updateCameraMenuCache(int cam)
   if (cache.lastDeviceId != currentDevice)
   {
     cache.lastDeviceId = currentDevice;
-    CamMf::getDeviceFormats(currentDevice, cache.formats);
+    CameraCapabilities::getCapabilities(currentDevice, cache.capabilities);
 
     // コーデックリスト構築
     cache.codecs.clear();
-    for (const auto& fmt : cache.formats)
+    for (const auto& capability : cache.capabilities)
     {
-      std::string name = SubTypeToNameLocal(fmt.subType);
+      const auto& name{ capability.codec };
       if (!name.empty() && std::find(cache.codecs.begin(), cache.codecs.end(), name) == cache.codecs.end())
       {
         cache.codecs.push_back(name);
@@ -617,12 +605,12 @@ void Menu::updateCameraMenuCache(int cam)
     cache.lastCodec = defaults.camera_codec[cam];
     cache.resolutions.clear();
 
-    for (const auto& fmt : cache.formats)
+    for (const auto& capability : cache.capabilities)
     {
-      if (SubTypeToNameLocal(fmt.subType) == cache.lastCodec)
+      if (capability.codec == cache.lastCodec)
       {
         char buf[32];
-        sprintf_s(buf, "%d x %d", fmt.width, fmt.height);
+        sprintf_s(buf, "%d x %d", capability.width, capability.height);
         std::string resStr(buf);
         if (std::find(cache.resolutions.begin(), cache.resolutions.end(), resStr) == cache.resolutions.end())
         {
