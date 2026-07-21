@@ -44,7 +44,7 @@ class Menu
   void updateCameraMenuCache(int cam);
 
   /// このアプリケーション
-  GgApp* app{ nullptr };
+  GgApp& app;
 
   /// メニューを表示するウィンドウ
   GgApp::Window& window;
@@ -126,7 +126,7 @@ public:
   /// @param window メニューを表示するウィンドウ
   /// @param attitude メニューで操作する姿勢
   ///
-  Menu(GgApp* app, GgApp::Window& window, Attitude& attitude);
+  Menu(GgApp& app, GgApp::Window& window, Attitude& attitude);
 
   ///
   /// デストラクタ

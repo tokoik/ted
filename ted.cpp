@@ -445,7 +445,7 @@ int GgApp::main(int argc, const char *const *const argv)
   auto scene{ std::make_unique<Scene>(defaults.scene) };
 
   // シーンが空の場合は初期表示フラグをオフにする
-  if (scene->isEmpty()) window.showScene = false;
+  if (scene->isEmpty()) window.setSceneVisible(false);
 
   // シーンにシェーダを設定する
   scene->setShader(simple);
@@ -481,13 +481,13 @@ int GgApp::main(int argc, const char *const *const argv)
   if (defaults.display_mode == OPENXR) window.startHMD();
 
   // メニュー
-  Menu menu{ this, window, attitude };
+  Menu menu{ *this, window, attitude };
 
   // ウィンドウが開いている間くり返し描画する
   while (window)
   {
     // メニューを表示する
-    if (window.showMenu) menu.show();
+    if (window.isMenuVisible()) menu.show();
 
     // 設定ファイルが読み込まれたら描画オブジェクトを再構築する
     if (menu.isConfigReloadPending())
@@ -512,7 +512,7 @@ int GgApp::main(int argc, const char *const *const argv)
             rect = std::move(newRect);
             rectPointer = rect.get();
             scene = std::move(newScene);
-            if (scene->isEmpty()) window.showScene = false;
+            if (scene->isEmpty()) window.setSceneVisible(false);
             status = true;
           }
         }
@@ -576,7 +576,7 @@ int GgApp::main(int argc, const char *const *const argv)
         simple.use(light);
 
         // 図形を描画する
-        if (window.showScene)
+        if (window.isSceneVisible())
         {
           // OpenXR は各眼 pose の逆変換 R^-1 * T^-1 をビュー行列に使う
           const GgMatrix sceneView{ defaults.display_mode == OPENXR

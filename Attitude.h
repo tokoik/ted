@@ -119,6 +119,20 @@ struct Attitude
   ///
   Attitude();
 
+  /// 実行中の姿勢調整値を取得・変更する
+  const GgVector& getPosition() const { return position; }
+  void setPosition(const GgVector& value) { position = value; }
+  const std::array<int, 4>& getForeAdjust() const { return foreAdjust; }
+  void setForeAdjust(const std::array<int, 4>& value) { foreAdjust = value; }
+  int getParallax() const { return parallax; }
+  void setParallax(int value) { parallax = value; }
+  const std::array<int, 4>& getBackAdjust() const { return backAdjust; }
+  void setBackAdjust(const std::array<int, 4>& value) { backAdjust = value; }
+  int getOffset() const { return offset; }
+  void setOffset(int value) { offset = value; }
+  const std::array<int, 4>& getCircleAdjust() const { return circleAdjust; }
+  void setCircleAdjust(const std::array<int, 4>& value) { circleAdjust = value; }
+
   ///
   /// デストラクタ
   ///

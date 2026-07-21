@@ -407,6 +407,10 @@ public:
     bool isSceneVisible() const { return showScene; }
     void setSceneVisible(bool visible) { showScene = visible; }
 
+    /// メニュー表示の状態を取得・変更する
+    bool isMenuVisible() const { return showMenu; }
+    void setMenuVisible(bool visible) { showMenu = visible; }
+
     ///
     /// 透視投影変換行列を更新する
     ///
@@ -573,6 +577,8 @@ public:
     {
       return aspect;
     }
+
+  private:
 
     /// シーン表示
     bool showScene{ true };

@@ -174,7 +174,7 @@ void Menu::displayWindow()
   // Leap Motion を有効にするかどうか
   bool use_leap_motion{ defaults.use_leap_motion };
   if (ImGui::Checkbox("Leap Motion", &use_leap_motion))
-    app->setLeapMotionEnabled(use_leap_motion);
+    app.setLeapMotionEnabled(use_leap_motion);
 
   // 表示関係
   ImGui::Checkbox(u8"ヘッドトラッキング", &defaults.camera_tracking);
@@ -213,20 +213,45 @@ void Menu::attitudeWindow()
 
   ImGui::Begin(u8"姿勢設定", &showAttitudeWindow);
   ImGui::Text(u8"前景");
-  ImGui::InputFloat3(u8"位置", attitude.position.data(), "%6.2f");
-  if (ImGui::SliderInt(u8"ズーム率", attitude.foreAdjust.data(), -99, 99))
+  auto position{ attitude.getPosition() };
+  if (ImGui::InputFloat3(u8"位置", position.data(), "%6.2f"))
+    attitude.setPosition(position);
+  auto foreAdjust{ attitude.getForeAdjust() };
+  if (ImGui::SliderInt(u8"ズーム率", foreAdjust.data(), -99, 99))
+  {
+    attitude.setForeAdjust(foreAdjust);
     window.update();
-  if (ImGui::SliderInt(u8"視差##前景", &attitude.parallax, -99, 99))
+  }
+  int parallax{ attitude.getParallax() };
+  if (ImGui::SliderInt(u8"視差##前景", &parallax, -99, 99))
+  {
+    attitude.setParallax(parallax);
     window.update();
+  }
   ImGui::Text(u8"背景");
-  if (ImGui::SliderInt(u8"焦点距離", attitude.backAdjust.data(), -99, 99))
+  auto backAdjust{ attitude.getBackAdjust() };
+  if (ImGui::SliderInt(u8"焦点距離", backAdjust.data(), -99, 99))
+  {
+    attitude.setBackAdjust(backAdjust);
     window.update();
-  if (ImGui::SliderInt(u8"視差##背景", &attitude.offset, -99, 99))
+  }
+  int offset{ attitude.getOffset() };
+  if (ImGui::SliderInt(u8"視差##背景", &offset, -99, 99))
+  {
+    attitude.setOffset(offset);
     window.update();
-  if (ImGui::SliderInt2(u8"画角", &attitude.circleAdjust[0], -99, 99))
+  }
+  auto circleAdjust{ attitude.getCircleAdjust() };
+  if (ImGui::SliderInt2(u8"画角", circleAdjust.data(), -99, 99))
+  {
+    attitude.setCircleAdjust(circleAdjust);
     window.updateCircle();
-  if (ImGui::SliderInt2(u8"中心", &attitude.circleAdjust[2], -99, 99))
+  }
+  if (ImGui::SliderInt2(u8"中心", circleAdjust.data() + 2, -99, 99))
+  {
+    attitude.setCircleAdjust(circleAdjust);
     window.updateCircle();
+  }
   if (ImGui::Button(u8"回復"))
     window.reset();
   ImGui::End();
@@ -380,7 +405,7 @@ void Menu::inputWindow()
   if (ImGui::InputText(u8"画素", fragment_shader, sizeof fragment_shader))
     defaults.fragment_shader = fragment_shader;
 
-  if (ImGui::Button(u8"設定")) app->selectInput();
+  if (ImGui::Button(u8"設定")) app.selectInput();
 
   // 入力設定ウィンドウの設定終了
   ImGui::End();
@@ -512,7 +537,7 @@ void Menu::menuBar()
 //
 // コンストラクタ
 //
-Menu::Menu(GgApp* app, GgApp::Window& window, Attitude& attitude)
+Menu::Menu(GgApp& app, GgApp::Window& window, Attitude& attitude)
   : app{ app }
   , window { window }
   , attitude{ attitude }
