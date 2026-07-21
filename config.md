@@ -26,10 +26,10 @@
 
 #### ※1 立体視の設定 (`stereo`)
 * `0`: 単眼視
-* `1`: 左右2分割（アスペクト比不変）
-* `2`: 上下2分割
-* `3`: 左右2分割
-* `4`: クワッドバッファステレオ（フレームシーケンシャル）
+* `1`: 上下2分割（トップアンドボトム）
+* `2`: 左右2分割（サイドバイサイド）
+* `3`: 左右の映像を同じ表示領域へ重ねる
+* `4`: クワッドバッファステレオ
 * `5`: OpenXR (HMD) モード
 ※ HMDモード使用時は、通常 `5` を指定します。
 
@@ -40,8 +40,8 @@
 | キー名 | 型 | 説明 |
 | :--- | :--- | :--- |
 | `input_mode` | 数値 | 映像入力ソースのモード。※2 |
-| `left_camera` | 数値 | 左目のカメラの番号（または動画ファイル名）。※3 |
-| `right_camera` | 数値 | 右目のカメラの番号（または動画ファイル名）。※3 |
+| `left_camera` | 数値 | 左目に使用する Media Foundation カメラの列挙番号。負数はカメラを使用しない。※3 |
+| `right_camera` | 数値 | 右目に使用する Media Foundation カメラの列挙番号。負数はカメラを使用しない。※3 |
 | `left_image` | 文字列 | 左カメラ不使用時（単眼や静止画モード）に表示する静止画ファイル名 |
 | `right_image` | 文字列 | 右カメラ不使用時（単眼や静止画モード）に表示する静止画ファイル名 |
 | `left_movie` | 文字列 | 左カメラの代わりに使用する動画ファイル名 |
@@ -62,9 +62,12 @@
 | `fisheye_fov_x` | 数値 | 魚眼レンズの水平方向の画角の初期値（単位: ラジアン。通常のカメラや RICOH THETA では `1.0`） |
 | `fisheye_fov_y` | 数値 | 魚眼レンズの垂直方向の画角の初期値（単位: ラジアン。通常のカメラや RICOH THETA では `1.0`） |
 | `ovrvision_property` | 数値 | Ovrvision Pro を使用する場合の動作モード設定。※4 |
+| `controller` | 数値 / 真偽値 | ゲームコントローラを使用するか。保存時には出力されますが、現行の読み込み処理はこのキーを参照しません。下記の注意を参照してください。 |
 | `leap_motion` | 数値 / 真偽値 | Leap Motion（ハンドトラッキング）を使用するか (0: 使用しない, 1: 使用する) |
 | `vertex_shader` | 文字列 | 入力画像の展開に使用するバーテックスシェーダのファイル名。※5 |
-| `fragment_shader` | 文字列 | 入力画像の描画に使用するフラグメントシェーダ의ファイル名。※6 |
+| `fragment_shader` | 文字列 | 入力画像の描画に使用するフラグメントシェーダのファイル名。※6 |
+
+現行の `Config::read()` は `leap_motion` を `use_controller` と `use_leap_motion` の両方へ読み込みます。このため、起動時のゲームコントローラ使用状態は `leap_motion` と同じ値になります。メニュー上では両者を個別に変更できます。
 
 #### ※2 映像入力モード (`input_mode`)
 * `0`: 静止画（`left_image` / `right_image`）
@@ -78,7 +81,7 @@
 * `left_camera >= 0` かつ `right_camera < 0` : 左カメラのみを使用（単眼）
 * `left_camera < 0` かつ `right_camera >= 0` : Ovrvision Pro を使用
 * `left_camera >= 0` かつ `right_camera >= 0` : 左右のカメラを使用（両眼）
-※ カメラ番号の代わりに `"movie.mp4"` のようにムービーファイル名を文字列で指定することもできます。
+動画ファイルはカメラ番号へ文字列として指定せず、`input_mode` を `1` にして `left_movie`／`right_movie` に指定します。
 
 #### ※4 Ovrvision Pro の動作モード設定 (`ovrvision_property`)
 * `0`: `OVR::OV_CAM5MP_FULL` (2560x1920, 15fps x2)
@@ -181,6 +184,7 @@
   "fisheye_fov_x": 1,
   "fisheye_fov_y": 1,
   "ovrvision_property": 3,
+  "controller": 0,
   "leap_motion": 0,
   "vertex_shader": "fixed.vert",
   "fragment_shader": "normal.frag",

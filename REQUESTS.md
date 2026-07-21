@@ -74,4 +74,5 @@
 ## 検証状況
 
 - 各変更で `git diff --check` を実施した。
-- CMake 構成時に `libs/ImGui/backends/imgui_impl_glfw.cpp` が見つからず、コンパイル検証は完了していない。
+- その後、依存ファイルを配置した既存の CMake Debug 構成で `ted` ターゲットのコンパイルとリンクに成功した。
+- リンク時には既存の `LNK4098`（`MSVCRT` の競合）警告が残っている。
