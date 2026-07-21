@@ -30,6 +30,26 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+//
+// Leap Motion の使用状態を変更する
+//
+bool GgApp::setLeapMotionEnabled(bool enabled)
+{
+  if (enabled == defaults.use_leap_motion) return true;
+
+  if (enabled)
+  {
+    if (!Scene::startLeapMotion()) return false;
+  }
+  else
+  {
+    Scene::stopLeapMotion();
+  }
+
+  defaults.use_leap_motion = enabled;
+  return true;
+}
+
 #if defined(GG_USE_OPENXR)
 //
 // OpenXR のエラーチェックマクロ
@@ -746,6 +766,43 @@ void GgApp::Window::keyboard(GLFWwindow* window, int key, int scancode, int acti
       }
     }
   }
+}
+
+//
+// 表示モードの変更
+//
+bool GgApp::Window::setDisplayMode(int mode)
+{
+  if (mode == defaults.display_mode) return true;
+  if (mode < MONOCULAR || mode > OPENXR) return false;
+
+  if (mode == OPENXR)
+  {
+    if (!startHMD()) return false;
+  }
+  else
+  {
+    // Quad Buffer Stereo が利用できない場合は切り替えない
+    if (mode == QUADBUFFER && !defaults.display_quadbuffer) return false;
+    if (defaults.display_mode == OPENXR) stopHMD();
+  }
+
+  defaults.display_mode = mode;
+  resetViewport();
+  return true;
+}
+
+//
+// 前方面と後方面の変更
+//
+bool GgApp::Window::setClipPlanes(float nearPlane, float farPlane)
+{
+  if (nearPlane <= 0.0f || farPlane <= nearPlane) return false;
+
+  defaults.display_near = nearPlane;
+  defaults.display_far = farPlane;
+  update();
+  return true;
 }
 
 //

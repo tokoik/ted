@@ -124,6 +124,13 @@ public:
   ///
   bool selectInput();
 
+  /// Leap Motion の使用状態を変更する
+  ///
+  /// @param enabled 使用する場合は true
+  /// @return 要求した状態へ変更できた場合は true
+  ///
+  bool setLeapMotionEnabled(bool enabled);
+
   ///
   /// アプリケーション本体
   ///
@@ -376,6 +383,29 @@ public:
     {
       resize(window, size[0], size[1]);
     }
+
+    /// 表示モードを変更し、必要な表示資源とビューポートを更新する
+    ///
+    /// @param mode 新しい表示モード
+    /// @return 表示モードを変更できた場合は true
+    ///
+    bool setDisplayMode(int mode);
+
+    /// 前方面と後方面を変更して透視投影変換行列を更新する
+    ///
+    /// @param nearPlane 前方面
+    /// @param farPlane 後方面
+    /// @return 有効な範囲を設定できた場合は true
+    ///
+    bool setClipPlanes(float nearPlane, float farPlane);
+
+    /// ミラー表示の状態を取得・変更する
+    bool isMirrorVisible() const { return showMirror; }
+    void setMirrorVisible(bool visible) { showMirror = visible; }
+
+    /// シーン表示の状態を取得・変更する
+    bool isSceneVisible() const { return showScene; }
+    void setSceneVisible(bool visible) { showScene = visible; }
 
     ///
     /// 透視投影変換行列を更新する

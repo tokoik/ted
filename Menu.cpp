@@ -165,28 +165,7 @@ void Menu::displayWindow()
   // 表示モードが変更されたとき
   if (display_mode != defaults.display_mode)
   {
-    // OpenXR に切り替えたなら
-    if (display_mode == OPENXR)
-    {
-      // OpenXR を起動して表示モードをそれに切り替える
-      if (window.startHMD()) defaults.display_mode = display_mode;
-    }
-    // OpenXR 以外に切り替えたなら
-    else
-    {
-      // Quadbuffer Stereo が使えなければそれには切り替えない
-      if (display_mode != QUADBUFFER || defaults.display_quadbuffer)
-      {
-        // それまで OpenXR を使っていたなら止める
-        if (defaults.display_mode == OPENXR) window.stopHMD();
-
-        // 表示モードを切り替える
-        defaults.display_mode = display_mode;
-      }
-    }
-
-    // ビューポートを更新する
-    window.resetViewport();
+    window.setDisplayMode(display_mode);
   }
 
   // ゲームパッドを有効にするかどうか
@@ -195,27 +174,14 @@ void Menu::displayWindow()
   // Leap Motion を有効にするかどうか
   bool use_leap_motion{ defaults.use_leap_motion };
   if (ImGui::Checkbox("Leap Motion", &use_leap_motion))
-  {
-    // それまで LeapMotion を使っていないとき
-    if (!defaults.use_leap_motion)
-    {
-      // Leap Motion を使うなら起動する
-      if (use_leap_motion && Scene::startLeapMotion())
-        defaults.use_leap_motion = true;
-    }
-    // それまで使っていた Leap Motion を止めるとき
-    else if (!use_leap_motion)
-    {
-      // Leap Motion を止める
-      Scene::stopLeapMotion();
-      defaults.use_leap_motion = false;
-    }
-  }
+    app->setLeapMotionEnabled(use_leap_motion);
 
   // 表示関係
   ImGui::Checkbox(u8"ヘッドトラッキング", &defaults.camera_tracking);
-  ImGui::Checkbox(u8"ミラー表示", &window.showMirror);
-  ImGui::Checkbox(u8"シーン表示", &window.showScene);
+  bool showMirror{ window.isMirrorVisible() };
+  if (ImGui::Checkbox(u8"ミラー表示", &showMirror)) window.setMirrorVisible(showMirror);
+  bool showScene{ window.isSceneVisible() };
+  if (ImGui::Checkbox(u8"シーン表示", &showScene)) window.setSceneVisible(showScene);
   char scene_file[MAX_PATH]{ "" };
   if (defaults.scene.is<std::string>())
   {
@@ -226,10 +192,12 @@ void Menu::displayWindow()
   {
     defaults.scene = picojson::value(std::string(scene_file));
   }
-  if (ImGui::SliderFloat(u8"前方面", &defaults.display_near, 0.01f, defaults.display_far))
-    window.update();
-  if (ImGui::SliderFloat(u8"後方面", &defaults.display_far, defaults.display_near, 10.0f))
-    window.update();
+  float nearPlane{ defaults.display_near };
+  if (ImGui::SliderFloat(u8"前方面", &nearPlane, 0.01f, defaults.display_far))
+    window.setClipPlanes(nearPlane, defaults.display_far);
+  float farPlane{ defaults.display_far };
+  if (ImGui::SliderFloat(u8"後方面", &farPlane, defaults.display_near, 10.0f))
+    window.setClipPlanes(defaults.display_near, farPlane);
 
   ImGui::End();
 }

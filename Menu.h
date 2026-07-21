@@ -11,9 +11,6 @@
 // ウィンドウ関連の処理
 #include "GgApp.h"
 
-// シーングラフ
-#include "Scene.h"
-
 // 姿勢
 #include "Attitude.h"
 
