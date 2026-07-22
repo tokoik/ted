@@ -181,40 +181,51 @@ int CamRemote::open(unsigned short port, const char* address)
 //
 bool CamRemote::transmit(int cam, GLuint texture, const GLsizei* size)
 {
-  // 画像のサイズ
-  const GLsizei fsize[] = { remote[cam].cols, remote[cam].rows };
-
-  if (!reshape) return Camera::transmit(cam, texture, fsize);
-
-  if (Camera::transmit(cam, resample[cam], fsize))
+  if (captureMutex[cam].try_lock())
   {
-    // テクスチャ変形用のシェーダ
-    glUseProgram(shader);
-    glUniform2fv(gapLoc, 1, gap);
-    glUniform2fv(screenLoc, 1, screen);
-    glUniform1i(imageLoc, 0);
-    glViewport(0, 0, size[0], size[1]);
+    if (captured[cam])
+    {
+      // 画像のサイズ（ロック内で image[cam] を見る）
+      const GLsizei fsize[] = { image[cam].cols, image[cam].rows };
 
-    // 背景画像の変形に使うフレームバッファオブジェクトに切り替える
-    glBindFramebuffer(GL_FRAMEBUFFER, fb);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
+      if (!reshape)
+      {
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fsize[0], fsize[1], format, GL_UNSIGNED_BYTE, image[cam].data);
+        captured[cam] = false;
+        captureMutex[cam].unlock();
+        return true;
+      }
 
-    // リモートから取得したフレームのサンプリングに使うテクスチャを指定する
-    glBindTexture(GL_TEXTURE_2D, resample[cam]);
+      glBindTexture(GL_TEXTURE_2D, resample[cam]);
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fsize[0], fsize[1], format, GL_UNSIGNED_BYTE, image[cam].data);
+      captured[cam] = false;
+      captureMutex[cam].unlock();
 
-    // リモートのヘッドトラッキング情報を設定してレンダリング
-    glUniformMatrix4fv(rotationLoc, 1, GL_FALSE, Scene::getRemoteAttitude(cam).data());
-    glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, slices * 2, stacks - 1);
+      // テクスチャ変形用のシェーダ
+      glUseProgram(shader);
+      glUniform2fv(gapLoc, 1, gap);
+      glUniform2fv(screenLoc, 1, screen);
+      glUniform1i(imageLoc, 0);
+      glViewport(0, 0, size[0], size[1]);
 
-    // レンダリング先を通常のフレームバッファに戻す
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      // 背景画像の変形に使うフレームバッファオブジェクトに切り替える
+      glBindFramebuffer(GL_FRAMEBUFFER, fb);
+      glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
 
-    // フレームバッファオブジェクトのカラーバッファに使ったテクスチャを指定する
-    glBindTexture(GL_TEXTURE_2D, texture);
+      // リモートから取得したフレームのサンプリングに使うテクスチャを指定する
+      glBindTexture(GL_TEXTURE_2D, resample[cam]);
 
-    return true;
+      // リモートのヘッドトラッキング情報を設定してレンダリング
+      glUniformMatrix4fv(rotationLoc, 1, GL_FALSE, Scene::getRemoteAttitude(cam).data());
+      glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, slices * 2, stacks - 1);
+
+      // レンダリング先を通常のフレームバッファに戻す
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      return true;
+    }
+    captureMutex[cam].unlock();
   }
-
   return false;
 }
 
@@ -260,20 +271,25 @@ void CamRemote::recv()
         encoded.assign(data, data + head[camL]);
 
         // 左フレームをデコードして保存し
-        remote[camL] = cv::imdecode(cv::Mat(encoded), 1);
+        cv::Mat decoded = cv::imdecode(cv::Mat(encoded), 1);
 
-        // 左フレームのサイズを求めておいて
-        rsize[camL] = remote[camL].size();
-
-        // 左画像をロックし
+        if (!decoded.empty())
         {
-          std::lock_guard<std::mutex> lock(captureMutex[camL]);
+          remote[camL] = decoded;
 
-          // 左画像を更新したら
-          image[camL] = remote[camL];
+          // 左フレームのサイズを求めておいて
+          rsize[camL] = remote[camL].size();
 
-          // 左フレームの取得の完了を記録する
-          captured[camL] = true;
+          // 左画像をロックし
+          {
+            std::lock_guard<std::mutex> lock(captureMutex[camL]);
+
+            // 左画像を更新したら
+            image[camL] = remote[camL];
+
+            // 左フレームの取得の完了を記録する
+            captured[camL] = true;
+          }
         }
       }
 
@@ -284,20 +300,25 @@ void CamRemote::recv()
         encoded.assign(data + head[camL], data + head[camL] + head[camR]);
 
         // 右フレームをデコードして保存し
-        remote[camR] = cv::imdecode(cv::Mat(encoded), 1);
+        cv::Mat decoded = cv::imdecode(cv::Mat(encoded), 1);
 
-        // 右フレームのサイズを求めておいて
-        rsize[camR] = remote[camR].size();
-
-        // 右画像をロックし
+        if (!decoded.empty())
         {
-          std::lock_guard<std::mutex> lock(captureMutex[camR]);
+          remote[camR] = decoded;
 
-          // 右画像を更新したら
-          image[camR] = remote[camR];
+          // 右フレームのサイズを求めておいて
+          rsize[camR] = remote[camR].size();
 
-          // 右フレームの取得の完了を記録する
-          captured[camR] = true;
+          // 右画像をロックし
+          {
+            std::lock_guard<std::mutex> lock(captureMutex[camR]);
+
+            // 右画像を更新したら
+            image[camR] = remote[camR];
+
+            // 右フレームの取得の完了を記録する
+            captured[camR] = true;
+          }
         }
       }
 

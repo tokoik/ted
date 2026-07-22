@@ -68,6 +68,18 @@ bool GgApp::setHandTrackingMode(int mode)
     } \
   } while (0)
 
+#define XR_CHECK_INIT(func) \
+  do { \
+    XrResult result = (func); \
+    if (XR_FAILED(result)) { \
+      char buf[256]; \
+      sprintf_s(buf, "OpenXR error at %s:%d (Result: %d)", __FILE__, __LINE__, result); \
+      NOTIFY(buf); \
+      cleanupOpenXR(); \
+      return false; \
+    } \
+  } while (0)
+
 #define XR_CHECK_VOID(func) \
   do { \
     XrResult result = (func); \
@@ -843,10 +855,10 @@ bool GgApp::Window::initOpenXR()
   std::vector<const char*> extensions;
   extensions.push_back(XR_KHR_OPENGL_ENABLE_EXTENSION_NAME);
   uint32_t extensionCount{ 0 };
-  XR_CHECK(xrEnumerateInstanceExtensionProperties(nullptr, 0, &extensionCount, nullptr));
+  XR_CHECK_INIT(xrEnumerateInstanceExtensionProperties(nullptr, 0, &extensionCount, nullptr));
   std::vector<XrExtensionProperties> extensionProperties(extensionCount,
     { XR_TYPE_EXTENSION_PROPERTIES });
-  XR_CHECK(xrEnumerateInstanceExtensionProperties(nullptr, extensionCount, &extensionCount,
+  XR_CHECK_INIT(xrEnumerateInstanceExtensionProperties(nullptr, extensionCount, &extensionCount,
     extensionProperties.data()));
   xrHandTrackingSupported = std::any_of(extensionProperties.begin(), extensionProperties.end(),
     [](const XrExtensionProperties& property)
@@ -866,47 +878,51 @@ bool GgApp::Window::initOpenXR()
   instanceCreateInfo.enabledExtensionNames = extensions.data();
 
   // OpenXRインスタンスを作成
-  XR_CHECK(xrCreateInstance(&instanceCreateInfo, &xrInstance));
+  XR_CHECK_INIT(xrCreateInstance(&instanceCreateInfo, &xrInstance));
 
   // VRシステム（HMD）の情報を取得
   XrSystemGetInfo systemGetInfo{ XR_TYPE_SYSTEM_GET_INFO };
   systemGetInfo.formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY; // HMDタイプを指定
-  XR_CHECK(xrGetSystem(xrInstance, &systemGetInfo, &xrSystemId));
+  XR_CHECK_INIT(xrGetSystem(xrInstance, &systemGetInfo, &xrSystemId));
 
   if (xrHandTrackingSupported)
   {
     XrSystemHandTrackingPropertiesEXT handProperties{ XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_EXT };
     XrSystemProperties systemProperties{ XR_TYPE_SYSTEM_PROPERTIES };
     systemProperties.next = &handProperties;
-    XR_CHECK(xrGetSystemProperties(xrInstance, xrSystemId, &systemProperties));
+    XR_CHECK_INIT(xrGetSystemProperties(xrInstance, xrSystemId, &systemProperties));
     xrHandTrackingSupported = handProperties.supportsHandTracking == XR_TRUE;
 
     if (xrHandTrackingSupported)
     {
-      XR_CHECK(xrGetInstanceProcAddr(xrInstance, "xrCreateHandTrackerEXT",
+      XR_CHECK_INIT(xrGetInstanceProcAddr(xrInstance, "xrCreateHandTrackerEXT",
         reinterpret_cast<PFN_xrVoidFunction*>(&xrCreateHandTracker)));
-      XR_CHECK(xrGetInstanceProcAddr(xrInstance, "xrDestroyHandTrackerEXT",
+      XR_CHECK_INIT(xrGetInstanceProcAddr(xrInstance, "xrDestroyHandTrackerEXT",
         reinterpret_cast<PFN_xrVoidFunction*>(&xrDestroyHandTracker)));
-      XR_CHECK(xrGetInstanceProcAddr(xrInstance, "xrLocateHandJointsEXT",
+      XR_CHECK_INIT(xrGetInstanceProcAddr(xrInstance, "xrLocateHandJointsEXT",
         reinterpret_cast<PFN_xrVoidFunction*>(&xrLocateHandJoints)));
     }
   }
 
   // OpenGLグラフィックス要件を取得するためのランタイム関数ポインタを取得
   PFN_xrGetOpenGLGraphicsRequirementsKHR pfnGetOpenGLGraphicsRequirementsKHR = nullptr;
-  XR_CHECK(xrGetInstanceProcAddr(xrInstance, "xrGetOpenGLGraphicsRequirementsKHR",
+  XR_CHECK_INIT(xrGetInstanceProcAddr(xrInstance, "xrGetOpenGLGraphicsRequirementsKHR",
     reinterpret_cast<PFN_xrVoidFunction*>(&pfnGetOpenGLGraphicsRequirementsKHR)));
 
   // OpenGLのバージョンや動作要件をVRシステム側から取得
   XrGraphicsRequirementsOpenGLKHR graphicsRequirements{ XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_KHR };
-  XR_CHECK(pfnGetOpenGLGraphicsRequirementsKHR(xrInstance, xrSystemId, &graphicsRequirements));
+  XR_CHECK_INIT(pfnGetOpenGLGraphicsRequirementsKHR(xrInstance, xrSystemId, &graphicsRequirements));
 
   // 現在のGLFW OpenGLコンテキストをOpenXRセッションへ関連付ける。
   // GetDCのHDCは借用資源なので、xrCreateSessionが返った直後にReleaseDCする。
   XrGraphicsBindingOpenGLWin32KHR graphicsBinding{ XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR };
   const HWND windowHandle{ glfwGetWin32Window(window) };
   graphicsBinding.hDC = GetDC(windowHandle);              // セッション作成時だけ借用するHDC
-  if (!graphicsBinding.hDC) return false;
+  if (!graphicsBinding.hDC)
+  {
+    cleanupOpenXR();
+    return false;
+  }
   graphicsBinding.hGLRC = wglGetCurrentContext();        // レンダリングコンテキストのハンドル
 
   // OpenXRセッションを作成（取得したグラフィックスコンテキストを紐付ける）
@@ -920,6 +936,7 @@ bool GgApp::Window::initOpenXR()
     char buf[256];
     sprintf_s(buf, "OpenXR session creation failed (Result: %d)", sessionResult);
     NOTIFY(buf);
+    cleanupOpenXR();
     return false;
   }
 
@@ -950,33 +967,41 @@ bool GgApp::Window::initOpenXR()
   if (XR_FAILED(spaceResult))
   {
     playSpaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
-    XR_CHECK(xrCreateReferenceSpace(xrSession, &playSpaceCreateInfo, &xrPlaySpace));
+    XR_CHECK_INIT(xrCreateReferenceSpace(xrSession, &playSpaceCreateInfo, &xrPlaySpace));
   }
 
   // 視点空間（View空間：カメラ基準の空間）を作成
   XrReferenceSpaceCreateInfo viewSpaceCreateInfo{ XR_TYPE_REFERENCE_SPACE_CREATE_INFO };
   viewSpaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_VIEW;
   viewSpaceCreateInfo.poseInReferenceSpace.orientation.w = 1.0f;
-  XR_CHECK(xrCreateReferenceSpace(xrSession, &viewSpaceCreateInfo, &xrViewSpace));
+  XR_CHECK_INIT(xrCreateReferenceSpace(xrSession, &viewSpaceCreateInfo, &xrViewSpace));
 
   // ステレオ表示（左右の目）に必要な設定情報の数を取得
   uint32_t viewCount{ 0 };
-  XR_CHECK(xrEnumerateViewConfigurationViews(xrInstance, xrSystemId, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
+  XR_CHECK_INIT(xrEnumerateViewConfigurationViews(xrInstance, xrSystemId, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
     0, &viewCount, nullptr));
 
   // 左右それぞれの表示領域の詳細設定を取得
   std::vector<XrViewConfigurationView> configViews(viewCount, { XR_TYPE_VIEW_CONFIGURATION_VIEW });
-  XR_CHECK(xrEnumerateViewConfigurationViews(xrInstance, xrSystemId, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
+  XR_CHECK_INIT(xrEnumerateViewConfigurationViews(xrInstance, xrSystemId, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
     viewCount, &viewCount, configViews.data()));
-  if (viewCount < xrSwapchains.size()) return false;
+  if (viewCount < xrSwapchains.size())
+  {
+    cleanupOpenXR();
+    return false;
+  }
 
   // OpenXRランタイムごとに対応形式が異なるため固定値を渡さず、列挙結果から
   // sRGB、通常RGBA、浮動小数RGBAの優先順でOpenGLが描画可能な形式を選ぶ。
   uint32_t formatCount{ 0 };
-  XR_CHECK(xrEnumerateSwapchainFormats(xrSession, 0, &formatCount, nullptr));
-  if (formatCount == 0) return false;
+  XR_CHECK_INIT(xrEnumerateSwapchainFormats(xrSession, 0, &formatCount, nullptr));
+  if (formatCount == 0)
+  {
+    cleanupOpenXR();
+    return false;
+  }
   std::vector<int64_t> formats(formatCount);
-  XR_CHECK(xrEnumerateSwapchainFormats(xrSession, formatCount, &formatCount, formats.data()));
+  XR_CHECK_INIT(xrEnumerateSwapchainFormats(xrSession, formatCount, &formatCount, formats.data()));
   const std::array<int64_t, 3> preferredFormats{ GL_SRGB8_ALPHA8, GL_RGBA8, GL_RGBA16F };
   int64_t colorFormat{ 0 };
   for (const auto preferred : preferredFormats)
@@ -990,6 +1015,7 @@ bool GgApp::Window::initOpenXR()
   if (colorFormat == 0)
   {
     NOTIFY("OpenXR runtime has no supported OpenGL color swapchain format.");
+    cleanupOpenXR();
     return false;
   }
 
@@ -1017,15 +1043,15 @@ bool GgApp::Window::initOpenXR()
     swapchainCreateInfo.mipCount = 1;
 
     // スワップチェーンを作成する
-    XR_CHECK(xrCreateSwapchain(xrSession, &swapchainCreateInfo, &swapchain.handle));
+    XR_CHECK_INIT(xrCreateSwapchain(xrSession, &swapchainCreateInfo, &swapchain.handle));
 
     // スワップチェーン内のイメージ（テクスチャ）数を取得
     uint32_t imageCount{ 0 };
-    XR_CHECK(xrEnumerateSwapchainImages(swapchain.handle, 0, &imageCount, nullptr));
+    XR_CHECK_INIT(xrEnumerateSwapchainImages(swapchain.handle, 0, &imageCount, nullptr));
     swapchain.images.resize(imageCount, { XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR });
 
     // スワップチェーンから実際のOpenGLテクスチャイメージの配列を取得
-    XR_CHECK(xrEnumerateSwapchainImages(swapchain.handle, imageCount, &imageCount,
+    XR_CHECK_INIT(xrEnumerateSwapchainImages(swapchain.handle, imageCount, &imageCount,
       reinterpret_cast<XrSwapchainImageBaseHeader*>(swapchain.images.data())));
 
     // スワップチェーンイメージごとにFBO（フレームバッファオブジェクト）を割り当てる
@@ -1090,12 +1116,11 @@ void GgApp::Window::cleanupOpenXR()
   // セッション関連のリソース解放
   if (xrSession != XR_NULL_HANDLE)
   {
-    // セッションがまだ実行中なら終了処理を行う
-    if (xrSessionRunning)
-    {
-      xrEndSession(xrSession);
-      xrSessionRunning = false;
-    }
+    // xrEndSessionはSTOPPING状態でのみ呼び出し可能なため、
+    // 通常のクリーンアップや異常終了時（STOPPING状態になっていないとき）は
+    // xrEndSessionをスキップして、直接xrDestroySessionで安全に破棄する。
+    // (仕様上、xrDestroySessionは任意のセッション状態で呼び出すことができ、セッションを強制終了・破棄します)
+    xrSessionRunning = false;
 
     if (xrDestroyHandTracker)
     {
@@ -1230,7 +1255,10 @@ void GgApp::Window::updateOpenXRHands(XrTime time)
     locateInfo.baseSpace = xrPlaySpace;
     locateInfo.time = time;
     if (XR_FAILED(xrLocateHandJoints(xrHandTrackers[hand], &locateInfo, &joints)) || !joints.isActive)
+    {
+      Scene::setLocalHandAttitudes(hand, nullptr);
       continue;
+    }
 
     std::array<GgMatrix, jointMap.size()> matrices;
     bool valid{ true };
@@ -1250,7 +1278,14 @@ void GgApp::Window::updateOpenXRHands(XrTime time)
       matrices[i] = ggTranslate(p.x - xrOriginPosition[0], p.y - xrOriginPosition[1],
         p.z - xrOriginPosition[2]) * GgQuaternion(q.x, q.y, q.z, q.w).getMatrix();
     }
-    if (valid) Scene::setLocalHandAttitudes(hand, matrices.data());
+    if (valid)
+    {
+      Scene::setLocalHandAttitudes(hand, matrices.data());
+    }
+    else
+    {
+      Scene::setLocalHandAttitudes(hand, nullptr);
+    }
   }
 }
 
@@ -1400,7 +1435,15 @@ void GgApp::Window::select(int eye)
       XrSwapchainImageAcquireInfo acquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
       uint32_t activeIndex{ 0 };
       auto& swapchain{ xrSwapchains[eye] };
-      XR_CHECK_VOID(xrAcquireSwapchainImage(swapchain.handle, &acquireInfo, &activeIndex));
+      const XrResult acquireResult{ xrAcquireSwapchainImage(swapchain.handle, &acquireInfo, &activeIndex) };
+      if (XR_FAILED(acquireResult))
+      {
+        char buf[256];
+        sprintf_s(buf, "OpenXR swapchain acquire failed (Result: %d)", acquireResult);
+        NOTIFY(buf);
+        xrFrameFailed = true;
+        return;
+      }
       xrSwapchains[eye].activeImageIndex = activeIndex; // 現在のアクティブイメージインデックスを記録
 
       // 書き込み可能になるまで（GPUでイメージが解放されるまで）待機
@@ -1414,6 +1457,7 @@ void GgApp::Window::select(int eye)
         char buf[256];
         sprintf_s(buf, "OpenXR swapchain wait failed (Result: %d)", waitResult);
         NOTIFY(buf);
+        xrFrameFailed = true;
         return;
       }
       swapchain.imageAcquired = true;
@@ -1465,6 +1509,8 @@ bool GgApp::Window::start()
 
   // アクティブなフレームであることを示すフラグをセット
   xrFrameActive = true;
+  xrFrameFailed = false;
+  xrSessionStopPending = false;
 
   // ランタイムがこのフレームの描画を必要としているか判定
   if (xrFrameState.shouldRender)
@@ -1481,8 +1527,9 @@ bool GgApp::Window::start()
     // 左右それぞれの目の位置と向き、および視野角(FOV)を取得
     XrResult locateResult = xrLocateViews(xrSession, &viewLocateInfo, &viewState, viewCount, &viewCount, locateViews.data());
 
-    // 取得したトラッキングデータが有効であれば、各目の射影行列を更新
-    if (XR_SUCCEEDED(locateResult) && (viewState.viewStateFlags & XR_VIEW_STATE_POSITION_VALID_BIT) &&
+    // 取得したトラッキングデータが有効であり、かつビュー数が2以上であることを確認
+    if (XR_SUCCEEDED(locateResult) && (viewCount >= 2) &&
+      (viewState.viewStateFlags & XR_VIEW_STATE_POSITION_VALID_BIT) &&
       (viewState.viewStateFlags & XR_VIEW_STATE_ORIENTATION_VALID_BIT))
     {
       for (int eye = 0; eye < 2; ++eye)
@@ -1557,8 +1604,9 @@ bool GgApp::Window::start()
 
       // 視点と同じ予測表示時刻・基準空間で手を取得し、映像との時間差を抑える。
       updateOpenXRHands(xrFrameState.predictedDisplayTime);
+
+      return true; // 描画処理へ進む
     }
-    return true; // 描画処理へ進む
   }
 
   // HMDが非表示中などshouldRender=falseでも、BeginFrameと対になるEndFrameは必要なので
@@ -1687,7 +1735,17 @@ void GgApp::Window::commit(int eye)
     XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
 
     // イメージのコントロール権をVRシステムに返却（これによりVRシステム側で表示されるようになる）
-    XR_CHECK_VOID(xrReleaseSwapchainImage(xrSwapchains[eye].handle, &releaseInfo));
+    const XrResult releaseResult{ xrReleaseSwapchainImage(xrSwapchains[eye].handle, &releaseInfo) };
+    if (XR_FAILED(releaseResult))
+    {
+      char buf[256];
+      sprintf_s(buf, "OpenXR swapchain release failed (Result: %d)", releaseResult);
+      NOTIFY(buf);
+      xrSwapchains[eye].imageAcquired = false; // 二重解放を防ぐ
+      xrFrameFailed = true;
+      xrSessionStopPending = true;
+      return;
+    }
     xrSwapchains[eye].imageAcquired = false;
   }
 #endif
@@ -1737,12 +1795,37 @@ void GgApp::Window::swapBuffers()
     XrFrameEndInfo endInfo{ XR_TYPE_FRAME_END_INFO };
     endInfo.displayTime = xrFrameState.predictedDisplayTime;          // 予測表示時刻
     endInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE; // 不透明モード
-    endInfo.layerCount = 1;                                          // レイヤー数は1個
-    endInfo.layers = layers;                                         // レイヤーの配列
+    if (xrFrameFailed)
+    {
+      endInfo.layerCount = 0;
+      endInfo.layers = nullptr;
+    }
+    else
+    {
+      endInfo.layerCount = 1;                                          // レイヤー数は1個
+      endInfo.layers = layers;                                         // レイヤーの配列
+    }
 
     // VRシステムに対し、現在のフレームのすべての描画レイヤーを送信して表示を要求
     xrFrameActive = false;
-    XR_CHECK_VOID(xrEndFrame(xrSession, &endInfo));
+    const XrResult endResult = xrEndFrame(xrSession, &endInfo);
+    if (XR_FAILED(endResult))
+    {
+      char buf[256];
+      sprintf_s(buf, "OpenXR xrEndFrame failed (Result: %d)", endResult);
+      NOTIFY(buf);
+      xrSessionStopPending = true;
+    }
+
+    // セッション停止保留中の場合は、フレームを閉じた後に安全に停止する
+    if (xrSessionStopPending)
+    {
+      xrSessionStopPending = false;
+      stopHMD();
+      defaults.display_mode = MONOCULAR;
+      resetViewport();
+      return;
+    }
 
     // ミラー表示が有効なら、ミラーFBO（左右の目が合成されたもの）からデフォルトフレームバッファへコピー
     if (showMirror)

@@ -12,6 +12,7 @@
 
 // 標準ライブラリ
 #include <iostream>
+#include <atomic>
 
 // 冗長なデバッグメッセージ
 #undef VERBOSE
@@ -39,13 +40,14 @@ constexpr unsigned int retry{ 5 };
 
 
 /* Leap Motion status */
-static bool IsConnected(false);
-static volatile bool _isRunning(false);
+static std::atomic<bool> IsConnected{ false };
+static std::atomic<bool> _isRunning{ false };
 static LEAP_CONNECTION connectionHandle(nullptr);
 static std::unique_ptr<LEAP_TRACKING_EVENT> lastFrame(nullptr);
+static std::vector<LEAP_HAND> lastHands;
 static std::unique_ptr<LEAP_DEVICE_INFO> lastDevice(nullptr);
 static int32_t lastDrawnFrameId(0);
-static volatile int32_t newestFrameId(0);
+static std::atomic<int32_t> newestFrameId{ 0 };
 #if defined(LEAP_INTERPORATE_FRAME)
 static LEAP_CLOCK_REBASER clockSynchronizer;
 #endif
@@ -94,19 +96,33 @@ static void setFrame(const LEAP_TRACKING_EVENT* frame)
   std::lock_guard<std::mutex> lock(dataLock);
   if (!lastFrame.get()) lastFrame.reset(new LEAP_TRACKING_EVENT);
   *lastFrame = *frame;
+
+  // 手の配列をディープコピーする
+  if (frame->nHands > 0 && frame->pHands)
+  {
+    lastHands.resize(frame->nHands);
+    std::copy(frame->pHands, frame->pHands + frame->nHands, lastHands.begin());
+  }
+  else
+  {
+    lastHands.clear();
+  }
+  lastFrame->pHands = lastHands.data();
 }
 
 /**
- * Returns a pointer to the cached tracking frame.
+ * Returns a copy of the cached tracking frame and its hands array.
+ * This is used to safely fetch a snapshot of the frame data under lock.
  */
-static const LEAP_TRACKING_EVENT* getFrame()
+static bool getFrameSnapshot(LEAP_TRACKING_EVENT& outFrame, std::vector<LEAP_HAND>& outHands)
 {
-  LEAP_TRACKING_EVENT* currentFrame;
-
   std::lock_guard<std::mutex> lock(dataLock);
-  currentFrame = lastFrame.get();
+  if (!lastFrame.get()) return false;
 
-  return currentFrame;
+  outFrame = *lastFrame;
+  outHands = lastHands;
+  outFrame.pHands = outHands.data();
+  return true;
 }
 
 /**
@@ -690,9 +706,11 @@ void LeapListener::getHandPose(GgMatrix* matrix) const
   if (lastDrawnFrameId >= newestFrameId) return;
   lastDrawnFrameId = newestFrameId;
 
-  // 保存されているフレームを取り出す
-  const LEAP_TRACKING_EVENT* frame(getFrame());
-  if (!frame) return;
+  // 保存されているフレームのスナップショットを取得する
+  LEAP_TRACKING_EVENT localFrame;
+  std::vector<LEAP_HAND> localHands;
+  if (!getFrameSnapshot(localFrame, localHands)) return;
+  const LEAP_TRACKING_EVENT* frame = &localFrame;
 #  if defined(DEBUG) && defined(VERBOSE)
   std::cerr << "Frame id: " << frame->info.frame_id
     << ", timestamp: " << frame->info.timestamp
@@ -700,6 +718,36 @@ void LeapListener::getHandPose(GgMatrix* matrix) const
     << "\n";
 #  endif
 #endif
+
+  // 左右の手が今回のフレームに存在するか確認する
+  bool handExists[2]{ false, false };
+  for (uint32_t h = 0; h < frame->nHands; ++h)
+  {
+    const LEAP_HAND& hand(frame->pHands[h]);
+    const int base(hand.type == eLeapHandType_Left ? 0 : 1);
+    if (base >= 0 && base < 2)
+    {
+      handExists[base] = true;
+    }
+  }
+
+  // 今回のフレームで検出されなかった方の手だけを安全にゼロクリア（非表示化）する
+  const GgMatrix zeroMatrix{ 0.0f };
+  for (int base = 0; base < 2; ++base)
+  {
+    if (!handExists[base])
+    {
+      matrix[0 + base] = zeroMatrix;
+      matrix[2 + base] = zeroMatrix;
+      for (int d = 0; d < 5; ++d)
+      {
+        for (int b = 0; b < 4; ++b)
+        {
+          matrix[4 + d * 8 + b * 2 + base] = zeroMatrix;
+        }
+      }
+    }
+  }
 
   // 全ての腕について
   for (uint32_t h = 0; h < frame->nHands; ++h)

@@ -56,10 +56,7 @@ bool GgApp::useImage()
   }
 
   // 左カメラに画像ファイルを使う
-  CamImage *const cam{ new CamImage };
-
-  // 生成したカメラを記録しておく
-  camera.reset(cam);
+  std::unique_ptr<CamImage> cam{ new CamImage };
 
   // 左の画像が使用できなければ戻る
   if (!cam->open(defaults.camera_image[camL], camL))
@@ -68,8 +65,9 @@ bool GgApp::useImage()
     return false;
   }
 
-  // 左の画像を保存しておく
-  image[camL] = cam->getImage(camL);
+  const GLubyte* imgL = cam->getImage(camL);
+  const GLubyte* imgR = nullptr;
+  bool isStereo = false;
 
   // 右の画像が指定されていて右の画像と同じでなければ
   if (!defaults.camera_image[camR].empty() && defaults.camera_image[camR] != defaults.camera_image[camL])
@@ -82,13 +80,25 @@ bool GgApp::useImage()
     else
     {
       // 右の画像を保存しておく
-      image[camR] = cam->getImage(camR);
+      imgR = cam->getImage(camR);
 
       // ステレオ入力
-      stereo = true;
+      isStereo = true;
     }
   }
 
+  // 成功時のみ適用
+  camera = std::move(cam);
+  image[camL] = imgL;
+  stereo = isStereo;
+  if (isStereo)
+  {
+    image[camR] = imgR;
+  }
+  else
+  {
+    image[camR] = nullptr;
+  }
   return true;
 }
 
@@ -105,10 +115,7 @@ bool GgApp::useMovie()
   }
 
   // 左カメラに Media Foundation のキャプチャデバイスを使う
-  CamMf *const cam{ new CamMf };
-
-  // 生成したカメラを記録しておく
-  camera.reset(cam);
+  std::unique_ptr<CamMf> cam{ new CamMf };
 
   // 左の動画像ファイルが開けなければ戻る
   if (!cam->open(defaults.camera_movie[camL], camL))
@@ -116,6 +123,8 @@ bool GgApp::useMovie()
     NOTIFY("左の動画像ファイルが使用できません。");
     return false;
   }
+
+  bool isStereo = false;
 
   // 右カメラに左と異なるムービーファイルが指定されていれば
   if (!defaults.camera_movie[camR].empty() && defaults.camera_movie[camR] != defaults.camera_movie[camL])
@@ -128,10 +137,13 @@ bool GgApp::useMovie()
     else
     {
       // ステレオ入力
-      stereo = true;
+      isStereo = true;
     }
   }
 
+  // 成功時のみ適用
+  camera = std::move(cam);
+  stereo = isStereo;
   return true;
 }
 
@@ -148,10 +160,7 @@ bool GgApp::useCamera()
   }
 
   // 左カメラに Media Foundation のキャプチャデバイスを使う
-  CamMf *const cam{ new CamMf };
-
-  // 生成したカメラを記録しておく
-  camera.reset(cam);
+  std::unique_ptr<CamMf> cam{ new CamMf };
 
   // 左カメラのデバイスが開けなければ戻る
   if (!cam->open(defaults.camera_id[camL], camL))
@@ -159,6 +168,8 @@ bool GgApp::useCamera()
     NOTIFY("左のカメラが使用できません。");
     return false;
   }
+
+  bool isStereo = false;
 
   // 右カメラが指定されていて左と異なるカメラが指定されていれば
   if (defaults.camera_id[camR] >= 0 && defaults.camera_id[camR] != defaults.camera_id[camL])
@@ -171,10 +182,13 @@ bool GgApp::useCamera()
     else
     {
       // ステレオ入力
-      stereo = true;
+      isStereo = true;
     }
   }
 
+  // 成功時のみ適用
+  camera = std::move(cam);
+  stereo = isStereo;
   return true;
 }
 
@@ -184,10 +198,7 @@ bool GgApp::useCamera()
 bool GgApp::useOvervision()
 {
   // Ovrvision Pro を使う
-  CamOv *const cam{ new CamOv };
-
-  // 生成したカメラを記録しておく
-  camera.reset(cam);
+  std::unique_ptr<CamOv> cam{ new CamOv };
 
   // Ovrvision Pro が開けなければ戻る
   if (!cam->open(static_cast<OVR::Camprop>(defaults.ovrvision_property)))
@@ -197,7 +208,8 @@ bool GgApp::useOvervision()
     return false;
   }
 
-  // ステレオ入力
+  // 成功時のみ適用
+  camera = std::move(cam);
   stereo = true;
 
   return true;
@@ -209,10 +221,7 @@ bool GgApp::useOvervision()
 bool GgApp::useRemote()
 {
   // リモートカメラからキャプチャするためのダミーカメラを使う
-  CamRemote *const cam(new CamRemote(defaults.remote_texture_reshape));
-
-  // 生成したカメラを記録しておく
-  camera.reset(cam);
+  std::unique_ptr<CamRemote> cam{ new CamRemote(defaults.remote_texture_reshape) };
 
   // 指導者側を起動する
   if (cam->open(defaults.port, defaults.address.c_str()) < 0)
@@ -221,7 +230,8 @@ bool GgApp::useRemote()
     return false;
   }
 
-  // ステレオ入力
+  // 成功時のみ適用
+  camera = std::move(cam);
   stereo = true;
 
   return true;
@@ -232,31 +242,36 @@ bool GgApp::useRemote()
 //
 bool GgApp::selectInput()
 {
-  // 入力バックエンドを切り替えた後、左右サイズとステレオ状態を正規化し、
-  // 描画側が入力方式を意識せず同じ2枚のOpenGLテクスチャを参照できるよう再構築する。
-  std::fill(image, image + camCount, nullptr);
-  // 入力を切り替えるたびに単眼として開始し、両眼入力を開けた場合だけ有効にする
-  stereo = false;
+  bool success = false;
 
   switch (defaults.input_mode)
   {
   case InputMode::IMAGE:
-    if (!useImage()) return false;
+    success = useImage();
     break;
   case InputMode::MOVIE:
-    if (!useMovie()) return false;
+    success = useMovie();
     break;
   case InputMode::CAMERA:
-    if (!useCamera()) return false;
+    success = useCamera();
     break;
   case InputMode::OVRVISION:
-    if (!useOvervision()) return false;
+    success = useOvervision();
     break;
   case InputMode::REMOTE:
-    if (!useRemote()) return false;
+    success = useRemote();
     break;
   default:
     break;
+  }
+
+  if (!success) return false;
+
+  // 入力バックエンドを切り替えた後、左右サイズとステレオ状態を正規化し、
+  // 描画側が入力方式を意識せず同じ2枚のOpenGLテクスチャを参照できるよう再構築する。
+  if (defaults.input_mode != InputMode::IMAGE)
+  {
+    std::fill(image, image + camCount, nullptr);
   }
 
   // 左カメラのサイズを得る
@@ -487,7 +502,15 @@ int GgApp::main(int argc, const char *const *const argv)
   int drawCount{ defaults.display_mode == MONOCULAR ? 1 : camCount };
 
   // デフォルトが OPENXR なら HMD を起動する
-  if (defaults.display_mode == OPENXR) window.startHMD();
+  if (defaults.display_mode == OPENXR)
+  {
+    if (!window.startHMD())
+    {
+      NOTIFY("OpenXRの起動に失敗しました。通常表示モードに戻します。");
+      defaults.display_mode = MONOCULAR;
+      window.resetViewport();
+    }
+  }
 
   // メニュー
   Menu menu{ *this, window, attitude, defaults };

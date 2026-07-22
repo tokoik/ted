@@ -17,9 +17,11 @@
 #endif
 
 // 標準ライブラリ
-#include <algorithm>
-#include <climits>
+#include <iostream>
 #include <vector>
+#include <algorithm>
+#include <chrono>
+#include <climits>
 
 // 最大データサイズ
 const std::size_t maxSize{ 1470 };
@@ -199,6 +201,7 @@ void Network::finalize()
   if (recvSock != INVALID_SOCKET) closesocket(recvSock);
   if (sendSock != INVALID_SOCKET) closesocket(sendSock);
   sendSock = recvSock = INVALID_SOCKET;
+  lastFrameIdValid = false;
 }
 
 //
@@ -278,11 +281,14 @@ int Network::sendPacket(const void* buf, int len) const
 //
 struct Packet
 {
+  // フレーム番号 (シリアル番号)
+  unsigned short frameId;
+
   // 残りのパケット数
   int count;
 
   // ペイロード
-  char data[maxSize - sizeof Packet::count];
+  char data[maxSize - sizeof(unsigned short) - sizeof(int)];
 };
 
 //
@@ -303,9 +309,23 @@ int Network::recvData(void* buf, int len)
   // 受信すべきパケット数
   int total{ -1 };
 
+  // 現在受信中のフレームID
+  unsigned short currentFrameId{ 0 };
+
   // 受信済みのシーケンス番号と、復元したフレームのバイト数
   std::vector<bool> received;
   int receivedBytes{ 0 };
+
+  // 前回の受信完了から2.0秒以上経過していたら再同期（履歴を無効化）する
+  if (lastFrameIdValid)
+  {
+    const auto now = std::chrono::steady_clock::now();
+    const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastRecvTime).count();
+    if (elapsed > 2000) // 2秒
+    {
+      lastFrameIdValid = false;
+    }
+  }
 
   // 全部のパケットを受信するまで
   for (int count = 0, drop = 0;;)
@@ -327,20 +347,40 @@ int Network::recvData(void* buf, int len)
     // 設定した相手以外から届いたパケットはフレームに混ぜない
     if (!checkRemote()) continue;
 
-    // count フィールドを含まないパケットはプロトコル違反
-    if (bytes < static_cast<int>(sizeof packet.count)) return -1;
+    // ヘッダフィールド（frameId, count）を含まないパケットはプロトコル違反
+    if (bytes < static_cast<int>(sizeof packet.frameId + sizeof packet.count)) return -1;
 
     // 負のcountを持つパケットをフレーム境界として、以前の未完成フレームを破棄する
     if (packet.count < 0)
     {
+      // すでに何らかのパケットを受信し始めている場合、
+      // 新しいパケットのframeIdが現在受信中のものと同じか古ければ破棄する（周回を考慮した16bit比較）
+      if (total >= 0 && static_cast<int16_t>(packet.frameId - currentFrameId) <= 0)
+      {
+        continue;
+      }
+
+      // 前回の呼び出しで完了/受信開始したフレームIDよりも古い開始パケット（遅延パケット）であれば破棄する
+      if (lastFrameIdValid && static_cast<int16_t>(packet.frameId - lastFrameId) <= 0)
+      {
+        continue;
+      }
+
       // 受信したデータを捨てて最初からやり直す
       count = 0;
+      currentFrameId = packet.frameId;
 
       // 先頭パケットが保持するパケット数を保存する
       if (packet.count == INT_MIN) return -1;
       total = packet.count = -packet.count;
       if (total <= 0 || total > limit) return -1;
       received.assign(total, false);
+    }
+
+    // 現在の受信中フレームIDと異なる遅延パケットは破棄する
+    if (total >= 0 && packet.frameId != currentFrameId)
+    {
+      continue;
     }
 
     // total が負のままだったらまだ先頭パケットを受信していないので
@@ -371,7 +411,7 @@ int Network::recvData(void* buf, int len)
 
     // シーケンス番号とペイロードのサイズ
     const int sequence{ total - packet.count };
-    const int size{ bytes - static_cast<int>(sizeof packet.count) };
+    const int size{ bytes - static_cast<int>(sizeof packet.frameId + sizeof packet.count) };
 
     // ペイロードのサイズをチェック
     if (size < 0 || (sequence + 1 < total && size != static_cast<int>(sizeof packet.data)))
@@ -418,6 +458,11 @@ int Network::recvData(void* buf, int len)
     if (count >= total) break;
   }
 
+  // 最後に完了したフレームIDを記録する
+  lastFrameId = currentFrameId;
+  lastFrameIdValid = true;
+  lastRecvTime = std::chrono::steady_clock::now();
+
   // 呼び出し側がフレーム内部の境界を検証できるよう、実バイト数を返す
   return receivedBytes;
 }
@@ -432,15 +477,21 @@ unsigned int Network::sendData(const void* buf, int len) const
   // パケット
   Packet packet;
 
+  // フレームIDを設定してインクリメント
+  const unsigned short frameId{ sendFrameId++ };
+  packet.frameId = frameId;
+
   // 残りのパケット数はデータを送りきるのに必要なペイロードの数
   int total{ (len - 1) / static_cast<int>(sizeof packet.data) + 1 };
 
-  // フレーム境界をTCPの接続なしで識別できるよう、先頭だけ総数を負にする
+  // フレーム境界をTCP of 接続なしで識別できるよう、先頭だけ総数を負にする
   packet.count = -total;
 
   // 送っていないパケットがある間
   for (int count = 0; total > 0; ++count)
   {
+    packet.frameId = frameId;
+
     // 送信するデータの先頭
     const char* const ptr{ static_cast<const char*>(buf) + count * sizeof packet.data };
 
@@ -457,7 +508,7 @@ unsigned int Network::sendData(const void* buf, int len) const
 #endif
 
     // 1 パケット分データを送信する
-    const int ret{ sendPacket(&packet, size + sizeof packet.count) };
+    const int ret{ sendPacket(&packet, size + sizeof packet.frameId + sizeof packet.count) };
 
     // 送信したデータサイズを確かめる
     if (ret <= 0)
@@ -468,7 +519,7 @@ unsigned int Network::sendData(const void* buf, int len) const
     }
 
     // 残りのデータ量
-    len -= ret - sizeof packet.count;
+    len -= ret - sizeof packet.frameId - sizeof packet.count;
 
     // 残りのパケット数を減らす
     packet.count = --total;

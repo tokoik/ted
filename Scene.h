@@ -123,7 +123,7 @@ public:
   /// @param remote_size リモートの共有メモリサイズ
   /// @return 初期化に成功した場合は true、失敗した場合は false
   ///
-  static bool initialize(unsigned int local_size, unsigned int remote_size);
+  static bool initialize(int local_size, int remote_size);
 
   ///
   /// シーングラフを読み込む

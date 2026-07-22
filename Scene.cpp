@@ -70,28 +70,39 @@ Scene::~Scene()
 //
 // 共有メモリを確保して初期化する
 //
-bool Scene::initialize(unsigned int local_size, unsigned int remote_size)
+bool Scene::initialize(int local_size, int remote_size)
 {
+  // 必要最小限のサイズを定義
+  // local_size は少なくとも jointCount + camCount + 1 (47) 以上
+  // remote_size は少なくとも camCount (2) 以上
+  constexpr int minLocalSize{ jointCount + camCount + 1 };
+  constexpr int minRemoteSize{ camCount };
+
+  if (local_size < minLocalSize || remote_size < minRemoteSize)
+  {
+    return false;
+  }
+
   // ローカルの変換行列を保持する共有メモリを確保する
-  localAttitude.reset(new SharedMemory(localMutexName, localShareName, local_size));
+  localAttitude.reset(new SharedMemory(localMutexName, localShareName, static_cast<unsigned int>(local_size)));
 
   // ローカルの変換行列を保持する共有メモリが確保できたかチェックする
   if (!localAttitude->get()) return false;
 
   // ローカルの変換行列を初期化する
-  localAttitude->set(0, local_size, ggIdentity());
+  localAttitude->set(0, static_cast<unsigned int>(local_size), ggIdentity());
 
   // ローカルのモデル変換行列を確保する
   localMatrixTable.resize(local_size, ggIdentity());
 
   // リモートの変換行列を保持する共有メモリを確保する
-  remoteAttitude.reset(new SharedMemory(remoteMutexName, remoteShareName, remote_size));
+  remoteAttitude.reset(new SharedMemory(remoteMutexName, remoteShareName, static_cast<unsigned int>(remote_size)));
 
   // リモートの変換行列を保持する共有メモリが確保できたかチェックする
   if (!remoteAttitude->get()) return false;
 
   // リモートのの変換行列を初期化する
-  remoteAttitude->set(0, remote_size, ggIdentity());
+  remoteAttitude->set(0, static_cast<unsigned int>(remote_size), ggIdentity());
 
   // リモートのモデル変換行列を確保する
   remoteMatrixTable.resize(remote_size, ggIdentity());
@@ -340,13 +351,25 @@ void Scene::setLocalAttitude(int cam, const GgMatrix& m)
 //
 void Scene::setLocalHandAttitudes(int hand, const GgMatrix* matrices)
 {
-  if (hand < 0 || hand >= 2 || !matrices || !localAttitude) return;
+  if (hand < 0 || hand >= 2 || !localAttitude) return;
 
   constexpr int jointsPerHand{ jointCount / 2 };
   const int firstJoint{ camCount + 1 };
-  for (int joint = 0; joint < jointsPerHand; ++joint)
+
+  if (!matrices)
   {
-    localMatrixTable[firstJoint + joint * 2 + hand] = matrices[joint];
+    const GgMatrix zeroMatrix{ 0.0f };
+    for (int joint = 0; joint < jointsPerHand; ++joint)
+    {
+      localMatrixTable[firstJoint + joint * 2 + hand] = zeroMatrix;
+    }
+  }
+  else
+  {
+    for (int joint = 0; joint < jointsPerHand; ++joint)
+    {
+      localMatrixTable[firstJoint + joint * 2 + hand] = matrices[joint];
+    }
   }
 
   // setup()で共有領域から取り込んだ末尾要素も保持したまま、更新結果を一括公開する。

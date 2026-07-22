@@ -623,6 +623,12 @@ public:
     // xrBeginFrame後からxrEndFrameまでだけtrueにし、通常のGLFW描画経路と区別する
     bool xrFrameActive{ false };
 
+    // 現在のフレームでOpenXRの画像取得等に失敗した場合はtrue
+    bool xrFrameFailed{ false };
+
+    // セッションの停止が保留されている場合はtrue
+    bool xrSessionStopPending{ false };
+
     // XR_EXT_hand_tracking は任意拡張なので、ランタイムが公開した場合だけ使用する。
     bool xrHandTrackingSupported{ false };
     std::array<XrHandTrackerEXT, 2> xrHandTrackers{ XR_NULL_HANDLE, XR_NULL_HANDLE };

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <chrono>
+
 ///
 /// ネットワーク関連の処理クラスの定義
 ///
@@ -37,6 +39,18 @@ class Network
 
   /// 送信アドレス
   sockaddr_in sendAddr{};
+
+  /// 送信フレームID（シリアル番号）
+  mutable unsigned short sendFrameId{ 0 };
+
+  /// 最後に受信完了または開始したフレームID
+  unsigned short lastFrameId{ 0 };
+
+  /// lastFrameIdが有効かどうか（再接続時に無効化する）
+  bool lastFrameIdValid{ false };
+
+  /// 最後に正常にフレーム受信完了した時点の時刻
+  std::chrono::steady_clock::time_point lastRecvTime;
 
   /// 役割
   ///
