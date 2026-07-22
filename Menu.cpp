@@ -147,7 +147,7 @@ void Menu::nodataWindow()
 void Menu::displayWindow()
 {
   ImGui::SetNextWindowPos(ImVec2(2, 25), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(165, 484), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(165, 512), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"表示設定", &showDisplayWindow);
@@ -168,10 +168,7 @@ void Menu::displayWindow()
   }
 
   // ゲームパッドを有効にするかどうか
-  ImGui::Checkbox("Game Pad", &config.use_controller);
-
-  // ヘッドトラッキングするかどうか
-  ImGui::Checkbox(u8"ヘッドトラッキング", &config.camera_tracking);
+  ImGui::Checkbox(u8"ゲームパッド", &config.use_controller);
 
   // ハンドトラッキングを有効にするかどうか
   bool use_hand_tracking{ config.hand_tracking != HAND_TRACKING_NONE };
@@ -196,6 +193,12 @@ void Menu::displayWindow()
 
   ImGui::Unindent(16.0f);
   ImGui::EndDisabled();
+
+  // ヘッドトラッキングするかどうか
+  ImGui::Checkbox(u8"ヘッドトラッキング", &config.camera_tracking);
+
+  // リモート映像を姿勢に合わせて安定化するかどうか
+  ImGui::Checkbox(u8"安定化", &config.remote_stabilize);
 
   // 表示関係
   bool showMirror{ window.isMirrorVisible() };

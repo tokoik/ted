@@ -93,6 +93,8 @@
 
 `Quad Buffer` を使用する場合は、先に「起動時設定」で `Quad Buffer` を有効にして保存し、アプリケーションを再起動してから「表示設定」で `Quad Buffer` を選択してください。起動時にステレオバッファを確保していない場合、「表示設定」で `Quad Buffer` を選択しても表示モードは切り替わりません。また、GPU、ドライバー、表示環境が Quad Buffer Stereo に対応していない場合は、ステレオウィンドウを作成できないことがあります。
 
+「表示設定」の `Stabilize` は、リモートから受信した全方位映像へ相手側の頭部姿勢を適用し、ロボットヘッドの動きによる映像の揺れを補正する機能です。チェックボックスの変更は描画へ直ちに反映され、設定を保存すると `stabilize` として設定ファイルへ記録されます。
+
 * `isMirrorVisible()`／`setMirrorVisible()`、`isSceneVisible()`／`setSceneVisible()`、`isMenuVisible()`／`setMenuVisible()`
   * `Window` 内の表示状態を、公開フィールドへ直接アクセスせず取得・変更します。
 
