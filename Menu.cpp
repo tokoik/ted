@@ -436,7 +436,7 @@ void Menu::inputWindow()
 //
 void Menu::startupWindow()
 {
-  constexpr GLsizei w{ 212 }, h{ 236 };
+  constexpr GLsizei w{ 166 }, h{ 220 };
   const auto& size{ window.getSize() };
   const float x{ (size[0] - w) * 0.5f }, y{ (size[1] - h) * 0.5f };
   ImGui::SetNextWindowPos(ImVec2(x, y), ImGuiCond_Appearing);
@@ -444,8 +444,8 @@ void Menu::startupWindow()
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"起動時設定", &showStartupWindow);
-  ImGui::Checkbox(u8"クアッドバッファステレオ", &quadbuffer);
-  ImGui::Checkbox(u8"フルスクリーン", &fullscreen);
+  ImGui::Checkbox("Quad Buffer", &quadbuffer);
+  ImGui::Checkbox("Full Screen", &fullscreen);
 
   ImGui::Text(u8"セカンダリモニタ");
   ImGui::InputInt(u8"番号", &secondary);

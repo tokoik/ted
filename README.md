@@ -86,6 +86,13 @@
   * 前方面と後方面の値を検証し、設定値と透視投影変換行列をまとめて更新します。
 * `GgApp::setHandTrackingMode(mode)`
   * ハンドトラッキングを無効、Leap Motion、OpenXRのいずれかへ切り替えます。Leap Motionへ切り替える場合は、接続開始に成功したときだけ設定値を更新します。
+
+### 起動時設定と表示設定
+
+「起動時設定」の `Quad Buffer` と `Full Screen` は、ウィンドウ生成時に決定される設定です。変更を保存した後、アプリケーションを再起動すると反映されます。
+
+`Quad Buffer` を使用する場合は、先に「起動時設定」で `Quad Buffer` を有効にして保存し、アプリケーションを再起動してから「表示設定」で `Quad Buffer` を選択してください。起動時にステレオバッファを確保していない場合、「表示設定」で `Quad Buffer` を選択しても表示モードは切り替わりません。また、GPU、ドライバー、表示環境が Quad Buffer Stereo に対応していない場合は、ステレオウィンドウを作成できないことがあります。
+
 * `isMirrorVisible()`／`setMirrorVisible()`、`isSceneVisible()`／`setSceneVisible()`、`isMenuVisible()`／`setMenuVisible()`
   * `Window` 内の表示状態を、公開フィールドへ直接アクセスせず取得・変更します。
 
