@@ -42,9 +42,13 @@ int Menu::loadConfig()
   // ファイルパスが取得できたら
   if (result == NFD_OKAY)
   {
-    // 現在の設定を変更せず、候補設定を読み込む
+    // 現在の設定を新しい設定のデフォルトにする
     Config candidate{ config };
+
+    // 設定ファイルの読み込み結果
     bool status{ false };
+
+    // 設定ファイルを読み込んで新しい設定の候補に上書きする
     try
     {
       status = candidate.load(openPath);
@@ -177,10 +181,11 @@ void Menu::displayWindow()
     app.setHandTrackingMode(use_hand_tracking ? HAND_TRACKING_LEAP_MOTION : HAND_TRACKING_NONE);
   }
 
-  // デバイスを選択する（常に表示するが、チェックボックスが OFF のときはグレーアウト）
+  // デバイスを選択する（常に表示するがチェックボックスが OFF のときはグレーアウト）
   ImGui::BeginDisabled(!use_hand_tracking);
   ImGui::Indent(16.0f);
 
+  // Leap Motion と OpenXR のどちらを使うかラジオボタンで選択する
   int device{ config.hand_tracking == HAND_TRACKING_OPENXR ? HAND_TRACKING_OPENXR : HAND_TRACKING_LEAP_MOTION };
   if (ImGui::RadioButton(u8"Leap Motion", &device, HAND_TRACKING_LEAP_MOTION))
   {
@@ -215,6 +220,8 @@ void Menu::displayWindow()
   {
     config.scene = picojson::value(std::string(scene_file));
   }
+
+  // クリップ面の設定
   float nearPlane{ config.display_near };
   if (ImGui::SliderFloat(u8"前方面", &nearPlane, 0.01f, config.display_far))
     window.setClipPlanes(nearPlane, config.display_far);
@@ -235,6 +242,7 @@ void Menu::attitudeWindow()
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"姿勢設定", &showAttitudeWindow);
+
   ImGui::Text(u8"前景");
   auto position{ attitude.getPosition() };
   if (ImGui::InputFloat3(u8"位置", position.data(), "%6.2f"))
@@ -289,6 +297,7 @@ void Menu::inputWindow()
   ImGui::SetNextWindowPos(ImVec2(369, 25), ImGuiCond_Once);
   ImGui::SetNextWindowSize(ImVec2(200, 674), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
+
   ImGui::Begin(u8"入力設定", &showInputWindow);
 
   ImGui::RadioButton(u8"静止画像", &config.input_mode, InputMode::IMAGE);
@@ -389,6 +398,7 @@ void Menu::inputWindow()
     ImGui::PopID();
   }
 
+  // Ovrvision Pro の入力設定
   ImGui::RadioButton(u8"Ovrvision", &config.input_mode, InputMode::OVRVISION);
   static constexpr char *properties[]{
     "2560 x 1920 @ 15fps",
@@ -403,22 +413,27 @@ void Menu::inputWindow()
   };
   ImGui::Combo(u8"特性", &config.ovrvision_property, properties, IM_ARRAYSIZE(properties));
 
+  // リモート入力の設定
   ImGui::RadioButton(u8"リモート", &config.input_mode, InputMode::REMOTE);
+
+  // リモート入力の役割を選択するコンボボックス
   static constexpr char* roles[]{
     u8"単独",
     u8"指導者",
     u8"作業者"
   };
   ImGui::Combo(u8"役割", &config.role, roles, IM_ARRAYSIZE(roles));
-  char address[16]{ "0.0.0.0" };
+
   // 外部設定を固定長UIバッファへ移すため、必ず終端できる長さに制限する
+  char address[16]{ "0.0.0.0" };
   strncpy_s(address, config.address.c_str(), _TRUNCATE);
   if (ImGui::InputText(u8"アドレス", address, sizeof address))
     config.address = address;
   ImGui::InputInt(u8"ポート", &config.port);
 
   ImGui::Text(u8"シェーダ");
-  // 設定ファイル由来のパスをImGuiの固定長編集領域へ安全に複製し、編集後にstd::stringへ戻す
+
+  // 設定ファイル由来のパスをImGuiの固定長編集領域へ安全に複製し編集後に std::string へ戻す
   char vertex_shader[MAX_PATH]{ "" };
   strncpy_s(vertex_shader, config.vertex_shader.c_str(), _TRUNCATE);
   if (ImGui::InputText(u8"頂点", vertex_shader, sizeof vertex_shader))

@@ -257,6 +257,19 @@ public:
     /// 背景の描画に使う矩形から参照する
     friend class Rect;
 
+    //
+    // 表示モード
+    //
+
+    /// シーン表示
+    bool showScene{ true };
+
+    /// ミラー表示
+    bool showMirror{ true };
+
+    /// メニュー表示
+    bool showMenu{ true };
+
   public:
 
     ///
@@ -400,16 +413,46 @@ public:
     ///
     bool setClipPlanes(float nearPlane, float farPlane);
 
-    /// ミラー表示の状態を取得・変更する
+    ///
+    /// ミラー表示の状態を取得する
+    ///
+    /// @return ミラー表示する場合は true
+    ///
     bool isMirrorVisible() const { return showMirror; }
+
+    ///
+    /// ミラー表示の状態を変更する
+    ///
+    /// @param visible ミラー表示する場合は true
+    ///
     void setMirrorVisible(bool visible) { showMirror = visible; }
 
-    /// シーン表示の状態を取得・変更する
+    ///
+    /// シーン表示の状態を取得する
+    ///
+    /// @return シーン表示する場合は true
+    ///
     bool isSceneVisible() const { return showScene; }
+
+    ///
+    /// シーン表示の状態を変更する
+    ///
+    /// @param visible シーン表示する場合は true
+    ///
     void setSceneVisible(bool visible) { showScene = visible; }
 
-    /// メニュー表示の状態を取得・変更する
+    ///
+    /// メニュー表示の状態を取得する
+    ///
+    /// @return メニュー表示する場合は true
+    ///
     bool isMenuVisible() const { return showMenu; }
+
+    ///
+    /// メニュー表示の状態を変更する
+    ///
+    /// @param visible メニュー表示する場合は true
+    ///
     void setMenuVisible(bool visible) { showMenu = visible; }
 
     ///
@@ -578,17 +621,6 @@ public:
     {
       return aspect;
     }
-
-  private:
-
-    /// シーン表示
-    bool showScene{ true };
-
-    /// ミラー表示
-    bool showMirror{ true };
-
-    /// メニュー表示
-    bool showMenu{ true };
 
 #if defined(GG_USE_OPENXR)
   private:
