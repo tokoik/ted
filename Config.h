@@ -236,7 +236,7 @@ struct Config
   bool camera_texture_repeat{ false };
 
   /// 背景画像をヘッドトラッキングに追従させるとき true
-  bool camera_tracking{ true };
+  bool head_tracking{ false };
 
   /// カメラの解像度
   std::array<int, 2> camera_size{ 0, 0 };
@@ -290,7 +290,7 @@ struct Config
   std::string address{ "" };
 
   /// 相手先の映像を安定化するとき true
-  bool remote_stabilize{ true };
+  bool remote_stabilize{ false };
 
   /// 相手先の映像を変形するとき true
   bool remote_texture_reshape{ false };

@@ -590,7 +590,7 @@ int GgApp::main(int argc, const char *const *const argv)
         glDisable(GL_BLEND);
 
         // ローカルのヘッドトラッキングの変換行列
-        const GgMatrix &mo(defaults.camera_tracking
+        const GgMatrix &mo(defaults.head_tracking
           ? window.getMo(eye) : attitude.eyeOrientation[eye].getMatrix());
 
         // リモートのヘッドトラッキングの変換行列
@@ -612,7 +612,7 @@ int GgApp::main(int argc, const char *const *const argv)
         {
           // OpenXR は各眼 pose の逆変換 R^-1 * T^-1 をビュー行列に使う
           const GgMatrix sceneView{ defaults.display_mode == OPENXR
-            ? (defaults.camera_tracking ? window.getMo(eye) * window.getMv(eye) : ggIdentity())
+            ? (defaults.head_tracking ? window.getMo(eye) * window.getMv(eye) : ggIdentity())
             : window.getMv(eye) * window.getMo(eye) };
           scene->draw(window.getMp(eye), sceneView);
         }

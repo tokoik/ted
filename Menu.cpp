@@ -195,10 +195,10 @@ void Menu::displayWindow()
   ImGui::EndDisabled();
 
   // ヘッドトラッキングするかどうか
-  ImGui::Checkbox(u8"ヘッドトラッキング", &config.camera_tracking);
+  ImGui::Checkbox(u8"ヘッドトラッキング", &config.head_tracking);
 
   // リモート映像を姿勢に合わせて安定化するかどうか
-  ImGui::Checkbox(u8"安定化", &config.remote_stabilize);
+  ImGui::Checkbox(u8"リモート安定化", &config.remote_stabilize);
 
   // 表示関係
   bool showMirror{ window.isMirrorVisible() };

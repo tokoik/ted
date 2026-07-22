@@ -252,7 +252,6 @@ add_executable(ted
     ${SOURCES_H}
     ${IMGUI_SOURCES}
     "${CMAKE_CURRENT_SOURCE_DIR}/ted.rc"
-    "${CMAKE_CURRENT_SOURCE_DIR}/config.json"
     ${SHADER_FILES}
 )
 

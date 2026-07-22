@@ -20,7 +20,7 @@
 - **Header Files**: C++ のヘッダファイル (`.h`)
 - **Shader Files**: GLSL のソースファイル (`.vert`, `.frag`, `.geom`, `.comp`)
 - **ImGui Files**: Dear ImGui および Native File Dialog Extended のソース・ヘッダファイル
-- **フォルダ直下**: `config.json` は CMakeLists.txt と同レベルの `ted` フォルダ直下に配置する。その他の JSON/画像/動画/3Dモデルファイルはソリューションエクスプローラーには表示しない。
+- **フォルダ直下**: `config.json` は CMakeLists.txt と同レベルの `ted` フォルダ直下に配置する。これはプログラムを実行したときに作成されるので、ビルド時の必須ファイルにはしない。その他の JSON/画像/動画/3Dモデルファイルはソリューションエクスプローラーには表示しない。
 
 ## 3. 使用する主要技術・外部ライブラリ
 

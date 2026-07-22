@@ -132,7 +132,7 @@ bool Config::read(picojson::value& v)
   getValue(o, "texture_repeat", camera_texture_repeat);
 
   // ヘッドトラッキング
-  getValue(o, "tracking", camera_tracking);
+  getValue(o, "tracking", head_tracking);
 
   // 安定化処理
   getValue(o, "stabilize", remote_stabilize);
@@ -385,7 +385,7 @@ bool Config::save(const std::string& file) const
   setValue(o, "texture_repeat", camera_texture_repeat);
 
   // ヘッドトラッキング
-  setValue(o, "tracking", camera_tracking);
+  setValue(o, "tracking", head_tracking);
 
   // 安定化処理
   setValue(o, "stabilize", remote_stabilize);
