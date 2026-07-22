@@ -25,13 +25,15 @@
 | `depth_far` | 数値 | 視点から後方面（Farクリップ面）までの距離（単位: m） |
 
 #### ※1 立体視の設定 (`stereo`)
+
 * `0`: 単眼視
 * `1`: 上下2分割（トップアンドボトム）
 * `2`: 左右2分割（サイドバイサイド）
 * `3`: 左右の映像を同じ表示領域へ重ねる
 * `4`: クワッドバッファステレオ
-* `5`: OpenXR (HMD) モード
-※ HMDモード使用時は、通常 `5` を指定します。
+* `5`: HMD (OpenXR) モード
+
+※ HMD モード使用時は、通常 `5` を指定します。
 
 ---
 
@@ -63,11 +65,13 @@
 | `fisheye_fov_y` | 数値 | 魚眼レンズの垂直方向の画角の初期値（単位: ラジアン。通常のカメラや RICOH THETA では `1.0`） |
 | `ovrvision_property` | 数値 | Ovrvision Pro を使用する場合の動作モード設定。※4 |
 | `controller` | 数値 / 真偽値 | ゲームコントローラを使用するか (0: 使用しない, 1: 使用する) |
-| `leap_motion` | 数値 / 真偽値 | Leap Motion（ハンドトラッキング）を使用するか (0: 使用しない, 1: 使用する) |
+| `hand_tracking` | 数値 | ハンドトラッキング方式。`0`: 無効、`1`: Leap Motion、`2`: OpenXR |
+| `leap_motion` | 数値 / 真偽値 | 読み込み専用の旧設定互換キー。真の場合は、現在の `hand_tracking` が `0` のとき Leap Motion を有効にします。保存時は `hand_tracking` を出力します。 |
 | `vertex_shader` | 文字列 | 入力画像の展開に使用するバーテックスシェーダのファイル名。※5 |
 | `fragment_shader` | 文字列 | 入力画像の描画に使用するフラグメントシェーダのファイル名。※6 |
 
 #### ※2 映像入力モード (`input_mode`)
+
 * `0`: 静止画（`left_image` / `right_image`）
 * `1`: 動画（`left_movie` / `right_movie`）
 * `2`: Web カメラ（`left_camera` / `right_camera` の番号）
@@ -75,6 +79,7 @@
 * `4`: リモート接続（ネットワーク越しに送信されてきた画像）
 
 #### ※3 映像入力の選択
+
 * `left_camera < 0` かつ `right_camera < 0` : 静止画像ファイルを使用
 * `left_camera >= 0` かつ `right_camera < 0` : 左カメラのみを使用（単眼）
 * `left_camera < 0` かつ `right_camera >= 0` : Ovrvision Pro を使用
@@ -82,6 +87,7 @@
 動画ファイルはカメラ番号へ文字列として指定せず、`input_mode` を `1` にして `left_movie`／`right_movie` に指定します。
 
 #### ※4 Ovrvision Pro の動作モード設定 (`ovrvision_property`)
+
 * `0`: `OVR::OV_CAM5MP_FULL` (2560x1920, 15fps x2)
 * `1`: `OVR::OV_CAM5MP_FHD` (1920x1080, 30fps x2)
 * `2`: `OVR::OV_CAMHD_FULL` (1280x960, 45fps x2)
@@ -93,6 +99,7 @@
 * `8`: `OVR::OV_CAM20VR_VGA` (640x480 (USB2.0のみ), 30fps x2)
 
 #### ※5 バーテックスシェーダの選択
+
 * `"rectangle.vert"`: 平面カメラを使用して視線を回転する (Ovrvision Pro)
 * `"fisheye.vert"`: 光軸を水平にした魚眼カメラ
 * `"pixpro.vert"`: 光軸を垂直にした魚眼カメラ (PIXPRO SP360 4K)
@@ -100,6 +107,7 @@
 * `"theta.vert"`: RICOH THETA S の二重魚眼ライブビデオ映像用
 
 #### ※6 フラグメントシェーダの選択
+
 * `"normal.frag"`: テクスチャ座標の画素をそのまま使用する (通常)
 * `"panorama.frag"`: 正距円筒図法 (UVC Blender)
 * `"theta.frag"`: RICOH THETA S のライブビデオ映像用
@@ -122,13 +130,20 @@
 | `texture_samples` | 数値 | 平面画像を全天球画像に変換・変形する際に用いるメッシュの格子点数 |
 | `remote_fov_x` | 数値 | ドーム画像に変形するロボット（送信）側の平面カメラの水平方向の画角（単位: ラジアン） |
 | `remote_fov_y` | 数値 | ドーム画像に変形するロボット（送信）側の平面カメラの垂直方向の画角（単位: ラジアン） |
-| `local_share_size` | 数値 | 送信用に確保する共有メモリのブロック（フレーム）数（標準: `64`） |
-| `remote_share_size`| 数値 | 受信用に確保する共有メモリのブロック（フレーム）数（標準: `64`） |
+| `local_share_size` | 数値 | 送信用に確保する共有メモリの行列数（標準: `64`、最小: `47`） |
+| `remote_share_size`| 数値 | 受信用に確保する共有メモリの行列数（標準: `64`、最小: `2`） |
 
 #### ※7 システムの役割 (`role`)
+
 * `0`: スタンドアローン（単独で動作、ネットワーク転送なし）
 * `1`: 指示者（操縦者 / 科学者）側
 * `2`: 作業者（ロボット）側
+
+#### ※8 ネットワーク通信プロトコルの堅牢性
+
+* 送受信される各UDPパケットのヘッダには、自動的に 16bit の `frameId` シリアル番号が付与されます。
+* 受信側は、古い遅延パケットが新フレームに混入するのを自動的に破棄します。
+* 送信側のクラッシュ・再起動による `frameId` リセットを検出するため、最後に正常受信してからの経過時間を監視し、2.0秒以上の無通信で受信履歴（`frameId` シリアル）を自動的に再同期する機能を備えています。
 
 ---
 
@@ -183,7 +198,7 @@
   "fisheye_fov_y": 1,
   "ovrvision_property": 3,
   "controller": 0,
-  "leap_motion": 0,
+  "hand_tracking": 0,
   "vertex_shader": "fixed.vert",
   "fragment_shader": "normal.frag",
   "port": 0,
