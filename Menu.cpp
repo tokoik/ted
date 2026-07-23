@@ -361,7 +361,8 @@ void Menu::inputWindow()
         + " | " + config.camera_resolution[cam]
         + " | " + fpsText;
     }
-    summary += "##camera_properties";
+    // 表示内容が変わっても開閉状態を維持するため、### 以降を固定 ID として使う
+    summary += "###camera_properties";
 
     const bool showProperties{ ImGui::CollapsingHeader(summary.c_str()) };
     if (ImGui::IsItemHovered())
