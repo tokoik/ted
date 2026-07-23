@@ -1151,24 +1151,46 @@ void CamMf::capture(int cam)
         {
           // ファイル／ネットワーク入力では前フレームが消費されるまで待ち、フレーム欠落を防ぐ
           // キャプチャしている間は
-          while (run[cam] && captured[cam])
+          while (run[cam] && (captured[cam]
+            || (cam == camL && isPackedCameraLayout(defaults.camera_layout) && captured[camR])))
           {
             // スレッドを一時停止して CPU リソースを解放する
             std::this_thread::yield();
           }
         }
 
-        // 描画・送信側と排他しながら BGRA を BGR に変換し、新フレーム到着フラグを公開する
-        captureMutex[cam].lock();
-
-        // BGRA (4チャンネル) を BGR (3チャンネル) に変換して image[cam] にコピー
+        // BGRA (4チャンネル) を BGR (3チャンネル) に変換する
         cv::Mat temp(caps[cam].height, caps[cam].width, CV_8UC4, pData);
-        cv::cvtColor(temp, image[cam], cv::COLOR_BGRA2BGR);
+        cv::Mat converted;
+        cv::cvtColor(temp, converted, cv::COLOR_BGRA2BGR);
 
-        captured[cam] = true;
-        unsent[cam] = true;
+        if (cam == camL && isPackedCameraLayout(defaults.camera_layout))
+        {
+          // 1フレームに格納された左右画像を、描画・送信が扱う左右別画像へ分割する
+          std::scoped_lock lock(captureMutex[camL], captureMutex[camR]);
+          if (defaults.camera_layout == CAMERA_LAYOUT_SIDE_BY_SIDE)
+          {
+            const int width{ converted.cols / 2 };
+            converted(cv::Rect(0, 0, width, converted.rows)).copyTo(image[camL]);
+            converted(cv::Rect(width, 0, width, converted.rows)).copyTo(image[camR]);
+          }
+          else
+          {
+            const int height{ converted.rows / 2 };
+            converted(cv::Rect(0, 0, converted.cols, height)).copyTo(image[camL]);
+            converted(cv::Rect(0, height, converted.cols, height)).copyTo(image[camR]);
+          }
+          captured[camL] = captured[camR] = true;
+          unsent[camL] = unsent[camR] = true;
+        }
+        else
+        {
+          std::lock_guard<std::mutex> lock(captureMutex[cam]);
+          image[cam] = std::move(converted);
+          captured[cam] = true;
+          unsent[cam] = true;
+        }
 
-        captureMutex[cam].unlock();
         pBuffer->Unlock();
       }
       pBuffer->Release();

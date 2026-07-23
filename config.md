@@ -42,8 +42,9 @@
 | キー名 | 型 | 説明 |
 | :--- | :--- | :--- |
 | `input_mode` | 数値 | 映像入力ソースのモード。※2 |
-| `left_camera` | 数値 | 左目に使用する Media Foundation カメラの列挙番号。負数はカメラを使用しない。※3 |
-| `right_camera` | 数値 | 右目に使用する Media Foundation カメラの列挙番号。負数はカメラを使用しない。※3 |
+| `camera_layout` | 文字列 | 入力フレーム内の左右画像の配置。※3 |
+| `left_camera` | 数値 | 左目に使用する Media Foundation カメラの列挙番号。負数はカメラを使用しない。 |
+| `right_camera` | 数値 | 右目に使用する Media Foundation カメラの列挙番号。負数はカメラを使用しない。 |
 | `left_image` | 文字列 | 左カメラ不使用時（単眼や静止画モード）に表示する静止画ファイル名 |
 | `right_image` | 文字列 | 右カメラ不使用時（単眼や静止画モード）に表示する静止画ファイル名 |
 | `left_movie` | 文字列 | 左カメラの代わりに使用する動画ファイル名 |
@@ -80,7 +81,36 @@
 * `3`: Ovrvision Pro
 * `4`: リモート接続（ネットワーク越しに送信されてきた画像）
 
-#### ※3 映像入力の選択
+#### ※3 入力フレーム内の左右画像の配置 (`camera_layout`)
+
+* `"mono"`: 単眼入力。右入力の設定は使用しません。
+* `"separate"`: 左右を別のカメラ、動画、静止画から取得します。
+* `"side_by_side"`: 1フレームの左半分を左眼、右半分を右眼として使用します。
+* `"top_and_bottom"`: 1フレームの上半分を左眼、下半分を右眼として使用します。
+
+SBS/TABでは左側のデバイスまたはファイルだけを開き、分割後の左右画像を通常のステレオ入力と同様に描画・伝送します。例えば `4416 x 1242` のSBSフレームは、左右それぞれ `2208 x 1242` になります。
+
+ZED 2iやZED miniをMedia Foundationカメラとして使用する場合の主要部分は次のようになります。`left_camera` は実際の列挙番号、`left_capture_resolution` と `left_capture_fps` はデバイスが提示する候補から選択してください。取得解像度はSBSフレーム全体、伝送解像度は分割後の片眼画像に適用されます。
+
+```json
+{
+  "input_mode": 2,
+  "camera_layout": "side_by_side",
+  "left_camera": 0,
+  "right_camera": -1,
+  "left_capture_codec": "MJPG",
+  "left_capture_resolution": "4416 x 1242",
+  "left_capture_fps": 30,
+  "transmit_width": 1920,
+  "transmit_height": 1080,
+  "transmit_fps": 30,
+  "transmit_quality": 70
+}
+```
+
+同梱の `zed-mini.jpg` を確認する場合は、`input_mode` を `0`、`left_image` を `"zed-mini.jpg"` にします。`right_image` は使用しません。
+
+#### 映像入力の選択
 
 * `left_camera < 0` かつ `right_camera < 0` : 静止画像ファイルを使用
 * `left_camera >= 0` かつ `right_camera < 0` : 左カメラのみを使用（単眼）
@@ -182,6 +212,7 @@
   "depth_near": 0.1,
   "depth_far": 5,
   "input_mode": 0,
+  "camera_layout": "separate",
   "left_camera": -1,
   "left_image": "left.jpg",
   "left_movie": "",

@@ -69,8 +69,16 @@ bool GgApp::useImage()
   const GLubyte* imgR = nullptr;
   bool isStereo = false;
 
-  // 右の画像が指定されていて右の画像と同じでなければ
-  if (!defaults.camera_image[camR].empty() && defaults.camera_image[camR] != defaults.camera_image[camL])
+  if (isPackedCameraLayout(defaults.camera_layout))
+  {
+    // 左画像内から分割済みの右画像を使用する
+    imgR = cam->getImage(camR);
+    isStereo = cam->opened(camR);
+  }
+  // 左右別入力なら右画像を個別に開く
+  else if (defaults.camera_layout == CAMERA_LAYOUT_SEPARATE
+    && !defaults.camera_image[camR].empty()
+    && defaults.camera_image[camR] != defaults.camera_image[camL])
   {
     // 右の画像が使用できなければ警告する
     if (!cam->open(defaults.camera_image[camR], camR))
@@ -126,8 +134,15 @@ bool GgApp::useMovie()
 
   bool isStereo = false;
 
-  // 右カメラに左と異なるムービーファイルが指定されていれば
-  if (!defaults.camera_movie[camR].empty() && defaults.camera_movie[camR] != defaults.camera_movie[camL])
+  if (isPackedCameraLayout(defaults.camera_layout))
+  {
+    // 左動画の各フレームをキャプチャスレッドで左右へ分割する
+    isStereo = true;
+  }
+  // 左右別入力なら右動画を個別に開く
+  else if (defaults.camera_layout == CAMERA_LAYOUT_SEPARATE
+    && !defaults.camera_movie[camR].empty()
+    && defaults.camera_movie[camR] != defaults.camera_movie[camL])
   {
     // 右の動画像ファイルが使用できなければ警告する
     if (!cam->open(defaults.camera_movie[camR], camR))
@@ -171,8 +186,15 @@ bool GgApp::useCamera()
 
   bool isStereo = false;
 
-  // 右カメラが指定されていて左と異なるカメラが指定されていれば
-  if (defaults.camera_id[camR] >= 0 && defaults.camera_id[camR] != defaults.camera_id[camL])
+  if (isPackedCameraLayout(defaults.camera_layout))
+  {
+    // 左カメラの各フレームをキャプチャスレッドで左右へ分割する
+    isStereo = true;
+  }
+  // 左右別入力なら右カメラを個別に開く
+  else if (defaults.camera_layout == CAMERA_LAYOUT_SEPARATE
+    && defaults.camera_id[camR] >= 0
+    && defaults.camera_id[camR] != defaults.camera_id[camL])
   {
     // 右カメラのデバイスが使用できなければ警告する
     if (!cam->open(defaults.camera_id[camR], camR))

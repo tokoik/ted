@@ -296,7 +296,7 @@ void Menu::inputWindow()
 {
   // 入力設定ウィンドウ
   ImGui::SetNextWindowPos(ImVec2(369, 25), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(211, 618), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(200, 646), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"入力設定", &showInputWindow);
@@ -307,10 +307,13 @@ void Menu::inputWindow()
     getFilePath(config.camera_image[camL], image_filter);
   ImGui::SameLine();
   ImGui::TextUnformatted(config.camera_image[camL].c_str());
-  if (ImGui::Button(u8"右画像"))
-    getFilePath(config.camera_image[camR], image_filter);
-  ImGui::SameLine();
-  ImGui::TextUnformatted(config.camera_image[camR].c_str());
+  if (config.camera_layout == CAMERA_LAYOUT_SEPARATE)
+  {
+    if (ImGui::Button(u8"右画像"))
+      getFilePath(config.camera_image[camR], image_filter);
+    ImGui::SameLine();
+    ImGui::TextUnformatted(config.camera_image[camR].c_str());
+  }
 
   ImGui::RadioButton(u8"動画像", &config.input_mode, InputMode::MOVIE);
   static const nfdfilteritem_t movie_filter[]{ "Movies", "mp4,m4v,mov,avi,wmv,ogg" };
@@ -318,20 +321,39 @@ void Menu::inputWindow()
     getFilePath(config.camera_movie[camL], movie_filter);
   ImGui::SameLine();
   ImGui::TextUnformatted(config.camera_movie[camL].c_str());
-  if (ImGui::Button(u8"右動画"))
-    getFilePath(config.camera_movie[camR], movie_filter);
-  ImGui::SameLine();
-  ImGui::TextUnformatted(config.camera_movie[camR].c_str());
+  if (config.camera_layout == CAMERA_LAYOUT_SEPARATE)
+  {
+    if (ImGui::Button(u8"右動画"))
+      getFilePath(config.camera_movie[camR], movie_filter);
+    ImGui::SameLine();
+    ImGui::TextUnformatted(config.camera_movie[camR].c_str());
+  }
 
   ImGui::RadioButton(u8"カメラ", &config.input_mode, InputMode::CAMERA);
+
+  // 1フレーム内の左右画像の配置
+  static constexpr char* cameraLayouts[]{
+    u8"単眼",
+    u8"左右別入力",
+    u8"左右分割フレーム",
+    u8"上下分割フレーム"
+  };
+  ImGui::Combo(u8"配置", &config.camera_layout,
+    cameraLayouts, IM_ARRAYSIZE(cameraLayouts));
 
   // デバイスリストの取得
   const auto& devices{ CameraCapabilities::getDeviceList() };
 
-  for (int cam = 0; cam < camCount; ++cam)
+  const int cameraInputCount{
+    config.camera_layout == CAMERA_LAYOUT_SEPARATE ? camCount : 1
+  };
+  for (int cam = 0; cam < cameraInputCount; ++cam)
   {
     ImGui::PushID(cam);
-    const char* sideLabel{ (cam == camL) ? u8"左カメラ" : u8"右カメラ" };
+    const bool separateInputs{ config.camera_layout == CAMERA_LAYOUT_SEPARATE };
+    const char* sideLabel{ separateInputs
+      ? ((cam == camL) ? u8"左カメラ" : u8"右カメラ")
+      : u8"カメラ" };
 
     // キャッシュ更新
     updateCameraMenuCache(cam);
@@ -352,7 +374,7 @@ void Menu::inputWindow()
     else
       sprintf_s(fpsText, "%.2f fps", config.camera_fps[cam]);
 
-    const char* side{ cam == camL ? u8"左" : u8"右" };
+    const char* side{ separateInputs ? (cam == camL ? u8"左" : u8"右") : u8"入力" };
     std::string summary{ side };
     summary += ": " + deviceName;
     if (hasDevice)

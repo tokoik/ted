@@ -107,6 +107,16 @@ bool Config::read(picojson::value& v)
   // ニュー力ソース
   getValue(o, "input_mode", input_mode);
 
+  // 1フレーム内の左右画像の配置
+  std::string camera_layout_name;
+  if (getString(o, "camera_layout", camera_layout_name))
+  {
+    if (camera_layout_name == "mono") camera_layout = CAMERA_LAYOUT_MONO;
+    else if (camera_layout_name == "side_by_side") camera_layout = CAMERA_LAYOUT_SIDE_BY_SIDE;
+    else if (camera_layout_name == "top_and_bottom") camera_layout = CAMERA_LAYOUT_TOP_AND_BOTTOM;
+    else camera_layout = CAMERA_LAYOUT_SEPARATE;
+  }
+
   // 左目のキャプチャデバイスのデバイス番号
   getValue(o, "left_camera", camera_id[camL]);
 
@@ -296,6 +306,8 @@ bool Config::read(picojson::value& v)
   remote_texture_samples = std::max(remote_texture_samples, 4);
   remote_fov_x = std::clamp(remote_fov_x, 0.001f, 1.56f);
   remote_fov_y = std::clamp(remote_fov_y, 0.001f, 1.56f);
+  camera_layout = std::clamp(camera_layout,
+    static_cast<int>(CAMERA_LAYOUT_MONO), static_cast<int>(CAMERA_LAYOUT_TOP_AND_BOTTOM));
 
   return true;
 }
@@ -368,6 +380,12 @@ bool Config::save(const std::string& file) const
 
   // 左目のキャプチャデバイスのデバイス番号
   setValue(o, "left_camera", camera_id[camL]);
+
+  // 1フレーム内の左右画像の配置
+  static constexpr const char* camera_layout_names[]{
+    "mono", "separate", "side_by_side", "top_and_bottom"
+  };
+  setString(o, "camera_layout", camera_layout_names[camera_layout]);
 
   // 左目のムービーファイル
   setString(o, "left_movie", camera_movie[camL]);

@@ -162,6 +162,21 @@ enum InputMode
   REMOTE                    ///< リモートの TED
 };
 
+/// 1フレーム内の左右画像の配置
+enum CameraLayout
+{
+  CAMERA_LAYOUT_MONO = 0,   ///< 単眼
+  CAMERA_LAYOUT_SEPARATE,   ///< 左右を別入力から取得
+  CAMERA_LAYOUT_SIDE_BY_SIDE,///< 左半分が左眼、右半分が右眼
+  CAMERA_LAYOUT_TOP_AND_BOTTOM///< 上半分が左眼、下半分が右眼
+};
+
+/// 1入力に左右画像が格納されているか調べる
+inline bool isPackedCameraLayout(int layout)
+{
+  return layout == CAMERA_LAYOUT_SIDE_BY_SIDE || layout == CAMERA_LAYOUT_TOP_AND_BOTTOM;
+}
+
 /// 役割
 enum Role
 {
@@ -219,6 +234,9 @@ struct Config
 
   /// 入力デバイスのモード
   int input_mode{ IMAGE };
+
+  /// 1フレーム内の左右画像の配置
+  int camera_layout{ CAMERA_LAYOUT_SEPARATE };
 
   /// カメラの番号
   std::array<int, camCount> camera_id{ -1, -1 };

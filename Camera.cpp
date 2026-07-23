@@ -254,7 +254,7 @@ void Camera::send()
       data += head[camL];
 
       // 右キャプチャデバイスが動作していて右画像が未送信なら
-      if (run[camR] && unsent[camR])
+      if ((run[camR] || isPackedCameraLayout(defaults.camera_layout)) && unsent[camR])
       {
         // 右画像も複製後にロック外で縮小・圧縮する
         {

@@ -317,6 +317,24 @@ public:
   ///
   bool opened(int cam) const;
 
+  /// 分割後の画像の幅を得る
+  virtual int getWidth(int cam) const override
+  {
+    if (isPackedCameraLayout(defaults.camera_layout))
+      return defaults.camera_layout == CAMERA_LAYOUT_SIDE_BY_SIDE
+        ? static_cast<int>(caps[camL].width / 2) : static_cast<int>(caps[camL].width);
+    return Camera::getWidth(cam);
+  }
+
+  /// 分割後の画像の高さを得る
+  virtual int getHeight(int cam) const override
+  {
+    if (isPackedCameraLayout(defaults.camera_layout))
+      return defaults.camera_layout == CAMERA_LAYOUT_TOP_AND_BOTTOM
+        ? static_cast<int>(caps[camL].height / 2) : static_cast<int>(caps[camL].height);
+    return Camera::getHeight(cam);
+  }
+
   ///
   /// 指定されたカメラを閉じる
   ///
