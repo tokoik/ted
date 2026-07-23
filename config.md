@@ -69,7 +69,6 @@
 | `ovrvision_property` | 数値 | Ovrvision Pro を使用する場合の動作モード設定。※4 |
 | `controller` | 数値 / 真偽値 | ゲームコントローラを使用するか (0: 使用しない, 1: 使用する) |
 | `hand_tracking` | 数値 | ハンドトラッキング方式。`0`: 無効、`1`: Leap Motion、`2`: OpenXR |
-| `leap_motion` | 数値 / 真偽値 | 読み込み専用の旧設定互換キー。真の場合は、現在の `hand_tracking` が `0` のとき Leap Motion を有効にします。保存時は `hand_tracking` を出力します。 |
 | `vertex_shader` | 文字列 | 入力画像の展開に使用するバーテックスシェーダのファイル名。※5 |
 | `fragment_shader` | 文字列 | 入力画像の描画に使用するフラグメントシェーダのファイル名。※6 |
 
@@ -154,7 +153,6 @@ ZED 2iやZED miniをMedia Foundationカメラとして使用する場合の主�
 | `port` | 数値 | 画像のネットワーク転送・通信に使用するポート番号（送信・受信で共通） |
 | `host` | 文字列 | 送信先（作業者側など）の IP アドレス |
 | `stabilize` | 数値 / 真偽値 | リモートから受信した全方位映像をロボットヘッド取り付け時に安定化（スタビライズ）するか |
-| `tracking_delay` | 数値 | 左右両方の画像に対してヘッドトラッキングを遅らせるフレーム数 |
 | `tracking_delay_left`| 数値 | 左目の画像に対してヘッドトラッキングを遅らせるフレーム数 |
 | `tracking_delay_right`|数値 | 右目の画像に対してヘッドトラッキングを遅らせるフレーム数 |
 | `remote_texture_width` | 数値 | 受信側で魚眼・全方位映像を平面展開する出力画像の幅 |
@@ -187,12 +185,6 @@ ZED 2iやZED miniをMedia Foundationカメラとして使用する場合の主�
 | `scene` | 文字列 / オブジェクト | 読み込むシーングラフ定義。JSONオブジェクトを直接記述するか、外部のシーン記述ファイル名（例: `"scene.json"`）を文字列で指定します。 |
 | `menu_font` | 文字列 | メニュー表示に使用する TrueType / OpenType フォントのパス（例: `"NotoSansCJKjp-Regular.otf"`） |
 | `menu_font_size` | 数値 | メニューのフォントサイズ |
-
----
-
-## 旧設定との互換性
-
-`capture_width`、`capture_height`、`capture_fps`、`capture_codec`、`texture_quality` は旧設定ファイルの読み込み時だけ互換キーとして扱います。設定を保存し直すと、取得解像度は左右個別の `left_capture_resolution` / `right_capture_resolution`、伝送条件は `transmit_*` キーで出力されます。旧 `texture_reshape` は無視され、受信映像は常に受信側で平面展開されます。
 
 ---
 

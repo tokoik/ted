@@ -148,60 +148,19 @@ bool Config::read(picojson::value& v)
   // 安定化処理
   getValue(o, "stabilize", remote_stabilize);
 
-  // 旧 capture_width / capture_height は左右個別の取得解像度への互換にのみ使う
-  std::array<int, 2> legacy_capture_size{ 0, 0 };
-  getValue(o, "capture_width", legacy_capture_size[0]);
-  getValue(o, "capture_height", legacy_capture_size[1]);
-
   // 伝送画像の解像度
   getValue(o, "transmit_width", transmit_size[0]);
   getValue(o, "transmit_height", transmit_size[1]);
 
-  // 伝送フレームレート。旧 capture_fps は読み込み互換として扱う
-  if (!getValue(o, "transmit_fps", transmit_fps))
-    getValue(o, "capture_fps", transmit_fps);
+  // 取得条件とは独立した、ネットワーク伝送時のフレームレートと JPEG 品質
+  getValue(o, "transmit_fps", transmit_fps);
+  getValue(o, "transmit_quality", transmit_quality);
 
-  // 伝送画像の JPEG 品質。旧 texture_quality は読み込み互換として扱う
-  if (!getValue(o, "transmit_quality", transmit_quality))
-    getValue(o, "texture_quality", transmit_quality);
-
-  // 旧 capture_codec は左右個別キーがない場合の読み込み互換にのみ使う
-  std::string legacy_codec;
-  const bool has_legacy_codec{ getString(o, "capture_codec", legacy_codec) };
-
-  // 左右カメラの個別コーデックと解像度
-  if (!getString(o, "left_capture_codec", camera_codec[camL]))
-  {
-    if (has_legacy_codec) camera_codec[camL] = legacy_codec;
-    else
-    {
-      camera_codec[camL] = "MJPG";
-    }
-  }
-
-  if (!getString(o, "right_capture_codec", camera_codec[camR]))
-  {
-    camera_codec[camR] = camera_codec[camL];
-  }
-
-  if (!getString(o, "left_capture_resolution", camera_resolution[camL]))
-  {
-    if (legacy_capture_size[0] > 0 && legacy_capture_size[1] > 0)
-    {
-      char buf[32];
-      sprintf_s(buf, "%d x %d", legacy_capture_size[0], legacy_capture_size[1]);
-      camera_resolution[camL] = buf;
-    }
-    else
-    {
-      camera_resolution[camL] = "1280 x 720";
-    }
-  }
-
-  if (!getString(o, "right_capture_resolution", camera_resolution[camR]))
-  {
-    camera_resolution[camR] = camera_resolution[camL];
-  }
+  // 左右の入力ごとに、Media Foundation へ要求する取得形式を読み込む
+  getString(o, "left_capture_codec", camera_codec[camL]);
+  getString(o, "right_capture_codec", camera_codec[camR]);
+  getString(o, "left_capture_resolution", camera_resolution[camL]);
+  getString(o, "right_capture_resolution", camera_resolution[camR]);
 
   // 左右カメラの取得フレームレート
   getValue(o, "left_capture_fps", camera_fps[camL]);
@@ -228,16 +187,6 @@ bool Config::read(picojson::value& v)
   // ハンドトラッキングの使用
   getValue(o, "hand_tracking", hand_tracking);
 
-  // 互換性維持：leap_motion キーが存在し、かつ hand_tracking が未設定の場合のフォールバック
-  bool old_leap_motion{ false };
-  if (getValue(o, "leap_motion", old_leap_motion) && hand_tracking == HAND_TRACKING_NONE)
-  {
-    if (old_leap_motion)
-    {
-      hand_tracking = HAND_TRACKING_LEAP_MOTION;
-    }
-  }
-
   // バーテックスシェーダのソースファイル名
   getString(o, "vertex_shader", vertex_shader);
 
@@ -252,9 +201,6 @@ bool Config::read(picojson::value& v)
 
   // ホストの役割
   getValue(o, "role", role);
-
-  // カメラのフレームに対してトラッキング情報を遅らせるフレームの数
-  if (getValue(o, "tracking_delay", remote_delay[0])) remote_delay[1] = remote_delay[0];
 
   // 左カメラのフレームに対してトラッキング情報を遅らせるフレームの数
   getValue(o, "tracking_delay_left", remote_delay[0]);
@@ -296,6 +242,14 @@ bool Config::read(picojson::value& v)
   getValue(o, "menu_font_size", menu_font_size);
 
   // 外部設定値を実行時に安全な範囲へ収める
+  display_mode = std::clamp(display_mode,
+    static_cast<int>(MONOCULAR), static_cast<int>(OPENXR));
+  input_mode = std::clamp(input_mode,
+    static_cast<int>(IMAGE), static_cast<int>(REMOTE));
+  hand_tracking = std::clamp(hand_tracking,
+    static_cast<int>(HAND_TRACKING_NONE), static_cast<int>(HAND_TRACKING_OPENXR));
+  role = std::clamp(role,
+    static_cast<int>(STANDALONE), static_cast<int>(WORKER));
   transmit_size[0] = std::max(transmit_size[0], 0);
   transmit_size[1] = std::max(transmit_size[1], 0);
   transmit_fps = std::max(transmit_fps, 0.0);
@@ -378,6 +332,9 @@ bool Config::save(const std::string& file) const
 
   // 視点から後方面までの距離
   setValue(o, "depth_far", display_far);
+
+  // 選択中の入力方式を保存し、設定ファイルの再読み込み後も UI と入力元を一致させる
+  setValue(o, "input_mode", input_mode);
 
   // 左目のキャプチャデバイスのデバイス番号
   setValue(o, "left_camera", camera_id[camL]);

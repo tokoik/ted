@@ -205,7 +205,8 @@ struct Config
   /// 画面表示のモード
   int display_mode{ MONOCULAR };
 
-  /// クワッドバッファステレオ表示を行うとき true
+  /// ウィンドウ作成時にクワッドバッファステレオを要求するとき true
+  /// @note 実際に使用するかは display_mode、利用できるかは作成後のウィンドウ属性で判定する。
   bool display_quadbuffer{ false };
 
   /// フルスクリーン表示を行うとき true
@@ -342,30 +343,6 @@ struct Config
 
   /// シーングラフ
   picojson::value scene{};
-
-  /// カメラのバックエンド
-  std::string capture_backend{ "ANY" };
-
-  /// 左右背景面の中心間隔（シーン座標系）
-  GLfloat display_offset{ 0.0f };
-
-  /// シーンに対するズーム
-  GLfloat display_zoom{ 1.0f };
-
-  /// 背景に対する焦点距離
-  GLfloat display_focal{ 1.0f };
-
-  /// 左右眼の基準間隔（メートル）
-  GLfloat parallax{ 0.032f };
-
-  /// カメラの補正値
-  std::array<GgQuaternion, camCount> parallax_offset{ ggIdentityQuaternion(), ggIdentityQuaternion() };
-
-  /// 頭の位置
-  GgVector position{ 0.0f, 0.0f, 0.0f, 1.0f };
-
-  /// 頭の姿勢
-  GgQuaternion orientation{ 0.0f, 0.0f, 0.0f, 1.0f };
 
   /// メニューフォント
   std::string menu_font{ "NotoSansCJKjp-Regular.otf" };

@@ -308,7 +308,7 @@ void Menu::inputWindow()
     u8"左右分割フレーム",
     u8"上下分割フレーム"
   };
-  ImGui::Combo(u8"配置", &config.camera_layout,
+  ImGui::Combo(u8"フレーム", &config.camera_layout,
     cameraLayouts, IM_ARRAYSIZE(cameraLayouts));
 
   ImGui::RadioButton(u8"静止画像", &config.input_mode, InputMode::IMAGE);
@@ -693,6 +693,8 @@ void Menu::finishConfigReload(bool status, int displayMode)
   // 描画オブジェクトを構築できた場合だけ候補設定を確定する
   if (status && pendingConfig)
   {
+    // ファイル上の要求値ではなく、資源検証後の実行可能な表示モードを UI に反映する。
+    // pendingConfig 自体は一時値なので、ここで補正してから現在設定へまとめて移す。
     pendingConfig->display_mode = displayMode;
     config = std::move(*pendingConfig);
   }

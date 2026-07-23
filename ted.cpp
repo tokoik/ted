@@ -520,23 +520,24 @@ int GgApp::main(int argc, const char *const *const argv)
   // アルファブレンディングする
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  // デフォルトが OPENXR なら HMD を起動する
-  if (defaults.display_mode == OPENXR)
-  {
-    if (!window.startHMD())
+  // 設定値を実際の表示資源へ適用し、利用できないモードだけ単眼視へ戻す。
+  // 起動時と設定再読み込み時で同じ経路を使うことで、UI の選択と描画状態を一致させる。
+  const auto applyDisplayMode{ [&window](int requested)
     {
-      NOTIFY("OpenXRの起動に失敗しました。通常表示モードに戻します。");
-      defaults.display_mode = MONOCULAR;
-      window.resetViewport();
-    }
-  }
-  // Quad Buffer Stereo を持たないウィンドウでは単眼視へ戻す
-  else if (defaults.display_mode == QUADBUFFER && !window.isQuadBufferAvailable())
-  {
-    NOTIFY("Quad Buffer Stereoが利用できません。単眼視に戻します。");
-    defaults.display_mode = MONOCULAR;
-    window.resetViewport();
-  }
+      if (window.setDisplayMode(requested)) return requested;
+
+      if (requested == OPENXR)
+        NOTIFY("OpenXRの起動に失敗しました。単眼視に戻します。");
+      else if (requested == QUADBUFFER)
+        NOTIFY("Quad Buffer Stereoが利用できません。単眼視に戻します。");
+
+      // MONOCULAR は追加資源を必要としないため、失敗時の確実な実行モードとして使用する。
+      window.setDisplayMode(MONOCULAR);
+      return static_cast<int>(MONOCULAR);
+    } };
+
+  // 設定ファイルで選ばれた起動時モードについても、HMD とステレオバッファを実際に検証する。
+  applyDisplayMode(defaults.display_mode);
 
   // メニュー
   Menu menu{ *this, window, attitude, defaults };
@@ -573,18 +574,8 @@ int GgApp::main(int argc, const char *const *const argv)
             scene = std::move(newScene);
             if (scene->isEmpty()) window.setSceneVisible(false);
 
-            // 利用できない表示モードは実行時に単眼視へフォールバックする
-            displayMode = candidate.display_mode;
-            if (!window.setDisplayMode(displayMode))
-            {
-              if (displayMode == OPENXR)
-                NOTIFY("OpenXRの起動に失敗しました。単眼視に戻します。");
-              else if (displayMode == QUADBUFFER)
-                NOTIFY("Quad Buffer Stereoが利用できません。単眼視に戻します。");
-
-              window.setDisplayMode(MONOCULAR);
-              displayMode = MONOCULAR;
-            }
+            // 読み込んだ表示モードを検証し、利用不可なら単眼視を候補設定へ反映する。
+            displayMode = applyDisplayMode(candidate.display_mode);
 
             status = true;
           }

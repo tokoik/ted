@@ -16,7 +16,6 @@
   "right_camera": 1,
   "right_image": "normal_right.jpg",
   "texture_repeat": false,
-  "zoom": 1,
   "max_level": 10,
   "port": 1234,
   "server": "",

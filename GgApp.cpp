@@ -101,7 +101,8 @@ GgApp::Window::Window(int width, int height, const char* title, GLFWmonitor* mon
   static bool firstTime{ true };
   if (firstTime)
   {
-    // クワッドバッファステレオモードを有効にする
+    // Quad Buffer は作成後に追加できないため、起動時設定に応じてステレオバッファを要求する。
+    // ドライバが実際に提供したかどうかは、ウィンドウ作成後に GLFW_STEREO 属性で検証する。
     if (defaults.display_quadbuffer) glfwWindowHint(GLFW_STEREO, GLFW_TRUE);
 
     // SRGB モードでレンダリングできるようにする
@@ -788,20 +789,39 @@ void GgApp::Window::keyboard(GLFWwindow* window, int key, int scancode, int acti
 //
 bool GgApp::Window::setDisplayMode(int mode)
 {
-  if (mode == defaults.display_mode) return true;
   if (mode < MONOCULAR || mode > OPENXR) return false;
+
+  // 起動時は設定値だけが先に反映されているため、同じモードでも必要な資源を検証する。
+  // 実行中の再選択では、既に確保済みの資源をそのまま利用する。
+  if (mode == defaults.display_mode)
+  {
+    if (mode == QUADBUFFER) return isQuadBufferAvailable();
+    if (mode == OPENXR)
+    {
+#if defined(GG_USE_OPENXR)
+      return xrSession != XR_NULL_HANDLE || startHMD();
+#else
+      return false;
+#endif
+    }
+    return true;
+  }
 
   if (mode == OPENXR)
   {
+    // OpenXR の全資源を確保できた場合だけ、設定値を HMD 表示へ進める。
     if (!startHMD()) return false;
   }
   else
   {
-    // Quad Buffer Stereo が利用できない場合は切り替えない
+    // Quad Buffer はウィンドウ作成後に追加できないため、実際の属性で利用可否を判定する。
     if (mode == QUADBUFFER && !isQuadBufferAvailable()) return false;
+
+    // HMD 以外へ移るときは、OpenXR 資源を先に解放して通常描画へ戻す。
     if (defaults.display_mode == OPENXR) stopHMD();
   }
 
+  // 資源の準備が完了してから実行時設定とビューポートを同時に更新する。
   defaults.display_mode = mode;
   resetViewport();
   return true;

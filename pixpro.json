@@ -36,7 +36,6 @@
   "remote_fov_y": 1,
   "max_level": 10,
   "scene": "telexistence.json",
-  "zoom": 1,
   "left_capture_fps": 0,
   "right_capture_fps": 0,
   "transmit_width": 1440,
