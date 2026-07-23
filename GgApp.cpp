@@ -30,6 +30,26 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#if defined(_WIN32)
+//
+// UTF-8 のメッセージを Windows のダイアログに表示する
+//
+int showNotification(const char* message)
+{
+  // アプリケーション内部の UTF-8 を Win32 の UTF-16 へ変換し、
+  // 日本語をシステムの ANSI コードページに依存せず表示する。
+  const int length{ MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+    message, -1, nullptr, 0) };
+  if (length <= 0)
+    return MessageBoxW(nullptr, L"Invalid UTF-8 notification.", L"TED", MB_ICONERROR | MB_OK);
+
+  std::wstring wide(static_cast<std::size_t>(length), L'\0');
+  MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+    message, -1, wide.data(), length);
+  return MessageBoxW(nullptr, wide.c_str(), L"TED", MB_ICONERROR | MB_OK);
+}
+#endif
+
 //
 // ハンドトラッキングの使用状態を変更する
 //
@@ -903,7 +923,23 @@ bool GgApp::Window::initOpenXR()
   // VRシステム（HMD）の情報を取得
   XrSystemGetInfo systemGetInfo{ XR_TYPE_SYSTEM_GET_INFO };
   systemGetInfo.formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY; // HMDタイプを指定
-  XR_CHECK_INIT(xrGetSystem(xrInstance, &systemGetInfo, &xrSystemId));
+  const XrResult systemResult{ xrGetSystem(xrInstance, &systemGetInfo, &xrSystemId) };
+
+  // ランタイムは存在してもHMDが接続・起動されていない状態は、異常終了ではなく
+  // 通常表示へフォールバックできる利用不可判定として、詳細エラーを通知せず呼び出し元へ返す。
+  if (systemResult == XR_ERROR_FORM_FACTOR_UNAVAILABLE)
+  {
+    cleanupOpenXR();
+    return false;
+  }
+  if (XR_FAILED(systemResult))
+  {
+    char buf[256];
+    sprintf_s(buf, "OpenXR error at %s:%d (Result: %d)", __FILE__, __LINE__, systemResult);
+    NOTIFY(buf);
+    cleanupOpenXR();
+    return false;
+  }
 
   if (xrHandTrackingSupported)
   {

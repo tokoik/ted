@@ -22,10 +22,12 @@ using namespace gg;
 #include <vector>
 #include <array>
 #include <memory>
+#include <string>
 
 // メッセージボックス
 #if defined(_WIN32)
-#  define NOTIFY(msg) MessageBoxA(NULL, msg, "TED", MB_ICONERROR | MB_OK)
+int showNotification(const char* message);
+#  define NOTIFY(msg) showNotification(msg)
 #else
 #  define NOTIFY(msg) std::cerr << msg << '\n'
 #endif

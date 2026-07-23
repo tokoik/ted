@@ -51,7 +51,7 @@ bool GgApp::useImage()
   // 左の画像が指定されていなければ戻る
   if (defaults.camera_image[camL].empty())
   {
-    NOTIFY("左の画像ファイルが指定されていません。");
+    NOTIFY(u8"左の画像ファイルが指定されていません。");
     return false;
   }
 
@@ -61,7 +61,7 @@ bool GgApp::useImage()
   // 左の画像が使用できなければ戻る
   if (!cam->open(defaults.camera_image[camL], camL))
   {
-    NOTIFY("左の画像ファイルが使用できません。");
+    NOTIFY(u8"左の画像ファイルが使用できません。");
     return false;
   }
 
@@ -83,7 +83,7 @@ bool GgApp::useImage()
     // 右の画像が使用できなければ警告する
     if (!cam->open(defaults.camera_image[camR], camR))
     {
-      NOTIFY("右の画像ファイルが使用できません。");
+      NOTIFY(u8"右の画像ファイルが使用できません。");
     }
     else
     {
@@ -118,7 +118,7 @@ bool GgApp::useMovie()
   // 左の動画像ファイルが指定されていなければ戻る
   if (defaults.camera_movie[camL].empty())
   {
-    NOTIFY("左の動画像ファイルが指定されていません。");
+    NOTIFY(u8"左の動画像ファイルが指定されていません。");
     return false;
   }
 
@@ -128,7 +128,7 @@ bool GgApp::useMovie()
   // 左の動画像ファイルが開けなければ戻る
   if (!cam->open(defaults.camera_movie[camL], camL))
   {
-    NOTIFY("左の動画像ファイルが使用できません。");
+    NOTIFY(u8"左の動画像ファイルが使用できません。");
     return false;
   }
 
@@ -147,7 +147,7 @@ bool GgApp::useMovie()
     // 右の動画像ファイルが使用できなければ警告する
     if (!cam->open(defaults.camera_movie[camR], camR))
     {
-      NOTIFY("右の動画像ファイルが使用できません。");
+      NOTIFY(u8"右の動画像ファイルが使用できません。");
     }
     else
     {
@@ -170,7 +170,7 @@ bool GgApp::useCamera()
   // 左カメラが指定されていなければ戻る
   if (defaults.camera_id[camL] < 0)
   {
-    NOTIFY("左のカメラが指定されていません。");
+    NOTIFY(u8"左のカメラが指定されていません。");
     return false;
   }
 
@@ -180,7 +180,7 @@ bool GgApp::useCamera()
   // 左カメラのデバイスが開けなければ戻る
   if (!cam->open(defaults.camera_id[camL], camL))
   {
-    NOTIFY("左のカメラが使用できません。");
+    NOTIFY(u8"左のカメラが使用できません。");
     return false;
   }
 
@@ -199,7 +199,7 @@ bool GgApp::useCamera()
     // 右カメラのデバイスが使用できなければ警告する
     if (!cam->open(defaults.camera_id[camR], camR))
     {
-      NOTIFY("右のカメラが使用できません。");
+      NOTIFY(u8"右のカメラが使用できません。");
     }
     else
     {
@@ -226,7 +226,7 @@ bool GgApp::useOvervision()
   if (!cam->open(static_cast<OVR::Camprop>(defaults.ovrvision_property)))
   {
     // Ovrvision Pro が使えなかった
-    NOTIFY("Ovrvision Pro が使えません。");
+    NOTIFY(u8"Ovrvision Pro が使えません。");
     return false;
   }
 
@@ -248,7 +248,7 @@ bool GgApp::useRemote()
   // 指導者側を起動する
   if (cam->open(defaults.port, defaults.address.c_str()) < 0)
   {
-    NOTIFY("作業者側のデータを受け取れません。");
+    NOTIFY(u8"作業者側のデータを受け取れません。");
     return false;
   }
 
@@ -367,7 +367,7 @@ int GgApp::main(int argc, const char *const *const argv)
   if (glfwInit() == GLFW_FALSE)
   {
     // GLFW の初期化に失敗した
-    NOTIFY("GLFW の初期化に失敗しました。");
+    NOTIFY(u8"GLFW の初期化に失敗しました。");
     return EXIT_FAILURE;
   }
 
@@ -388,7 +388,7 @@ int GgApp::main(int argc, const char *const *const argv)
     // モニタの存在チェック
     if (monitorCount == 0)
     {
-      NOTIFY("表示可能なディスプレイが見つかりません。");
+      NOTIFY(u8"表示可能なディスプレイが見つかりません。");
       return EXIT_FAILURE;
     }
 
@@ -427,7 +427,7 @@ int GgApp::main(int argc, const char *const *const argv)
     defaults.save(config_file);
 
     // ウィンドウが開けなかったので終了する
-    NOTIFY("表示用のウィンドウを作成できませんでした。");
+    NOTIFY(u8"表示用のウィンドウを作成できませんでした。");
     return EXIT_FAILURE;
   }
 
@@ -442,7 +442,7 @@ int GgApp::main(int argc, const char *const *const argv)
     defaults.save(config_file);
 
     // 共有メモリの確保に失敗したので終了する
-    NOTIFY("共有メモリが確保できませんでした。");
+    NOTIFY(u8"共有メモリが確保できませんでした。");
     return EXIT_FAILURE;
   }
 
@@ -451,7 +451,7 @@ int GgApp::main(int argc, const char *const *const argv)
   if (!rect->get())
   {
     // シェーダが読み込めなかった
-    NOTIFY("背景描画用のシェーダファイルの読み込みに失敗しました。");
+    NOTIFY(u8"背景描画用のシェーダファイルの読み込みに失敗しました。");
     return EXIT_FAILURE;
   }
 
@@ -463,7 +463,7 @@ int GgApp::main(int argc, const char *const *const argv)
   if (!simple.get())
   {
     // シェーダが読み込めなかった
-    NOTIFY("図形描画用のシェーダファイルの読み込みに失敗しました。");
+    NOTIFY(u8"図形描画用のシェーダファイルの読み込みに失敗しました。");
     return EXIT_FAILURE;
   }
 
@@ -471,7 +471,7 @@ int GgApp::main(int argc, const char *const *const argv)
   WSAData wsaData;
   if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0)
   {
-    NOTIFY("Windows Sockets 2 の初期化に失敗しました。");
+    NOTIFY(u8"Windows Sockets 2 の初期化に失敗しました。");
     return EXIT_FAILURE;
   }
 
@@ -527,9 +527,9 @@ int GgApp::main(int argc, const char *const *const argv)
       if (window.setDisplayMode(requested)) return requested;
 
       if (requested == OPENXR)
-        NOTIFY("OpenXRの起動に失敗しました。単眼視に戻します。");
+        NOTIFY(u8"OpenXRの起動に失敗しました。単眼視に戻します。");
       else if (requested == QUADBUFFER)
-        NOTIFY("Quad Buffer Stereoが利用できません。単眼視に戻します。");
+        NOTIFY(u8"Quad Buffer Stereoが利用できません。単眼視に戻します。");
 
       // MONOCULAR は追加資源を必要としないため、失敗時の確実な実行モードとして使用する。
       window.setDisplayMode(MONOCULAR);

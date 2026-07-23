@@ -96,7 +96,7 @@ int Network::initializeRecv(unsigned short port)
   if (recvSock == INVALID_SOCKET)
   {
     const int ret{ getError() };
-    NOTIFY("受信側ソケットが作成できません。");
+    NOTIFY(u8"受信側ソケットが作成できません。");
     return ret;
   }
 
@@ -116,7 +116,7 @@ int Network::initializeRecv(unsigned short port)
   if (bind(recvSock, reinterpret_cast<sockaddr*>(&recvAddr), static_cast<int>(sizeof recvAddr)))
   {
     const int ret{ getError() };
-    NOTIFY("BIND に失敗しました。");
+    NOTIFY(u8"BIND に失敗しました。");
     return ret;
   }
 
@@ -124,7 +124,7 @@ int Network::initializeRecv(unsigned short port)
   if (setsockopt(recvSock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&timeout), sizeof timeout))
   {
     const int ret{ getError() };
-    NOTIFY("タイムアウトが設定できません。");
+    NOTIFY(u8"タイムアウトが設定できません。");
     return ret;
   }
 
@@ -141,7 +141,7 @@ int Network::initializeSend(unsigned short port, const char* address)
   if (sendSock == INVALID_SOCKET)
   {
     const int ret{ getError() };
-    NOTIFY("送信側ソケットが作成できません。");
+    NOTIFY(u8"送信側ソケットが作成できません。");
     return ret;
   }
 
@@ -155,7 +155,7 @@ int Network::initializeSend(unsigned short port, const char* address)
   if (inet_pton(AF_INET, address, &sendAddr.sin_addr.s_addr) <= 0)
   {
     const int ret{ getError() };
-    NOTIFY("送信先の IP アドレスが設定できません。");
+    NOTIFY(u8"送信先の IP アドレスが設定できません。");
     return ret;
   }
 
