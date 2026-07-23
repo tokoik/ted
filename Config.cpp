@@ -14,6 +14,7 @@
 #include "ovrvision_pro.h"
 
 // 標準ライブラリ
+#include <filesystem>
 #include <fstream>
 
 // 初期設定
@@ -321,7 +322,7 @@ bool Config::load(const std::string& file)
   config_file = file;
 
   // 設定ファイルを開く
-  std::ifstream config{ Utf8ToTChar(file) };
+  std::ifstream config{ std::filesystem::u8path(file) };
   if (!config) return false;
 
   // 設定ファイルを読み込む
@@ -339,7 +340,7 @@ bool Config::load(const std::string& file)
 bool Config::save(const std::string& file) const
 {
   // 設定値を保存する
-  std::ofstream config{ Utf8ToTChar(file) };
+  std::ofstream config{ std::filesystem::u8path(file) };
   if (!config) return false;
 
   // オブジェクト

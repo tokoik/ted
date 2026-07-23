@@ -48,11 +48,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #  define _USE_MATH_DEFINES
 // MIN() / MAX マクロは使わない
 #  define NOMINMAX
-// ファイルパスの文字コード
+// Windows API の文字列
 #include <atlstr.h>
 using pathString = CString;
-using pathChar = wchar_t;
-extern pathString Utf8ToTChar(const std::string& string);
 extern std::string TCharToUtf8(const pathString& cstring);
 // デバッグビルドかどうか調べる
 #  if defined(_DEBUG)
@@ -73,10 +71,8 @@ extern std::string TCharToUtf8(const pathString& cstring);
 #    define GLFW3_PLATFORM "Win32"
 #  endif
 #else
-// ファイルパスの文字コード
+// Windows API 以外では UTF-8 文字列をそのまま使う
 using pathString = std::string;
-using pathChar = char;
-inline pathString Utf8ToTChar(const std::string& string) { return string; }
 inline std::string TCharToUtf8(const pathString& cstring) { return cstring; }
 #endif
 

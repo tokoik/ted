@@ -36,6 +36,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 標準ライブラリ
 #include <cfloat>
 #include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -69,24 +70,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //   Modified by: Kohe Tokoi
 //
-
-//
-// UTF-8 文字列を CString に変換する
-//
-pathString Utf8ToTChar(const std::string& string)
-{
-  // UTF-8 文字列を UTF-16 に変換した後の文字列の長さを求める
-  const INT length{ MultiByteToWideChar(CP_UTF8, 0, string.c_str(), -1, NULL, 0) };
-
-  // 変換結果の格納に必要な長さのメモリを確保する
-  std::vector<WCHAR> utf16(length);
-
-  // UTF-8 文字列を UTF-16 に変換する
-  MultiByteToWideChar(CP_UTF8, 0, string.c_str(), -1, utf16.data(), length);
-
-  // 変換した文字列を CString にして返す
-  return CString{ utf16.data(), static_cast<int>(wcslen(utf16.data())) };
-}
 
 //
 // Cstring を UTF-8 文字列に変換する
@@ -3547,7 +3530,7 @@ bool gg::ggSaveTga(
 )
 {
   // ファイルを開く
-  std::ofstream file{ Utf8ToTChar(name), std::ios::binary };
+  std::ofstream file{ std::filesystem::u8path(name), std::ios::binary };
 
   // ファイルが開けなかったら戻る
   if (file.fail()) return false;
@@ -3679,7 +3662,7 @@ bool gg::ggReadImage(
 )
 {
   // ファイルを開く
-  std::ifstream file{ Utf8ToTChar(name), std::ios::binary };
+  std::ifstream file{ std::filesystem::u8path(name), std::ios::binary };
 
   // ファイルが開けなかったら戻る
   if (file.fail()) return false;
@@ -4146,7 +4129,7 @@ namespace gg
     std::vector<GgSimpleShader::Material>& material)
   {
     // MTL ファイルが無ければ戻る
-    std::ifstream mtlfile{ Utf8ToTChar(mtlpath), std::ios::binary };
+    std::ifstream mtlfile{ std::filesystem::u8path(mtlpath), std::ios::binary };
     if (!mtlfile)
     {
 #if defined(DEBUG)
@@ -4294,7 +4277,7 @@ namespace gg
     const std::string dirname{ (base == std::string::npos) ? "" : path.substr(0, base + 1) };
 
     // OBJ ファイルを読み込む
-    std::ifstream file{ Utf8ToTChar(path) };
+    std::ifstream file{ std::filesystem::u8path(path) };
 
     // 読み込みに失敗したら戻る
     if (file.fail())
@@ -4980,7 +4963,7 @@ static bool readShaderSource(const std::string& name, std::string& src)
   if (name.empty()) return true;
 
   // ソースファイルを開く
-  std::ifstream file{ Utf8ToTChar(name), std::ios::binary };
+  std::ifstream file{ std::filesystem::u8path(name), std::ios::binary };
   if (file.fail())
   {
     // ファイルが開けなければエラーで戻る

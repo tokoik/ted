@@ -11,6 +11,7 @@
 #include "parseconfig.h"
 
 // 標準ライブラリ
+#include <filesystem>
 #include <fstream>
 
 // 姿勢データ
@@ -90,7 +91,7 @@ bool Attitude::load(const std::string &file)
   attitude_file = file;
 
   // 設定ファイルを開く
-  std::ifstream attitude(file);
+  std::ifstream attitude{ std::filesystem::u8path(file) };
   if (!attitude) return false;
 
   // 設定ファイルを読み込む
@@ -106,7 +107,7 @@ bool Attitude::load(const std::string &file)
 bool Attitude::save(const std::string &file) const
 {
   // 設定値を保存する
-  std::ofstream attitude(file);
+  std::ofstream attitude{ std::filesystem::u8path(file) };
   if (!attitude) return false;
 
   // オブジェクト

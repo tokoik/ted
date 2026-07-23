@@ -7,6 +7,11 @@
 ///
 #include "CamImage.h"
 
+// 標準ライブラリ
+#include <filesystem>
+#include <fstream>
+#include <iterator>
+
 //
 // コンストラクタ
 //
@@ -28,8 +33,18 @@ CamImage::~CamImage()
 //
 bool CamImage::open(const std::string& file, int cam)
 {
-  // 画像をファイルから読み込む
-  cv::Mat source{ cv::imread(file) };
+  // imread() は Windows で日本語を含むパス名を扱えないため、
+  // ファイルをバイナリで読み込んでから画像をデコードする
+  std::ifstream stream{ std::filesystem::u8path(file), std::ios::binary };
+  if (!stream) return false;
+
+  const std::vector<uchar> encoded{
+    std::istreambuf_iterator<char>{ stream },
+    std::istreambuf_iterator<char>{}
+  };
+  if (encoded.empty()) return false;
+
+  cv::Mat source{ cv::imdecode(encoded, cv::IMREAD_COLOR) };
   if (source.empty()) return false;
 
   // 1枚に左右画像が格納されている場合は、左入力を読み込んだ時点で左右へ分割する
