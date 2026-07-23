@@ -8,11 +8,11 @@
       "children": [
         {
           "remote_controller": 3,
-          "model": "handr_remote.obj"
+          "model": "handl_remote.obj"
         },
         {
           "remote_controller": 4,
-          "model": "handl_remote.obj"
+          "model": "handr_remote.obj"
         },
         {
           "remote_controller": 5,

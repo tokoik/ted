@@ -1299,6 +1299,21 @@ void GgApp::Window::updateOpenXRHands(XrTime time)
     XR_HAND_JOINT_LITTLE_DISTAL_EXT, XR_HAND_JOINT_LITTLE_TIP_EXT
   };
 
+  // 各指4骨の始点。終点は jointMap の同じ要素を使う。
+  constexpr std::array<XrHandJointEXT, 20> boneStartMap
+  {
+    XR_HAND_JOINT_WRIST_EXT, XR_HAND_JOINT_THUMB_METACARPAL_EXT,
+    XR_HAND_JOINT_THUMB_PROXIMAL_EXT, XR_HAND_JOINT_THUMB_DISTAL_EXT,
+    XR_HAND_JOINT_INDEX_METACARPAL_EXT, XR_HAND_JOINT_INDEX_PROXIMAL_EXT,
+    XR_HAND_JOINT_INDEX_INTERMEDIATE_EXT, XR_HAND_JOINT_INDEX_DISTAL_EXT,
+    XR_HAND_JOINT_MIDDLE_METACARPAL_EXT, XR_HAND_JOINT_MIDDLE_PROXIMAL_EXT,
+    XR_HAND_JOINT_MIDDLE_INTERMEDIATE_EXT, XR_HAND_JOINT_MIDDLE_DISTAL_EXT,
+    XR_HAND_JOINT_RING_METACARPAL_EXT, XR_HAND_JOINT_RING_PROXIMAL_EXT,
+    XR_HAND_JOINT_RING_INTERMEDIATE_EXT, XR_HAND_JOINT_RING_DISTAL_EXT,
+    XR_HAND_JOINT_LITTLE_METACARPAL_EXT, XR_HAND_JOINT_LITTLE_PROXIMAL_EXT,
+    XR_HAND_JOINT_LITTLE_INTERMEDIATE_EXT, XR_HAND_JOINT_LITTLE_DISTAL_EXT
+  };
+
   for (int hand = 0; hand < 2; ++hand)
   {
     if (xrHandTrackers[hand] == XR_NULL_HANDLE) continue;
@@ -1318,30 +1333,117 @@ void GgApp::Window::updateOpenXRHands(XrTime time)
 
     std::array<GgMatrix, jointMap.size()> matrices;
     bool valid{ true };
-    for (size_t i = 0; i < jointMap.size(); ++i)
+    constexpr XrSpaceLocationFlags requiredFlags{ XR_SPACE_LOCATION_POSITION_VALID_BIT };
+    for (const auto& joint : locations)
     {
-      const auto& joint{ locations[static_cast<size_t>(jointMap[i])] };
-      constexpr XrSpaceLocationFlags requiredFlags{
-        XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT };
       if ((joint.locationFlags & requiredFlags) != requiredFlags)
       {
         valid = false;
         break;
       }
-
-      const auto& p{ joint.pose.position };
-      const auto& q{ joint.pose.orientation };
-      matrices[i] = ggTranslate(p.x - xrOriginPosition[0], p.y - xrOriginPosition[1],
-        p.z - xrOriginPosition[2]) * GgQuaternion(q.x, q.y, q.z, q.w).getMatrix();
     }
+
+    if (valid)
+    {
+      const auto& wrist{ locations[XR_HAND_JOINT_WRIST_EXT].pose.position };
+      const auto& middle{ locations[XR_HAND_JOINT_MIDDLE_PROXIMAL_EXT].pose.position };
+      const auto& index{ locations[XR_HAND_JOINT_INDEX_METACARPAL_EXT].pose.position };
+      const auto& little{ locations[XR_HAND_JOINT_LITTLE_METACARPAL_EXT].pose.position };
+
+      // 左右で同じ解剖学的意味の横軸になるよう、右手ではランドマークの差分順を反転する。
+      const GLfloat side{ hand == 0 ? 1.0f : -1.0f };
+      GLfloat palmX[]{ side * (index.x - little.x), side * (index.y - little.y),
+        side * (index.z - little.z) };
+      GLfloat palmY[]{ middle.x - wrist.x, middle.y - wrist.y, middle.z - wrist.z };
+      const auto lengthSquared = [](const GLfloat* v)
+      {
+        return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+      };
+      constexpr GLfloat minimumAxisLengthSquared{ 1.0e-8f };
+      if (lengthSquared(palmX) < minimumAxisLengthSquared
+        || lengthSquared(palmY) < minimumAxisLengthSquared)
+      {
+        continue;
+      }
+      ggNormalize3(palmX);
+      ggNormalize3(palmY);
+      GLfloat palmZ[3];
+      ggCross(palmZ, palmX, palmY);
+      if (lengthSquared(palmZ) < minimumAxisLengthSquared) continue;
+      ggNormalize3(palmZ);
+      ggCross(palmY, palmZ, palmX);
+
+      // hand.json の親 controller 0 で再び眼姿勢が掛かるため、関節を左眼ローカルへ戻す。
+      const auto& eyePosition{ xrViews[camL].pose.position };
+      const GLfloat eyeX{ eyePosition.x - xrOriginPosition[0] };
+      const GLfloat eyeY{ eyePosition.y - xrOriginPosition[1] };
+      const GLfloat eyeZ{ eyePosition.z - xrOriginPosition[2] };
+      const GgMatrix eyePose{
+        ggTranslate(eyeX, eyeY, eyeZ) * mo[camL].transpose() };
+      const GgMatrix worldToHandParent{ eyePose.invert() };
+
+      const auto makeMatrix = [this, &worldToHandParent](const XrVector3f& p, const GLfloat* x,
+        const GLfloat* y, const GLfloat* z)
+      {
+        const GLfloat m[]
+        {
+          x[0], x[1], x[2], 0.0f,
+          y[0], y[1], y[2], 0.0f,
+          z[0], z[1], z[2], 0.0f,
+          p.x - xrOriginPosition[0], p.y - xrOriginPosition[1],
+          p.z - xrOriginPosition[2], 1.0f
+        };
+        return worldToHandParent * GgMatrix(m);
+      };
+
+      if (valid)
+      {
+        // 手のひらは、手首から中指および人差し指から小指への実測方向で作る。
+        matrices[0] = makeMatrix(locations[XR_HAND_JOINT_PALM_EXT].pose.position,
+          palmX, palmY, palmZ);
+
+        // 手首は安定した手のひら基底を使い、長手軸だけ手首方向（-Y）へ向ける。
+        matrices[1] = makeMatrix(wrist, palmX, palmY, palmZ)
+          * ggRotate(1.0f, 0.0f, 0.0f, 1.5707963268f);
+      }
+
+      // finger.obj の先端方向に合わせ、各ボーンの始点から終点への方向をローカル Z 軸にする。
+      for (size_t bone = 0; valid && bone < boneStartMap.size(); ++bone)
+      {
+        const auto& start{ locations[static_cast<size_t>(boneStartMap[bone])].pose.position };
+        const auto& end{
+          locations[static_cast<size_t>(jointMap[bone + 2])].pose.position };
+        GLfloat z[]{ end.x - start.x, end.y - start.y, end.z - start.z };
+        if (lengthSquared(z) < minimumAxisLengthSquared)
+        {
+          valid = false;
+          break;
+        }
+        ggNormalize3(z);
+
+        // 手のひら法線を基準にロールを決め、ボーン方向と直交する正規直交基底にする。
+        const GLfloat dot{ palmZ[0] * z[0] + palmZ[1] * z[1] + palmZ[2] * z[2] };
+        GLfloat y[]{ palmZ[0] - dot * z[0], palmZ[1] - dot * z[1],
+          palmZ[2] - dot * z[2] };
+        if (lengthSquared(y) < minimumAxisLengthSquared)
+        {
+          valid = false;
+          break;
+        }
+        ggNormalize3(y);
+        GLfloat x[3];
+        ggCross(x, y, z);
+        ggNormalize3(x);
+        ggCross(y, z, x);
+        matrices[bone + 2] = makeMatrix(end, x, y, z);
+      }
+    }
+
     if (valid)
     {
       Scene::setLocalHandAttitudes(hand, matrices.data());
     }
-    else
-    {
-      Scene::setLocalHandAttitudes(hand, nullptr);
-    }
+    // 一時的な無効値や縮退した関節では、ちらつきを避けるため直前の姿勢を維持する。
   }
 }
 
