@@ -520,9 +520,6 @@ int GgApp::main(int argc, const char *const *const argv)
   // アルファブレンディングする
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  // 描画回数は単眼視なら 1、それ以外ならカメラの数
-  int drawCount{ defaults.display_mode == MONOCULAR ? 1 : camCount };
-
   // デフォルトが OPENXR なら HMD を起動する
   if (defaults.display_mode == OPENXR)
   {
@@ -532,6 +529,13 @@ int GgApp::main(int argc, const char *const *const argv)
       defaults.display_mode = MONOCULAR;
       window.resetViewport();
     }
+  }
+  // Quad Buffer Stereo を持たないウィンドウでは単眼視へ戻す
+  else if (defaults.display_mode == QUADBUFFER && !window.isQuadBufferAvailable())
+  {
+    NOTIFY("Quad Buffer Stereoが利用できません。単眼視に戻します。");
+    defaults.display_mode = MONOCULAR;
+    window.resetViewport();
   }
 
   // メニュー
@@ -548,6 +552,7 @@ int GgApp::main(int argc, const char *const *const argv)
     {
       const auto& candidate{ menu.getPendingConfig() };
       bool status{ false };
+      int displayMode{ defaults.display_mode };
       try
       {
         // 先に新しいオブジェクトを完成させ、成功した場合だけ現在のものと入れ替える
@@ -567,6 +572,20 @@ int GgApp::main(int argc, const char *const *const argv)
             rectPointer = rect.get();
             scene = std::move(newScene);
             if (scene->isEmpty()) window.setSceneVisible(false);
+
+            // 利用できない表示モードは実行時に単眼視へフォールバックする
+            displayMode = candidate.display_mode;
+            if (!window.setDisplayMode(displayMode))
+            {
+              if (displayMode == OPENXR)
+                NOTIFY("OpenXRの起動に失敗しました。単眼視に戻します。");
+              else if (displayMode == QUADBUFFER)
+                NOTIFY("Quad Buffer Stereoが利用できません。単眼視に戻します。");
+
+              window.setDisplayMode(MONOCULAR);
+              displayMode = MONOCULAR;
+            }
+
             status = true;
           }
         }
@@ -584,7 +603,7 @@ int GgApp::main(int argc, const char *const *const argv)
 #endif
       }
 
-      menu.finishConfigReload(status);
+      menu.finishConfigReload(status, displayMode);
     }
 
     // 有効なカメラの数

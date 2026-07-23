@@ -405,6 +405,15 @@ public:
     ///
     bool setDisplayMode(int mode);
 
+    /// Quad Buffer Stereo を実際に利用できるか調べる
+    ///
+    /// @return 作成済みウィンドウがステレオバッファを持つ場合は true
+    ///
+    bool isQuadBufferAvailable() const
+    {
+      return window && glfwGetWindowAttrib(window, GLFW_STEREO) == GLFW_TRUE;
+    }
+
     /// 前方面と後方面を変更して透視投影変換行列を更新する
     ///
     /// @param nearPlane 前方面

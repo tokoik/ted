@@ -170,8 +170,9 @@ public:
   /// 設定ファイルの描画側への反映結果を通知する
   ///
   /// @param status 反映に成功した場合は true
+  /// @param displayMode 利用可否を反映した実行時の表示モード
   ///
-  void finishConfigReload(bool status);
+  void finishConfigReload(bool status, int displayMode);
 
   ///
   /// メニューの表示

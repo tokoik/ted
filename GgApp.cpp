@@ -798,7 +798,7 @@ bool GgApp::Window::setDisplayMode(int mode)
   else
   {
     // Quad Buffer Stereo が利用できない場合は切り替えない
-    if (mode == QUADBUFFER && !defaults.display_quadbuffer) return false;
+    if (mode == QUADBUFFER && !isQuadBufferAvailable()) return false;
     if (defaults.display_mode == OPENXR) stopHMD();
   }
 

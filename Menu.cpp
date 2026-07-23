@@ -301,6 +301,16 @@ void Menu::inputWindow()
 
   ImGui::Begin(u8"入力設定", &showInputWindow);
 
+  // 1フレーム内の左右画像の配置（すべての入力方式に適用する）
+  static constexpr char* cameraLayouts[]{
+    u8"単眼",
+    u8"左右別入力",
+    u8"左右分割フレーム",
+    u8"上下分割フレーム"
+  };
+  ImGui::Combo(u8"配置", &config.camera_layout,
+    cameraLayouts, IM_ARRAYSIZE(cameraLayouts));
+
   ImGui::RadioButton(u8"静止画像", &config.input_mode, InputMode::IMAGE);
   static const nfdfilteritem_t image_filter[]{ "Images", "png,jpg,jpeg,jfif,bmp,dib" };
   if (ImGui::Button(u8"左画像"))
@@ -330,16 +340,6 @@ void Menu::inputWindow()
   }
 
   ImGui::RadioButton(u8"カメラ", &config.input_mode, InputMode::CAMERA);
-
-  // 1フレーム内の左右画像の配置
-  static constexpr char* cameraLayouts[]{
-    u8"単眼",
-    u8"左右別入力",
-    u8"左右分割フレーム",
-    u8"上下分割フレーム"
-  };
-  ImGui::Combo(u8"配置", &config.camera_layout,
-    cameraLayouts, IM_ARRAYSIZE(cameraLayouts));
 
   // デバイスリストの取得
   const auto& devices{ CameraCapabilities::getDeviceList() };
@@ -688,10 +688,14 @@ Menu::Menu(GgApp& app, GgApp::Window& window, Attitude& attitude, Config& config
 //
 // 設定ファイルの描画側への反映結果を通知する
 //
-void Menu::finishConfigReload(bool status)
+void Menu::finishConfigReload(bool status, int displayMode)
 {
   // 描画オブジェクトを構築できた場合だけ候補設定を確定する
-  if (status && pendingConfig) config = std::move(*pendingConfig);
+  if (status && pendingConfig)
+  {
+    pendingConfig->display_mode = displayMode;
+    config = std::move(*pendingConfig);
+  }
 
   pendingConfig.reset();
   showNodataWindow = !status;
