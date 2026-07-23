@@ -56,7 +56,8 @@
 * `Config`: JSON 設定と対応する永続設定値を保持
 * `Attitude`: 視点、投影補正、背景テクスチャ補正と、その初期値を保持
 * `Scene`: JSON シーングラフ、共有姿勢、Leap Motion／OpenXR による手モデルを管理。OpenXR で手が無効になった場合、または Leap Motion の新しいフレームで片手が検出されなかった場合は、その手の全関節をゼロ行列でクリアして非表示化する
-* `Camera` と派生クラス: 静止画、動画、Webカメラ、Ovrvision、遠隔映像の入力を共通化
+* `Camera` と派生クラス: 静止画、動画、Webカメラ、Ovrvision、遠隔映像の入力を共通化。取得画像は設定した伝送解像度へリサイズしてから JPEG 圧縮
+* `CamRemote`: 受信した魚眼・全方位映像を、受信側で指定した解像度と画角へ常に平面展開
 * `CameraCapabilities`: UI にバックエンド非依存のカメラ能力情報を提供
 * `Network`: UDPによる画像や姿勢データの送受信。フレームIDをヘッダに持つパケットの順序制御（古い遅延パケットの破棄）と、2秒以上の無通信検出（タイムアウト）で自動再同期（送信側再起動によるIDリセットへ追従）する堅牢なパケット組み立て処理を実装
 * `LeapListener`: Leap Motion のポーリングと描画スレッド間のデータ受け渡し。スレッド同期を原子変数（`std::atomic`）で保護し、スナップショットによるディープコピーでデータレースを排除。描画更新時に新しいフレームがない場合は以前の姿勢を維持し（点滅防止）、新しいフレームがあるときのみ検出されなかった側の手をゼロクリアする選択的消去を実装
@@ -123,7 +124,7 @@ struct CaptureCapability
 * `CameraCapabilities::getDeviceList()` は利用可能なカメラ名を返します。
 * `CameraCapabilities::getCapabilities(device, capabilities)` は、指定デバイスのコーデック、解像度、フレームレートを返します。
 
-Media Foundation の `GUID` と `CamMf::VideoFormat` は `CamMf.cpp` 内で `CaptureCapability` へ変換され、`Menu` には公開されません。カメラメニューはデバイスまたはコーデックが変わった場合だけ候補を再生成します。
+Media Foundation の `GUID` と `CamMf::VideoFormat` は `CamMf.cpp` 内で `CaptureCapability` へ変換され、`Menu` には公開されません。左右カメラの特性は折りたたみ UI にまとめられ、デバイス、コーデック、解像度、FPS が変わった場合だけ後続の候補を再生成します。
 
 ### 外部資源の所有権
 

@@ -40,7 +40,9 @@ class Menu
     std::vector<CaptureCapability> capabilities;
     std::vector<std::string> codecs;
     std::vector<std::string> resolutions;
+    std::vector<double> frameRates;
     std::string lastCodec = "";
+    std::string lastResolution = "";
   } cameraMenuCache[camCount];
 
   /// キャッシュを更新するヘルパー関数

@@ -22,6 +22,7 @@
 #include "nfd.h"
 
 // 標準ライブラリ
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 
@@ -295,7 +296,7 @@ void Menu::inputWindow()
 {
   // 入力設定ウィンドウ
   ImGui::SetNextWindowPos(ImVec2(369, 25), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(200, 674), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(211, 618), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"入力設定", &showInputWindow);
@@ -336,63 +337,113 @@ void Menu::inputWindow()
     updateCameraMenuCache(cam);
     const auto& cache{ cameraMenuCache[cam] };
 
-    // デバイス選択コンボボックス
+    // 折りたたみ時にも選択内容を確認できるよう、見出し自体を要約行にする
     int currentDevice{ config.camera_id[cam] };
-    std::string deviceComboLabel{ u8"未選択" };
-    if (currentDevice >= 0 && currentDevice < devices.size()) {
-      deviceComboLabel = devices[currentDevice];
+    const bool hasDevice{ currentDevice >= 0 && currentDevice < devices.size() };
+    std::string deviceName{ u8"未選択" };
+    if (hasDevice)
+    {
+      deviceName = devices[currentDevice];
     }
 
-    if (ImGui::BeginCombo(sideLabel, deviceComboLabel.c_str()))
+    char fpsText[32];
+    if (std::abs(config.camera_fps[cam] - std::round(config.camera_fps[cam])) < 0.005)
+      sprintf_s(fpsText, "%.0f fps", config.camera_fps[cam]);
+    else
+      sprintf_s(fpsText, "%.2f fps", config.camera_fps[cam]);
+
+    const char* side{ cam == camL ? u8"左" : u8"右" };
+    std::string summary{ side };
+    summary += ": " + deviceName;
+    if (hasDevice)
     {
-      for (int i = 0; i < devices.size(); ++i)
-      {
-        bool isSelected = (currentDevice == i);
-        if (ImGui::Selectable(devices[i].c_str(), isSelected))
-        {
-          config.camera_id[cam] = i;
-        }
-        if (isSelected) {
-          ImGui::SetItemDefaultFocus();
-        }
-      }
-      ImGui::EndCombo();
+      summary += " | " + config.camera_codec[cam]
+        + " | " + config.camera_resolution[cam]
+        + " | " + fpsText;
+    }
+    summary += "##camera_properties";
+
+    const bool showProperties{ ImGui::CollapsingHeader(summary.c_str()) };
+    if (ImGui::IsItemHovered())
+    {
+      ImGui::SetTooltip(u8"%sカメラ\nデバイス: %s\n符号化: %s\n解像度: %s\nFPS: %s",
+        side, deviceName.c_str(), config.camera_codec[cam].c_str(),
+        config.camera_resolution[cam].c_str(), fpsText);
     }
 
-    // コーデック選択コンボボックス
-    std::string currentCodec = config.camera_codec[cam];
-    if (ImGui::BeginCombo(u8"符号化", currentCodec.c_str()))
+    if (showProperties)
     {
-      for (const auto& codec : cache.codecs)
+      // デバイス選択コンボボックス
+      std::string deviceComboLabel{ u8"未選択" };
+      if (currentDevice >= 0 && currentDevice < devices.size())
       {
-        bool isSelected = (currentCodec == codec);
-        if (ImGui::Selectable(codec.c_str(), isSelected))
-        {
-          config.camera_codec[cam] = codec;
-        }
-        if (isSelected) {
-          ImGui::SetItemDefaultFocus();
-        }
+        deviceComboLabel = devices[currentDevice];
       }
-      ImGui::EndCombo();
-    }
 
-    // 解像度選択コンボボックス
-    std::string currentResolution = config.camera_resolution[cam];
-    if (ImGui::BeginCombo(u8"解像度", currentResolution.c_str()))
-    {
-      for (const auto& res : cache.resolutions)
+      if (ImGui::BeginCombo(u8"デバイス", deviceComboLabel.c_str()))
       {
-        bool isSelected = (currentResolution == res);
-        if (ImGui::Selectable(res.c_str(), isSelected))
+        for (int i = 0; i < devices.size(); ++i)
         {
-          config.camera_resolution[cam] = res;
+          bool isSelected = (currentDevice == i);
+          if (ImGui::Selectable(devices[i].c_str(), isSelected))
+          {
+            config.camera_id[cam] = i;
+          }
+          if (isSelected) ImGui::SetItemDefaultFocus();
         }
-        if (isSelected) {
-          ImGui::SetItemDefaultFocus();
-        }
+        ImGui::EndCombo();
       }
-      ImGui::EndCombo();
+
+      // コーデック選択コンボボックス
+      std::string currentCodec = config.camera_codec[cam];
+      if (ImGui::BeginCombo(u8"符号化", currentCodec.c_str()))
+      {
+        for (const auto& codec : cache.codecs)
+        {
+          bool isSelected = (currentCodec == codec);
+          if (ImGui::Selectable(codec.c_str(), isSelected))
+          {
+            config.camera_codec[cam] = codec;
+          }
+          if (isSelected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+      }
+
+      // 解像度選択コンボボックス
+      std::string currentResolution = config.camera_resolution[cam];
+      if (ImGui::BeginCombo(u8"解像度", currentResolution.c_str()))
+      {
+        for (const auto& res : cache.resolutions)
+        {
+          bool isSelected = (currentResolution == res);
+          if (ImGui::Selectable(res.c_str(), isSelected))
+          {
+            config.camera_resolution[cam] = res;
+          }
+          if (isSelected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+      }
+
+      // フレームレート選択コンボボックス
+      char currentFps[32];
+      sprintf_s(currentFps, "%.2f fps", config.camera_fps[cam]);
+      if (ImGui::BeginCombo(u8"FPS", currentFps))
+      {
+        for (const double fps : cache.frameRates)
+        {
+          char label[32];
+          sprintf_s(label, "%.2f fps", fps);
+          const bool isSelected{ std::abs(config.camera_fps[cam] - fps) < 0.005 };
+          if (ImGui::Selectable(label, isSelected))
+          {
+            config.camera_fps[cam] = fps;
+          }
+          if (isSelected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+      }
     }
 
     ImGui::PopID();
@@ -430,6 +481,33 @@ void Menu::inputWindow()
   if (ImGui::InputText(u8"アドレス", address, sizeof address))
     config.address = address;
   ImGui::InputInt(u8"ポート", &config.port);
+
+  if (ImGui::CollapsingHeader(u8"送信設定"))
+  {
+    ImGui::InputInt2(u8"伝送解像度", config.transmit_size.data());
+    config.transmit_size[0] = std::max(config.transmit_size[0], 0);
+    config.transmit_size[1] = std::max(config.transmit_size[1], 0);
+    ImGui::InputDouble(u8"伝送 fps", &config.transmit_fps, 1.0, 5.0, "%.1f");
+    config.transmit_fps = std::max(config.transmit_fps, 0.0);
+    ImGui::SliderInt(u8"JPEG 品質", &config.transmit_quality, 0, 100);
+    ImGui::TextDisabled(u8"解像度 0 x 0 は取得画像のまま送信");
+  }
+
+  if (ImGui::CollapsingHeader(u8"平面展開設定"))
+  {
+    int remoteSize[]{ config.remote_texture_width, config.remote_texture_height };
+    if (ImGui::InputInt2(u8"展開解像度", remoteSize))
+    {
+      config.remote_texture_width = std::max(remoteSize[0], 1);
+      config.remote_texture_height = std::max(remoteSize[1], 1);
+    }
+    ImGui::InputInt(u8"メッシュ分割数", &config.remote_texture_samples);
+    config.remote_texture_samples = std::max(config.remote_texture_samples, 4);
+    ImGui::InputFloat(u8"水平 FOV", &config.remote_fov_x, 0.01f, 0.1f, "%.3f");
+    ImGui::InputFloat(u8"垂直 FOV", &config.remote_fov_y, 0.01f, 0.1f, "%.3f");
+    config.remote_fov_x = std::clamp(config.remote_fov_x, 0.001f, 1.56f);
+    config.remote_fov_y = std::clamp(config.remote_fov_y, 0.001f, 1.56f);
+  }
 
   ImGui::Text(u8"シェーダ");
 
@@ -610,7 +688,9 @@ void Menu::updateCameraMenuCache(int cam)
     cache.capabilities.clear();
     cache.codecs.clear();
     cache.resolutions.clear();
+    cache.frameRates.clear();
     cache.lastCodec = "";
+    cache.lastResolution = "";
     return;
   }
 
@@ -619,6 +699,8 @@ void Menu::updateCameraMenuCache(int cam)
   {
     cache.lastDeviceId = currentDevice;
     CameraCapabilities::getCapabilities(currentDevice, cache.capabilities);
+    cache.lastCodec = "";
+    cache.lastResolution = "";
 
     // コーデックリスト構築
     cache.codecs.clear();
@@ -643,6 +725,7 @@ void Menu::updateCameraMenuCache(int cam)
   if (cache.lastCodec != config.camera_codec[cam])
   {
     cache.lastCodec = config.camera_codec[cam];
+    cache.lastResolution = "";
     cache.resolutions.clear();
 
     for (const auto& capability : cache.capabilities)
@@ -664,6 +747,34 @@ void Menu::updateCameraMenuCache(int cam)
     {
       if (!cache.resolutions.empty()) config.camera_resolution[cam] = cache.resolutions[0];
       else config.camera_resolution[cam] = "";
+    }
+  }
+
+  // 解像度が変わったとき、そのコーデック・解像度で利用できる FPS を列挙する
+  if (cache.lastResolution != config.camera_resolution[cam])
+  {
+    cache.lastResolution = config.camera_resolution[cam];
+    cache.frameRates.clear();
+
+    int width{ 0 }, height{ 0 };
+    sscanf_s(cache.lastResolution.c_str(), "%d x %d", &width, &height);
+    for (const auto& capability : cache.capabilities)
+    {
+      if (capability.codec == cache.lastCodec
+        && capability.width == width && capability.height == height)
+      {
+        const auto found{ std::find_if(cache.frameRates.begin(), cache.frameRates.end(),
+          [&capability](double fps) { return std::abs(fps - capability.fps) < 0.005; }) };
+        if (found == cache.frameRates.end()) cache.frameRates.push_back(capability.fps);
+      }
+    }
+    std::sort(cache.frameRates.begin(), cache.frameRates.end(), std::greater<double>());
+
+    const auto selected{ std::find_if(cache.frameRates.begin(), cache.frameRates.end(),
+      [this, cam](double fps) { return std::abs(fps - config.camera_fps[cam]) < 0.005; }) };
+    if (selected == cache.frameRates.end())
+    {
+      config.camera_fps[cam] = cache.frameRates.empty() ? 0.0 : cache.frameRates.front();
     }
   }
 }

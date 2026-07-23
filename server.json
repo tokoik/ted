@@ -6,9 +6,6 @@
   "display_center": 0.5,
   "depth_near": 0.1,
   "depth_far": 5,
-  "capture_width": 0,
-  "capture_height": 0,
-  "capture_fps": 0,
   "ovrvision_property": 1,
   "fisheye_fov_x": 1,
   "fisheye_fov_y": 1,
@@ -23,7 +20,6 @@
   "max_level": 10,
   "port": 1234,
   "server": "",
-  "texture_quality": 50,
   "texture_samples": 1271,
   "remote_fov_x": 0.8726646,
   "remote_fov_y": 0.8552113,
@@ -39,5 +35,13 @@
     "position": [ 0, 0, -0.5 ],
     "scale": [ 0.5, 0.5, 0.5 ],
     "model": "remote.obj"
-  }
+  },
+  "left_capture_fps": 0,
+  "right_capture_fps": 0,
+  "transmit_width": 0,
+  "transmit_height": 0,
+  "transmit_fps": 0.0,
+  "transmit_quality": 50,
+  "remote_texture_width": 640,
+  "remote_texture_height": 480
 }

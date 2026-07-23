@@ -48,14 +48,16 @@
 | `right_image` | 文字列 | 右カメラ不使用時（単眼や静止画モード）に表示する静止画ファイル名 |
 | `left_movie` | 文字列 | 左カメラの代わりに使用する動画ファイル名 |
 | `right_movie` | 文字列 | 右カメラの代わりに使用する動画ファイル名 |
-| `capture_width` | 数値 | カメラからキャプチャする画像の幅。`0` の場合はカメラから自動取得します。 |
-| `capture_height` | 数値 | カメラからキャプチャする画像の高さ。`0` の場合はカメラから自動取得します。 |
-| `capture_fps` | 数値 | カメラからキャプチャする際のフレームレート。`0` の場合はカメラから自動取得します。 |
-| `capture_codec` | 文字列 | カメラのコーデック（例: `"MJPG"`, `"YUY2"` など） |
-| `left_capture_codec` | 文字列 | 左カメラ用の個別コーデック（指定がない場合は `capture_codec` または `"MJPG"` にフォールバックします） |
-| `right_capture_codec`| 文字列 | 右カメラ用の個別コーデック（指定がない場合は `capture_codec` または `"MJPG"` にフォールバックします） |
+| `left_capture_codec` | 文字列 | Media Foundation で取得する左カメラのコーデック（例: `"MJPG"`, `"YUY2"`） |
+| `right_capture_codec`| 文字列 | Media Foundation で取得する右カメラのコーデック |
 | `left_capture_resolution`| 文字列 | 左カメラの個別解像度（例: `"1280 x 720"`） |
 | `right_capture_resolution`| 文字列 | 右カメラの個別解像度（例: `"1280 x 720"`） |
+| `left_capture_fps` | 数値 | 左カメラから取得するフレームレート。`0` の場合は選択したコーデック・解像度で利用可能な最高値を使用します。 |
+| `right_capture_fps` | 数値 | 右カメラから取得するフレームレート。`0` の場合は選択したコーデック・解像度で利用可能な最高値を使用します。 |
+| `transmit_width` | 数値 | ネットワークへ送る画像の幅。幅と高さのどちらかが `0` の場合は取得解像度のまま送信します。 |
+| `transmit_height` | 数値 | ネットワークへ送る画像の高さ。 |
+| `transmit_fps` | 数値 | ネットワークへ送る最大フレームレート。`0` の場合は最短送信間隔を使用します。 |
+| `transmit_quality` | 数値 | ネットワークへ送る画像の JPEG 圧縮品質（0～100）。 |
 | `screen_samples` | 数値 | 背景画像をマッピングする際のメッシュの分割数（数値が大きいほど歪み補正の精度が向上します） |
 | `texture_repeat` | 数値 / 真偽値 | 背景画像を繰り返しでマッピングするか (0: 通常, 1: 正距円筒図法などの繰り返し) |
 | `tracking` | 数値 / 真偽値 | 背景画像をヘッドトラッキングに追従させるか (0: 固定, 1: 追従) |
@@ -125,11 +127,11 @@
 | `tracking_delay` | 数値 | 左右両方の画像に対してヘッドトラッキングを遅らせるフレーム数 |
 | `tracking_delay_left`| 数値 | 左目の画像に対してヘッドトラッキングを遅らせるフレーム数 |
 | `tracking_delay_right`|数値 | 右目の画像に対してヘッドトラッキングを遅らせるフレーム数 |
-| `texture_quality` | 数値 | ネットワーク転送する画像の JPEG 圧縮品質 (0〜100 %) |
-| `texture_reshape` | 数値 / 真偽値 | ネットワーク転送する画像を送信側でドーム画像に変形するか |
-| `texture_samples` | 数値 | 平面画像を全天球画像に変換・変形する際に用いるメッシュの格子点数 |
-| `remote_fov_x` | 数値 | ドーム画像に変形するロボット（送信）側の平面カメラの水平方向の画角（単位: ラジアン） |
-| `remote_fov_y` | 数値 | ドーム画像に変形するロボット（送信）側の平面カメラの垂直方向の画角（単位: ラジアン） |
+| `remote_texture_width` | 数値 | 受信側で魚眼・全方位映像を平面展開する出力画像の幅 |
+| `remote_texture_height` | 数値 | 受信側で魚眼・全方位映像を平面展開する出力画像の高さ |
+| `texture_samples` | 数値 | 受信側の平面展開に用いるメッシュの格子点数 |
+| `remote_fov_x` | 数値 | 送信側カメラの水平方向の画角（単位: ラジアン） |
+| `remote_fov_y` | 数値 | 送信側カメラの垂直方向の画角（単位: ラジアン） |
 | `local_share_size` | 数値 | 送信用に確保する共有メモリの行列数（標準: `64`、最小: `47`） |
 | `remote_share_size`| 数値 | 受信用に確保する共有メモリの行列数（標準: `64`、最小: `2`） |
 
@@ -158,6 +160,12 @@
 
 ---
 
+## 旧設定との互換性
+
+`capture_width`、`capture_height`、`capture_fps`、`capture_codec`、`texture_quality` は旧設定ファイルの読み込み時だけ互換キーとして扱います。設定を保存し直すと、取得解像度は左右個別の `left_capture_resolution` / `right_capture_resolution`、伝送条件は `transmit_*` キーで出力されます。旧 `texture_reshape` は無視され、受信映像は常に受信側で平面展開されます。
+
+---
+
 ## 設定ファイル (config.json) の具体例
 
 ```json
@@ -179,19 +187,21 @@
   "left_movie": "",
   "left_capture_codec": "MJPG",
   "left_capture_resolution": "1280 x 720",
+  "left_capture_fps": 30,
   "right_camera": -1,
   "right_image": "right.jpg",
   "right_movie": "",
   "right_capture_codec": "MJPG",
   "right_capture_resolution": "1280 x 720",
+  "right_capture_fps": 30,
   "screen_samples": 1271,
   "texture_repeat": 0,
   "tracking": 1,
   "stabilize": 1,
-  "capture_width": 1280,
-  "capture_height": 720,
-  "capture_fps": 0,
-  "capture_codec": "MJPG",
+  "transmit_width": 1280,
+  "transmit_height": 720,
+  "transmit_fps": 30,
+  "transmit_quality": 50,
   "fisheye_center_x": 0,
   "fisheye_center_y": 0,
   "fisheye_fov_x": 1,
@@ -205,8 +215,8 @@
   "role": 0,
   "tracking_delay_left": 0,
   "tracking_delay_right": 0,
-  "texture_quality": 50,
-  "texture_reshape": 0,
+  "remote_texture_width": 1920,
+  "remote_texture_height": 1080,
   "texture_samples": 1372,
   "remote_fov_x": 1,
   "remote_fov_y": 1,

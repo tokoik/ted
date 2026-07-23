@@ -37,7 +37,7 @@ Camera::Camera()
 
   // 圧縮設定
   param.push_back(CV_IMWRITE_JPEG_QUALITY);
-  param.push_back(defaults.remote_texture_quality);
+  param.push_back(defaults.transmit_quality);
 
   for (int cam = 0; cam < camCount; ++cam)
   {

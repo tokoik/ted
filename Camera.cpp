@@ -31,7 +31,7 @@
 Camera::Camera(int quality)
 {
   // 圧縮設定
-  setQuality(quality);
+  setQuality(quality >= 0 ? quality : defaults.transmit_quality);
 }
 
 //
@@ -75,8 +75,9 @@ bool Camera::unpackFrame(const uchar* buffer, int length, const unsigned int*& h
 void Camera::setQuality(int quality)
 {
   // 圧縮設定
+  param.clear();
   param.push_back(cv::IMWRITE_JPEG_QUALITY);
-  param.push_back(quality);
+  param.push_back(std::clamp(quality, 0, 100));
 }
 
 //
@@ -219,17 +220,27 @@ void Camera::send()
     // 左画像が未送信なら
     if (unsent[camL])
     {
-      // 左画像をロックして
-      captureMutex[camL].lock();
-
-      // 左画像を圧縮して保存し
-      cv::imencode(encoderType, image[camL], encoded, param);
-
-      // 左画像の送信準備の完了を記録して
-      unsent[camL] = false;
-
-      // 左画像のロックを解除してから
-      captureMutex[camL].unlock();
+      // キャプチャを長時間止めないよう、画像を複製した後にロック外で縮小・圧縮する
+      cv::Mat source;
+      {
+        std::lock_guard<std::mutex> lock(captureMutex[camL]);
+        source = image[camL].clone();
+        unsent[camL] = false;
+      }
+      cv::Mat transmitted;
+      if (defaults.transmit_size[0] > 0 && defaults.transmit_size[1] > 0
+        && (source.cols != defaults.transmit_size[0] || source.rows != defaults.transmit_size[1]))
+      {
+        cv::resize(source, transmitted,
+          cv::Size(defaults.transmit_size[0], defaults.transmit_size[1]), 0.0, 0.0,
+          defaults.transmit_size[0] < source.cols || defaults.transmit_size[1] < source.rows
+            ? cv::INTER_AREA : cv::INTER_LINEAR);
+      }
+      else
+      {
+        transmitted = source;
+      }
+      cv::imencode(encoderType, transmitted, encoded, param);
 
       // JPEGは内容によりサイズが変わるため、収まらないフレームは姿勢だけ送信する
       const std::size_t usedBytes{ static_cast<std::size_t>(data - sendbuf) };
@@ -245,17 +256,25 @@ void Camera::send()
       // 右キャプチャデバイスが動作していて右画像が未送信なら
       if (run[camR] && unsent[camR])
       {
-        // 右画像をロックして
-        captureMutex[camR].lock();
-
-        // 右画像を圧縮して保存し
-        cv::imencode(encoderType, image[camR], encoded, param);
-
-        // 右画像の送信準備の完了を記録して
-        unsent[camR] = false;
-
-        // 右画像のロックを解除してから
-        captureMutex[camR].unlock();
+        // 右画像も複製後にロック外で縮小・圧縮する
+        {
+          std::lock_guard<std::mutex> lock(captureMutex[camR]);
+          source = image[camR].clone();
+          unsent[camR] = false;
+        }
+        if (defaults.transmit_size[0] > 0 && defaults.transmit_size[1] > 0
+          && (source.cols != defaults.transmit_size[0] || source.rows != defaults.transmit_size[1]))
+        {
+          cv::resize(source, transmitted,
+            cv::Size(defaults.transmit_size[0], defaults.transmit_size[1]), 0.0, 0.0,
+            defaults.transmit_size[0] < source.cols || defaults.transmit_size[1] < source.rows
+              ? cv::INTER_AREA : cv::INTER_LINEAR);
+        }
+        else
+        {
+          transmitted = source;
+        }
+        cv::imencode(encoderType, transmitted, encoded, param);
 
         // 左画像と行列を格納した残量へ収まる場合だけ右画像を連結する
         const std::size_t usedBytes{ static_cast<std::size_t>(data - sendbuf) };
@@ -312,7 +331,7 @@ int Camera::startWorker(unsigned short port, const char* address)
   if (ret > 0) return ret;
 
   // 送信間隔を決定する
-  if (defaults.camera_fps <= 0.0 || (send_interval = 1.0 / defaults.camera_fps) < minDelay * 0.001)
+  if (defaults.transmit_fps <= 0.0 || (send_interval = 1.0 / defaults.transmit_fps) < minDelay * 0.001)
     send_interval = minDelay * 0.001;
 
   // 作業用のメモリを確保する（これは Camera のデストラクタで delete する）

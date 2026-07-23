@@ -15,6 +15,8 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <cmath>
+#include <limits>
 
 // Microsoft Media Foundation
 #include <codecapi.h>
@@ -617,9 +619,12 @@ bool CamMf::open(int device, int cam, bool setupFormat)
   {
     if (!setupFormat) return true;
 
-    // 設定されたコーデックと解像度に一致する候補のうち、最も高い FPS の形式を初期値に選ぶ
+    // 設定されたコーデック、解像度、FPS に最も近い形式を選ぶ。
+    // FPS が 0 の場合は従来どおり利用可能な最高値を選ぶ。
     int selectedIdx = 0;
-    double maxFps = 0.0;
+    const double requestedFps{ defaults.camera_fps[cam] };
+    double bestValue{ requestedFps > 0.0 ? std::numeric_limits<double>::max() : -1.0 };
+    bool matched{ false };
 
     int reqWidth = 1280, reqHeight = 720;
     sscanf_s(defaults.camera_resolution[cam].c_str(), "%d x %d", &reqWidth, &reqHeight);
@@ -631,10 +636,13 @@ bool CamMf::open(int device, int cam, bool setupFormat)
       if (SubTypeToName(fmt.subType) == reqCodec && fmt.width == reqWidth && fmt.height == reqHeight)
       {
         double fps = static_cast<double>(fmt.fpsNum) / fmt.fpsDenom;
-        if (fps > maxFps)
+        const double value{ requestedFps > 0.0 ? std::abs(fps - requestedFps) : fps };
+        if ((requestedFps > 0.0 && value < bestValue)
+          || (requestedFps <= 0.0 && value > bestValue))
         {
-          maxFps = fps;
+          bestValue = value;
           selectedIdx = i;
+          matched = true;
         }
       }
     }
@@ -642,6 +650,12 @@ bool CamMf::open(int device, int cam, bool setupFormat)
     // パイプラインが完成してから取得スレッドを起動し、未初期化資源へのアクセスを防ぐ
     if (setFormat(cam, selectedIdx))
     {
+      if (matched)
+      {
+        const auto& selected{ caps[cam].availableFormats[selectedIdx] };
+        defaults.camera_fps[cam] = static_cast<double>(selected.fpsNum) / selected.fpsDenom;
+      }
+
       // スレッドを起動
       run[cam] = true;
       captureThread[cam] = std::thread([this, cam]() { capture(cam); });

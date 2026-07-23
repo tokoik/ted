@@ -113,7 +113,7 @@ public:
   ///
   /// @param quality JPEG 圧縮率 (0-100)
   ///
-  Camera(int quality = 95);
+  Camera(int quality = -1);
 
   ///
   /// コピーコンストラクタを封じる
@@ -140,7 +140,7 @@ public:
   /// @param cam カメラ番号
   /// @return 画像の幅
   ///
-  int getWidth(int cam) const
+  virtual int getWidth(int cam) const
   {
     return image[cam].cols;
   }
@@ -151,7 +151,7 @@ public:
   /// @param cam カメラ番号
   /// @return 画像の高さ
   ///
-  int getHeight(int cam) const
+  virtual int getHeight(int cam) const
   {
     return image[cam].rows;
   }

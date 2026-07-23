@@ -1,9 +1,5 @@
 {
   "capture_backend": "MSMF",
-  "capture_codec": "MJPG",
-  "capture_fps": 30,
-  "capture_height": 960,
-  "capture_width": 2560,
   "depth_far": 5,
   "depth_near": 0.1,
   "display_aspect": 0,
@@ -12,7 +8,7 @@
   "display_offset": 0.248,
   "display_height": 900,
   "display_width": 1600,
-  "fisheye_center_x": 0.030,
+  "fisheye_center_x": 0.03,
   "fisheye_center_y": 0.084,
   "fisheye_fov_x": 1.2,
   "fisheye_fov_y": 1.2,
@@ -36,7 +32,6 @@
   "screen_samples": 1271,
   "stabilize": false,
   "stereo": 5,
-  "texture_quality": 50,
   "texture_repeat": false,
   "tracking": false,
   "translation": true,
@@ -44,5 +39,13 @@
   "tracking_delay_right": 0,
   "use_secondary": 1,
   "vertex_shader": "fisheye.vert",
-  "zoom": 1.5
+  "zoom": 1.5,
+  "left_capture_fps": 0,
+  "right_capture_fps": 0,
+  "transmit_width": 2560,
+  "transmit_height": 960,
+  "transmit_fps": 30.0,
+  "transmit_quality": 50,
+  "remote_texture_width": 2560,
+  "remote_texture_height": 960
 }

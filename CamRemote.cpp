@@ -16,27 +16,25 @@
 //
 // コンストラクタ
 //
-CamRemote::CamRemote(bool reshape)
-  : reshape{ reshape }
+CamRemote::CamRemote()
 {
-  if (reshape)
-  {
-    // 背景画像のサイズ
-    size[camL] = size[camR] = cv::Size(defaults.camera_size[0], defaults.camera_size[1]);
+  // 平面展開後の背景画像のサイズ
+  size[camL] = size[camR] = cv::Size(
+    std::max(defaults.remote_texture_width, 1),
+    std::max(defaults.remote_texture_height, 1));
 
-    // 背景画像の変形に使うフレームバッファオブジェクト
-    glGenFramebuffers(1, &fb);
+  // 背景画像の変形に使うフレームバッファオブジェクト
+  glGenFramebuffers(1, &fb);
 
-    // リモートから取得したフレームのサンプリングに使うテクスチャ
-    glGenTextures(camCount, resample);
+  // リモートから取得したフレームのサンプリングに使うテクスチャ
+  glGenTextures(camCount, resample);
 
-    // 魚眼画像に変形するシェーダ
-    shader = ggLoadShader("mesh.vert", "mesh.frag");
-    gapLoc = glGetUniformLocation(shader, "gap");
-    screenLoc = glGetUniformLocation(shader, "screen");
-    rotationLoc = glGetUniformLocation(shader, "rotation");
-    imageLoc = glGetUniformLocation(shader, "image");
-  }
+  // 魚眼画像を平面展開するシェーダ
+  shader = ggLoadShader("mesh.vert", "mesh.frag");
+  gapLoc = glGetUniformLocation(shader, "gap");
+  screenLoc = glGetUniformLocation(shader, "screen");
+  rotationLoc = glGetUniformLocation(shader, "rotation");
+  imageLoc = glGetUniformLocation(shader, "image");
 }
 
 //
@@ -47,17 +45,14 @@ CamRemote::~CamRemote()
   // スレッドを停止する
   stop();
 
-  if (reshape)
-  {
-    // 背景画像のタイリングに使うフレームバッファオブジェクト
-    glDeleteFramebuffers(1, &fb);
+  // 背景画像のタイリングに使うフレームバッファオブジェクト
+  glDeleteFramebuffers(1, &fb);
 
-    // リモートから取得したフレームのサンプリングに使うテクスチャ
-    glDeleteTextures(camCount, resample);
+  // リモートから取得したフレームのサンプリングに使うテクスチャ
+  glDeleteTextures(camCount, resample);
 
-    // 魚眼画像に変形するシェーダ
-    glDeleteProgram(shader);
-  }
+  // 魚眼画像に変形するシェーダ
+  glDeleteProgram(shader);
 }
 
 //
@@ -133,39 +128,33 @@ int CamRemote::open(unsigned short port, const char* address)
     rsize[camR] = rsize[camL];
   }
 
-  if (reshape)
+  // 背景画像の変形に使うメッシュの縦横の格子点数を求める
+  const GLfloat aspect(static_cast<GLfloat>(size[camL].width) / static_cast<GLfloat>(size[camL].height));
+  const int samples{ std::max(defaults.remote_texture_samples, 4) };
+  slices = std::max(static_cast<GLsizei>(sqrt(aspect * static_cast<GLfloat>(samples))), 2);
+  stacks = std::max(samples / slices, 2);
+
+  // 背景画像の変形に使うメッシュの縦横の格子間隔を求める
+  gap[0] = 2.0f / static_cast<GLfloat>(slices - 1);
+  gap[1] = 2.0f / static_cast<GLfloat>(stacks - 1);
+
+  // 背景画像を取得するリモートカメラの画角
+  screen[0] = tan(defaults.remote_fov_x);
+  screen[1] = tan(defaults.remote_fov_y);
+
+  for (int cam = 0; cam < camCount; ++cam)
   {
-    // 背景画像の変形に使うメッシュの縦横の格子点数を求め
-    const GLfloat aspect(static_cast<GLfloat>(size[camL].width) / static_cast<GLfloat>(size[camL].height));
-    slices = static_cast<GLsizei>(sqrt(aspect * static_cast<GLfloat>(defaults.remote_texture_samples)));
-    stacks = defaults.remote_texture_samples / slices;
+    resampleSize[cam] = rsize[cam];
 
-    // 背景画像の変形に使うメッシュの縦横 of 格子間隔を求める
-    gap[0] = 2.0f / static_cast<GLfloat>(slices - 1);
-    gap[1] = 2.0f / static_cast<GLfloat>(stacks - 1);
-
-    // 背景画像を取得するリモートカメラの画角
-    screen[0] = tan(defaults.remote_fov_x);
-    screen[1] = tan(defaults.remote_fov_y);
-
-    for (int cam = 0; cam < camCount; ++cam)
-    {
-      // リモートから取得したフレームのサンプリングに使うテクスチャを準備する
-      glBindTexture(GL_TEXTURE_2D, resample[cam]);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, rsize[cam].width, rsize[cam].height, 0,
-        GL_RGB, GL_UNSIGNED_BYTE, NULL);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-      glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-    }
-  }
-  else
-  {
-    // ドーム画像に変形しないときは背景テクスチャのサイズにする
-    size[camL] = rsize[camL];
-    size[camR] = rsize[camR];
+    // リモートから取得したフレームのサンプリングに使うテクスチャを準備する
+    glBindTexture(GL_TEXTURE_2D, resample[cam]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, rsize[cam].width, rsize[cam].height, 0,
+      GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
   }
 
   // 通信スレッドを開始する
@@ -188,16 +177,13 @@ bool CamRemote::transmit(int cam, GLuint texture, const GLsizei* size)
       // 画像のサイズ（ロック内で image[cam] を見る）
       const GLsizei fsize[] = { image[cam].cols, image[cam].rows };
 
-      if (!reshape)
-      {
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fsize[0], fsize[1], format, GL_UNSIGNED_BYTE, image[cam].data);
-        captured[cam] = false;
-        captureMutex[cam].unlock();
-        return true;
-      }
-
       glBindTexture(GL_TEXTURE_2D, resample[cam]);
+      if (resampleSize[cam].width != fsize[0] || resampleSize[cam].height != fsize[1])
+      {
+        resampleSize[cam] = cv::Size(fsize[0], fsize[1]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, fsize[0], fsize[1], 0,
+          format, GL_UNSIGNED_BYTE, nullptr);
+      }
       glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fsize[0], fsize[1], format, GL_UNSIGNED_BYTE, image[cam].data);
       captured[cam] = false;
       captureMutex[cam].unlock();
@@ -212,6 +198,11 @@ bool CamRemote::transmit(int cam, GLuint texture, const GLsizei* size)
       // 背景画像の変形に使うフレームバッファオブジェクトに切り替える
       glBindFramebuffer(GL_FRAMEBUFFER, fb);
       glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
+      if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+      {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        return false;
+      }
 
       // リモートから取得したフレームのサンプリングに使うテクスチャを指定する
       glBindTexture(GL_TEXTURE_2D, resample[cam]);

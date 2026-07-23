@@ -137,40 +137,31 @@ bool Config::read(picojson::value& v)
   // 安定化処理
   getValue(o, "stabilize", remote_stabilize);
 
-  // カメラの横の画素数
-  getValue(o, "capture_width", camera_size[0]);
+  // 旧 capture_width / capture_height は左右個別の取得解像度への互換にのみ使う
+  std::array<int, 2> legacy_capture_size{ 0, 0 };
+  getValue(o, "capture_width", legacy_capture_size[0]);
+  getValue(o, "capture_height", legacy_capture_size[1]);
 
-  // カメラの縦の画素数
-  getValue(o, "capture_height", camera_size[1]);
+  // 伝送画像の解像度
+  getValue(o, "transmit_width", transmit_size[0]);
+  getValue(o, "transmit_height", transmit_size[1]);
 
-  // カメラのフレームレート
-  getValue(o, "capture_fps", camera_fps);
+  // 伝送フレームレート。旧 capture_fps は読み込み互換として扱う
+  if (!getValue(o, "transmit_fps", transmit_fps))
+    getValue(o, "capture_fps", transmit_fps);
 
-  // カメラのコーデック
-  const auto& v_camera_fourcc{ o.find("capture_codec") };
-  if (v_camera_fourcc != o.end() && v_camera_fourcc->second.is<std::string>())
-  {
-    // コーデックの文字列
-    const auto& codec{ v_camera_fourcc->second.get<std::string>() };
+  // 伝送画像の JPEG 品質。旧 texture_quality は読み込み互換として扱う
+  if (!getValue(o, "transmit_quality", transmit_quality))
+    getValue(o, "texture_quality", transmit_quality);
 
-    // コーデックの文字列の長さと格納先の要素数 - 1 の小さいほう
-    const auto limit{ std::min(codec.length(), camera_fourcc.size() - 1) };
-
-    // 格納先の先頭からコーデックの文字を格納する
-    std::size_t i{ 0 };
-    for (; i < limit; ++i) camera_fourcc[i] = toupper(codec[i]);
-
-    // 格納先の残りの要素を 0 で埋める
-    std::fill(camera_fourcc.begin() + i, camera_fourcc.end(), '\0');
-  }
+  // 旧 capture_codec は左右個別キーがない場合の読み込み互換にのみ使う
+  std::string legacy_codec;
+  const bool has_legacy_codec{ getString(o, "capture_codec", legacy_codec) };
 
   // 左右カメラの個別コーデックと解像度
   if (!getString(o, "left_capture_codec", camera_codec[camL]))
   {
-    if (v_camera_fourcc != o.end() && v_camera_fourcc->second.is<std::string>())
-    {
-      camera_codec[camL] = v_camera_fourcc->second.get<std::string>();
-    }
+    if (has_legacy_codec) camera_codec[camL] = legacy_codec;
     else
     {
       camera_codec[camL] = "MJPG";
@@ -184,10 +175,10 @@ bool Config::read(picojson::value& v)
 
   if (!getString(o, "left_capture_resolution", camera_resolution[camL]))
   {
-    if (camera_size[0] > 0 && camera_size[1] > 0)
+    if (legacy_capture_size[0] > 0 && legacy_capture_size[1] > 0)
     {
       char buf[32];
-      sprintf_s(buf, "%d x %d", camera_size[0], camera_size[1]);
+      sprintf_s(buf, "%d x %d", legacy_capture_size[0], legacy_capture_size[1]);
       camera_resolution[camL] = buf;
     }
     else
@@ -200,6 +191,10 @@ bool Config::read(picojson::value& v)
   {
     camera_resolution[camR] = camera_resolution[camL];
   }
+
+  // 左右カメラの取得フレームレート
+  getValue(o, "left_capture_fps", camera_fps[camL]);
+  getValue(o, "right_capture_fps", camera_fps[camR]);
 
   // 魚眼レンズの横の中心位置
   getValue(o, "fisheye_center_x", camera_center_x);
@@ -256,12 +251,6 @@ bool Config::read(picojson::value& v)
   // 右カメラのフレームに対してトラッキング情報を遅らせるフレームの数
   getValue(o, "tracking_delay_right", remote_delay[1]);
 
-  // 伝送画像の品質
-  getValue(o, "texture_quality", remote_texture_quality);
-
-  // 安定化処理（ドーム画像への変形）を行う
-  getValue(o, "texture_reshape", remote_texture_reshape);
-
   // 安定化処理（ドーム画像への変形）に用いるテクスチャのサンプル数
   getValue(o, "texture_samples", remote_texture_samples);
 
@@ -270,6 +259,10 @@ bool Config::read(picojson::value& v)
 
   // リモートカメラの縦の画角
   getValue(o, "remote_fov_y", remote_fov_y);
+
+  // 受信映像を平面展開する解像度
+  getValue(o, "remote_texture_width", remote_texture_width);
+  getValue(o, "remote_texture_height", remote_texture_height);
 
   // ローカルの姿勢変換行列の最大数
   getValue(o, "local_share_size", local_share_size);
@@ -290,6 +283,19 @@ bool Config::read(picojson::value& v)
 
   // メニューフォントのサイズ
   getValue(o, "menu_font_size", menu_font_size);
+
+  // 外部設定値を実行時に安全な範囲へ収める
+  transmit_size[0] = std::max(transmit_size[0], 0);
+  transmit_size[1] = std::max(transmit_size[1], 0);
+  transmit_fps = std::max(transmit_fps, 0.0);
+  transmit_quality = std::clamp(transmit_quality, 0, 100);
+  camera_fps[camL] = std::max(camera_fps[camL], 0.0);
+  camera_fps[camR] = std::max(camera_fps[camR], 0.0);
+  remote_texture_width = std::max(remote_texture_width, 1);
+  remote_texture_height = std::max(remote_texture_height, 1);
+  remote_texture_samples = std::max(remote_texture_samples, 4);
+  remote_fov_x = std::clamp(remote_fov_x, 0.001f, 1.56f);
+  remote_fov_y = std::clamp(remote_fov_y, 0.001f, 1.56f);
 
   return true;
 }
@@ -395,20 +401,18 @@ bool Config::save(const std::string& file) const
   setString(o, "left_capture_resolution", camera_resolution[camL]);
   setString(o, "right_capture_codec", camera_codec[camR]);
   setString(o, "right_capture_resolution", camera_resolution[camR]);
+  setValue(o, "left_capture_fps", camera_fps[camL]);
+  setValue(o, "right_capture_fps", camera_fps[camR]);
 
-  // カメラの横の画素数
-  int w = 0, h = 0;
-  sscanf_s(camera_resolution[camL].c_str(), "%d x %d", &w, &h);
-  setValue(o, "capture_width", w);
+  // 伝送画像の解像度
+  setValue(o, "transmit_width", transmit_size[0]);
+  setValue(o, "transmit_height", transmit_size[1]);
 
-  // カメラの縦の画素数
-  setValue(o, "capture_height", h);
+  // 伝送フレームレート
+  setValue(o, "transmit_fps", transmit_fps);
 
-  // カメラのフレームレート
-  setValue(o, "capture_fps", camera_fps);
-
-  // カメラのコーデック (互換性のため左カメラの設定を保存)
-  setString(o, "capture_codec", camera_codec[camL]);
+  // 伝送画像の JPEG 品質
+  setValue(o, "transmit_quality", transmit_quality);
 
   // 魚眼レンズの横の中心位置
   setValue(o, "fisheye_center_x", camera_center_x);
@@ -452,12 +456,6 @@ bool Config::save(const std::string& file) const
   // 右カメラのフレームに対してトラッキング情報を遅らせるフレームの数
   setValue(o, "tracking_delay_right", remote_delay[1]);
 
-  // 伝送画像の品質
-  setValue(o, "texture_quality", remote_texture_quality);
-
-  // 安定化処理（ドーム画像への変形）を行う
-  setValue(o, "texture_reshape", remote_texture_reshape);
-
   // 安定化処理（ドーム画像への変形）に用いるテクスチャのサンプル数
   setValue(o, "texture_samples", remote_texture_samples);
 
@@ -466,6 +464,10 @@ bool Config::save(const std::string& file) const
 
   // リモートカメラの縦の画角
   setValue(o, "remote_fov_y", remote_fov_y);
+
+  // 受信映像を平面展開する解像度
+  setValue(o, "remote_texture_width", remote_texture_width);
+  setValue(o, "remote_texture_height", remote_texture_height);
 
   // ローカルの姿勢変換行列の最大数
   setValue(o, "local_share_size", local_share_size);

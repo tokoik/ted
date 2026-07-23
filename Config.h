@@ -238,20 +238,23 @@ struct Config
   /// 背景画像をヘッドトラッキングに追従させるとき true
   bool head_tracking{ false };
 
-  /// カメラの解像度
-  std::array<int, 2> camera_size{ 0, 0 };
+  /// ネットワークへ送信する画像の解像度（0 以下なら取得解像度を使用）
+  std::array<int, 2> transmit_size{ 0, 0 };
 
-  /// カメラのフレームレート
-  double camera_fps{ 0.0 };
+  /// ネットワークへ送信するフレームレート（0 以下なら最短間隔）
+  double transmit_fps{ 0.0 };
 
-  /// カメラの４文字コーデック
-  std::array<char, 5> camera_fourcc{ '\0', '\0', '\0', '\0', '\0' };
+  /// ネットワークへ送信する JPEG 品質（OpenCV の 0～100）
+  int transmit_quality{ 50 };
 
   /// 左右カメラのコーデック (Media Foundation)
   std::array<std::string, camCount> camera_codec{ "MJPG", "MJPG" };
 
   /// 左右カメラの解像度 (Media Foundation)
   std::array<std::string, camCount> camera_resolution{ "1280 x 720", "1280 x 720" };
+
+  /// 左右カメラの取得フレームレート (Media Foundation、0 は利用可能な最高値)
+  std::array<double, camCount> camera_fps{ 0.0, 0.0 };
 
   /// 魚眼カメラの中心位置の x 座標
   GLfloat camera_center_x{ 0.0f };
@@ -292,17 +295,17 @@ struct Config
   /// 相手先の映像を安定化するとき true
   bool remote_stabilize{ false };
 
-  /// 相手先の映像を変形するとき true
-  bool remote_texture_reshape{ false };
-
   /// 映像と姿勢の時間差を合わせるため、相手側の眼姿勢に加える遅延（フレーム数）
   std::array<unsigned int, 2> remote_delay{ 0, 0 };
 
-  /// ネットワーク帯域と画質を調整するJPEG品質（OpenCVの0～100）
-  int remote_texture_quality{ 50 };
-
   /// 受信した画像をマッピングするときのメッシュの分割数
   int remote_texture_samples{ 1372 };
+
+  /// 受信映像を平面展開する横方向の画素数
+  int remote_texture_width{ 640 };
+
+  /// 受信映像を平面展開する縦方向の画素数
+  int remote_texture_height{ 480 };
 
   /// リモート画像の再投影に使う相手側レンズの水平画角（ラジアン）
   GLfloat remote_fov_x{ 1.0f };
@@ -339,12 +342,6 @@ struct Config
 
   /// カメラの補正値
   std::array<GgQuaternion, camCount> parallax_offset{ ggIdentityQuaternion(), ggIdentityQuaternion() };
-
-  /// リモートカメラの横方向の画素数
-  int remote_texture_width{ 640 };
-
-  /// リモートカメラの縦方向の画素数
-  int remote_texture_height{ 480 };
 
   /// 頭の位置
   GgVector position{ 0.0f, 0.0f, 0.0f, 1.0f };

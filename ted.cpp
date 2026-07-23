@@ -221,7 +221,7 @@ bool GgApp::useOvervision()
 bool GgApp::useRemote()
 {
   // リモートカメラからキャプチャするためのダミーカメラを使う
-  std::unique_ptr<CamRemote> cam{ new CamRemote(defaults.remote_texture_reshape) };
+  std::unique_ptr<CamRemote> cam{ new CamRemote };
 
   // 指導者側を起動する
   if (cam->open(defaults.port, defaults.address.c_str()) < 0)

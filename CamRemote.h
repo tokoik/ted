@@ -15,14 +15,11 @@
 /// 別のTEDから UDP で受け取ったフレームをカメラ入力として扱うクラス
 ///
 /// @details
-/// reshape=trueでは一度 FBO へ再投影し、遠隔カメラの画角を背景メッシュへ合わせる。
+/// 受信映像を一度 FBO へ再投影し、遠隔カメラの画角を背景メッシュへ合わせる。
 ///
 class CamRemote
   : public Camera
 {
-  /// ドーム画像に変形するか否か
-  const bool reshape;
-
   /// 背景画像の変形に使うフレームバッファオブジェクト
   GLuint fb{ 0 };
 
@@ -47,6 +44,9 @@ class CamRemote
   /// リモートから取得したフレームのサンプリングに使うテクスチャ
   GLuint resample[camCount]{ 0 };
 
+  /// 再サンプリング用テクスチャへ確保した受信画像の大きさ
+  cv::Size resampleSize[camCount];
+
   /// 背景画像のタイリングに使うシェーダ
   GLuint shader{ 0 };
 
@@ -68,12 +68,22 @@ public:
   ///
   /// コンストラクタ
   ///
-  CamRemote(bool reshape);
+  CamRemote();
 
   ///
   /// デストラクタ
   ///
   virtual ~CamRemote();
+
+  ///
+  /// 平面展開後の画像の幅を得る
+  ///
+  virtual int getWidth(int cam) const override { return size[cam].width; }
+
+  ///
+  /// 平面展開後の画像の高さを得る
+  ///
+  virtual int getHeight(int cam) const override { return size[cam].height; }
 
   ///
   /// カメラから入力する

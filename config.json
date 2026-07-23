@@ -1,8 +1,4 @@
 {
-  "capture_codec": "",
-  "capture_fps": 0,
-  "capture_height": 720,
-  "capture_width": 1280,
   "controller": 0,
   "depth_far": 5,
   "depth_near": 0.10000000149011612,
@@ -44,13 +40,19 @@
   "screen_samples": 1221,
   "stabilize": 0,
   "stereo": 2,
-  "texture_quality": 50,
   "texture_repeat": 0,
-  "texture_reshape": 0,
   "texture_samples": 1326,
   "tracking": 0,
   "tracking_delay_left": 0,
   "tracking_delay_right": 0,
   "use_secondary": 1,
-  "vertex_shader": "theta_v.vert"
+  "vertex_shader": "theta_v.vert",
+  "left_capture_fps": 0,
+  "right_capture_fps": 0,
+  "transmit_width": 1280,
+  "transmit_height": 720,
+  "transmit_fps": 0.0,
+  "transmit_quality": 50,
+  "remote_texture_width": 1280,
+  "remote_texture_height": 720
 }
