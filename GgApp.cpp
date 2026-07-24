@@ -1327,7 +1327,9 @@ void GgApp::Window::updateOpenXRHands(XrTime time)
     locateInfo.time = time;
     if (XR_FAILED(xrLocateHandJoints(xrHandTrackers[hand], &locateInfo, &joints)) || !joints.isActive)
     {
-      Scene::setLocalHandAttitudes(hand, nullptr);
+      // シーングラフの左右スロットは Leap Motion のモデル対応を基準にしているため、
+      // OpenXR の XrHandEXT 順序だけを反転して格納する。
+      Scene::setLocalHandAttitudes(1 - hand, nullptr);
       continue;
     }
 
@@ -1402,9 +1404,37 @@ void GgApp::Window::updateOpenXRHands(XrTime time)
         matrices[0] = makeMatrix(locations[XR_HAND_JOINT_PALM_EXT].pose.position,
           palmX, palmY, palmZ);
 
-        // 手首は安定した手のひら基底を使い、長手軸だけ手首方向（-Y）へ向ける。
-        matrices[1] = makeMatrix(wrist, palmX, palmY, palmZ)
-          * ggRotate(1.0f, 0.0f, 0.0f, 1.5707963268f);
+        // OpenXR には肘関節がないため、手首から手のひらへ向かう実測方向を
+        // Leap の腕方向（肘から手首）に相当する長手軸として使う。
+        // 手のひら行列の固定回転を流用すると手首が手のひらへ完全に追従し、
+        // finger.obj の長手軸も逆向きになるため、独立した正規直交基底を作る。
+        const auto& palm{ locations[XR_HAND_JOINT_PALM_EXT].pose.position };
+        GLfloat wristZ[]{ palm.x - wrist.x, palm.y - wrist.y, palm.z - wrist.z };
+        if (lengthSquared(wristZ) < minimumAxisLengthSquared)
+        {
+          valid = false;
+        }
+        else
+        {
+          ggNormalize3(wristZ);
+          const GLfloat wristDot{
+            palmZ[0] * wristZ[0] + palmZ[1] * wristZ[1] + palmZ[2] * wristZ[2] };
+          GLfloat wristY[]{ palmZ[0] - wristDot * wristZ[0],
+            palmZ[1] - wristDot * wristZ[1], palmZ[2] - wristDot * wristZ[2] };
+          if (lengthSquared(wristY) < minimumAxisLengthSquared)
+          {
+            valid = false;
+          }
+          else
+          {
+            ggNormalize3(wristY);
+            GLfloat wristX[3];
+            ggCross(wristX, wristY, wristZ);
+            ggNormalize3(wristX);
+            ggCross(wristY, wristZ, wristX);
+            matrices[1] = makeMatrix(wrist, wristX, wristY, wristZ);
+          }
+        }
       }
 
       // finger.obj の先端方向に合わせ、各ボーンの始点から終点への方向をローカル Z 軸にする。
@@ -1441,7 +1471,7 @@ void GgApp::Window::updateOpenXRHands(XrTime time)
 
     if (valid)
     {
-      Scene::setLocalHandAttitudes(hand, matrices.data());
+      Scene::setLocalHandAttitudes(1 - hand, matrices.data());
     }
     // 一時的な無効値や縮退した関節では、ちらつきを避けるため直前の姿勢を維持する。
   }

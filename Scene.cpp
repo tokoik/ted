@@ -306,11 +306,14 @@ void Scene::setup(const GgMatrix& m)
   localMatrixTable[camCount] = m;
 
 #if defined(LEAP_INTERPORATE_FRAME)
-  // Leap Motion と CPU の同期をとる
-  listener.synchronize();
+  // Leap Motion 選択時だけ Leap の時刻を同期する
+  if (defaults.hand_tracking == HAND_TRACKING_LEAP_MOTION) listener.synchronize();
 #else
-  // ローカルの変換行列に Leap Motion の関節の変換行列を取得する
-  listener.getHandPose(localMatrixTable.data() + camCount + 1);
+  // OpenXR が格納した関節姿勢を古い Leap キャッシュで上書きしない。
+  if (defaults.hand_tracking == HAND_TRACKING_LEAP_MOTION)
+  {
+    listener.getHandPose(localMatrixTable.data() + camCount + 1);
+  }
 
   // ローカルの変換行列 (Leap Motion の関節, 視点, モデル変換行列) を共有メモリと同期する
   localAttitude->sync(localMatrixTable.data(), jointCount + camCount + 1);
@@ -326,8 +329,11 @@ void Scene::setup(const GgMatrix& m)
 //
 void Scene::update()
 {
-  // ローカルの変換行列に Leap Motion の関節の変換行列を取得する
-  listener.getHandPose(localMatrixTable.data() + camCount + 1);
+  // OpenXR が格納した関節姿勢を古い Leap キャッシュで上書きしない。
+  if (defaults.hand_tracking == HAND_TRACKING_LEAP_MOTION)
+  {
+    listener.getHandPose(localMatrixTable.data() + camCount + 1);
+  }
 
   // ローカルの変換行列を共有メモリに保存する
   localAttitude->store(localMatrixTable.data(), static_cast<unsigned int>(localMatrixTable.size()));

@@ -11,11 +11,11 @@
       "children": [
         {
           "controller": 3,
-          "model": "handl.obj"
+          "model": "handr.obj"
         },
         {
           "controller": 4,
-          "model": "handr.obj"
+          "model": "handl.obj"
         },
         {
           "controller": 5,

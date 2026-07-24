@@ -566,6 +566,17 @@ const LEAP_CONNECTION* LeapListener::openConnection()
   // serviceMessageLoop() が既に起動していたら何もしない
   if (_isRunning) return &connectionHandle;
 
+  // 再接続後のフレームIDは前回より小さくなる場合がある。前回の描画済みIDや
+  // 姿勢を残すと新しいフレームが更新済みと誤判定されるため、接続前に破棄する。
+  {
+    std::lock_guard<std::mutex> lock(dataLock);
+    lastFrame.reset();
+    lastHands.clear();
+  }
+  lastDrawnFrameId = -1;
+  newestFrameId = 0;
+  IsConnected = false;
+
   // connectionHandle が得られていなければ
   if (!connectionHandle)
   {
@@ -632,6 +643,8 @@ void LeapListener::closeConnection()
 
   // スレッドが停止するのを待つ
   if (pollingThread.joinable()) pollingThread.join();
+
+  IsConnected = false;
 }
 
 void LeapListener::destroyConnection()
