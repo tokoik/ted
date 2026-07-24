@@ -296,7 +296,7 @@ void Menu::inputWindow()
 {
   // 入力設定ウィンドウ
   ImGui::SetNextWindowPos(ImVec2(369, 25), ImGuiCond_Once);
-  ImGui::SetNextWindowSize(ImVec2(200, 646), ImGuiCond_Once);
+  ImGui::SetNextWindowSize(ImVec2(200, 674), ImGuiCond_Once);
   ImGui::SetNextWindowCollapsed(false, ImGuiCond_Appearing);
 
   ImGui::Begin(u8"入力設定", &showInputWindow);

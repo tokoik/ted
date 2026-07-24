@@ -21,6 +21,14 @@ Rect::Rect(const GgApp::Window& window, const std::string& vert, const std::stri
   , imageLoc(glGetUniformLocation(shader, "image"))
   , vao([]() { GLuint vao; glGenVertexArrays(1, &vao); return vao; } ())
 {
+#if defined(_DEBUG)
+  if (gapLoc == -1) std::cerr << "Uniform variable 'gap' not found in shader program." << std::endl;
+  if (screenLoc == -1) std::cerr << "Uniform variable 'screen' not found in shader program." << std::endl;
+  if (focalLoc == -1) std::cerr << "Uniform variable 'focal' not found in shader program." << std::endl;
+  if (circleLoc == -1) std::cerr << "Uniform variable 'circle' not found in shader program." << std::endl;
+  if (rotationLoc == -1) std::cerr << "Uniform variable 'rotation' not found in shader program." << std::endl;
+  if (imageLoc == -1) std::cerr << "Uniform variable 'image' not found in shader program." << std::endl;
+#endif
 }
 
 //

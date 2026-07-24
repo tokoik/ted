@@ -15,7 +15,7 @@
   "fullscreen": false,
   "host": "192.168.12.101",
   "left_camera": -1,
-  "left_image": "PayCam2560x960.jpg",
+  "left_image": "PayCam.jpg",
   "camera_layout": "side_by_side",
   "swap_camera_eyes": true,
   "local_share_size": 50,
