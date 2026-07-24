@@ -239,6 +239,9 @@ struct Config
   /// 1フレーム内の左右画像の配置
   int camera_layout{ CAMERA_LAYOUT_SEPARATE };
 
+  /// 左右の入力画像を入れ替えるとき true
+  bool camera_swap_eyes{ false };
+
   /// カメラの番号
   std::array<int, camCount> camera_id{ -1, -1 };
 

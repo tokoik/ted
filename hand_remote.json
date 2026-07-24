@@ -1,11 +1,7 @@
 {
-  "remote_controller": 0,
-  "model": "remote.obj",
+  "position": [ 0, -0.05, 0 ],
+  "remote_controller": 2,
   "children": [
-    {
-      "position": [ 0, -0.05, 0 ],
-      "remote_controller": 2,
-      "children": [
         {
           "remote_controller": 3,
           "model": "handr_remote.obj"
@@ -182,7 +178,5 @@
           "remote_controller": 46,
           "model": "finger.obj"
         }
-      ]
-    }
   ]
 }

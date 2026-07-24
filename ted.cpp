@@ -296,20 +296,24 @@ bool GgApp::selectInput()
     std::fill(image, image + camCount, nullptr);
   }
 
-  // 左カメラのサイズを得る
-  size[camL][0] = camera->getWidth(camL);
-  size[camL][1] = camera->getHeight(camL);
-
-  // 右カメラが使用できれば
-  if (stereo)
+  // 入替設定は入力方式に依存させず、物理入力から論理的な左右眼への対応として適用する。
+  // 画像データを複製せず、テクスチャの確保・更新先だけを交換する。
+  const std::array<const GLubyte*, camCount> sourceImage{ image[camL], image[camR] };
+  for (int eye = 0; eye < camCount; ++eye)
   {
-    // 右カメラのサイズを得る
-    size[camR][0] = camera->getWidth(camR);
-    size[camR][1] = camera->getHeight(camR);
+    const int source{
+      stereo && defaults.camera_swap_eyes ? camR - eye : eye };
+    size[eye][0] = camera->getWidth(source);
+    size[eye][1] = camera->getHeight(source);
+    if (defaults.input_mode == InputMode::IMAGE)
+    {
+      image[eye] = sourceImage[source];
+    }
   }
-  else
+
+  // 単眼入力では右眼用にも左画像と同じ大きさを用意する
+  if (!stereo)
   {
-    // 右カメラのサイズは左と同じにしておく
     size[camR][0] = size[camL][0];
     size[camR][1] = size[camL][1];
   }
@@ -601,10 +605,12 @@ int GgApp::main(int argc, const char *const *const argv)
     int cam_count{ stereo ? camCount : 1 };
 
     // 有効なカメラについて
-    for (int cam = 0; cam < cam_count; ++cam)
+    for (int eye = 0; eye < cam_count; ++eye)
     {
+      const int source{
+        stereo && defaults.camera_swap_eyes ? camR - eye : eye };
       // camera->transmit 内でアトミック変数 captured が true ならテクスチャへ転送する
-      camera->transmit(cam, texture[cam], size[cam]);
+      camera->transmit(source, texture[eye], size[eye]);
     }
 
     // 描画開始

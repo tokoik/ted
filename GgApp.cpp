@@ -1375,14 +1375,20 @@ void GgApp::Window::updateOpenXRHands(XrTime time)
       ggNormalize3(palmZ);
       ggCross(palmY, palmZ, palmX);
 
-      // hand.json の親 controller 0 で再び眼姿勢が掛かるため、関節を左眼ローカルへ戻す。
-      const auto& eyePosition{ xrViews[camL].pose.position };
-      const GLfloat eyeX{ eyePosition.x - xrOriginPosition[0] };
-      const GLfloat eyeY{ eyePosition.y - xrOriginPosition[1] };
-      const GLfloat eyeZ{ eyePosition.z - xrOriginPosition[2] };
-      const GgMatrix eyePose{
-        ggTranslate(eyeX, eyeY, eyeZ) * mo[camL].transpose() };
-      const GgMatrix worldToHandParent{ eyePose.invert() };
+      // hand.json の親 controller 0 は左右眼の中点（頭部中心）を使う。
+      // 左眼を親にすると右眼との眼間距離が回転半径へ混入し、頭部回転時に
+      // 視界固定の手が微小に並進して見えるため、関節も同じ頭部中心ローカルへ戻す。
+      const auto& leftEye{ xrViews[camL].pose.position };
+      const auto& rightEye{ xrViews[camR].pose.position };
+      const GLfloat headX{
+        (leftEye.x + rightEye.x) * 0.5f - xrOriginPosition[0] };
+      const GLfloat headY{
+        (leftEye.y + rightEye.y) * 0.5f - xrOriginPosition[1] };
+      const GLfloat headZ{
+        (leftEye.z + rightEye.z) * 0.5f - xrOriginPosition[2] };
+      const GgMatrix headPose{
+        ggTranslate(headX, headY, headZ) * mo[camL].transpose() };
+      const GgMatrix worldToHandParent{ headPose.invert() };
 
       const auto makeMatrix = [this, &worldToHandParent](const XrVector3f& p, const GLfloat* x,
         const GLfloat* y, const GLfloat* z)
@@ -1783,12 +1789,22 @@ bool GgApp::Window::start()
         // ワールド座標から眼座標へ移すビュー平行移動 T^-1
         mv[eye].loadTranslate(-tx, -ty, -tz);
 
-        // controller 0/1にはビュー変換 R^-1*T^-1 の逆変換 T*Rを格納する。
-        // これにより眼へ追従するノードでは頭部の回転と平行移動が相殺され、
-        // 左右眼の相対位置だけを保ったまま視界上の位置が固定される。
-        const GgMatrix eyePose{ ggTranslate(tx, ty, tz) * mo[eye].transpose() };
-        Scene::setLocalAttitude(eye, eyePose);
       }
+
+      // 視界固定ノードの回転中心には片眼ではなく左右眼の中点を使う。
+      // 両スロットへ同じ頭部中心姿勢を保存し、眼間差は各眼のビュー行列で付ける。
+      const GLfloat headX{
+        (leftEye.x + rightEye.x) * 0.5f - xrOriginPosition[0] };
+      const GLfloat headY{
+        (leftEye.y + rightEye.y) * 0.5f - xrOriginPosition[1] };
+      const GLfloat headZ{
+        (leftEye.z + rightEye.z) * 0.5f - xrOriginPosition[2] };
+      const GgMatrix headPose{
+        ggTranslate(headX, headY, headZ) * mo[camL].transpose() };
+      const GgMatrix localParent{
+        defaults.head_tracking ? headPose : ggIdentity() };
+      Scene::setLocalAttitude(camL, localParent);
+      Scene::setLocalAttitude(camR, localParent);
 
       // 視点と同じ予測表示時刻・基準空間で手を取得し、映像との時間差を抑える。
       updateOpenXRHands(xrFrameState.predictedDisplayTime);

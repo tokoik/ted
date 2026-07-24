@@ -118,6 +118,9 @@ bool Config::read(picojson::value& v)
     else camera_layout = CAMERA_LAYOUT_SEPARATE;
   }
 
+  // 入力画像と左右眼の対応を入れ替える
+  getValue(o, "swap_camera_eyes", camera_swap_eyes);
+
   // 左目のキャプチャデバイスのデバイス番号
   getValue(o, "left_camera", camera_id[camL]);
 
@@ -344,6 +347,9 @@ bool Config::save(const std::string& file) const
     "mono", "separate", "side_by_side", "top_and_bottom"
   };
   setString(o, "camera_layout", camera_layout_names[camera_layout]);
+
+  // 入力画像と左右眼の対応を入れ替える
+  setValue(o, "swap_camera_eyes", camera_swap_eyes);
 
   // 左目のムービーファイル
   setString(o, "left_movie", camera_movie[camL]);

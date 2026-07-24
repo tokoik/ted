@@ -7,7 +7,7 @@
   "display_height": 900,
   "display_width": 1600,
   "fisheye_center_x": 0,
-  "fisheye_center_y": 0,
+  "fisheye_center_y": -0.1,
   "fisheye_fov_x": 0.5,
   "fisheye_fov_y": 0.5,
   "fragment_shader": "normal.frag",
@@ -44,6 +44,6 @@
   "transmit_height": 1080,
   "transmit_fps": 30.0,
   "transmit_quality": 50,
-  "remote_texture_width": 3840,
-  "remote_texture_height": 1920
+  "remote_texture_width": 1920,
+  "remote_texture_height": 1080
 }

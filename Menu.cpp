@@ -310,6 +310,9 @@ void Menu::inputWindow()
   };
   ImGui::Combo(u8"フレーム", &config.camera_layout,
     cameraLayouts, IM_ARRAYSIZE(cameraLayouts));
+  ImGui::BeginDisabled(config.camera_layout == CAMERA_LAYOUT_MONO);
+  ImGui::Checkbox(u8"左右の画像を入れ替える", &config.camera_swap_eyes);
+  ImGui::EndDisabled();
 
   ImGui::RadioButton(u8"静止画像", &config.input_mode, InputMode::IMAGE);
   static const nfdfilteritem_t image_filter[]{ "Images", "png,jpg,jpeg,jfif,bmp,dib" };
@@ -544,7 +547,11 @@ void Menu::inputWindow()
   if (ImGui::InputText(u8"画素", fragment_shader, sizeof fragment_shader))
     config.fragment_shader = fragment_shader;
 
-  if (ImGui::Button(u8"設定")) app.selectInput();
+  if (ImGui::Button(u8"設定") && app.selectInput())
+  {
+    // 新しい入力固有の画角と主点を、テクスチャの切替と同時に反映する。
+    window.updateCircle();
+  }
 
   // 入力設定ウィンドウの設定終了
   ImGui::End();
@@ -697,6 +704,10 @@ void Menu::finishConfigReload(bool status, int displayMode)
     // pendingConfig 自体は一時値なので、ここで補正してから現在設定へまとめて移す。
     pendingConfig->display_mode = displayMode;
     config = std::move(*pendingConfig);
+
+    // 前の設定の circle を残さず、読み込んだカメラの画角と主点を直ちに反映する。
+    // これにより姿勢設定を最初に触った際の表示範囲のジャンプを防ぐ。
+    window.updateCircle();
   }
 
   pendingConfig.reset();
