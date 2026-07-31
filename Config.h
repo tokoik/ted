@@ -144,31 +144,31 @@ constexpr char defaultAttitude[]{ "attitude.json" };
 /// 表示の設定
 enum DisplayMode
 {
-  MONOCULAR = 0,            ///< 単眼視
-  TOP_AND_BOTTOM,           ///< 上下２分割
-  SIDE_BY_SIDE,             ///< 左右２分割
-  OVERLAY,                  ///< 左右２分割を重ねて表示
-  QUADBUFFER,               ///< クワッドバッファステレオ
-  OPENXR                    ///< OpenXR (HMD)
+  MONOCULAR = 0,                    ///< 単眼視
+  TOP_AND_BOTTOM,                   ///< 上下２分割
+  SIDE_BY_SIDE,                     ///< 左右２分割
+  OVERLAY,                          ///< 左右２分割を重ねて表示
+  QUADBUFFER,                       ///< クワッドバッファステレオ
+  OPENXR                            ///< OpenXR (HMD)
 };
 
 /// 入力の設定
 enum InputMode
 {
-  IMAGE = 0,                ///< 静止画
-  MOVIE,                    ///< 動画
-  CAMERA,                   ///< Web カメラ
-  OVRVISION,                ///< Ovrvision Pro
-  REMOTE                    ///< リモートの TED
+  IMAGE = 0,                        ///< 静止画
+  MOVIE,                            ///< 動画
+  CAMERA,                           ///< Web カメラ
+  OVRVISION,                        ///< Ovrvision Pro
+  REMOTE                            ///< リモートの TED
 };
 
 /// 1フレーム内の左右画像の配置
 enum CameraLayout
 {
-  CAMERA_LAYOUT_MONO = 0,   ///< 単眼
-  CAMERA_LAYOUT_SEPARATE,   ///< 左右を別入力から取得
-  CAMERA_LAYOUT_SIDE_BY_SIDE,///< 左半分が左眼、右半分が右眼
-  CAMERA_LAYOUT_TOP_AND_BOTTOM///< 上半分が左眼、下半分が右眼
+  CAMERA_LAYOUT_MONO = 0,           ///< 単眼
+  CAMERA_LAYOUT_SEPARATE,           ///< 左右を別入力から取得
+  CAMERA_LAYOUT_SIDE_BY_SIDE,       ///< 左半分が左眼、右半分が右眼
+  CAMERA_LAYOUT_TOP_AND_BOTTOM      ///< 上半分が左眼、下半分が右眼
 };
 
 /// 1入力に左右画像が格納されているか調べる
@@ -180,17 +180,17 @@ inline bool isPackedCameraLayout(int layout)
 /// 役割
 enum Role
 {
-  STANDALONE = 0,           ///< 単独
-  INSTRUCTOR,               ///< 指導者
-  WORKER                    ///< 作業者
+  STANDALONE = 0,                   ///< 単独
+  INSTRUCTOR,                       ///< 指導者
+  WORKER                            ///< 作業者
 };
 
 /// ハンドトラッキングの設定
 enum HandTrackingMode
 {
-  HAND_TRACKING_NONE = 0,   ///< なし
-  HAND_TRACKING_LEAP_MOTION,///< Leap Motion
-  HAND_TRACKING_OPENXR      ///< OpenXR
+  HAND_TRACKING_NONE = 0,           ///< なし
+  HAND_TRACKING_LEAP_MOTION,        ///< Leap Motion
+  HAND_TRACKING_OPENXR              ///< OpenXR
 };
 
 ///
