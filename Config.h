@@ -162,7 +162,7 @@ enum InputMode
   REMOTE                            ///< リモートの TED
 };
 
-/// 1フレーム内の左右画像の配置
+/// 入力フレーム内の左右画像の配置
 enum CameraLayout
 {
   CAMERA_LAYOUT_MONO = 0,           ///< 単眼

@@ -1,6 +1,6 @@
 {
   "controller": 0,
-  "camera_layout": "separate",
+  "camera_layout": 1,
   "depth_far": 5,
   "depth_near": 0.10000000149011612,
   "display_aspect": 0,
