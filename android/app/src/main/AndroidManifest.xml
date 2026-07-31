@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.ted_openxr">
+
+    <uses-feature
+        android:name="android.hardware.vr.headtracking"
+        android:version="1"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.opengles.aep"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
+
+    <application
+        android:allowBackup="false"
+        android:fullBackupOnly="false"
+        android:hasCode="true"
+        android:icon="@android:drawable/sym_def_app_icon"
+        android:label="TED OpenXR Native"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+
+        <meta-data
+            android:name="org.khronos.openxr.OpenXRRuntimeBroker"
+            android:value="true" />
+
+        <activity
+            android:name="android.app.NativeActivity"
+            android:exported="true"
+            android:label="TED OpenXR Native"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+            android:configChanges="screenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode">
+
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="ted_android" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="com.oculus.intent.category.VR" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
