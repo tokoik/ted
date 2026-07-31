@@ -198,6 +198,17 @@ OpenXR では手のひらと手首の向きを個別に求めます。手全体�
 * 受信側は、古い遅延パケットが新フレームに混入するのを自動的に破棄します。
 * 送信側のクラッシュ・再起動による `frameId` リセットを検出するため、最後に正常受信してからの経過時間を監視し、2.0秒以上の無通信で受信履歴（`frameId` シリアル）を自動的に再同期する機能を備えています。
 
+#### ※10 中継サーバ (`ted-server`) の接続構成
+
+Quest 3 側 (`ted-quest`, WORKER役) と指示者 PC (`ted-openxr`, OPERATOR役) の中継を行う場合、`ted-server` を介して UDP パケットを相互転送します。
+
+```text
+ted-server <questPort> <questAddress> <instructorPort> <instructorAddress>
+```
+* `toQuest`: Quest 側からは OPERATOR (role 1) として接続
+* `toInstructor`: 指示者側からは WORKER (role 2) として接続
+* ポートオフセット（OPERATOR は `port`, WORKER は `port+1` を受信用に指定）に基づき、透過的に双方のフレームを双方向転送します。
+
 ---
 
 ### 4. その他（シーングラフ・UI）設定
