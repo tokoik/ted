@@ -147,3 +147,18 @@ Scene内の合成順は次のとおりです。
 * 描画サイクル内の一時的な失敗（スワップチェーン画像取得失敗や、ビュー位置姿勢のトラッキング喪失など）が発生した場合は、レイヤーなしの空フレームを `xrEndFrame` に提出することで、描画を安全にスキップして動作を継続します。
 * `commit()` でのスワップチェーン画像解放失敗時は、空レイヤーで `xrEndFrame` を試みた後に `stopHMD()` を呼び出します。`xrEndFrame` 自体が失敗した場合もセッションを破棄し、`MONOCULAR` 表示へフォールバックします。OpenXR資源を破棄した後は、そのフレームのミラー処理を行いません。
 * 通常のクリーンアップでは、任意のセッション状態で呼び出せる `xrDestroySession()` を使用します。ランタイムから `STOPPING` 状態が通知された場合に限り、イベント処理で `xrEndSession()` を呼びます。
+
+## Meta Quest 3 版 (`ted-quest` / Android) の OpenXR 実装
+
+Quest 3 向けネイティブアプリ (`android/app/src/main/cpp/AndroidMain.cpp`) は、`android_native_app_glue` による NativeActivity と OpenXR GLES Graphics Binding (`XR_KHR_opengl_es_enable`) を使用して実装されています。
+
+1. **初期化とリソース管理**:
+   - `xrInitializeLoaderKHR` で Android 用ローダーを初期化し、`XR_KHR_android_create_instance` と `XR_KHR_opengl_es_enable` 拡張を有効化します。
+   - EGLコンテキストと画面サーフェスを作成した上で、`XR_REFERENCE_SPACE_TYPE_STAGE`（利用不可時は `LOCAL`）基準空間を作成します。
+   - 各眼のカラー用 Swapchain 画像のほか、24-bit 深度レンダーバッファ（`GL_DEPTH_COMPONENT24`）を作成し FBO に接続します。
+   - 初期化の途中で失敗した場合（`xrCreateInstance` や `xrCreateSwapchain` など）、`terminateOpenXR()` を呼び出して確保済みリソースを完全にロールバックします。
+
+2. **描画ループ**:
+   - `ALooper_pollOnce()` で Android イベントと `pollOpenXREvents()` を駆動します。
+   - `xrWaitFrame()` / `xrBeginFrame()` を行い、`xrLocateViews()` の戻り値を確認した上で左右眼のカラー／深度 FBO へ描画（左眼: シアン、右眼: マゼンタの単色テスト描画）を実行します。
+   - 描画完了後、`xrEndFrame()` に `XrCompositionLayerProjection` を提出します。

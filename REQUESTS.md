@@ -153,3 +153,27 @@
 - 各段階で `git diff --check` を実行しました。
 - CMakeのRelease構成で `ted` のコンパイル、リンク、実行資源のコピーに成功しました。
 - Leap Motion／OpenXRの左右手表示、ヘッドトラッキングOFF、ON時のリモート追従、PayCamの左右入替について実機確認を行い、期待どおりとの報告を得ました。ローカル視界固定は実機報告を受けて頭部中心と行列順を追加修正しました。
+
+## 2026-07-31: Quest 3 版・Windows 用中継サーバマージと全プログラムの点検・修正
+
+### 依頼
+
+- Quest 3 版 (`ted-quest` / `android/`) と Windows 用中継サーバ (`ted-server` / `server/`) のブランチマージに伴い、Windows 版、Quest 3 版、サーバアプリのプログラム一式を点検・整備する。
+
+### 対応内容
+
+1. **`resource.h` BOM 例外規定の追加 (`GEMINI.md`)**
+   - Visual Studio 自動生成の `resource.h` を BOM 付与必須ルールから除外する旨を `GEMINI.md` に明記しました。
+2. **サーバアプリ初期化判定の堅牢化 (`server/main.cpp`)**
+   - `toQuest` 初期化の判定に `!toQuest.running()` を追加し、ソケット生成失敗時のエラーハンドリングを厳密化しました。
+3. **トップレベル CMakeLists.txt へのサーバ統合 (`CMakeLists.txt`)**
+   - `add_subdirectory(server)` を追加し、Visual Studio ソリューションで `ted` と `ted_server` を同時にビルド・デバッグできるようにしました。
+4. **Quest 3 版 OpenXR 初期化失敗時のロールバック実装 (`android/app/src/main/cpp/AndroidMain.cpp`)**
+   - `initOpenXR()` の多段階初期化でエラーが発生した場合、`terminateOpenXR()` を呼び出して確保済みのインスタンス・セッション・参照空間・スワップチェーン等を確実に全破棄するロールバック処理を追加しました。
+5. **Quest 3 版 視線取得 API のエラーチェック強化 (`android/app/src/main/cpp/AndroidMain.cpp`)**
+   - `renderFrame()` 内での `xrLocateViews()` の戻り値 `XrResult` のチェックおよび警告ログ出力を追加しました。
+
+### 検証
+
+- `cmake --build build --config Release` で `ted.exe` および `ted_server.exe` がエラー・警告なしで正常ビルドされることを確認しました。
+- `git diff --check` でコードフォーマットに問題がないことを確認しました。

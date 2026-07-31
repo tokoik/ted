@@ -64,6 +64,8 @@
 * `CameraCapabilities`: UI にバックエンド非依存のカメラ能力情報を提供
 * `Network`: UDPによる画像や姿勢データの送受信。フレームIDをヘッダに持つパケットの順序制御（古い遅延パケットの破棄）と、2秒以上の無通信検出（タイムアウト）で自動再同期（送信側再起動によるIDリセットへ追従）する堅牢なパケット組み立て処理を実装
 * `LeapListener`: Leap Motion のポーリングと描画スレッド間のデータ受け渡し。スレッド同期を原子変数（`std::atomic`）で保護し、スナップショットによるディープコピーでデータレースを排除。描画更新時に新しいフレームがない場合は以前の姿勢を維持し（点滅防止）、新しいフレームがあるときのみ検出されなかった側の手をゼロクリアする選択的消去を実装。再接続時にはキャッシュしたフレーム番号と接続状態を初期化
+* **`ted-server` (`server/`)**: Meta Quest 3（WORKER役）と指示者PC（OPERATOR役）間のUDP通信を中継するヘッドレスのネットワークリレーサーバ。
+* **`ted-quest` (`android/`)**: Meta Quest 3 上で動作する Native OpenXR GLES 最小アプリケーション。Android NativeActivity および OpenXR Loader / EGL を用いて独立動作。
 
 `GgApp` には現時点で TED 固有の `Config`、`Attitude`、`Scene`、`Camera` への依存が残っています。今後、GLFW・OpenGL・OpenXR を扱う汎用ウィンドウ層と TED 本体へ段階的に分離する方針です。
 
