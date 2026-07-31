@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 ///
 /// Network.cpp が要求する最小限の定義のみを提供するスタブ
