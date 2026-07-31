@@ -137,6 +137,8 @@ static void terminateEGL(Engine* engine) {
     LOGI("EGL terminated.");
 }
 
+static void terminateOpenXR(Engine* engine);
+
 static bool initOpenXR(Engine* engine) {
     // 1. Initialize OpenXR Loader for Android
     xrGetInstanceProcAddr(XR_NULL_HANDLE, "xrInitializeLoaderKHR", (PFN_xrVoidFunction*)&engine->pfnInitializeLoaderKHR);
@@ -147,6 +149,7 @@ static bool initOpenXR(Engine* engine) {
         XrResult res = engine->pfnInitializeLoaderKHR((const XrLoaderInitInfoBaseHeaderKHR*)&loaderInitInfo);
         if (XR_FAILED(res)) {
             LOGE("xrInitializeLoaderKHR failed: %d", res);
+            terminateOpenXR(engine);
             return false;
         }
     } else {
@@ -178,6 +181,7 @@ static bool initOpenXR(Engine* engine) {
             LOGI("Enabled OpenXR extension: %s", reqExt);
         } else {
             LOGE("Required OpenXR extension NOT supported by runtime: %s", reqExt);
+            terminateOpenXR(engine);
             return false;
         }
     }
@@ -200,6 +204,7 @@ static bool initOpenXR(Engine* engine) {
     XrResult res = xrCreateInstance(&createInfo, &engine->instance);
     if (XR_FAILED(res)) {
         LOGE("xrCreateInstance failed: %d", res);
+        terminateOpenXR(engine);
         return false;
     }
     LOGI("OpenXR Instance created successfully.");
@@ -213,6 +218,7 @@ static bool initOpenXR(Engine* engine) {
     res = xrGetSystem(engine->instance, &systemInfo, &engine->systemId);
     if (XR_FAILED(res)) {
         LOGE("xrGetSystem failed: %d", res);
+        terminateOpenXR(engine);
         return false;
     }
     LOGI("OpenXR System ID obtained: %llu", (unsigned long long)engine->systemId);
@@ -223,6 +229,7 @@ static bool initOpenXR(Engine* engine) {
         res = engine->pfnGetOpenGLESGraphicsRequirementsKHR(engine->instance, engine->systemId, &graphicsReq);
         if (XR_FAILED(res)) {
             LOGE("xrGetOpenGLESGraphicsRequirementsKHR failed: %d", res);
+            terminateOpenXR(engine);
             return false;
         }
         LOGI("GLES Graphics Requirements satisfied. Minimum API: %u.%u",
@@ -242,6 +249,7 @@ static bool initOpenXR(Engine* engine) {
     res = xrCreateSession(engine->instance, &sessionCreateInfo, &engine->session);
     if (XR_FAILED(res)) {
         LOGE("xrCreateSession failed: %d", res);
+        terminateOpenXR(engine);
         return false;
     }
     LOGI("OpenXR Session created successfully.");
@@ -257,6 +265,7 @@ static bool initOpenXR(Engine* engine) {
         res = xrCreateReferenceSpace(engine->session, &spaceCreateInfo, &engine->appSpace);
         if (XR_FAILED(res)) {
             LOGE("xrCreateReferenceSpace LOCAL failed: %d", res);
+            terminateOpenXR(engine);
             return false;
         }
     }
@@ -287,6 +296,7 @@ static bool initOpenXR(Engine* engine) {
         res = xrCreateSwapchain(engine->session, &swapchainCreateInfo, &engine->swapchains[i].handle);
         if (XR_FAILED(res)) {
             LOGE("xrCreateSwapchain[%d] failed: %d", i, res);
+            terminateOpenXR(engine);
             return false;
         }
 
@@ -406,7 +416,10 @@ static void renderFrame(Engine* engine) {
 
         XrViewState viewState{XR_TYPE_VIEW_STATE};
         uint32_t viewCount = (uint32_t)engine->views.size();
-        xrLocateViews(engine->session, &locateInfo, &viewState, viewCount, &viewCount, engine->views.data());
+        res = xrLocateViews(engine->session, &locateInfo, &viewState, viewCount, &viewCount, engine->views.data());
+        if (XR_FAILED(res)) {
+            LOGW("xrLocateViews failed: %d", res);
+        }
 
         projectionViews.resize(viewCount, {XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW});
 

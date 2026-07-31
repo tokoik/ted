@@ -327,6 +327,11 @@ set_target_properties(ted PROPERTIES
 # Set ted as Startup Project in VS solution
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ted)
 
+# Subdirectory for server project
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/server/CMakeLists.txt")
+    add_subdirectory(server)
+endif()
+
 # Include Visual Studio Installer Project
 include_external_msproject(INSTALL_MSI "${CMAKE_CURRENT_SOURCE_DIR}/INSTALL/INSTALL.vdproj"
     TYPE "54435603-DBB4-11D2-8724-00A0C9A8B90C"

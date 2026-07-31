@@ -1,4 +1,4 @@
-///
+﻿///
 /// ted-server: Quest と指示者側 TED の間を中継する UDP リレー (フェーズ0)
 ///
 /// @file
@@ -118,7 +118,8 @@ int main(int argc, char* argv[])
   // Quest 側からは OPERATOR、指示者側からは WORKER として振る舞う
   Network toQuest, toInstructor;
 
-  if (toQuest.initialize(1, questPort, questAddress.c_str()) != 0)
+  if (toQuest.initialize(1, questPort, questAddress.c_str()) != 0
+    || !toQuest.running())
   {
     std::cerr << "Quest 側ソケットの初期化に失敗しました。\n";
     return EXIT_FAILURE;
