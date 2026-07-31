@@ -81,14 +81,14 @@
 * `3`: Ovrvision Pro
 * `4`: リモート接続（ネットワーク越しに送信されてきた画像）
 
-#### ※3 入力フレーム内の左右画像の配置 (`camera_layout`)
+#### ※4 入力フレーム内の左右画像の配置 (`camera_layout`)
 
-* `"mono"`: 単眼入力。右入力の設定は使用しません。
-* `"separate"`: 左右を別のカメラ、動画、静止画から取得します。
-* `"side_by_side"`: 1フレームの左半分を左眼、右半分を右眼として使用します。
-* `"top_and_bottom"`: 1フレームの上半分を左眼、下半分を右眼として使用します。
+* `0`: 単眼入力。右入力の設定は使用しません。
+* `1`: 左右を別のカメラ、動画、静止画から取得します。
+* `2`: 1フレームの左半分を左眼、右半分を右眼として使用します (side by side)。
+* `3`: 1フレームの上半分を左眼、下半分を右眼として使用します (top and bottom)。
 
-SBS/TABでは左側のデバイスまたはファイルだけを開き、取得直後に分割した左右画像を通常のステレオ入力と同様に描画・伝送します。例えば `4416 x 1242` のSBSフレームは、左右それぞれ `2208 x 1242` になります。`transmit_width`、`transmit_height` および魚眼の主点位置は、分割前のフレーム全体ではなく分割後の眼別画像を基準に指定します。
+side by side / top and bottom では左側のデバイスまたはファイルだけを開き、取得直後に分割した左右画像を通常のステレオ入力と同様に描画・伝送します。例えば `4416 x 1242` のSBSフレームは、左右それぞれ `2208 x 1242` になります。`transmit_width`、`transmit_height` および魚眼の主点位置は、分割前のフレーム全体ではなく分割後の眼別画像を基準に指定します。
 
 フレーム内の物理的な配置と実際の左右眼が逆の場合は、配置を変えずに `"swap_camera_eyes": true` を指定します。設定画面では「左右の画像を入れ替える」に対応します。この設定はSBS/TABだけでなく、左右別入力やリモート入力にも同じように適用されます。
 
@@ -97,7 +97,7 @@ ZED 2iやZED miniをMedia Foundationカメラとして使用する場合の主�
 ```json
 {
   "input_mode": 2,
-  "camera_layout": "side_by_side",
+  "camera_layout": 2,
   "swap_camera_eyes": false,
   "left_camera": 0,
   "right_camera": -1,
@@ -205,6 +205,7 @@ Quest 3 側 (`ted-quest`, WORKER役) と指示者 PC (`ted-openxr`, OPERATOR役)
 ```text
 ted-server <questPort> <questAddress> <instructorPort> <instructorAddress>
 ```
+
 * `toQuest`: Quest 側からは OPERATOR (role 1) として接続
 * `toInstructor`: 指示者側からは WORKER (role 2) として接続
 * ポートオフセット（OPERATOR は `port`, WORKER は `port+1` を受信用に指定）に基づき、透過的に双方のフレームを双方向転送します。
@@ -238,7 +239,7 @@ ted-server <questPort> <questAddress> <instructorPort> <instructorAddress>
   "depth_near": 0.1,
   "depth_far": 5,
   "input_mode": 0,
-  "camera_layout": "separate",
+  "camera_layout": 1,
   "swap_camera_eyes": false,
   "left_camera": -1,
   "left_image": "left.jpg",

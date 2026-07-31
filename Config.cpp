@@ -23,44 +23,53 @@ Config defaults;
 //
 // ※1 表示の設定 (DisplayMode)
 //
-//    MONOCULAR = 0,            // 単眼視
-//    TOP_AND_BOTTOM,           // 上下２分割
-//    SIDE_BY_SIDE,             // 左右２分割
-//    OVERLAY,                  // 左右２分割を重ねて表示
-//    QUADBUFFER,               // クワッドバッファステレオ
-//    OPENXR                    // OpenXR (HMD)
+//    MONOCULAR = 0,                // 単眼視
+//    TOP_AND_BOTTOM,               // 上下２分割
+//    SIDE_BY_SIDE,                 // 左右２分割
+//    OVERLAY,                      // 左右２分割を重ねて表示
+//    QUADBUFFER,                   // クワッドバッファステレオ
+//    OPENXR                        // OpenXR (HMD)
 //
 
 //
 // ※2 入力の設定 (InputMode)
 //
-//    IMAGE = 0,                // 静止画
-//    MOVIE,                    // 動画
-//    CAMERA,                   // Web カメラ
-//    OVRVISON,                 // Ovrvision Pro
-//    REMOTE                    // リモートの TED
+//    IMAGE = 0,                    // 静止画
+//    MOVIE,                        // 動画
+//    CAMERA,                       // Web カメラ
+//    OVRVISION,                    // Ovrvision Pro
+//    REMOTE                        // リモートの TED
 //
 
 //
 // ※3 Ovrvision Pro のプロパティ (OVR::Camprop)
 //
-//    OV_CAM5MP_FULL = 0,	      // 2560x1920 @15fps x2
-//    OV_CAM5MP_FHD,			      // 1920x1080 @30fps x2
-//    OV_CAMHD_FULL,			      // 1280x960  @45fps x2
-//    OV_CAMVR_FULL, 			      // 960x950   @60fps x2
-//    OV_CAMVR_WIDE,			      // 1280x800  @60fps x2
-//    OV_CAMVR_VGA,			        // 640x480   @90fps x2
-//    OV_CAMVR_QVGA,			      // 320x240   @120fps x2
-//    OV_CAM20HD_FULL,		      // 1280x960  @15fps x2 Only USB2.0 connection
-//    OV_CAM20VR_VGA,           // 640x480   @30fps x2 Only USB2.0 connection
+//    OV_CAM5MP_FULL = 0,	          // 2560x1920 @15fps x2
+//    OV_CAM5MP_FHD,			          // 1920x1080 @30fps x2
+//    OV_CAMHD_FULL,			          // 1280x960  @45fps x2
+//    OV_CAMVR_FULL, 			          // 960x950   @60fps x2
+//    OV_CAMVR_WIDE,			          // 1280x800  @60fps x2
+//    OV_CAMVR_VGA,			            // 640x480   @90fps x2
+//    OV_CAMVR_QVGA,			          // 320x240   @120fps x2
+//    OV_CAM20HD_FULL,		          // 1280x960  @15fps x2 Only USB2.0 connection
+//    OV_CAM20VR_VGA,               // 640x480   @30fps x2 Only USB2.0 connection
 //
 
 //
-// ※4 ホストの役割
+// ※4 フレーム内の左右画像の配置
 //
-//    STANDALONE = 0,           // 単独
-//    INSTRUCTOR,               // 指導者
-//    WORKER                    // 作業者
+//    CAMERA_LAYOUT_MONO = 0,       // 単眼
+//    CAMERA_LAYOUT_SEPARATE,       // 左右を別入力から取得
+//    CAMERA_LAYOUT_SIDE_BY_SIDE,   // 左半分が左眼、右半分が右眼
+//    CAMERA_LAYOUT_TOP_AND_BOTTOM  // 上半分が左眼、下半分が右眼
+//
+
+//
+// ※5 ホストの役割
+//
+//    STANDALONE = 0,               // 単独
+//    INSTRUCTOR,                   // 指導者
+//    WORKER                        // 作業者
 //
 
 //
@@ -109,14 +118,7 @@ bool Config::read(picojson::value& v)
   getValue(o, "input_mode", input_mode);
 
   // 1フレーム内の左右画像の配置
-  std::string camera_layout_name;
-  if (getString(o, "camera_layout", camera_layout_name))
-  {
-    if (camera_layout_name == "mono") camera_layout = CAMERA_LAYOUT_MONO;
-    else if (camera_layout_name == "side_by_side") camera_layout = CAMERA_LAYOUT_SIDE_BY_SIDE;
-    else if (camera_layout_name == "top_and_bottom") camera_layout = CAMERA_LAYOUT_TOP_AND_BOTTOM;
-    else camera_layout = CAMERA_LAYOUT_SEPARATE;
-  }
+  getValue(o, "camera_layout", camera_layout);
 
   // 入力画像と左右眼の対応を入れ替える
   getValue(o, "swap_camera_eyes", camera_swap_eyes);
@@ -343,10 +345,7 @@ bool Config::save(const std::string& file) const
   setValue(o, "left_camera", camera_id[camL]);
 
   // 1フレーム内の左右画像の配置
-  static constexpr const char* camera_layout_names[]{
-    "mono", "separate", "side_by_side", "top_and_bottom"
-  };
-  setString(o, "camera_layout", camera_layout_names[camera_layout]);
+  setValue(o, "camera_layout", camera_layout);
 
   // 入力画像と左右眼の対応を入れ替える
   setValue(o, "swap_camera_eyes", camera_swap_eyes);

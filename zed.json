@@ -17,7 +17,7 @@
   "input_mode": 0,
   "left_camera": -1,
   "left_image": "zed-mini.jpg",
-  "camera_layout": "side_by_side",
+  "camera_layout": 2,
   "local_share_size": 50,
   "max_level": 10,
   "ovrvision_property": 3,
