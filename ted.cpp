@@ -613,53 +613,120 @@ int GgApp::main(int argc, const char *const *const argv)
       camera->transmit(source, texture[eye], size[eye]);
     }
 
-    // 描画開始
-    if (window.start())
+#if defined(GG_USE_OPENXR)
+    auto& openxr{ GgApp::OpenXR::getInstance() };
+    if (defaults.display_mode == OPENXR && openxr.isRunning())
     {
-      // 有効な目について
-      for (int eye = 0; eye < eyeCount; ++eye)
+      if (openxr.begin())
       {
-        // 図形を見せる目を選択する
-        window.select(eye);
+        // シーングラフの基準モデル変換を設定
+        const GgMatrix mm{ ggTranslate(attitude.position) * attitude.orientation.getMatrix() };
+        Scene::setup(mm);
 
-        // 背景の描画設定
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_CULL_FACE);
-        glDisable(GL_BLEND);
+        // 頭部中心姿勢（左右眼位置の中点と平均向き）をローカルノードの親姿勢として設定する
+        const GgMatrix headPose{ openxr.getHeadPoseMatrix() };
+        const GgMatrix localParent{ defaults.head_tracking ? headPose : ggIdentity() };
+        Scene::setLocalAttitude(camL, localParent);
+        Scene::setLocalAttitude(camR, localParent);
 
-        // ローカルのヘッドトラッキングの変換行列
-        const GgMatrix &mo(defaults.head_tracking
-          ? window.getMo(eye) : attitude.eyeOrientation[eye].getMatrix());
-
-        // リモートのヘッドトラッキングの変換行列
-        const GgMatrix &&mr(mo * Scene::getRemoteAttitude(eye));
-
-        // 背景を描く
-        rect->draw(eye, defaults.remote_stabilize ? mr : mo, window.getSamples());
-
-        // 図形と照準の描画設定
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glEnable(GL_BLEND);
-
-        // 描画用のシェーダプログラムの使用開始
-        simple.use(light);
-
-        // 図形を描画する
-        if (window.isSceneVisible())
+        // 視点と同じ予測表示時刻・基準空間で手を取得
+        if (defaults.hand_tracking == HAND_TRACKING_OPENXR)
         {
-          // OpenXR は各眼 pose の逆変換 R^-1 * T^-1 をビュー行列に使う
-          const GgMatrix sceneView{ defaults.display_mode == OPENXR
-            ? (defaults.head_tracking ? window.getMo(eye) * window.getMv(eye) : ggIdentity())
-            : window.getMv(eye) * window.getMo(eye) };
-          scene->draw(window.getMp(eye), sceneView);
+          openxr.updateOpenXRHands(openxr.getPredictedDisplayTime());
         }
 
-        // 片目の処理を完了する
-        window.commit(eye);
+        const uint32_t viewCount{ openxr.getViewCount() };
+        for (uint32_t eye = 0; eye < viewCount; ++eye)
+        {
+          openxr.select(eye);
 
-        // 単眼視なら終了
-        if (defaults.display_mode == MONOCULAR) break;
+          // 背景の描画設定
+          glDisable(GL_DEPTH_TEST);
+          glDisable(GL_CULL_FACE);
+          glDisable(GL_BLEND);
+
+          // ローカルのヘッドトラッキングの変換行列 (OpenXR の各眼姿勢)
+          const GgMatrix mo{ defaults.head_tracking
+            ? openxr.getPoseMatrix(eye) : attitude.eyeOrientation[eye].getMatrix() };
+
+          // リモートのヘッドトラッキングの変換行列
+          const GgMatrix mr{ mo * Scene::getRemoteAttitude(eye) };
+
+          // 背景を描く
+          rect->draw(eye, defaults.remote_stabilize ? mr : mo, window.getSamples());
+
+          // 図形と照準の描画設定
+          glEnable(GL_DEPTH_TEST);
+          glEnable(GL_CULL_FACE);
+          glEnable(GL_BLEND);
+
+          // 描画用のシェーダプログラムの使用開始
+          simple.use(light);
+
+          // 図形を描画する
+          if (window.isSceneVisible())
+          {
+            const GgMatrix sceneView{ defaults.head_tracking
+              ? openxr.getViewMatrix(eye) : ggIdentity() };
+            scene->draw(openxr.getProjectionMatrix(eye, defaults.display_near, defaults.display_far), sceneView);
+          }
+
+          // 片目の処理を完了する
+          openxr.commit(eye);
+        }
+
+        // フレームを転送して HMD に表示し、ミラー表示も行う
+        openxr.submit(window.isMirrorVisible());
+      }
+    }
+    else
+#endif
+    {
+      // 描画開始 (デスクトップ表示)
+      if (window.start())
+      {
+        // 有効な目について
+        for (int eye = 0; eye < eyeCount; ++eye)
+        {
+          // 図形を見せる目を選択する
+          window.select(eye);
+
+          // 背景の描画設定
+          glDisable(GL_DEPTH_TEST);
+          glDisable(GL_CULL_FACE);
+          glDisable(GL_BLEND);
+
+          // ローカルのヘッドトラッキングの変換行列
+          const GgMatrix &mo(defaults.head_tracking
+            ? window.getMo(eye) : attitude.eyeOrientation[eye].getMatrix());
+
+          // リモートのヘッドトラッキングの変換行列
+          const GgMatrix &&mr(mo * Scene::getRemoteAttitude(eye));
+
+          // 背景を描く
+          rect->draw(eye, defaults.remote_stabilize ? mr : mo, window.getSamples());
+
+          // 図形と照準の描画設定
+          glEnable(GL_DEPTH_TEST);
+          glEnable(GL_CULL_FACE);
+          glEnable(GL_BLEND);
+
+          // 描画用のシェーダプログラムの使用開始
+          simple.use(light);
+
+          // 図形を描画する
+          if (window.isSceneVisible())
+          {
+            const GgMatrix sceneView{ window.getMv(eye) * window.getMo(eye) };
+            scene->draw(window.getMp(eye), sceneView);
+          }
+
+          // 片目の処理を完了する
+          window.commit(eye);
+
+          // 単眼視なら終了
+          if (defaults.display_mode == MONOCULAR) break;
+        }
       }
     }
 
