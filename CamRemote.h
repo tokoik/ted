@@ -11,6 +11,22 @@
 // カメラ関連の処理
 #include "Camera.h"
 
+// ネットワーク
+#include "Network.h"
+
+// OpenCV
+#include <opencv2/opencv.hpp>
+
+// OpenGL
+#include "gg.h"
+
+// 設定
+#include "Config.h"
+
+#include <vector>
+#include <atomic>
+#include <thread>
+
 ///
 /// 別のTEDから UDP で受け取ったフレームをカメラ入力として扱うクラス
 ///
@@ -20,6 +36,17 @@
 class CamRemote
   : public Camera
 {
+  /// ネットワーク処理
+  Network network;
+
+  /// 送受信バッファ
+  unsigned char* sendbuf{ nullptr };
+  unsigned char* recvbuf{ nullptr };
+
+  /// 受信・送信スレッド
+  std::thread sendThread;
+  std::thread recvThread;
+
   /// 背景画像の変形に使うフレームバッファオブジェクト
   GLuint fb{ 0 };
 
@@ -40,6 +67,16 @@ class CamRemote
 
   /// リモートから取得したフレーム
   cv::Mat remote[camCount];
+
+  /// 右眼用のフレームバッファ (CPU参照用)
+  std::vector<std::uint8_t> imageR;
+
+  /// 右眼用の解像度
+  int widthR{ 0 };
+  int heightR{ 0 };
+
+  /// 右眼用のキャプチャ完了フラグ
+  std::atomic<bool> capturedR{ false };
 
   /// リモートから取得したフレームのサンプリングに使うテクスチャ
   GLuint resample[camCount]{ 0 };
@@ -63,6 +100,23 @@ class CamRemote
   ///
   void send();
 
+protected:
+
+  ///
+  /// キャプチャ開始処理を行う
+  ///
+  virtual bool onStart() override;
+
+  ///
+  /// キャプチャ停止処理を行う
+  ///
+  virtual void onStop() override;
+
+  ///
+  /// キャプチャデバイスを閉じる処理を行う
+  ///
+  virtual void onClose() override;
+
 public:
 
   ///
@@ -78,12 +132,17 @@ public:
   ///
   /// 平面展開後の画像の幅を得る
   ///
-  virtual int getWidth(int cam) const override { return size[cam].width; }
+  virtual int getWidth(int cam = 0) const override { return (cam == 0) ? size[camL].width : size[camR].width; }
 
   ///
   /// 平面展開後の画像の高さを得る
   ///
-  virtual int getHeight(int cam) const override { return size[cam].height; }
+  virtual int getHeight(int cam = 0) const override { return (cam == 0) ? size[camL].height : size[camR].height; }
+
+  ///
+  /// チャンネル数を得る
+  ///
+  virtual int getChannels(int cam = 0) const override { return 3; }
 
   ///
   /// カメラから入力する
@@ -96,9 +155,42 @@ public:
   ///
   /// カメラをロックして画像をテクスチャに転送する
   ///
-  /// @param cam カメラ番号
+  /// @param eye 視点番号
   /// @param texture 転送先のテクスチャ
   /// @param size 転送する画像のサイズ
   ///
-  virtual bool transmit(int cam, GLuint texture, const GLsizei* size);
+  virtual bool transmit(int eye, unsigned int texture, const int* size) override;
+
+  ///
+  /// 指定した視点のフレームデータをロックして処理関数を実行する
+  ///
+  template <typename F>
+  bool lockFrame(int eye, F&& func)
+  {
+    std::unique_lock<std::mutex> lock{ mtx, std::try_to_lock };
+    if (!lock.owns_lock()) return false;
+
+    if (eye == 0 && captured && !image.empty())
+    {
+      const auto length{ static_cast<size_t>(width) * height * channels };
+      func(image.data(), std::min(image.size(), length), width, height, channels);
+      return true;
+    }
+    else if (eye == 1 && capturedR && !imageR.empty())
+    {
+      const auto length{ static_cast<size_t>(widthR) * heightR * channels };
+      func(imageR.data(), std::min(imageR.size(), length), widthR, heightR, channels);
+      return true;
+    }
+    return false;
+  }
+
+  ///
+  /// 単一視点用のフレームデータロック
+  ///
+  template <typename F>
+  bool lockFrame(F&& func)
+  {
+    return lockFrame(0, std::forward<F>(func));
+  }
 };

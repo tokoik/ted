@@ -1,304 +1,372 @@
 ﻿#pragma once
 
 ///
-/// カメラ関連の基底クラスの定義
+/// キャプチャデバイス関連の基底クラスの定義
 ///
 /// @file
 /// @author Kohe Tokoi
-/// @date July 19, 2026
+/// @date November 15, 2022
 ///
 
-// 各種設定
-#include "Config.h"
-
-// ネットワーク関連の処理
-#include "Network.h"
-
-// OpenCV
-#include <opencv2/opencv.hpp>
-
-// 標準ライブラリ
+#include <vector>
+#include <string>
+#include <array>
 #include <thread>
 #include <mutex>
 #include <atomic>
-
-/// 通信フレームのヘッダの長さ
-///
-/// @details
-/// 通信フレームは「左フレームサイズ、右フレームサイズ、変換行列数」の順に格納する。
-///
-constexpr int headLength{ camCount + 1 };
-
-/// UDP で送受信する1フレームの上限
-///
-/// @details
-/// 符号化後の画像が収まらない場合は画像を省略して固定長バッファを越えて書き込まない。
-///
-constexpr int maxFrameSize{ 1024 * 1024 };
+#include <algorithm>
+#include <cstring>
+#include <cstdint>
+#include <utility>
 
 ///
-/// カメラの基底クラス
+/// キャプチャデバイスが対応するビデオフォーマットの表示・選択情報
 ///
 /// @details
-/// 入力方式に共通する画像保持、OpenGLへの転送、姿勢・画像のネットワーク同期を担当する。
-/// 派生クラスは image[] を更新し、captured/unsent で描画側・送信側へ更新を通知する。
+/// バックエンド固有のメディア型を UI が解釈し直さなくて済むよう、
+/// 解像度、フレームレート、コーデックを表示用文字列として保持する。
+/// index はバックエンドが保持する実フォーマットの選択に使用する。
+///
+struct CaptureFormat
+{
+  std::string resolution; ///< 解像度の表示文字列（例: "1920 x 1080"）
+  std::string fps;        ///< フレームレートの表示文字列（例: "30.00"）
+  std::string codec;      ///< コーデックの表示文字列（例: "NV12"）
+  int index{ 0 };         ///< バックエンドのフォーマットリストにおける選択番号
+
+  ///
+  /// コンストラクタ
+  ///
+  /// @param resolution 解像度の表示文字列（例: "1920 x 1080"）
+  /// @param fps フレームレートの表示文字列（例: "30.00"）
+  /// @param codec コーデックの表示文字列（例: "NV12"）
+  /// @param index バックエンドのフォーマットリストにおける選択番号
+  ///
+  CaptureFormat(const std::string& resolution, const std::string& fps,
+    const std::string& codec, int index)
+    : resolution{ resolution }
+    , fps{ fps }
+    , codec{ codec }
+    , index{ index }
+  {
+  }
+};
+
+///
+/// キャプチャデバイス関連の基底クラス
 ///
 class Camera
 {
+private:
+
+  // コピー・代入は禁止
+  Camera(const Camera&) = delete;
+  Camera& operator=(const Camera&) = delete;
+
 protected:
 
+  /// 解像度（幅）
+  int width{ 0 };
+
+  /// 解像度（高さ）
+  int height{ 0 };
+
+  /// チャンネル数
+  int channels{ 0 };
+
+  /// キャプチャした画像のフレーム間隔 (ミリ秒)
+  double interval{ 10.0 };
+
+  /// キャプチャしたフレームを保持する単一バッファ (CPU メモリ上の生データ)
+  std::vector<std::uint8_t> image;
+
+  /// 排他制御用ミューテックス
+  mutable std::mutex mtx;
+
+  /// キャプチャスレッドが実行中なら true
+  std::atomic<bool> running{ false };
+
+  /// 新しいフレームが取得されたら true
+  std::atomic<bool> captured{ false };
+
+  /// レイテンシを優先するなら true
+  std::atomic<bool> prioritizeLatency{ false };
+
+  /// キャプチャを非同期に行うためのワーカースレッド
+  std::thread thr;
+
   ///
-  /// 受信したフレームの解析
+  /// キャプチャ開始処理を行う（派生クラス固有の実装）
   ///
-  /// @param buffer 受信したフレームの先頭アドレス
-  /// @param length 受信したフレームの長さ
-  /// @param head 受信したフレームのヘッダの先頭アドレス
-  /// @param body 受信したフレームの変換行列の先頭アドレス
-  /// @param imageData 受信したフレームの画像データの先頭アドレス
-  /// @return 成功した場合は true
+  /// @return 正常に開始できたら true
   ///
-  /// @details
-  /// 信頼できない受信値でポインタを作る前に各領域が length 内へ収まるか検証し、
-  /// 成功時だけ各領域の読み取り専用ポインタを返す。
+  virtual bool onStart() = 0;
+
   ///
-  static bool unpackFrame(const uchar* buffer, int length, const unsigned int*& head,
-    const GgMatrix*& body, const uchar*& imageData);
+  /// キャプチャ停止処理を行う（派生クラス固有の実装）
+  ///
+  /// @return なし
+  ///
+  virtual void onStop() = 0;
 
-  /// キャプチャスレッド
-  std::thread captureThread[camCount];
-
-  /// キャプチャスレッドのミューテックス
-  std::mutex captureMutex[camCount];
-
-  /// キャプチャ・通信スレッド間で停止要求を共有する実行状態
-  std::atomic<bool> run[camCount]{ false, false };
-
-  /// キャプチャスレッドを停止する
-  void stop();
-
-  /// キャプチャする画像のフォーマット
-  GLenum format{ GL_BGR };
-
-  /// キャプチャデバイスから取得した画像
-  cv::Mat image[camCount];
-
-  /// 各入力のキャプチャ間隔（秒）
-  double interval[camCount]{ 1.0 / 30.0, 1.0 / 30.0 };
-
-  /// 全カメラに適用するキャプチャ間隔（秒）
-  double capture_interval{ 0.0 };
-
-  /// キャプチャ完了なら true
-  std::atomic<bool> captured[camCount]{ false, false };
-
-  /// レイテンシ優先なら true、全フレームキャプチャなら false
-  std::atomic<bool> prioritizeLatency[camCount]{ true, true };
-
-  /// 未送信なら true
-  std::atomic<bool> unsent[camCount]{ false, false };
-
-  /// ネットワークへ送るフレーム間隔（秒）。sleep_for の直前にミリ秒へ変換する。
-  double send_interval{ minDelay * 0.001 };
-
-  /// 露出
-  int exposure{ 0 };
-
-  /// 利得  
-  int gain{ 0 };
+  ///
+  /// キャプチャデバイスを閉じる処理を行う（派生クラス固有の実装）
+  ///
+  /// @return なし
+  ///
+  virtual void onClose() = 0;
 
 public:
 
   ///
   /// コンストラクタ
   ///
-  /// @param quality JPEG 圧縮率 (0-100)
-  ///
-  Camera(int quality = -1);
-
-  ///
-  /// コピーコンストラクタを封じる
-  ///
-  /// @param c コピー元の Camera オブジェクト
-  ///
-  Camera(const Camera& c) = delete;
-
-  ///
-  /// 代入を封じる
-  ///
-  /// @param w コピー元の Camera オブジェクト
-  ///
-  Camera& operator=(const Camera& w) = delete;
+  Camera() = default;
 
   ///
   /// デストラクタ
   ///
-  virtual ~Camera();
+  virtual ~Camera() = default;
 
   ///
-  /// 画像の幅を得る
+  /// キャプチャを開始する
   ///
-  /// @param cam カメラ番号
-  /// @return 画像の幅
-  ///
-  virtual int getWidth(int cam) const
+  void start()
   {
-    return image[cam].cols;
+    std::lock_guard<std::mutex> lock{ mtx };
+    if (running) return;
+    if (onStart())
+    {
+      running = true;
+    }
   }
 
   ///
-  /// 画像の高さを得る
+  /// キャプチャを停止する
   ///
-  /// @param cam カメラ番号
-  /// @return 画像の高さ
-  ///
-  virtual int getHeight(int cam) const
+  void stop()
   {
-    return image[cam].rows;
+    if (!running) return;
+    running = false;
+    onStop();
+    if (thr.joinable())
+    {
+      thr.join();
+    }
   }
 
   ///
-  /// フレームレートからキャプチャ間隔を設定する
+  /// キャプチャデバイスを閉じる
   ///
-  /// @param fps フレームレート
-  ///
-  void setInterval(double fps)
+  void close()
   {
-    capture_interval = fps > 0.0 ? 1.0 / fps : minDelay * 0.001;
+    stop();
+    std::lock_guard<std::mutex> lock{ mtx };
+    onClose();
+    captured = false;
+    width = 0;
+    height = 0;
+    channels = 0;
+    image.clear();
+  }
+
+  ///
+  /// キャプチャスレッドが実行中かどうか調べる
+  ///
+  /// @return キャプチャ中なら true
+  ///
+  bool isRunning() const
+  {
+    return running;
+  }
+
+  ///
+  /// 新しいフレームが取得されているか調べる
+  ///
+  /// @return 新しいフレームが取得されていれば true
+  ///
+  bool isCaptured() const
+  {
+    return captured;
+  }
+
+  ///
+  /// フレームデータをロックして処理関数を実行する
+  ///
+  /// @tparam F 処理関数の型
+  /// @param func フレームデータを処理する関数 (引数: const std::uint8_t* data, size_t length, int width, int height, int channels)
+  /// @return フレームが取得できて処理関数が実行されたら true
+  ///
+  template <typename F>
+  bool lockFrame(F&& func)
+  {
+    return lockFrame(0, std::forward<F>(func));
+  }
+
+  ///
+  /// 指定した視点のフレームデータをロックして処理関数を実行する
+  ///
+  /// @tparam F 処理関数の型
+  /// @param eye 視点番号 (0: 左/単眼, 1: 右)
+  /// @param func フレームデータを処理する関数 (引数: const std::uint8_t* data, size_t length, int width, int height, int channels)
+  /// @return フレームが取得できて処理関数が実行されたら true
+  ///
+  template <typename F>
+  bool lockFrame(int eye, F&& func)
+  {
+    if (eye != 0) return false;
+    std::unique_lock<std::mutex> lock{ mtx, std::try_to_lock };
+    if (lock.owns_lock() && captured && !image.empty())
+    {
+      const auto length{ static_cast<size_t>(width) * height * channels };
+      func(image.data(), std::min(image.size(), length), width, height, channels);
+      if (!isStillImage()) captured = false;
+      return true;
+    }
+    return false;
+  }
+
+  ///
+  /// 静止画像入力であるかどうかを調べる
+  ///
+  /// @return 静止画像なら true
+  ///
+  virtual bool isStillImage() const
+  {
+    return false;
+  }
+
+  ///
+  /// キャプチャデバイスが対応するビデオフォーマットのリストを得る
+  ///
+  /// @return ビデオフォーマット情報のリスト
+  ///
+  virtual const std::vector<CaptureFormat>& getFormatList() const
+  {
+    static const std::vector<CaptureFormat> empty;
+    return empty;
+  }
+
+  ///
+  /// ビデオフォーマットを選択して設定する
+  ///
+  /// @param index 選択するフォーマットのインデックス
+  /// @return 正常に設定できたら true
+  ///
+  virtual bool selectFormat(int index)
+  {
+    return false;
+  }
+
+  ///
+  /// キャプチャしたフレームのサイズを得る
+  ///
+  /// @param eye 視点番号 (0: 左/単眼, 1: 右)
+  /// @return キャプチャしたフレームのサイズ
+  ///
+  std::array<int, 2> getSize(int eye = 0) const
+  {
+    return std::array<int, 2>{ getWidth(eye), getHeight(eye) };
+  }
+
+  ///
+  /// キャプチャしたフレームの横の画素数を得る
+  ///
+  /// @param eye 視点番号 (0: 左/単眼, 1: 右)
+  /// @return キャプチャ中のフレームの横の画素数
+  ///
+  virtual int getWidth(int eye = 0) const
+  {
+    return (eye == 0) ? width : 0;
+  }
+
+  ///
+  /// キャプチャしたフレームの縦の画素数を得る
+  ///
+  /// @param eye 視点番号 (0: 左/単眼, 1: 右)
+  /// @return キャプチャ中のフレームの縦の画素数
+  ///
+  virtual int getHeight(int eye = 0) const
+  {
+    return (eye == 0) ? height : 0;
+  }
+
+  ///
+  /// キャプチャしたフレームのチャネル数を調べる
+  ///
+  /// @param eye 視点番号 (0: 左/単眼, 1: 右)
+  /// @return キャプチャしたフレームのチャネル数
+  ///
+  virtual int getChannels(int eye = 0) const
+  {
+    return (eye == 0) ? channels : 0;
+  }
+
+  ///
+  /// キャプチャデバイスのフレームレートを得る
+  ///
+  /// @return キャプチャデバイスのフレームレート
+  ///
+  virtual double getFps() const
+  {
+    return interval > 0.0 ? 1000.0 / interval : 0.0;
   }
 
   ///
   /// レイテンシ優先モードを設定する
   ///
-  /// @param cam カメラ番号
-  /// @param mode モード
+  /// @param mode レイテンシを優先する場合は true
   ///
-  void setPrioritizeLatency(int cam, bool mode)
+  void setPrioritizeLatency(bool mode)
   {
-    prioritizeLatency[cam] = mode;
+    prioritizeLatency = mode;
   }
 
   ///
-  /// レイテンシ優先モードを取得する
+  /// レイテンシ優先モードかどうか調べる
   ///
-  /// @param cam カメラ番号
-  /// @return モード
+  /// @return レイテンシを優先する場合は true
   ///
-  bool getPrioritizeLatency(int cam) const
+  bool getPrioritizeLatency() const
   {
-    return prioritizeLatency[cam];
+    return prioritizeLatency;
   }
 
   ///
-  /// 圧縮設定
+  /// 露出を上げる
   ///
-  /// @param quality JPEG 圧縮率 (0-100)
-  ///
-  void setQuality(int quality);
-
-  ///
-  /// カメラの露出を上げる
-  ///
-  virtual void increaseExposure() {};
-
-  ///
-  /// カメラの露出を下げる
-  ///
-  virtual void decreaseExposure() {};
-
-  ///
-  /// カメラの利得を上げる
-  ///
-  virtual void increaseGain() {};
-
-  ///
-  /// カメラの利得を下げる
-  ///
-  virtual void decreaseGain() {};
-
-  ///
-  /// カメラをロックして画像をテクスチャに転送する
-  ///
-  /// @param cam カメラ番号
-  /// @param texture 転送先のテクスチャ
-  /// @param size 転送する画像の大きさ
-  /// @return 成功した場合は true
-  ///
-  virtual bool transmit(int cam, GLuint texture, const GLsizei* size);
-
-  //
-  // 通信関連
-  //
-
-private:
-
-  ///
-  /// リモートの姿勢を受信する
-  ///
-  void recv();
-
-  ///
-  /// ローカルの映像と姿勢を送信する
-  ///
-  void send();
-
-protected:
-
-  /// 受信スレッド
-  std::thread recvThread;
-
-  /// 送信スレッド
-  std::thread sendThread;
-
-  /// エンコードのパラメータ
-  std::vector<int> param;
-
-  /// 映像受信用のメモリ
-  uchar* recvbuf{ nullptr };
-
-  /// 映像送信用のメモリ
-  uchar* sendbuf{ nullptr };
-
-  /// 通信データ
-  Network network;
-
-public:
-
-  ///
-  /// 作業者通信スレッド起動
-  ///
-  /// @param port ポート番号
-  /// @param address 接続先のアドレス
-  /// @return 成功した場合は 0、失敗した場合はエラーコード
-  ///
-  int startWorker(unsigned short port, const char* address);
-
-  ///
-  /// ネットワークを使っているかどうか
-  ///
-  /// @return ネットワークを使っている場合は true
-  ///
-  bool useNetwork() const
+  virtual void increaseExposure()
   {
-    return network.running();
   }
 
   ///
-  /// 作業者かどうか
+  /// 露出を下げる
   ///
-  /// @return 作業者の場合は true
-  ///
-  bool isWorker() const
+  virtual void decreaseExposure()
   {
-    return network.isWorker();
   }
 
   ///
-  /// 指導者かどうか
+  /// 利得を上げる
   ///
-  /// @return 指導者の場合は true
-  ///
-  bool isInstructor() const
+  virtual void increaseGain()
   {
-    return network.isInstructor();
   }
+
+  ///
+  /// 利得を下げる
+  ///
+  virtual void decreaseGain()
+  {
+  }
+
+  ///
+  /// カメラフレームを OpenGL テクスチャへ転送する
+  ///
+  /// @param eye 視点番号 (0: 左/単眼, 1: 右)
+  /// @param texture 転送先のテクスチャ名 (GLuint)
+  /// @param size テクスチャのサイズ配列 (幅, 高さ)
+  /// @return 転送に成功したら true
+  ///
+  virtual bool transmit(int eye, unsigned int texture, const int* size);
 };

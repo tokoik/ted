@@ -13,6 +13,11 @@
 // 共有メモリ
 #include "SharedMemory.h"
 
+#include <GLFW/glfw3.h>
+#include <cmath>
+#include <chrono>
+#include <iostream>
+
 //
 // コンストラクタ
 //
@@ -42,8 +47,7 @@ CamRemote::CamRemote()
 //
 CamRemote::~CamRemote()
 {
-  // スレッドを停止する
-  stop();
+  close();
 
   // 背景画像のタイリングに使うフレームバッファオブジェクト
   glDeleteFramebuffers(1, &fb);
@@ -53,6 +57,41 @@ CamRemote::~CamRemote()
 
   // 魚眼画像に変形するシェーダ
   glDeleteProgram(shader);
+}
+
+//
+// キャプチャ開始
+//
+bool CamRemote::onStart()
+{
+  sendThread = std::thread([this]() { send(); });
+  recvThread = std::thread([this]() { recv(); });
+  return true;
+}
+
+//
+// キャプチャ停止
+//
+void CamRemote::onStop()
+{
+  network.sendEof();
+  if (sendThread.joinable()) sendThread.join();
+  if (recvThread.joinable()) recvThread.join();
+}
+
+//
+// キャプチャデバイスを閉じる
+//
+void CamRemote::onClose()
+{
+  delete[] sendbuf;
+  delete[] recvbuf;
+  sendbuf = recvbuf = nullptr;
+  network.finalize();
+  imageR.clear();
+  widthR = 0;
+  heightR = 0;
+  capturedR = false;
 }
 
 //
@@ -69,13 +108,13 @@ int CamRemote::open(unsigned short port, const char* address)
   const int ret(network.initialize(1, port, address));
   if (ret != 0) return ret;
 
-  // 作業用のメモリを確保する（これは Camera のデストラクタで delete する）
-  sendbuf = new uchar[maxFrameSize];
-  recvbuf = new uchar[maxFrameSize];
+  // 作業用のメモリを確保する
+  sendbuf = new unsigned char[maxFrameSize];
+  recvbuf = new unsigned char[maxFrameSize];
 
   const unsigned int* head{ nullptr };
   const GgMatrix* body{ nullptr };
-  const uchar* data{ nullptr };
+  const unsigned char* data{ nullptr };
 
   // テクスチャ確保には画像寸法が必要なため、境界が正しく左画像を含むフレームまで待つ
   for (int i = 0;;)
@@ -93,7 +132,7 @@ int CamRemote::open(unsigned short port, const char* address)
   remoteAttitude->store(body, head[camCount]);
 
   // 符号化されたデータの一時保存先
-  std::vector<GLubyte> encoded;
+  std::vector<unsigned char> encoded;
 
   // 左フレームデータを vector に変換して
   encoded.assign(data, data + head[camL]);
@@ -128,6 +167,12 @@ int CamRemote::open(unsigned short port, const char* address)
     rsize[camR] = rsize[camL];
   }
 
+  width = rsize[camL].width;
+  height = rsize[camL].height;
+  widthR = rsize[camR].width;
+  heightR = rsize[camR].height;
+  channels = 3;
+
   // 背景画像の変形に使うメッシュの縦横の格子点数を求める
   const GLfloat aspect(static_cast<GLfloat>(size[camL].width) / static_cast<GLfloat>(size[camL].height));
   const int samples{ std::max(defaults.remote_texture_samples, 4) };
@@ -149,7 +194,7 @@ int CamRemote::open(unsigned short port, const char* address)
     // リモートから取得したフレームのサンプリングに使うテクスチャを準備する
     glBindTexture(GL_TEXTURE_2D, resample[cam]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, rsize[cam].width, rsize[cam].height, 0,
-      GL_RGB, GL_UNSIGNED_BYTE, NULL);
+      GL_BGR, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -158,64 +203,68 @@ int CamRemote::open(unsigned short port, const char* address)
   }
 
   // 通信スレッドを開始する
-  run[camL] = true;
-  sendThread = std::thread([this]() { send(); });
-  recvThread = std::thread([this]() { recv(); });
+  start();
 
   return 0;
 }
 
 //
-// 左カメラをロックして画像をテクスチャに転送する
+// カメラをロックして画像をテクスチャに転送する
 //
-bool CamRemote::transmit(int cam, GLuint texture, const GLsizei* size)
+bool CamRemote::transmit(int eye, unsigned int texture, const int* transmitSize)
 {
-  if (captureMutex[cam].try_lock())
+  std::unique_lock<std::mutex> lock{ mtx, std::try_to_lock };
+  if (lock.owns_lock())
   {
-    if (captured[cam])
+    const bool isCap{ (eye == 0) ? captured.load() : capturedR.load() };
+    if (isCap)
     {
-      // 画像のサイズ（ロック内で image[cam] を見る）
-      const GLsizei fsize[] = { image[cam].cols, image[cam].rows };
-
-      glBindTexture(GL_TEXTURE_2D, resample[cam]);
-      if (resampleSize[cam].width != fsize[0] || resampleSize[cam].height != fsize[1])
+      const auto& img{ remote[eye] };
+      if (!img.empty())
       {
-        resampleSize[cam] = cv::Size(fsize[0], fsize[1]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, fsize[0], fsize[1], 0,
-          format, GL_UNSIGNED_BYTE, nullptr);
-      }
-      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fsize[0], fsize[1], format, GL_UNSIGNED_BYTE, image[cam].data);
-      captured[cam] = false;
-      captureMutex[cam].unlock();
+        const GLsizei fsize[]{ img.cols, img.rows };
 
-      // テクスチャ変形用のシェーダ
-      glUseProgram(shader);
-      glUniform2fv(gapLoc, 1, gap);
-      glUniform2fv(screenLoc, 1, screen);
-      glUniform1i(imageLoc, 0);
-      glViewport(0, 0, size[0], size[1]);
+        glBindTexture(GL_TEXTURE_2D, resample[eye]);
+        if (resampleSize[eye].width != fsize[0] || resampleSize[eye].height != fsize[1])
+        {
+          resampleSize[eye] = cv::Size(fsize[0], fsize[1]);
+          glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, fsize[0], fsize[1], 0,
+            GL_BGR, GL_UNSIGNED_BYTE, nullptr);
+        }
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fsize[0], fsize[1], GL_BGR, GL_UNSIGNED_BYTE, img.data);
 
-      // 背景画像の変形に使うフレームバッファオブジェクトに切り替える
-      glBindFramebuffer(GL_FRAMEBUFFER, fb);
-      glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
-      if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-      {
+        if (eye == 0) captured = false;
+        else capturedR = false;
+        lock.unlock();
+
+        // テクスチャ変形用のシェーダ
+        glUseProgram(shader);
+        glUniform2fv(gapLoc, 1, gap);
+        glUniform2fv(screenLoc, 1, screen);
+        glUniform1i(imageLoc, 0);
+        glViewport(0, 0, transmitSize[0], transmitSize[1]);
+
+        // 背景画像の変形に使うフレームバッファオブジェクトに切り替える
+        glBindFramebuffer(GL_FRAMEBUFFER, fb);
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        {
+          glBindFramebuffer(GL_FRAMEBUFFER, 0);
+          return false;
+        }
+
+        // リモートから取得したフレームのサンプリングに使うテクスチャを指定する
+        glBindTexture(GL_TEXTURE_2D, resample[eye]);
+
+        // リモートのヘッドトラッキング情報を設定してレンダリング
+        glUniformMatrix4fv(rotationLoc, 1, GL_FALSE, Scene::getRemoteAttitude(eye).data());
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, slices * 2, stacks - 1);
+
+        // レンダリング先を通常のフレームバッファに戻す
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        return false;
+        return true;
       }
-
-      // リモートから取得したフレームのサンプリングに使うテクスチャを指定する
-      glBindTexture(GL_TEXTURE_2D, resample[cam]);
-
-      // リモートのヘッドトラッキング情報を設定してレンダリング
-      glUniformMatrix4fv(rotationLoc, 1, GL_FALSE, Scene::getRemoteAttitude(cam).data());
-      glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, slices * 2, stacks - 1);
-
-      // レンダリング先を通常のフレームバッファに戻す
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-      return true;
     }
-    captureMutex[cam].unlock();
   }
   return false;
 }
@@ -226,7 +275,7 @@ bool CamRemote::transmit(int cam, GLuint texture, const GLsizei* size)
 void CamRemote::recv()
 {
   // スレッドが実行可の間
-  while (run[camL])
+  while (running)
   {
     // 姿勢データと画像データを受信する
     const int ret{ network.recvData(recvbuf, maxFrameSize) };
@@ -241,94 +290,58 @@ void CamRemote::recv()
     // エラーがなく、送信元とフレーム内部の境界が正しければデータを読み込む
     if (ret > 0 && network.checkRemote())
     {
-      const unsigned int* head;
-      const GgMatrix* body;
-      const uchar* data;
+      const unsigned int* head{ nullptr };
+      const GgMatrix* body{ nullptr };
+      const unsigned char* data{ nullptr };
       if (!unpackFrame(recvbuf, ret, head, body, data)) continue;
 
       // 変換行列を共有メモリに格納する
       remoteAttitude->store(body, head[camCount]);
 
-      // リモートから取得したフレームのサイズ
-      cv::Size rsize[camCount];
-
       // 符号化されたデータの一時保存先
-      std::vector<GLubyte> encoded;
+      std::vector<unsigned char> encoded;
 
       // 左バッファが空のとき左フレームが送られてきていれば
-      if (!captured[camL] && head[camL] > 0)
+      if (!captured && head[camL] > 0)
       {
-        // 左フレームデータを vector に変換して
         encoded.assign(data, data + head[camL]);
-
-        // 左フレームをデコードして保存し
         cv::Mat decoded = cv::imdecode(cv::Mat(encoded), 1);
 
         if (!decoded.empty())
         {
+          std::lock_guard<std::mutex> lock{ mtx };
           remote[camL] = decoded;
-
-          // 左フレームのサイズを求めておいて
-          rsize[camL] = remote[camL].size();
-
-          // 左画像をロックし
-          {
-            std::lock_guard<std::mutex> lock(captureMutex[camL]);
-
-            // 左画像を更新したら
-            image[camL] = remote[camL];
-
-            // 左フレームの取得の完了を記録する
-            captured[camL] = true;
-          }
+          width = decoded.cols;
+          height = decoded.rows;
+          channels = 3;
+          captured = true;
         }
       }
 
       // 右バッファが空のとき右フレームが送られてきていれば
-      if (!captured[camR] && head[camR] > 0)
+      if (!capturedR && head[camR] > 0)
       {
-        // 右フレームデータを vector に変換して
         encoded.assign(data + head[camL], data + head[camL] + head[camR]);
-
-        // 右フレームをデコードして保存し
         cv::Mat decoded = cv::imdecode(cv::Mat(encoded), 1);
 
         if (!decoded.empty())
         {
+          std::lock_guard<std::mutex> lock{ mtx };
           remote[camR] = decoded;
-
-          // 右フレームのサイズを求めておいて
-          rsize[camR] = remote[camR].size();
-
-          // 右画像をロックし
-          {
-            std::lock_guard<std::mutex> lock(captureMutex[camR]);
-
-            // 右画像を更新したら
-            image[camR] = remote[camR];
-
-            // 右フレームの取得の完了を記録する
-            captured[camR] = true;
-          }
+          widthR = decoded.cols;
+          heightR = decoded.rows;
+          capturedR = true;
         }
       }
 
-      // 右フレームが保存されていなければ
-      if (remote[camR].empty())
+      // 右フレームが送られてきていなければ左フレームと同じにする
+      if (!capturedR && captured)
       {
-        // 右フレームのサイズは左フレームと同じにして
-        rsize[camR] = rsize[camL];
-
-        // 右画像をロックし
-        {
-          std::lock_guard<std::mutex> lock(captureMutex[camR]);
-
-          // 右画像は左フレームと同じにして
-          image[camR] = remote[camL];
-
-          // 右フレームの取得の完了を記録する
-          captured[camR] = true;
-        }
+        std::lock_guard<std::mutex> lock{ mtx };
+        remote[camR] = remote[camL];
+        widthR = width;
+        heightR = height;
+        capturedR = true;
       }
     }
 
@@ -342,11 +355,10 @@ void CamRemote::recv()
 //
 void CamRemote::send()
 {
-  // 直前のフレームの送信時刻
   auto last{ glfwGetTime() };
 
   // カメラスレッドが実行可の間
-  while (run[camL])
+  while (running)
   {
     // ヘッダのフォーマット
     const auto head{ reinterpret_cast<unsigned int*>(sendbuf) };
@@ -364,7 +376,7 @@ void CamRemote::send()
     localAttitude->load(body, head[camCount]);
 
     // 左フレームの保存先 (変換行列の最後)
-    const auto data{ reinterpret_cast<uchar*>(body + head[camCount]) };
+    const auto data{ reinterpret_cast<unsigned char*>(body + head[camCount]) };
 
     // フレームを送信する
     network.sendData(sendbuf, static_cast<unsigned int>(data - sendbuf));
@@ -373,19 +385,15 @@ void CamRemote::send()
     const auto now{ glfwGetTime() };
 
     // GLFW時刻（秒）をsleep_forへ渡すミリ秒に変換する
-    const auto remain{ static_cast<long long>((last + send_interval - now) * 1000.0) };
+    const auto remain{ static_cast<long long>((last + (minDelay * 0.001) - now) * 1000.0) };
 
 #if defined(DEBUG)
     std::cerr << "send remain = " << remain << '\n';
 #endif
 
-    // 直前のフレームの送信時刻を更新する
     last = now;
 
-    // 残り時間分遅延させる
     const auto delay{ remain > minDelay ? remain : minDelay };
-
-    // 次のフレームの送信時刻まで待つ
     std::this_thread::sleep_for(std::chrono::milliseconds(delay));
   }
 

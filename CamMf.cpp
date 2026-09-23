@@ -9,6 +9,7 @@
 
 // バックエンド非依存のカメラ入力形式
 #include "CameraCapabilities.h"
+#include "gg.h"
 
 // 標準ライブラリ
 #include <iostream>
@@ -524,13 +525,25 @@ bool CamMf::setFormat(int cam, int index)
   caps[cam].width = selectedFormat.width;
   caps[cam].height = selectedFormat.height;
 
-  // 後段へ渡す共有画像を、最終出力である OpenCV の BGR 形式で確保する
-  image[cam] = cv::Mat::zeros(caps[cam].height, caps[cam].width, CV_8UC3);
+  // 後段へ渡す共有画像を確保する (BGRA = 4チャンネル)
+  if (cam == camL)
+  {
+    width = caps[cam].width;
+    height = caps[cam].height;
+    channels = 4;
+    image.resize(static_cast<std::size_t>(width) * height * channels);
+  }
+  else
+  {
+    widthR = caps[cam].width;
+    heightR = caps[cam].height;
+    imageR.resize(static_cast<std::size_t>(widthR) * heightR * 4);
+  }
 
-  // フレームレートの逆数を送出間隔として保存し、取得側のペーシングに利用する
-  interval[cam] = (selectedFormat.fpsDenom != 0)
-    ? (static_cast<double>(selectedFormat.fpsDenom) / selectedFormat.fpsNum)
-    : (1.0 / 30.0);
+  // フレームレートの逆数を送出間隔 (ミリ秒) として保存する
+  interval = (selectedFormat.fpsDenom != 0)
+    ? ((static_cast<double>(selectedFormat.fpsDenom) / selectedFormat.fpsNum) * 1000.0)
+    : (1000.0 / 30.0);
 
   if (decodeMethod != DecodeMethod::None)
   {
@@ -595,7 +608,7 @@ done:
 bool CamMf::open(int device, int cam, bool setupFormat)
 {
   // ライブカメラでは滞留フレームを捨て、常に最新映像を優先する
-  prioritizeLatency[cam] = true;
+  prioritizeLatencyCam[cam] = true;
 
   if (!ComInitializer::activate(device, &caps[cam].pMediaSource)) return false;
 
@@ -716,7 +729,66 @@ void CamMf::close(int cam)
   caps[cam].codecList.clear();
   caps[cam].resolutionList.clear();
 
-  captured[cam] = false;
+  if (cam == camL) captured = false;
+  else capturedR = false;
+}
+
+//
+// キャプチャ開始処理を行う（派生クラス固有の実装）
+//
+bool CamMf::onStart()
+{
+  for (int cam = 0; cam < camCount; ++cam)
+  {
+    if (caps[cam].pSourceReader && !run[cam])
+    {
+      run[cam] = true;
+      captureThread[cam] = std::thread([this, cam]() { capture(cam); });
+    }
+  }
+  return true;
+}
+
+//
+// キャプチャ停止処理を行う（派生クラス固有の実装）
+//
+void CamMf::onStop()
+{
+  for (int cam = 0; cam < camCount; ++cam)
+  {
+    if (run[cam])
+    {
+      run[cam] = false;
+      if (caps[cam].pSourceReader)
+      {
+        caps[cam].pSourceReader->Flush(MF_SOURCE_READER_FIRST_VIDEO_STREAM);
+      }
+    }
+  }
+  for (int cam = 0; cam < camCount; ++cam)
+  {
+    if (captureThread[cam].joinable())
+    {
+      captureThread[cam].join();
+    }
+  }
+}
+
+//
+// キャプチャデバイスを閉じる処理を行う（派生クラス固有の実装）
+//
+void CamMf::onClose()
+{
+  onStop();
+  for (int cam = 0; cam < camCount; ++cam)
+  {
+    close(cam);
+  }
+  std::lock_guard<std::mutex> lock(mtx);
+  imageR.clear();
+  widthR = 0;
+  heightR = 0;
+  capturedR = false;
 }
 
 //
@@ -724,10 +796,7 @@ void CamMf::close(int cam)
 //
 void CamMf::close()
 {
-  for (int cam = 0; cam < camCount; ++cam)
-  {
-    close(cam);
-  }
+  onClose();
 }
 
 //
@@ -735,18 +804,7 @@ void CamMf::close()
 //
 void CamMf::stop()
 {
-  // 同期 ReadSample 中の各スレッドを先に起こし、基底クラスの join が待ち続けないようにする
-  for (int cam = 0; cam < camCount; ++cam)
-  {
-    if (run[cam])
-    {
-      if (caps[cam].pSourceReader)
-      {
-        caps[cam].pSourceReader->Flush(MF_SOURCE_READER_FIRST_VIDEO_STREAM);
-      }
-    }
-  }
-  Camera::stop();
+  onStop();
 }
 
 //
@@ -1019,10 +1077,22 @@ void CamMf::capture(int cam)
 
             if (SUCCEEDED(hr))
             {
-              // 描画スレッドと競合しないようロック中に BGR 共有画像の寸法を更新する
-              captureMutex[cam].lock();
-              image[cam] = cv::Mat::zeros(caps[cam].height, caps[cam].width, CV_8UC3);
-              captureMutex[cam].unlock();
+              // 描画スレッドと競合しないようロック中に共有画像の寸法を更新する
+              std::lock_guard<std::mutex> lock{ mtx };
+              const size_t sz{ static_cast<size_t>(caps[cam].width) * caps[cam].height * 4 };
+              if (cam == camL)
+              {
+                width = caps[cam].width;
+                height = caps[cam].height;
+                channels = 4;
+                image.resize(sz);
+              }
+              else
+              {
+                widthR = caps[cam].width;
+                heightR = caps[cam].height;
+                imageR.resize(sz);
+              }
             }
           }
 
@@ -1087,7 +1157,7 @@ void CamMf::capture(int cam)
         hasOutput = true;
 
         // レイテンシ優先なら
-        if (prioritizeLatency[cam])
+        if (prioritizeLatencyCam[cam])
         {
           // 最新を取得し続けるためループを継続する
           continue;
@@ -1147,48 +1217,71 @@ void CamMf::capture(int cam)
       if (SUCCEEDED(pBuffer->Lock(&pData, nullptr, &cbDataLength)) && pData)
       {
         // 全フレーム処理モードなら
-        if (!prioritizeLatency[cam])
+        if (!prioritizeLatency)
         {
           // ファイル／ネットワーク入力では前フレームが消費されるまで待ち、フレーム欠落を防ぐ
-          // キャプチャしている間は
-          while (run[cam] && (captured[cam]
-            || (cam == camL && isPackedCameraLayout(defaults.camera_layout) && captured[camR])))
+          while (run[cam] && (captured || (cam == camR && capturedR)))
           {
-            // スレッドを一時停止して CPU リソースを解放する
             std::this_thread::yield();
           }
         }
 
-        // BGRA (4チャンネル) を BGR (3チャンネル) に変換する
-        cv::Mat temp(caps[cam].height, caps[cam].width, CV_8UC4, pData);
-        cv::Mat converted;
-        cv::cvtColor(temp, converted, cv::COLOR_BGRA2BGR);
-
+        const int rowBytes = caps[cam].width * 4;
         if (cam == camL && isPackedCameraLayout(defaults.camera_layout))
         {
-          // 1フレームに格納された左右画像を、描画・送信が扱う左右別画像へ分割する
-          std::scoped_lock lock(captureMutex[camL], captureMutex[camR]);
+          std::lock_guard<std::mutex> lock(mtx);
           if (defaults.camera_layout == CAMERA_LAYOUT_SIDE_BY_SIDE)
           {
-            const int width{ converted.cols / 2 };
-            converted(cv::Rect(0, 0, width, converted.rows)).copyTo(image[camL]);
-            converted(cv::Rect(width, 0, width, converted.rows)).copyTo(image[camR]);
+            const int w{ caps[camL].width / 2 };
+            const int h{ caps[camL].height };
+            width = w; height = h; channels = 4;
+            widthR = w; heightR = h;
+            const std::size_t halfRowBytes{ static_cast<std::size_t>(w) * 4 };
+            const std::size_t halfSize{ halfRowBytes * h };
+            image.resize(halfSize);
+            imageR.resize(halfSize);
+            for (int y = 0; y < h; ++y)
+            {
+              const uint8_t* row = pData + y * rowBytes;
+              std::memcpy(image.data() + y * halfRowBytes, row, halfRowBytes);
+              std::memcpy(imageR.data() + y * halfRowBytes, row + halfRowBytes, halfRowBytes);
+            }
           }
-          else
+          else // TOP_AND_BOTTOM
           {
-            const int height{ converted.rows / 2 };
-            converted(cv::Rect(0, 0, converted.cols, height)).copyTo(image[camL]);
-            converted(cv::Rect(0, height, converted.cols, height)).copyTo(image[camR]);
+            const int w{ caps[camL].width };
+            const int h{ caps[camL].height / 2 };
+            width = w; height = h; channels = 4;
+            widthR = w; heightR = h;
+            const std::size_t halfSize{ static_cast<std::size_t>(w) * h * 4 };
+            image.resize(halfSize);
+            imageR.resize(halfSize);
+            std::memcpy(image.data(), pData, halfSize);
+            std::memcpy(imageR.data(), pData + halfSize, halfSize);
           }
-          captured[camL] = captured[camR] = true;
-          unsent[camL] = unsent[camR] = true;
+          captured = true;
         }
         else
         {
-          std::lock_guard<std::mutex> lock(captureMutex[cam]);
-          image[cam] = std::move(converted);
-          captured[cam] = true;
-          unsent[cam] = true;
+          std::lock_guard<std::mutex> lock(mtx);
+          const std::size_t totalSize{ static_cast<std::size_t>(caps[cam].width) * caps[cam].height * 4 };
+          if (cam == camL)
+          {
+            width = caps[cam].width;
+            height = caps[cam].height;
+            channels = 4;
+            image.resize(totalSize);
+            std::memcpy(image.data(), pData, totalSize);
+            captured = true;
+          }
+          else
+          {
+            widthR = caps[cam].width;
+            heightR = caps[cam].height;
+            imageR.resize(totalSize);
+            std::memcpy(imageR.data(), pData, totalSize);
+            capturedR = true;
+          }
         }
 
         pBuffer->Unlock();
@@ -1219,7 +1312,7 @@ CamMf::~CamMf()
 bool CamMf::open(const std::string& file, int cam)
 {
   // ファイル／ネットワーク入力ではフレーム順序を維持し、未消費フレームを破棄しない
-  prioritizeLatency[cam] = false;
+  prioritizeLatencyCam[cam] = false;
 
   // Media Foundation の URL API に渡すため、公開 API の UTF-8 パスを UTF-16 に変換する
   int wlen = MultiByteToWideChar(CP_UTF8, 0, file.c_str(), -1, nullptr, 0);
@@ -1244,6 +1337,18 @@ bool CamMf::open(const std::string& file, int cam)
   // 列挙または形式設定に失敗した Reader を残さず、呼び出し側が再試行できる状態へ戻す
   SafeRelease(&caps[cam].pSourceReader);
   return false;
+}
+
+//
+// カメラフレームを OpenGL テクスチャへ転送する
+//
+bool CamMf::transmit(int eye, unsigned int texture, const int* size)
+{
+  return lockFrame(eye, [texture, size](const std::uint8_t* data, size_t length, int width, int height, int channels) {
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size[0], size[1],
+      GL_BGRA, GL_UNSIGNED_BYTE, data);
+  });
 }
 
 

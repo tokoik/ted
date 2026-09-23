@@ -14,6 +14,39 @@
 #  include <winsock2.h>
 #endif
 
+// 各種設定
+#include "Config.h"
+
+// 補助プログラム
+#include "gg.h"
+
+/// 通信フレームのヘッダの長さ
+///
+/// @details
+/// 通信フレームは「左フレームサイズ、右フレームサイズ、変換行列数」の順に格納する。
+///
+constexpr int headLength{ camCount + 1 };
+
+/// UDP で送受信する1フレームの上限
+///
+/// @details
+/// 符号化後の画像が収まらない場合は画像を省略して固定長バッファを越えて書き込まない。
+///
+constexpr int maxFrameSize{ 1024 * 1024 };
+
+///
+/// 受信したフレームの解析
+///
+/// @param buffer 受信したフレームの先頭アドレス
+/// @param length 受信したフレームの長さ
+/// @param head 受信したフレームのヘッダの先頭アドレス
+/// @param body 受信したフレームの変換行列の先頭アドレス
+/// @param imageData 受信したフレームの画像データの先頭アドレス
+/// @return 成功した場合は true
+///
+bool unpackFrame(const unsigned char* buffer, int length, const unsigned int*& head,
+  const gg::GgMatrix*& body, const unsigned char*& imageData);
+
 ///
 /// UDP通信を管理するクラス
 ///

@@ -11,6 +11,9 @@
 // カメラ関連の処理
 #include "Camera.h"
 
+// 各種設定
+#include "Config.h"
+
 // Microsoft Media Foundation
 #include <MFapi.h>
 #include <Mfidl.h>
@@ -21,12 +24,13 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
 
 ///
 /// Microsoft Media Foundation を使ってカメラまたは動画を取り込むクラス
 ///
 /// @details
-/// 圧縮入力はMFTデコーダ、非BGR入力はカラーコンバータへ通し、Camera基底が扱うBGR画像へ統一する。
+/// 圧縮入力はMFTデコーダ、非BGR入力はカラーコンバータへ通し、Camera基底が扱うBGRA画像へ統一する。
 ///
 class CamMf : public Camera
 {
@@ -108,9 +112,6 @@ private:
     ///
     /// コピーコンストラクタとムーブコンストラクタを封じる
     ///
-    /// @details
-    /// シングルトンなのでコピーは作らせない.
-    ///
     ComInitializer(const ComInitializer& com) = delete;
     ComInitializer(ComInitializer&& com) = delete;
     ComInitializer& operator=(const ComInitializer& com) = delete;
@@ -183,6 +184,25 @@ private:
   }
   caps[camCount];
 
+  /// 右眼用のフレームバッファ
+  std::vector<std::uint8_t> imageR;
+
+  /// 右眼用の解像度
+  int widthR{ 0 };
+  int heightR{ 0 };
+
+  /// 右眼用のキャプチャ完了フラグ
+  std::atomic<bool> capturedR{ false };
+
+  /// 左右それぞれのキャプチャスレッド
+  std::thread captureThread[camCount];
+
+  /// 各カメラの実行状態フラグ
+  std::atomic<bool> run[camCount]{ false, false };
+
+  /// 各カメラのレイテンシ優先フラグ
+  std::atomic<bool> prioritizeLatencyCam[camCount]{ true, true };
+
   ///
   /// 使用可能な解像度、フレームレート、コーデックのリストを作成する
   ///
@@ -224,7 +244,6 @@ private:
   /// MFT を解放する
   ///
   /// @param pTransform MFT のポインタへのポインタ
-  /// @return 成功した場合は S_OK
   ///
   void cleanUpTransform(IMFTransform** pTransform) const;
 
@@ -248,6 +267,7 @@ private:
   /// Source Reader の出力フォーマットを設定し、基底クラスの image を初期化する
   ///
   /// @param cam カメラ番号
+  /// @param index フォーマット番号
   /// @return 成功した場合は true
   ///
   bool setFormat(int cam, int index);
@@ -258,6 +278,25 @@ private:
   /// @param cam カメラ番号
   ///
   void capture(int cam);
+
+protected:
+
+  ///
+  /// キャプチャ開始処理を行う（派生クラス固有の実装）
+  ///
+  /// @return 正常に開始できたら true
+  ///
+  virtual bool onStart() override;
+
+  ///
+  /// キャプチャ停止処理を行う（派生クラス固有の実装）
+  ///
+  virtual void onStop() override;
+
+  ///
+  /// キャプチャデバイスを閉じる処理を行う（派生クラス固有の実装）
+  ///
+  virtual void onClose() override;
 
 public:
 
@@ -317,22 +356,34 @@ public:
   ///
   bool opened(int cam) const;
 
+  ///
   /// 分割後の画像の幅を得る
-  virtual int getWidth(int cam) const override
+  ///
+  virtual int getWidth(int eye = 0) const override
   {
     if (isPackedCameraLayout(defaults.camera_layout))
       return defaults.camera_layout == CAMERA_LAYOUT_SIDE_BY_SIDE
         ? static_cast<int>(caps[camL].width / 2) : static_cast<int>(caps[camL].width);
-    return Camera::getWidth(cam);
+    return (eye == 0) ? caps[camL].width : caps[camR].width;
   }
 
+  ///
   /// 分割後の画像の高さを得る
-  virtual int getHeight(int cam) const override
+  ///
+  virtual int getHeight(int eye = 0) const override
   {
     if (isPackedCameraLayout(defaults.camera_layout))
       return defaults.camera_layout == CAMERA_LAYOUT_TOP_AND_BOTTOM
         ? static_cast<int>(caps[camL].height / 2) : static_cast<int>(caps[camL].height);
-    return Camera::getHeight(cam);
+    return (eye == 0) ? caps[camL].height : caps[camR].height;
+  }
+
+  ///
+  /// チャンネル数を得る (BGRA = 4)
+  ///
+  virtual int getChannels(int eye = 0) const override
+  {
+    return 4;
   }
 
   ///
@@ -418,5 +469,53 @@ public:
   /// @return 選択された解像度のインデックス
   ///
   int getSelectedResolutionIndex(int cam) const { return caps[cam].selectedResolutionIndex; }
-};
 
+  ///
+  /// カメラフレームを OpenGL テクスチャへ転送する
+  ///
+  /// @param eye 視点番号 (0: 左/単眼, 1: 右)
+  /// @param texture 転送先のテクスチャ名 (GLuint)
+  /// @param size テクスチャのサイズ配列 (幅, 高さ)
+  /// @return 転送に成功したら true
+  ///
+  virtual bool transmit(int eye, unsigned int texture, const int* size) override;
+
+
+  ///
+  /// 指定した視点のフレームデータをロックして処理関数を実行する
+  ///
+  /// @tparam F 処理関数の型
+  /// @param eye 視点番号 (0: 左/単眼, 1: 右)
+  /// @param func フレームデータを処理する関数 (引数: const std::uint8_t* data, size_t length, int width, int height, int channels)
+  /// @return フレームが取得できて処理関数が実行されたら true
+  ///
+  template <typename F>
+  bool lockFrame(int eye, F&& func)
+  {
+    std::unique_lock<std::mutex> lock{ mtx, std::try_to_lock };
+    if (!lock.owns_lock()) return false;
+
+    if (eye == 0 && captured && !image.empty())
+    {
+      const auto length{ static_cast<size_t>(width) * height * channels };
+      func(image.data(), std::min(image.size(), length), width, height, channels);
+      return true;
+    }
+    else if (eye == 1 && (captured || capturedR) && !imageR.empty())
+    {
+      const auto length{ static_cast<size_t>(widthR) * heightR * 4 };
+      func(imageR.data(), std::min(imageR.size(), length), widthR, heightR, 4);
+      return true;
+    }
+    return false;
+  }
+
+  ///
+  /// 単一視点用のフレームデータロック
+  ///
+  template <typename F>
+  bool lockFrame(F&& func)
+  {
+    return lockFrame(0, std::forward<F>(func));
+  }
+};
