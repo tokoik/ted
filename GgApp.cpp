@@ -8,11 +8,6 @@
 #include "GgApp.h"
 #include "Scene.h"
 #include "Attitude.h"
-#include "CamMf.h"
-#include "CamOv.h"
-#include "CamImage.h"
-#include "CamRemote.h"
-#include "Network.h"
 
 #include <iostream>
 #include <cmath>

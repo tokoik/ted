@@ -7,14 +7,6 @@
 ///
 #include "Menu.h"
 
-// ネットワーク関連の処理
-#include "Network.h"
-
-// カメラ関連の処理
-#include "CamOv.h"
-#include "CamImage.h"
-#include "CamRemote.h"
-
 // Dear ImGui
 #include "imgui.h"
 
@@ -22,6 +14,7 @@
 #include "nfd.h"
 
 // 標準ライブラリ
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
