@@ -36,30 +36,27 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 標準ライブラリ
 #include <cfloat>
 #include <cstdlib>
-#include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <limits>
 #include <map>
+#if !defined(_WIN32)
+#  include <unistd.h>
+#  include <limits.h>
+#endif
 
 /// @def Alias OBJ ファイルからテクスチャ座標も読み込むなら 1.
 #define READ_TEXTURE_COORDINATE_FROM_OBJ 0
 
 // Windows (Visual Studio) のとき
-#if defined(_WIN32)
-// デバッグビルドかどうか調べて
-#  if defined(_DEBUG)
-// デバッグビルドならそのことを示す記号定数を別に定義して
-#    define DEBUG
-// デバッグビルド用のライブラリをリンクする
-#    pragma comment(lib, "glfw3.lib")
-#  else
-// リリースビルドならコンソールにメッセージを出さないようにして
+#if defined(_MSC_VER)
+// リリースビルドではコンソールを出さない
+#  if !defined(_DEBUG)
 #    pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
-// リリースビルド用のライブラリをリンクする
-#    pragma comment(lib, "glfw3.lib")
 #  endif
+// リンクするライブラリ
+// #  pragma comment(lib, "lib\\" GLFW3_PLATFORM "\\" GLFW3_CONFIGURATION "\\glfw3.lib")
 
 //
 // For VC++ MFC Convert UTF-8 to TCHAR, or Convert TCHAR to UTF-8. VC++ MFC用 UTF-8⇔TCHARの変換処理
@@ -70,6 +67,24 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //   Modified by: Kohe Tokoi
 //
+
+//
+// UTF-8 文字列を CString に変換する
+//
+pathString Utf8ToTChar(const std::string& string)
+{
+  // UTF-8 文字列を UTF-16 に変換した後の文字列の長さを求める
+  const INT length{ MultiByteToWideChar(CP_UTF8, 0, string.c_str(), -1, NULL, 0) };
+
+  // 変換結果の格納に必要な長さのメモリを確保する
+  std::vector<WCHAR> utf16(length);
+
+  // UTF-8 文字列を UTF-16 に変換する
+  MultiByteToWideChar(CP_UTF8, 0, string.c_str(), -1, utf16.data(), length);
+
+  // 変換した文字列を CString にして返す
+  return CString{ utf16.data(), static_cast<int>(wcslen(utf16.data())) };
+}
 
 //
 // Cstring を UTF-8 文字列に変換する
@@ -3247,10 +3262,25 @@ void gg::GgQuaternion::toQuaternion(GLfloat* q, const GLfloat* a) const
 //
 void gg::GgQuaternion::slerp(GLfloat* p, const GLfloat* q, const GLfloat* r, GLfloat t) const
 {
-  const auto qr{ ggDot3(q, r) };
+  auto qr{ ggDot4(q, r) };
+  GLfloat s[4]{ r[0], r[1], r[2], r[3] };
+
+  // 内積が負なら最短経路を通るように符号を反転する
+  if (qr < 0.0f)
+  {
+    qr = -qr;
+    s[0] = -s[0];
+    s[1] = -s[1];
+    s[2] = -s[2];
+    s[3] = -s[3];
+  }
+
+  // 浮動小数点誤差で 1.0f を超える場合をクランプ
+  if (qr > 1.0f) qr = 1.0f;
+
   const auto ss{ 1.0f - qr * qr };
 
-  if (ss == 0.0f)
+  if (ss <= 0.0f)
   {
     if (p != q)
     {
@@ -3268,10 +3298,10 @@ void gg::GgQuaternion::slerp(GLfloat* p, const GLfloat* q, const GLfloat* r, GLf
     const auto t1{ sinf(pt) / sp };
     const auto t0{ sinf(ph - pt) / sp };
 
-    p[0] = q[0] * t0 + r[0] * t1;
-    p[1] = q[1] * t0 + r[1] * t1;
-    p[2] = q[2] * t0 + r[2] * t1;
-    p[3] = q[3] * t0 + r[3] * t1;
+    p[0] = q[0] * t0 + s[0] * t1;
+    p[1] = q[1] * t0 + s[1] * t1;
+    p[2] = q[2] * t0 + s[2] * t1;
+    p[3] = q[3] * t0 + s[3] * t1;
   }
 }
 
@@ -3530,7 +3560,7 @@ bool gg::ggSaveTga(
 )
 {
   // ファイルを開く
-  std::ofstream file{ std::filesystem::u8path(name), std::ios::binary };
+  std::ofstream file{ Utf8ToTChar(name), std::ios::binary };
 
   // ファイルが開けなかったら戻る
   if (file.fail()) return false;
@@ -3588,7 +3618,7 @@ bool gg::ggSaveTga(
   file.write(footer, sizeof footer);
 
   // データの書き込みに失敗していなければ true を返す
-  return file.bad() != false;
+  return !file.bad();
 }
 
 //
@@ -3662,7 +3692,7 @@ bool gg::ggReadImage(
 )
 {
   // ファイルを開く
-  std::ifstream file{ std::filesystem::u8path(name), std::ios::binary };
+  std::ifstream file{ Utf8ToTChar(name), std::ios::binary };
 
   // ファイルが開けなかったら戻る
   if (file.fail()) return false;
@@ -3676,31 +3706,45 @@ bool gg::ggReadImage(
 
   // 深度
   const auto depth{ header[16] / 8 };
+  GLenum format;
   switch (depth)
   {
   case 1:
-    *pFormat = GL_RED;
+    format = GL_RED;
     break;
   case 2:
-    *pFormat = GL_RG;
+    format = GL_RG;
     break;
   case 3:
-    *pFormat = GL_BGR;
+#if defined(GL_GLES_PROTOTYPES)
+    format = GL_RGB;
+#else
+    format = GL_BGR;
+#endif
     break;
   case 4:
-    *pFormat = GL_BGRA;
+#if defined(GL_GLES_PROTOTYPES)
+    format = GL_RGBA;
+#else
+    format = GL_BGRA;
+#endif
     break;
   default:
     // 取り扱えないフォーマットだったら戻る
     return false;
   }
 
+  // フォーマットを格納する
+  if (pFormat) *pFormat = format;
+
   // 画像の縦横の画素数
-  *pWidth = header[13] << 8 | header[12];
-  *pHeight = header[15] << 8 | header[14];
+  const auto width{ static_cast<GLsizei>(header[13] << 8 | header[12]) };
+  if (pWidth) *pWidth = width;
+  const auto height{ static_cast<GLsizei>(header[15] << 8 | header[14]) };
+  if (pHeight) *pHeight = height;
 
   // データサイズ
-  const auto size{ *pWidth * *pHeight * depth };
+  const auto size{ width * height * depth };
 
   // サイズが小さすぎたら戻る
   if (size < 2) return false;
@@ -3744,8 +3788,19 @@ bool gg::ggReadImage(
     file.read(reinterpret_cast<char*>(image.data()), size);
   }
 
+#if defined(GL_GLES_PROTOTYPES)
+  // OpenGL ES では GL_BGR / GL_BGRA が使えないため R と B を入れ替える
+  if (!file.bad() && depth >= 3)
+  {
+    for (auto* p = image.data(); p < image.data() + size; p += depth)
+    {
+      std::swap(p[0], p[2]);
+    }
+  }
+#endif
+
   // 読み込みに失敗していなければ true を返す
-  return file.bad() != false;
+  return !file.bad();
 }
 
 //
@@ -3780,7 +3835,11 @@ GLuint gg::ggLoadTexture(
   glBindTexture(GL_TEXTURE_2D, texture);
 
   // アルファチャンネルがついていれば 4 バイト境界に設定する
+#if defined(GL_GLES_PROTOTYPES)
+  glPixelStorei(GL_UNPACK_ALIGNMENT, format == GL_RGBA ? 4 : 1);
+#else
   glPixelStorei(GL_UNPACK_ALIGNMENT, format == GL_RGBA || format == GL_BGRA ? 4 : 1);
+#endif
 
   // テクスチャを割り当てる
   glTexImage2D(GL_TEXTURE_2D, 0, internal, width, height, 0, format, type, image);
@@ -3793,7 +3852,7 @@ GLuint gg::ggLoadTexture(
 
   if (swizzle)
   {
-    // テクスチャのサンプリング時に赤とと青を入れ替える
+    // テクスチャのサンプリング時に赤と青を入れ替える
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
   }
@@ -3838,7 +3897,7 @@ GLuint gg::ggLoadImage(
   // internal == 0 なら内部フォーマットを読み込んだファイルに合わせる
   if (internal == 0) internal = format;
 
-  // テクスチャに読み込む (ggReadImage() で読み込んだ画像は GL_BGR / GL_BGRA)
+  // テクスチャに読み込む (ggReadImage() で読み込んだ画像は GL_BGR / GL_BGRA、OpenGL ES では GL_RGB / GL_RGBA)
   const auto tex{ ggLoadTexture(image.data(), width, height,
     format, GL_UNSIGNED_BYTE, internal, wrap, false) };
 
@@ -4029,7 +4088,7 @@ void gg::GgColorTexture::load(
   // internal == 0 なら内部フォーマットを読み込んだファイルに合わせる
   if (internal == 0) internal = format;
 
-  // テクスチャを作成する (ggReadImage() で読み込んだ画像は GL_BGR / GL_BGRA)
+  // テクスチャを作成する (ggReadImage() で読み込んだ画像は GL_BGR / GL_BGRA、OpenGL ES では GL_RGB / GL_RGBA)
   texture = std::make_shared<GgTexture>(image.data(), width, height,
     format, GL_UNSIGNED_BYTE, internal, wrap, false);
 }
@@ -4067,6 +4126,9 @@ void gg::GgNormalTexture::load(
 
   // 法線マップを作成する
   ggCreateNormalMap(hmap.data(), width, height, format, nz, internal, nmap);
+
+  // テクスチャを作成する
+  texture = std::make_shared<GgTexture>(nmap.data(), width, height, GL_RGBA, GL_FLOAT, internal, GL_REPEAT);
 }
 
 /// @cond
@@ -4129,7 +4191,7 @@ namespace gg
     std::vector<GgSimpleShader::Material>& material)
   {
     // MTL ファイルが無ければ戻る
-    std::ifstream mtlfile{ std::filesystem::u8path(mtlpath), std::ios::binary };
+    std::ifstream mtlfile{ Utf8ToTChar(mtlpath), std::ios::binary };
     if (!mtlfile)
     {
 #if defined(DEBUG)
@@ -4277,7 +4339,7 @@ namespace gg
     const std::string dirname{ (base == std::string::npos) ? "" : path.substr(0, base + 1) };
 
     // OBJ ファイルを読み込む
-    std::ifstream file{ std::filesystem::u8path(path) };
+    std::ifstream file{ Utf8ToTChar(path) };
 
     // 読み込みに失敗したら戻る
     if (file.fail())
@@ -4791,23 +4853,22 @@ static GLboolean printShaderInfoLog(GLuint shader, const std::string& str)
   // コンパイル結果を取得する
   GLint status;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-#if defined(DEBUG)
-  if (status == GL_FALSE) std::cerr << "Compile Error in " << str << std::endl;
-#endif
-
-  // シェーダのコンパイル時のログの長さを取得する
-  GLsizei bufSize;
-  glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &bufSize);
-
-  if (bufSize > 1)
+  if (status == GL_FALSE)
   {
-    // シェーダのコンパイル時のログの内容を取得する
-    std::vector<GLchar> infoLog(bufSize);
-    GLsizei length;
-    glGetShaderInfoLog(shader, bufSize, &length, infoLog.data());
-#if defined(DEBUG)
-    std::cerr << infoLog.data();
-#endif
+    std::cerr << "Compile Error in " << str << std::endl;
+
+    // シェーダのコンパイル時のログの長さを取得する
+    GLsizei bufSize;
+    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &bufSize);
+
+    if (bufSize > 1)
+    {
+      // シェーダのコンパイル時のログの内容を取得する
+      std::vector<GLchar> infoLog(bufSize);
+      GLsizei length;
+      glGetShaderInfoLog(shader, bufSize, &length, infoLog.data());
+      std::cerr << infoLog.data() << std::endl;
+    }
   }
 
   // コンパイル結果を返す
@@ -4822,28 +4883,56 @@ static GLboolean printProgramInfoLog(GLuint program)
   // リンク結果を取得する
   GLint status;
   glGetProgramiv(program, GL_LINK_STATUS, &status);
-#if defined(DEBUG)
-  if (status == GL_FALSE) std::cerr << "Link Error." << std::endl;
-#endif
-
-  // シェーダのリンク時のログの長さを取得する
-  GLsizei bufSize;
-  glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufSize);
-
-  // シェーダのリンク時のログの内容を取得する
-  if (bufSize > 1)
+  if (status == GL_FALSE)
   {
-    std::vector<GLchar> infoLog(bufSize);
-    GLsizei length;
-    glGetProgramInfoLog(program, bufSize, &length, infoLog.data());
-#if defined(DEBUG)
-    std::cerr << infoLog.data() << std::endl;
-#endif
+    std::cerr << "Link Error." << std::endl;
+
+    // シェーダのリンク時のログの長さを取得する
+    GLsizei bufSize;
+    glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufSize);
+
+    if (bufSize > 1)
+    {
+      // シェーダのリンク時のログの内容を取得する
+      std::vector<GLchar> infoLog(bufSize);
+      GLsizei length;
+      glGetProgramInfoLog(program, bufSize, &length, infoLog.data());
+      std::cerr << infoLog.data() << std::endl;
+    }
   }
 
   // リンク結果を返す
   return static_cast<GLboolean>(status);
 }
+
+#if defined(GL_GLES_PROTOTYPES)
+//
+// OpenGL ES 3.1 向けにシェーダのソースコードを変換する
+//
+static std::string adaptShaderSourceForGles(const std::string& src, bool isFragment)
+{
+  if (src.empty()) return src;
+
+  std::string adapted{ src };
+  const auto versionPos{ adapted.find("#version") };
+  if (versionPos != std::string::npos)
+  {
+    const auto eol{ adapted.find_first_of("\r\n", versionPos) };
+    const auto line{ adapted.substr(versionPos, (eol != std::string::npos ? eol - versionPos : adapted.size() - versionPos)) };
+    if (line.find("es") == std::string::npos)
+    {
+      std::string header{ "#version 310 es\nprecision highp float;\nprecision highp int;" };
+      adapted.replace(versionPos, line.size(), header);
+    }
+    else if (adapted.find("precision ") == std::string::npos)
+    {
+      adapted.insert(eol != std::string::npos ? eol + 1 : adapted.size(), "\nprecision highp float;\nprecision highp int;\n");
+    }
+  }
+
+  return adapted;
+}
+#endif
 
 //
 // シェーダのソースプログラムの文字列を読み込んでプログラムオブジェクトを作成する
@@ -4877,9 +4966,14 @@ GLuint gg::ggCreateShader(
 
     if (!vsrc.empty())
     {
+#if defined(GL_GLES_PROTOTYPES)
+      const std::string vsrcGles{ adaptShaderSourceForGles(vsrc, false) };
+      const auto* vsrcp{ vsrcGles.c_str() };
+#else
+      const auto* vsrcp{ vsrc.c_str() };
+#endif
       // バーテックスシェーダのシェーダオブジェクトを作成する
       const auto vertShader{ glCreateShader(GL_VERTEX_SHADER) };
-      const auto* vsrcp{ vsrc.c_str() };
       glShaderSource(vertShader, 1, &vsrcp, nullptr);
       glCompileShader(vertShader);
 
@@ -4893,9 +4987,14 @@ GLuint gg::ggCreateShader(
 
     if (!fsrc.empty())
     {
+#if defined(GL_GLES_PROTOTYPES)
+      const std::string fsrcGles{ adaptShaderSourceForGles(fsrc, true) };
+      const auto* fsrcp{ fsrcGles.c_str() };
+#else
+      const auto* fsrcp{ fsrc.c_str() };
+#endif
       // フラグメントシェーダのシェーダオブジェクトを作成する
       const auto fragShader{ glCreateShader(GL_FRAGMENT_SHADER) };
-      const auto* fsrcp{ fsrc.c_str() };
       glShaderSource(fragShader, 1, &fsrcp, nullptr);
       glCompileShader(fragShader);
 
@@ -4959,17 +5058,52 @@ GLuint gg::ggCreateShader(
 //
 static bool readShaderSource(const std::string& name, std::string& src)
 {
-  // ファイル名が nullptr ならそのまま戻る
+  // ファイル名が空ならそのまま戻る
   if (name.empty()) return true;
 
   // ソースファイルを開く
-  std::ifstream file{ std::filesystem::u8path(name), std::ios::binary };
+  std::ifstream file{ Utf8ToTChar(name), std::ios::binary };
+
+#if defined(_WIN32)
+  // カレントディレクトリで開けなかった場合、実行ファイルと同じディレクトリから探す
   if (file.fail())
   {
-    // ファイルが開けなければエラーで戻る
-#if defined(DEBUG)
-    std::cerr << "Error: Can't open source file: " << name << std::endl;
+    wchar_t exePath[MAX_PATH]{};
+    if (GetModuleFileNameW(NULL, exePath, MAX_PATH) > 0)
+    {
+      CString exeDir{ exePath };
+      const auto lastSlash{ exeDir.ReverseFind(L'\\') };
+      if (lastSlash >= 0)
+      {
+        exeDir = exeDir.Left(lastSlash + 1);
+        file.open(exeDir + Utf8ToTChar(name), std::ios::binary);
+      }
+    }
+  }
+#else
+  // カレントディレクトリで開けなかった場合、実行ファイルと同じディレクトリから探す
+  if (file.fail())
+  {
+    char exePath[PATH_MAX]{};
+    const ssize_t len{ readlink("/proc/self/exe", exePath, sizeof(exePath) - 1) };
+    if (len > 0)
+    {
+      exePath[len] = '\0';
+      std::string exeDir{ exePath };
+      const auto lastSlash{ exeDir.find_last_of('/') };
+      if (lastSlash != std::string::npos)
+      {
+        exeDir = exeDir.substr(0, lastSlash + 1);
+        file.open(exeDir + name, std::ios::binary);
+      }
+    }
+  }
 #endif
+
+  if (file.fail())
+  {
+    // ファイルが開けなければエラーを出力して戻る
+    std::cerr << "Error: Can't open source file: " << name << std::endl;
     return false;
   }
 
@@ -4981,9 +5115,7 @@ static bool readShaderSource(const std::string& name, std::string& src)
   // ファイルがうまく読み込めなければ戻る
   if (file.bad())
   {
-#if defined(DEBUG)
-    std::cerr << "Error: Could not read souce file: " << name << std::endl;
-#endif
+    std::cerr << "Error: Could not read source file: " << name << std::endl;
     return false;
   }
 
@@ -5165,7 +5297,8 @@ void gg::GgElements::draw(GLint first, GLsizei count) const
 std::shared_ptr<gg::GgPoints> gg::ggPointsCube(GLsizei count, GLfloat length, GLfloat cx, GLfloat cy, GLfloat cz)
 {
   // メモリを確保する
-  std::vector<GgVector> pos(count);
+  std::vector<GgVector> pos;
+  pos.reserve(count);
 
   // 点を生成する
   for (GLsizei v = 0; v < count; ++v)
@@ -5192,7 +5325,8 @@ std::shared_ptr<gg::GgPoints> gg::ggPointsSphere(GLsizei count, GLfloat radius,
   GLfloat cx, GLfloat cy, GLfloat cz)
 {
   // メモリを確保する
-  std::vector<GgVector> pos(count);
+  std::vector<GgVector> pos;
+  pos.reserve(count);
 
   // 点を生成する
   for (GLsizei v = 0; v < count; ++v)
@@ -5355,7 +5489,7 @@ std::shared_ptr<gg::GgElements> gg::ggElementsMesh(GLuint slices, GLuint stacks,
       const gg::GgVector tpos{ pos[k][0], pos[k][1], pos[k][2], 1.0f };
 
       // 頂点属性の保存
-      vert.emplace_back(tpos, tnorm);
+      vert[k] = gg::GgVertex{ tpos, tnorm };
     }
   }
 
@@ -5375,7 +5509,7 @@ std::shared_ptr<gg::GgElements> gg::ggElementsMesh(GLuint slices, GLuint stacks,
       face.emplace_back(k + slices + 2);
       face.emplace_back(k + 1);
 
-      // マスのお下半分の三角形
+      // マスの下半分の三角形
       face.emplace_back(k);
       face.emplace_back(k + slices + 1);
       face.emplace_back(k + slices + 2);
