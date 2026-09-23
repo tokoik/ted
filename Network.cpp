@@ -452,7 +452,7 @@ int Network::recvData(void* buf, int len)
 
     received[sequence] = true;
     ++count;
-    receivedBytes = std::max(receivedBytes, pos + size);
+    receivedBytes = (std::max)(receivedBytes, pos + size);
 
     // 全部のパケットを受け取っていれば終わる
     if (count >= total) break;
@@ -536,4 +536,28 @@ int Network::sendEof() const
 {
   char c;
   return sendPacket(&c, 0);
+}
+
+//
+// 受信したフレームの解析
+//
+bool unpackFrame(const unsigned char* buffer, int length, const unsigned int*& head,
+  const gg::GgMatrix*& body, const unsigned char*& imageData)
+{
+  // 外部入力の個数をポインタ加算へ直接使わず、減算形式で残量を検査して
+  // 整数オーバーフローや受信バッファ外参照を防ぐ。
+  constexpr std::size_t headerBytes{ headLength * sizeof(unsigned int) };
+  if (!buffer || length < 0 || static_cast<std::size_t>(length) < headerBytes) return false;
+
+  head = reinterpret_cast<const unsigned int*>(buffer);
+  const std::size_t matrixBytes{ static_cast<std::size_t>(head[camCount]) * sizeof(gg::GgMatrix) };
+  const std::size_t frameBytes{ static_cast<std::size_t>(length) };
+  if (matrixBytes > frameBytes - headerBytes) return false;
+
+  const std::size_t imageBytes{ static_cast<std::size_t>(head[camL]) + head[camR] };
+  if (imageBytes > frameBytes - headerBytes - matrixBytes) return false;
+
+  body = reinterpret_cast<const gg::GgMatrix*>(buffer + headerBytes);
+  imageData = buffer + headerBytes + matrixBytes;
+  return true;
 }

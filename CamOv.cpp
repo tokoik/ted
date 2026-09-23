@@ -6,6 +6,7 @@
 /// @date July 19, 2026
 ///
 #include "CamOv.h"
+#include "gg.h"
 
 // Ovrvision Pro SDK
 #if defined(_WIN64)
@@ -33,9 +34,6 @@ int CamOv::count{ 0 };
 //
 CamOv::CamOv()
 {
-  // キャプチャする画像のフォーマット
-  format = GL_BGRA;
-
   // Ovrvision Pro の数を数える
   device = count++;
 }
@@ -45,11 +43,43 @@ CamOv::CamOv()
 //
 CamOv::~CamOv()
 {
-  // スレッドを停止する
-  stop();
+  close();
 
   // すべての Ovrvsion Pro を削除したらデバイスを閉じる
-  if (ovrvision_pro && --count == 0) ovrvision_pro->Close();
+  if (ovrvision_pro && --count == 0)
+  {
+    ovrvision_pro->Close();
+    delete ovrvision_pro;
+    ovrvision_pro = nullptr;
+  }
+}
+
+//
+// キャプチャ開始
+//
+bool CamOv::onStart()
+{
+  thr = std::thread([this]() { capture(); });
+  return true;
+}
+
+//
+// キャプチャ停止
+//
+void CamOv::onStop()
+{
+  // running フラグが false になるのを capture() ループで監視
+}
+
+//
+// クローズ
+//
+void CamOv::onClose()
+{
+  imageR.clear();
+  widthR = 0;
+  heightR = 0;
+  capturedR = false;
 }
 
 //
@@ -57,19 +87,32 @@ CamOv::~CamOv()
 //
 void CamOv::capture()
 {
-  // スレッドが実行可の間
-  while (run[camL])
+  const size_t sz{ static_cast<size_t>(width) * height * 4 };
+
+  while (running)
   {
-    // std::lockでデッドロック防止しつつ両方のミューテックスをロック
-    std::lock(captureMutex[camL], captureMutex[camR]);
-    std::lock_guard<std::mutex> lockL(captureMutex[camL], std::adopt_lock);
-    std::lock_guard<std::mutex> lockR(captureMutex[camR], std::adopt_lock);
+    if (ovrvision_pro)
+    {
+      ovrvision_pro->PreStoreCamData(OVR::Camqt::OV_CAMQT_DMS);
+      auto* const bufferL{ ovrvision_pro->GetCamImageBGRA(OVR::OV_CAMEYE_LEFT) };
+      auto* const bufferR{ ovrvision_pro->GetCamImageBGRA(OVR::OV_CAMEYE_RIGHT) };
 
-    // フレームを切り出して
-    ovrvision_pro->PreStoreCamData(OVR::Camqt::OV_CAMQT_DMS);
-
-    // キャプチャの完了を記録したら
-    unsent[camL] = unsent[camR] = captured[camL] = captured[camR] = true;
+      if (bufferL && bufferR)
+      {
+        std::lock_guard<std::mutex> lock{ mtx };
+        if (image.size() >= sz)
+        {
+          std::memcpy(image.data(), bufferL, sz);
+          captured = true;
+        }
+        if (imageR.size() >= sz)
+        {
+          std::memcpy(imageR.data(), bufferR, sz);
+          capturedR = true;
+        }
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
 
@@ -85,16 +128,16 @@ bool CamOv::open(OVR::Camprop ovrvision_property)
   if (ovrvision_pro->Open(device, ovrvision_property, 0) == 0) return false;
 
   // カメラのサイズを取得する
-  cv::Size size{ ovrvision_pro->GetCamWidth(), ovrvision_pro->GetCamHeight() };
+  width = widthR = ovrvision_pro->GetCamWidth();
+  height = heightR = ovrvision_pro->GetCamHeight();
+  channels = 4;
+
+  const size_t sz{ static_cast<size_t>(width) * height * 4 };
+  image.resize(sz);
+  imageR.resize(sz);
 
   // フレームを切り出す
   ovrvision_pro->PreStoreCamData(OVR::Camqt::OV_CAMQT_DMS);
-
-  // 左右のフレームのメモリに cv::Mat のヘッダを付ける
-  auto* const bufferL{ ovrvision_pro->GetCamImageBGRA(OVR::OV_CAMEYE_LEFT) };
-  image[camL] = cv::Mat(size, CV_8UC4, bufferL);
-  auto* const bufferR{ ovrvision_pro->GetCamImageBGRA(OVR::OV_CAMEYE_RIGHT) };
-  image[camR] = cv::Mat(size, CV_8UC4, bufferR);
 
   // 左カメラの利得と露出を取得する
   gain = ovrvision_pro->GetCameraGain();
@@ -105,10 +148,21 @@ bool CamOv::open(OVR::Camprop ovrvision_property)
   ovrvision_pro->SetCameraWhiteBalanceAuto(true);
 
   // スレッドを起動する
-  run[camL] = run[camR] = true;
-  captureThread[camL] = std::thread([this]() { capture(); });
+  start();
 
   return true;
+}
+
+//
+// テクスチャへ転送する
+//
+bool CamOv::transmit(int eye, unsigned int texture, const int* size)
+{
+  return lockFrame(eye, [texture, size](const std::uint8_t* data, size_t length, int width, int height, int channels) {
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size[0], size[1],
+      GL_BGRA, GL_UNSIGNED_BYTE, data);
+  });
 }
 
 //
