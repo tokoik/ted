@@ -239,6 +239,8 @@ cmake --build build --config Release
   + `GgApp::OpenXR` による OpenXR 表示、フレーム処理、頭部中心姿勢、ハンドトラッキングの仕様
 * [Quest.md](Quest.md)
   + Quest 3 版 (`ted-quest`) と中継サーバ (`ted-server`) の接続構成、設定、送受信データの仕様
+* [QuestTest.md](QuestTest.md)
+  + Quest 3 版を実機にインストールしてテストする手順、結果記録表、トラブルシューティング
 * [GEMINI.md](GEMINI.md)
   + 開発環境、アーキテクチャ、API、資源管理、検証に関する開発方針
 * [REQUESTS.md](REQUESTS.md)

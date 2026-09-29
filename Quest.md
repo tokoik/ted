@@ -16,6 +16,8 @@ Quest 3 版は、Meta Quest 3 を作業者（WORKER）として動かす実験�
 
 ## ビルドとインストール
 
+実機でのテストの詳しい手順は [QuestTest.md](QuestTest.md) を参照してください。
+
 `android/` を Android Studio で開いてビルドします。コマンドラインでは次のとおりです。
 
 ```powershell
