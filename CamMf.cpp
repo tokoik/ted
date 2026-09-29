@@ -1260,6 +1260,8 @@ void CamMf::capture(int cam)
             std::memcpy(imageR.data(), pData + halfSize, halfSize);
           }
           captured = true;
+          notifyFrame(camL);
+          notifyFrame(camR);
         }
         else
         {
@@ -1273,6 +1275,7 @@ void CamMf::capture(int cam)
             image.resize(totalSize);
             std::memcpy(image.data(), pData, totalSize);
             captured = true;
+            notifyFrame(camL);
           }
           else
           {
@@ -1281,6 +1284,7 @@ void CamMf::capture(int cam)
             imageR.resize(totalSize);
             std::memcpy(imageR.data(), pData, totalSize);
             capturedR = true;
+            notifyFrame(camR);
           }
         }
 

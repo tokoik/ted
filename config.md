@@ -192,6 +192,11 @@ OpenXR では手のひらと手首の向きを個別に求めます。手全体�
 * `1`: 指示者（操縦者 / 科学者）側
 * `2`: 作業者（ロボット）側
 
+* 指示者として受信するには、`input_mode` をリモート (`4`) にします（`role` の値にかかわらず指示者として動作します）。
+* 作業者として送信するには、`role` を `2` にして、`input_mode` をリモート以外（静止画像、動画、カメラ、Ovrvision Pro）にします。入力中の映像を `transmit_width` / `transmit_height`（`0` なら取得画像のまま）に縮小・拡大し、`transmit_quality` の JPEG で、`transmit_fps`（`0` なら新しいフレームごと）を上限に、ローカルの姿勢とともに `host` / `port` へ送信します。指示者から受け取った姿勢はリモートの共有姿勢に格納されます。
+* 入力設定画面の「設定」ボタンで入力を切り替えると、作業者の送信も新しい入力でやり直します。静止画像は、後から起動した指示者にも届くよう 1 秒ごとに送り直します。
+* 作業者 (`role` = `2`) と指示者 (`input_mode` = リモート) で `port` を同じ値にし、`host` に互いの IP アドレスを指定します。中継サーバを使う場合は ※10 を参照してください。
+
 #### ※9 ネットワーク通信プロトコルの堅牢性
 
 * 送受信される各UDPパケットのヘッダには、自動的に 16bit の `frameId` シリアル番号が付与されます。
@@ -209,6 +214,9 @@ ted-server <questPort> <questAddress> <instructorPort> <instructorAddress>
 * `toQuest`: Quest 側からは OPERATOR (role 1) として接続
 * `toInstructor`: 指示者側からは WORKER (role 2) として接続
 * ポートオフセット（OPERATOR は `port`, WORKER は `port+1` を受信用に指定）に基づき、透過的に双方のフレームを双方向転送します。
+* 指示者 PC の `config.json` では、`host` に中継サーバの IP アドレス、`port` に `instructorPort` を指定します。Quest 3 版の `ted_quest.json` では、`host` に中継サーバの IP アドレス、`port` に `questPort` を指定します。
+* 中継サーバは `questPort` と `instructorPort + 1` で受信します。同じ PC で指示者の TED と中継サーバを動かす場合は、`instructorPort` と `questPort` のポート番号が重ならないようにしてください（例: `questPort` = 12345, `instructorPort` = 12347）。
+* Quest 3 版の設定と、指示者 PC 側の推奨設定は [Quest.md](Quest.md) を参照してください。
 
 ---
 

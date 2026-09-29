@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <chrono>
+#include <vector>
 
 ///
 /// ネットワーク関連の処理クラスの定義
@@ -12,6 +13,18 @@
 
 #if defined(_WIN32)
 #  include <winsock2.h>
+#else
+// Quest 3 版 (Android) など POSIX ソケット環境でも同じプロトコル実装を使うため、
+// Winsock の型名と定数を POSIX 側に合わせて定義する
+#  include <netinet/in.h>
+#  include <sys/socket.h>
+using SOCKET = int;
+#  ifndef INVALID_SOCKET
+#    define INVALID_SOCKET (-1)
+#  endif
+#  ifndef SOCKET_ERROR
+#    define SOCKET_ERROR (-1)
+#  endif
 #endif
 
 // 各種設定
@@ -84,6 +97,9 @@ class Network
 
   /// 最後に正常にフレーム受信完了した時点の時刻
   std::chrono::steady_clock::time_point lastRecvTime;
+
+  /// 受信中のフレームで受け取り済みのパケット (フレームごとに確保し直さないよう保持する)
+  std::vector<bool> received;
 
   /// 役割
   ///

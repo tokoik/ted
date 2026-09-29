@@ -95,6 +95,39 @@ protected:
   /// キャプチャを非同期に行うためのワーカースレッド
   std::thread thr;
 
+  /// 視点ごとに新しいフレームを格納した回数
+  ///
+  /// @details
+  /// テクスチャへの転送で下ろされる captured とは独立に、
+  /// 作業者として映像を送信する Worker が新しいフレームを見分けるために使う。
+  ///
+  std::atomic<std::uint64_t> frameSerial[2]{};
+
+  ///
+  /// フレームのバッファを複製する（呼び出し側で mtx をロックしておく）
+  ///
+  static bool copyBuffer(const std::vector<std::uint8_t>& src, int srcW, int srcH, int srcCh,
+    std::vector<std::uint8_t>& data, int& w, int& h, int& ch)
+  {
+    const auto length{ static_cast<std::size_t>(srcW) * srcH * srcCh };
+    if (srcW <= 0 || srcH <= 0 || srcCh <= 0 || src.size() < length) return false;
+    data.assign(src.begin(), src.begin() + length);
+    w = srcW;
+    h = srcH;
+    ch = srcCh;
+    return true;
+  }
+
+  ///
+  /// 新しいフレームを格納したことを記録する（キャプチャスレッドが格納直後に呼ぶ）
+  ///
+  /// @param eye 視点番号 (0: 左/単眼, 1: 右)
+  ///
+  void notifyFrame(int eye)
+  {
+    frameSerial[eye == 0 ? 0 : 1].fetch_add(1, std::memory_order_release);
+  }
+
   ///
   /// キャプチャ開始処理を行う（派生クラス固有の実装）
   ///
@@ -188,6 +221,38 @@ public:
   bool isCaptured() const
   {
     return captured;
+  }
+
+  ///
+  /// 新しいフレームを格納した回数を得る
+  ///
+  /// @param eye 視点番号 (0: 左/単眼, 1: 右)
+  /// @return 通し番号（値が変われば新しいフレームがある）
+  ///
+  std::uint64_t getFrameSerial(int eye) const
+  {
+    return frameSerial[eye == 0 ? 0 : 1].load(std::memory_order_acquire);
+  }
+
+  ///
+  /// 送信用に指定した視点の最新フレームを複製する
+  ///
+  /// @param eye 視点番号 (0: 左/単眼, 1: 右)
+  /// @param data 複製先（容量は再利用する）
+  /// @param w 画像の幅
+  /// @param h 画像の高さ
+  /// @param ch チャンネル数 (3: BGR, 4: BGRA)
+  /// @return 複製できたら true
+  ///
+  /// @details
+  /// captured を変更しないので、テクスチャへの転送 (transmit) と干渉しない。
+  /// ロック中は複製だけを行い、縮小や符号化は呼び出し側がロックの外で行う。
+  ///
+  virtual bool copyFrame(int eye, std::vector<std::uint8_t>& data, int& w, int& h, int& ch) const
+  {
+    if (eye != 0) return false;
+    std::lock_guard<std::mutex> lock{ mtx };
+    return copyBuffer(image, width, height, channels, data, w, h, ch);
   }
 
   ///

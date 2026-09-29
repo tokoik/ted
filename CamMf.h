@@ -471,6 +471,17 @@ public:
   int getSelectedResolutionIndex(int cam) const { return caps[cam].selectedResolutionIndex; }
 
   ///
+  /// 送信用に指定した視点の最新フレームを複製する
+  ///
+  bool copyFrame(int eye, std::vector<std::uint8_t>& data, int& w, int& h, int& ch) const override
+  {
+    std::lock_guard<std::mutex> lock{ mtx };
+    return eye == 0
+      ? copyBuffer(image, width, height, channels, data, w, h, ch)
+      : copyBuffer(imageR, widthR, heightR, 4, data, w, h, ch);
+  }
+
+  ///
   /// カメラフレームを OpenGL テクスチャへ転送する
   ///
   /// @param eye 視点番号 (0: 左/単眼, 1: 右)

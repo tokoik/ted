@@ -10,6 +10,8 @@
 /// @details
 /// ted-server はリポジトリルートの Network.h/.cpp をこのディレクトリに
 /// そのまま複製して使う（TED本体との差分が出ないよう維持すること）。
+/// Quest 3 版 (android/) もこのディレクトリの Network.h/.cpp とこのスタブを
+/// そのままビルドに加えて、同じ UDP プロトコル実装を共有する。
 /// 本来の GgApp.h は GLFW/OpenXR/ImGui/OpenCV 等 GUI 一式に依存するため、
 /// ヘッドレスの中継サーバである ted-server には持ち込まない。
 /// Network.cpp が参照する NOTIFY マクロと maxDropPackets 定数だけを
@@ -32,5 +34,12 @@
 // リポジトリルートの Config.h にある既定値と同じ値を保つこと
 constexpr int maxDropPackets{ 1000 };
 
+#if defined(__ANDROID__)
+// Quest 3 版では logcat に出力する
+#  include <android/log.h>
+#  define NOTIFY(msg) __android_log_print(ANDROID_LOG_ERROR, "TED", "%s", \
+     reinterpret_cast<const char*>(msg))
+#else
 // GUI を持たないためメッセージボックスは出さず、標準エラー出力へ流す
-#define NOTIFY(msg) std::cerr << msg << '\n'
+#  define NOTIFY(msg) std::cerr << msg << '\n'
+#endif

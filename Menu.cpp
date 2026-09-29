@@ -493,6 +493,8 @@ void Menu::inputWindow()
     u8"作業者"
   };
   ImGui::Combo(u8"役割", &config.role, roles, IM_ARRAYSIZE(roles));
+  ImGui::TextDisabled(u8"指導者: 入力をリモートにして受信");
+  ImGui::TextDisabled(u8"作業者: リモート以外の入力の映像を送信");
 
   // 外部設定を固定長UIバッファへ移すため、必ず終端できる長さに制限する
   char address[16]{ "0.0.0.0" };

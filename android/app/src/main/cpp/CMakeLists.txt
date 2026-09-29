@@ -31,8 +31,18 @@ endif()
 
 add_subdirectory("${OPENXR_SDK_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/openxr_sdk" EXCLUDE_FROM_ALL)
 
+# 中継サーバと同じ UDP プロトコル実装 (server/Network.h/.cpp) を共有する
+set(TED_SERVER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../server")
+
 # Main Android OpenXR library
-add_library(ted_android SHARED AndroidMain.cpp)
+add_library(ted_android SHARED
+    AndroidMain.cpp
+    ObjModel.cpp
+    PassthroughCamera.cpp
+    QuestConfig.cpp
+    TedLink.cpp
+    "${TED_SERVER_DIR}/Network.cpp"
+)
 
 target_compile_definitions(ted_android PRIVATE
     XR_USE_PLATFORM_ANDROID
@@ -43,6 +53,7 @@ target_compile_definitions(ted_android PRIVATE
 
 target_include_directories(ted_android PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${TED_SERVER_DIR}"
     "${OPENXR_SDK_DIR}/include"
 )
 
@@ -50,12 +61,18 @@ find_library(log-lib log)
 find_library(android-lib android)
 find_library(egl-lib EGL)
 find_library(gles-lib GLESv3)
+find_library(camera-lib camera2ndk)
+find_library(media-lib mediandk)
+find_library(jnigraphics-lib jnigraphics)
 
 target_link_libraries(ted_android PRIVATE
     openxr_loader
     native_app_glue
     ${egl-lib}
     ${gles-lib}
+    ${camera-lib}
+    ${media-lib}
+    ${jnigraphics-lib}
     ${android-lib}
     ${log-lib}
 )

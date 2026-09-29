@@ -12,6 +12,9 @@
 // ネットワーク関連の処理
 #include "Network.h"
 
+// 作業者としての送信
+#include "Worker.h"
+
 // カメラ関連の処理
 #include "CamMf.h"
 #include "CamOv.h"
@@ -350,7 +353,34 @@ bool GgApp::selectInput()
     rectPointer->setTexture(1, texture[stereo ? 1 : 0]);
   }
 
+  // 新しい入力で作業者の送信をやり直す
+  updateWorker();
+
   return true;
+}
+
+//
+// 役割と入力に合わせて作業者の送信を開始・停止する
+//
+void GgApp::updateWorker()
+{
+  // 古いカメラを送信し続けないよう、まず停止する
+  if (worker) worker->stop();
+
+  // リモート入力は指示者として CamRemote が送受信するので、作業者の送信は行わない
+  if (defaults.role != WORKER || defaults.input_mode == InputMode::REMOTE || !camera) return;
+
+  if (defaults.port <= 0 || defaults.address.empty())
+  {
+    NOTIFY(u8"作業者として送信する相手のアドレスとポートが設定されていません。");
+    return;
+  }
+
+  if (!worker) worker = std::make_unique<Worker>();
+  if (worker->start(camera, stereo, defaults) != 0)
+  {
+    NOTIFY(u8"作業者としての送信を開始できません。");
+  }
 }
 
 //
@@ -733,6 +763,9 @@ int GgApp::main(int argc, const char *const *const argv)
     // バッファを入れ替える
     window.swapBuffers();
   }
+
+  // 作業者の送信を止める
+  worker.reset();
 
   // 背景画像用のテクスチャを削除する
   glDeleteTextures(camCount, texture);

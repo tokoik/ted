@@ -217,6 +217,7 @@ set(SOURCES_CPP
     Scene.cpp
     SharedMemory.cpp
     ted.cpp
+    Worker.cpp
 )
 file(GLOB SOURCES_H "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 

@@ -1,5 +1,37 @@
+import javax.inject.Inject
+
 plugins {
     id 'com.android.application'
+}
+
+// PC 版と同じ手のモデルをリポジトリのトップから APK の assets へ取り込む
+def questModelFiles = [
+    'handr.obj', 'handr.mtl', 'handl.obj', 'handl.mtl', 'finger.obj', 'finger.mtl',
+    'handr_remote.obj', 'handr_remote.mtl', 'handl_remote.obj', 'handl_remote.mtl'
+]
+
+abstract class CopyQuestAssets extends DefaultTask {
+    @InputFiles
+    abstract ConfigurableFileCollection getSources()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDir()
+
+    @Inject
+    abstract FileSystemOperations getFileSystem()
+
+    @TaskAction
+    void copyFiles() {
+        fileSystem.sync {
+            from sources
+            into outputDir
+        }
+    }
+}
+
+def copyQuestAssets = tasks.register('copyQuestAssets', CopyQuestAssets) {
+    sources.from(questModelFiles.collect { rootProject.file("../${it}") })
+    outputDir.set(layout.buildDirectory.dir('generated/questAssets'))
 }
 
 android {
@@ -8,7 +40,8 @@ android {
 
     defaultConfig {
         applicationId "com.example.ted_openxr"
-        minSdk 29
+        // AndroidBitmap_compress() は API 30 以降、Passthrough Camera API は Horizon OS v74 以降
+        minSdk 32
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -37,6 +70,12 @@ android {
     }
 
     ndkVersion "27.0.12077973"
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(copyQuestAssets) { it.outputDir }
+    }
 }
 
 dependencies {

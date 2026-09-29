@@ -73,6 +73,8 @@ bool CamImage::open(const std::string& file, int cam)
     std::memcpy(imageR.data(), right.data, sizeR);
 
     captured = true;
+    notifyFrame(camL);
+    notifyFrame(camR);
     return true;
   }
 
@@ -86,6 +88,7 @@ bool CamImage::open(const std::string& file, int cam)
     image.resize(size);
     std::memcpy(image.data(), cvFrame.data, size);
     captured = true;
+    notifyFrame(camL);
   }
   else
   {
@@ -95,6 +98,7 @@ bool CamImage::open(const std::string& file, int cam)
     const std::size_t size{ static_cast<std::size_t>(widthR) * heightR * channels };
     imageR.resize(size);
     std::memcpy(imageR.data(), cvFrame.data, size);
+    notifyFrame(camR);
   }
 
   return true;

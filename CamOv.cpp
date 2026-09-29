@@ -104,11 +104,13 @@ void CamOv::capture()
         {
           std::memcpy(image.data(), bufferL, sz);
           captured = true;
+          notifyFrame(0);
         }
         if (imageR.size() >= sz)
         {
           std::memcpy(imageR.data(), bufferR, sz);
           capturedR = true;
+          notifyFrame(1);
         }
       }
     }

@@ -57,11 +57,12 @@
   * `camera_layout` が `side_by_side` または `top_and_bottom` の場合は、1入力のフレームを取得直後に左右画像へ分割
   * `swap_camera_eyes` が有効な場合は、入力方式にかかわらず論理的な左右眼を入れ替え
 * `CamRemote`: 受信した魚眼・全方位映像を、受信側で指定した解像度と画角へ常に平面展開
+* `Worker`: 役割が作業者のとき、入力中のカメラの最新フレームを JPEG に符号化し、ローカルの姿勢とともに指示者または中継サーバへ送信。指示者から受け取った姿勢はリモートの共有姿勢へ格納
 * `CameraCapabilities`: UI にバックエンド非依存のカメラ能力情報を提供
 * `Network`: UDPによる画像や姿勢データの送受信。フレームIDをヘッダに持つパケットの順序制御（古い遅延パケットの破棄）と、2秒以上の無通信検出（タイムアウト）で自動再同期（送信側再起動によるIDリセットへ追従）する堅牢なパケット組み立て処理を実装
 * `LeapListener`: Leap Motion のポーリングと描画スレッド間のデータ受け渡し。スレッド同期を原子変数（`std::atomic`）で保護し、スナップショットによるディープコピーでデータレースを排除。描画更新時に新しいフレームがない場合は以前の姿勢を維持し（点滅防止）、新しいフレームがあるときのみ検出されなかった側の手をゼロクリアする選択的消去を実装。再接続時にはキャッシュしたフレーム番号と接続状態を初期化
-* **`ted-server` (`server/`)**: Meta Quest 3（WORKER役）と指示者PC（OPERATOR役）間のUDP通信を中継するヘッドレスのネットワークリレーサーバ。
-* **`ted-quest` (`android/`)**: Meta Quest 3 上で動作する Native OpenXR GLES 最小アプリケーション。Android NativeActivity および OpenXR Loader / EGL を用いて独立動作。
+* **`ted-server` (`server/`)**: Meta Quest 3（WORKER役）と指示者PC（OPERATOR役）間のUDP通信を中継するヘッドレスのネットワークリレーサーバ。フレームの中身は解釈せず、そのまま相手側へ転送する。
+* **`ted-quest` (`android/`)**: Meta Quest 3 上で動作する実験用の作業者（WORKER役）アプリケーション（一般配布はしない）。パススルー映像とハンドトラッキングによる手のモデルを表示し、パススルーカメラの左右画像と頭部・手の姿勢を PC 版 TED と同じ形式で中継サーバまたは指示者 PC へ送信する。受信した指示者の手の姿勢で指示者の手のモデルを重畳表示する。UDP 通信は `server/Network.h/.cpp` を共有する。詳細は [Quest.md](Quest.md) を参照。
 
 `GgApp` には現時点で TED 固有の `Config`、`Attitude`、`Scene`、`Camera` への依存が残っています。今後、GLFW・OpenGL・OpenXR を扱う汎用ウィンドウ層と TED 本体へ段階的に分離する方針です。
 
@@ -235,6 +236,8 @@ cmake --build build --config Release
   + シーングラフ記述ファイル (`scene.json`) の書式、変換の合成順序、および C++ `Scene` クラスの仕様
 * [OpenXR.md](OpenXR.md)
   + `GgApp::Window` に組み込まれた OpenXR 表示、フレーム処理、頭部中心姿勢、ハンドトラッキングの仕様
+* [Quest.md](Quest.md)
+  + Quest 3 版 (`ted-quest`) と中継サーバ (`ted-server`) の接続構成、設定、送受信データの仕様
 * [GEMINI.md](GEMINI.md)
   + 開発環境、アーキテクチャ、API、資源管理、検証に関する開発方針
 * [REQUESTS.md](REQUESTS.md)

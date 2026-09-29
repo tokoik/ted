@@ -13,10 +13,18 @@
 // 共有メモリ
 #include "SharedMemory.h"
 
-#include <GLFW/glfw3.h>
 #include <cmath>
 #include <chrono>
 #include <iostream>
+
+//
+// 受信バッファ上の JPEG を複製せずにデコードする
+//
+static cv::Mat decode(const unsigned char* data, unsigned int length)
+{
+  const cv::Mat encoded(1, static_cast<int>(length), CV_8UC1, const_cast<unsigned char*>(data));
+  return cv::imdecode(encoded, cv::IMREAD_COLOR);
+}
 
 //
 // コンストラクタ
@@ -104,8 +112,8 @@ int CamRemote::open(unsigned short port, const char* address)
   delete[] recvbuf;
   sendbuf = recvbuf = nullptr;
 
-  // 指導者として初期化する
-  const int ret(network.initialize(1, port, address));
+  // 指導者として初期化する (port で受信し port + 1 へ送信する)
+  const int ret(network.initialize(INSTRUCTOR, port, address));
   if (ret != 0) return ret;
 
   // 作業用のメモリを確保する
@@ -131,14 +139,9 @@ int CamRemote::open(unsigned short port, const char* address)
   // 変換行列を共有メモリに格納する
   remoteAttitude->store(body, head[camCount]);
 
-  // 符号化されたデータの一時保存先
-  std::vector<unsigned char> encoded;
-
-  // 左フレームデータを vector に変換して
-  encoded.assign(data, data + head[camL]);
-
-  // 左フレームをデコードする
-  remote[camL] = cv::imdecode(cv::Mat(encoded), 1);
+  // 左フレームを受信バッファ上で直接デコードする
+  remote[camL] = decode(data, head[camL]);
+  if (remote[camL].empty()) return -1;
 
   // リモートから取得したフレームのサイズ
   cv::Size rsize[camCount];
@@ -149,11 +152,9 @@ int CamRemote::open(unsigned short port, const char* address)
   // 右フレームが存在すれば
   if (head[camR] > 0)
   {
-    // 右フレームデータを vector に変換して
-    encoded.assign(data + head[camL], data + head[camL] + head[camR]);
-
     // 右フレームをデコードする
-    remote[camR] = cv::imdecode(cv::Mat(encoded), 1);
+    remote[camR] = decode(data + head[camL], head[camR]);
+    if (remote[camR].empty()) remote[camR] = remote[camL];
 
     // 右フレームのサイズを求める
     rsize[camR] = remote[camR].size();
@@ -284,8 +285,8 @@ void CamRemote::recv()
     std::cerr << "CamRemote recv:" << ret << '\n';
 #endif
 
-    // サイズが 0 なら終了する
-    if (ret == 0) return;
+    // 長さ 0 は相手の停止通知 (EOF) だが、相手の再起動に備えて受信を続ける
+    if (ret == 0) continue;
 
     // エラーがなく、送信元とフレーム内部の境界が正しければデータを読み込む
     if (ret > 0 && network.checkRemote())
@@ -298,14 +299,10 @@ void CamRemote::recv()
       // 変換行列を共有メモリに格納する
       remoteAttitude->store(body, head[camCount]);
 
-      // 符号化されたデータの一時保存先
-      std::vector<unsigned char> encoded;
-
       // 左バッファが空のとき左フレームが送られてきていれば
       if (!captured && head[camL] > 0)
       {
-        encoded.assign(data, data + head[camL]);
-        cv::Mat decoded = cv::imdecode(cv::Mat(encoded), 1);
+        cv::Mat decoded{ decode(data, head[camL]) };
 
         if (!decoded.empty())
         {
@@ -321,8 +318,7 @@ void CamRemote::recv()
       // 右バッファが空のとき右フレームが送られてきていれば
       if (!capturedR && head[camR] > 0)
       {
-        encoded.assign(data + head[camL], data + head[camL] + head[camR]);
-        cv::Mat decoded = cv::imdecode(cv::Mat(encoded), 1);
+        cv::Mat decoded{ decode(data + head[camL], head[camR]) };
 
         if (!decoded.empty())
         {
@@ -345,8 +341,8 @@ void CamRemote::recv()
       }
     }
 
-    // 他のスレッドがリソースにアクセスするために少し待つ
-    std::this_thread::sleep_for(std::chrono::milliseconds(minDelay));
+    // recvData() はデータが届くまで (最長 500ms) 待つので、ここでは待たない。
+    // 待つと送信側の頻度に受信が追いつかず、ソケットに古いフレームが溜まって遅延が増える。
   }
 }
 
@@ -355,11 +351,14 @@ void CamRemote::recv()
 //
 void CamRemote::send()
 {
-  auto last{ glfwGetTime() };
+  // 姿勢を送る間隔
+  constexpr auto interval{ std::chrono::milliseconds(minDelay) };
 
   // カメラスレッドが実行可の間
   while (running)
   {
+    const auto start{ std::chrono::steady_clock::now() };
+
     // ヘッダのフォーマット
     const auto head{ reinterpret_cast<unsigned int*>(sendbuf) };
 
@@ -381,20 +380,8 @@ void CamRemote::send()
     // フレームを送信する
     network.sendData(sendbuf, static_cast<unsigned int>(data - sendbuf));
 
-    // 現在時刻
-    const auto now{ glfwGetTime() };
-
-    // GLFW時刻（秒）をsleep_forへ渡すミリ秒に変換する
-    const auto remain{ static_cast<long long>((last + (minDelay * 0.001) - now) * 1000.0) };
-
-#if defined(DEBUG)
-    std::cerr << "send remain = " << remain << '\n';
-#endif
-
-    last = now;
-
-    const auto delay{ remain > minDelay ? remain : minDelay };
-    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+    // 送信にかかった時間を含めて一定間隔で送る
+    std::this_thread::sleep_until(start + interval);
   }
 
   // ループを抜けるときに EOF を送信する

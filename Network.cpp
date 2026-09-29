@@ -14,6 +14,15 @@
 #if defined(_WIN32)
 #  include <ws2tcpip.h>
 #  pragma comment(lib, "ws2_32.lib")
+#else
+#  include <arpa/inet.h>
+#  include <sys/time.h>
+#  include <unistd.h>
+#  include <cerrno>
+
+// Winsock の関数名を POSIX の対応する処理に置き換える
+static int closesocket(SOCKET s) { return close(s); }
+static int WSAGetLastError() { return errno; }
 #endif
 
 // 標準ライブラリ
@@ -22,12 +31,17 @@
 #include <algorithm>
 #include <chrono>
 #include <climits>
+#include <cstdint>
+#include <cstring>
 
 // 最大データサイズ
 const std::size_t maxSize{ 1470 };
 
 // 受信のタイムアウト (500ミリ秒)
 const unsigned long timeout{ 500UL };
+
+// ソケットのバッファサイズ (画像を含む大きなフレームを連続して送受信しても溢れないようにする)
+const int socketBufferSize{ 4 * 1024 * 1024 };
 
 //
 // デストラクタ
@@ -44,7 +58,7 @@ int Network::getError() const
 {
   const int err(WSAGetLastError());
 
-#if defined(_DEBUG)
+#if defined(_DEBUG) && defined(_WIN32)
   switch (err)
   {
   case WSAEACCES: std::cerr << "WSAEACCES\n"; break;
@@ -120,8 +134,18 @@ int Network::initializeRecv(unsigned short port)
     return ret;
   }
 
-  // 受信のタイムアウトを設定する
-  if (setsockopt(recvSock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&timeout), sizeof timeout))
+  // 受信バッファを広げる（OS の上限で制限されても動作は続けるので失敗は無視する）
+  setsockopt(recvSock, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char*>(&socketBufferSize),
+    sizeof socketBufferSize);
+
+  // 受信のタイムアウトを設定する（Winsock はミリ秒の DWORD、POSIX は timeval で指定する）
+#if defined(_WIN32)
+  const unsigned long recvTimeout{ timeout };
+#else
+  const timeval recvTimeout{ static_cast<time_t>(timeout / 1000UL),
+    static_cast<suseconds_t>((timeout % 1000UL) * 1000UL) };
+#endif
+  if (setsockopt(recvSock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&recvTimeout), sizeof recvTimeout))
   {
     const int ret{ getError() };
     NOTIFY(u8"タイムアウトが設定できません。");
@@ -144,6 +168,10 @@ int Network::initializeSend(unsigned short port, const char* address)
     NOTIFY(u8"送信側ソケットが作成できません。");
     return ret;
   }
+
+  // 送信バッファを広げる（OS の上限で制限されても動作は続けるので失敗は無視する）
+  setsockopt(sendSock, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<const char*>(&socketBufferSize),
+    sizeof socketBufferSize);
 
   // アドレスファミリー
   sendAddr.sin_family = AF_INET;
@@ -242,11 +270,12 @@ bool Network::isWorker() const
 bool Network::checkRemote() const
 {
 #if defined(_DEBUG)
+  const auto* const b{ reinterpret_cast<const unsigned char*>(&recvAddr.sin_addr) };
   std::cerr << '['
-    << static_cast<int>(recvAddr.sin_addr.S_un.S_un_b.s_b1) << '.'
-    << static_cast<int>(recvAddr.sin_addr.S_un.S_un_b.s_b2) << '.'
-    << static_cast<int>(recvAddr.sin_addr.S_un.S_un_b.s_b3) << '.'
-    << static_cast<int>(recvAddr.sin_addr.S_un.S_un_b.s_b4) << "]\n";
+    << static_cast<int>(b[0]) << '.'
+    << static_cast<int>(b[1]) << '.'
+    << static_cast<int>(b[2]) << '.'
+    << static_cast<int>(b[3]) << "]\n";
 #endif
   return recvAddr.sin_addr.s_addr == sendAddr.sin_addr.s_addr;
 }
@@ -257,7 +286,11 @@ bool Network::checkRemote() const
 int Network::recvPacket(void* buf, int len)
 {
   // アドレスデータの長さ
+#if defined(_WIN32)
   int fromlen{ static_cast<int>(sizeof recvAddr) };
+#else
+  socklen_t fromlen{ static_cast<socklen_t>(sizeof recvAddr) };
+#endif
 
   return recvfrom(recvSock, static_cast<char*>(buf), len, 0,
     reinterpret_cast<sockaddr*>(&recvAddr), &fromlen);
@@ -279,6 +312,11 @@ int Network::sendPacket(const void* buf, int len) const
 // 受信側は total - count を格納位置として使うため、UDPで順序が入れ替わっても復元できる。
 // 受信側は count が負のパケットをフレーム境界として、以前の未完成フレームを破棄する。
 //
+// ヘッダの長さは sizeof frameId + sizeof count (6 バイト) として送受信するので、
+// frameId と count の間に詰め物が入らないよう 1 バイト境界に詰める。
+// 詰め物が入ると各データグラムのペイロード末尾 2 バイトが送られず、受信側で壊れる。
+//
+#pragma pack(push, 1)
 struct Packet
 {
   // フレーム番号 (シリアル番号)
@@ -290,6 +328,9 @@ struct Packet
   // ペイロード
   char data[maxSize - sizeof(unsigned short) - sizeof(int)];
 };
+#pragma pack(pop)
+
+static_assert(sizeof(Packet) == maxSize, "Packet must not contain padding");
 
 //
 // 1 フレーム受信
@@ -312,8 +353,7 @@ int Network::recvData(void* buf, int len)
   // 現在受信中のフレームID
   unsigned short currentFrameId{ 0 };
 
-  // 受信済みのシーケンス番号と、復元したフレームのバイト数
-  std::vector<bool> received;
+  // 復元したフレームのバイト数 (受信済みのシーケンス番号はメンバの received に記録する)
   int receivedBytes{ 0 };
 
   // 前回の受信完了から2.0秒以上経過していたら再同期（履歴を無効化）する
@@ -367,7 +407,9 @@ int Network::recvData(void* buf, int len)
       }
 
       // 受信したデータを捨てて最初からやり直す
+      // (復元したバイト数も戻さないと、途中で捨てたフレームの長さを返してしまう)
       count = 0;
+      receivedBytes = 0;
       currentFrameId = packet.frameId;
 
       // 先頭パケットが保持するパケット数を保存する

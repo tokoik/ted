@@ -61,6 +61,9 @@ using namespace gg;
 // カメラ関連の処理
 #include "Camera.h"
 
+// 作業者として映像と姿勢を送信するクラス
+#include "Worker.h"
+
 // 標準ライブラリ
 #include <vector>
 #include <array>
@@ -142,6 +145,18 @@ class GgApp
 
   /// 左右に独立した入力がある場合true。falseなら右眼も左テクスチャを共有する。
   bool stereo{ false };
+
+  /// 役割が作業者のとき、入力中のカメラの映像と姿勢を送信する
+  std::unique_ptr<Worker> worker;
+
+  ///
+  /// 役割と入力に合わせて作業者の送信を開始・停止する
+  ///
+  /// @details
+  /// 役割が作業者で、入力がリモート以外なら送信を (再) 開始し、それ以外なら停止する。
+  /// 入力を切り替えたときは新しいカメラで送信し直す。
+  ///
+  void updateWorker();
 
   /// 静止画像ファイルを使う
   bool useImage();

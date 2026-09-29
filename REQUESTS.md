@@ -177,3 +177,86 @@
 
 - `cmake --build build --config Release` で `ted.exe` および `ted_server.exe` がエラー・警告なしで正常ビルドされることを確認しました。
 - `git diff --check` でコードフォーマットに問題がないことを確認しました。
+
+## 2026-09-29: 中継サーバ・PC 版の中継対応の確認と Quest 3 版の実装
+
+### 依頼
+
+- 中継サーバ (`server/`) が PC 版 TED の中継を行えるか確認する。
+- PC 版 TED が中継サーバに正しく対応しているか確認する。
+- Quest 3 版に、パススルー映像とハンドトラッキングによる手のモデルの表示、パススルーカメラの画像と手の姿勢の送信、受信した指示者の手のモデルの重畳表示を実装する（実験用で一般配布はしない）。
+
+### 確認結果
+
+1. **中継サーバ**
+   - ルートの `Network.h/.cpp` と同じプロトコルでフレームを再分割して転送しており、指示者 PC (OPERATOR) と作業者 (WORKER) の間の中継は成立する。
+2. **PC 版 TED**
+   - `input_mode` をリモートにしたとき、`CamRemote` が OPERATOR (role 1) として中継サーバと通信できる。
+   - `role` 設定はどこからも参照されておらず、作業者 (WORKER) 側の送信処理（旧 `Camera::startWorker()`）は d1a059d のリファクタで削除されている（それ以前から呼び出されていなかった）。PC 作業者から PC 指示者への中継はできない。
+3. **UDP プロトコルの不具合（PC 版・中継サーバ共通）**
+   - `Packet` 構造体の `frameId` (2 バイト) と `count` (4 バイト) の間に 2 バイトの詰め物が入る一方、送受信ではヘッダを 6 バイトとして扱っていたため、各データグラムのペイロード末尾 2 バイトが送られず、受信側で壊れていた（1464 バイトごとに 2 バイト）。
+   - フレームの受信途中で新しいフレームに切り替えたとき `receivedBytes` を戻していなかったため、捨てたフレームの長さを返すことがあった。
+
+### 対応内容
+
+1. **UDP プロトコルの修正** (`Network.cpp`, `server/Network.cpp`)
+   - `Packet` を `#pragma pack(1)` で詰め、`static_assert` で大きさ (1470 バイト) を検査するようにしました。旧版とはデータグラムの配置が変わるため、PC 版・中継サーバ・Quest 3 版をすべて更新して使用します。
+   - フレームの受信をやり直すときに `receivedBytes` を 0 に戻すようにしました。
+   - 画像を含む大きなフレームで溢れないよう、送受信ソケットのバッファを 4 MB に広げるようにしました（OS の上限で制限されても動作は続けます）。
+2. **Network の POSIX 対応** (`Network.h/.cpp`, `server/Network.h/.cpp`, `server/GgApp.h`)
+   - Quest 3 版が中継サーバと同じ実装を共有できるよう、Winsock 固有の型・関数・タイムアウト指定を `_WIN32` 以外では POSIX ソケットで置き換えました。Windows 側の動作は変わりません。
+   - `server/GgApp.h` の `NOTIFY` は Android では logcat に出力します。
+3. **Quest 3 版の実装** (`android/`)
+   - `XR_FB_passthrough` によるパススルー表示、`XR_EXT_hand_tracking` による手の関節姿勢の取得（PC 版 `updateOpenXRHands()` と同じ算出方法）と、PC 版と同じ手のモデルの描画を実装しました（`AndroidMain.cpp`, `ObjModel.h/.cpp`）。
+   - Passthrough Camera API（NDK Camera2）で左右の画像を取得し、`AndroidBitmap_compress()` で JPEG に符号化するようにしました（`PassthroughCamera.h/.cpp`）。実行時パーミッションは JNI で要求します。
+   - WORKER (role 2) として、PC 版と同じ形式（頭部姿勢・モデル変換・左右交互の手の関節 44 個と左右 JPEG）で送信し、受信した指示者の手の関節で指示者の手のモデルを重畳表示するようにしました（`TedLink.h/.cpp`）。頭部姿勢は画像の撮影時刻のものを `XR_KHR_convert_timespec_time` で求めます。
+   - 設定を `ted_quest.json`（アプリ専用の外部ストレージ）から読み込むようにしました（`QuestConfig.h/.cpp`）。
+   - 手のモデルはビルド時にリポジトリのトップから assets へ取り込みます (`app/build.gradle`)。マニフェストにパススルー、ハンドトラッキング、カメラ、ネットワークの権限を追加しました。
+4. **文書**
+   - `Quest.md` を追加し、`README.md` と `config.md` に Quest 3 版、中継サーバの接続構成、`role` が未実装であることを追記しました。
+
+### 検証
+
+- Linux 上のループバックで、PC 版と同じ OPERATOR ⇔ 中継処理 (`server/main.cpp` と同じ `relay`) ⇔ Quest 3 版の `TedLink` を動かし、画像付きフレーム 106 枚がバイト単位で一致すること、指示者の変換行列が Quest 3 版に届くことを確認しました。修正前の `Network.cpp` では、画像付きフレームは 1 枚も一致しませんでした。
+- `server/Network.cpp` と `server/main.cpp` を MinGW-w64 (Debug/Release) でビルドできることを確認しました。MSVC でのビルドは未確認です。
+- Quest 3 版は NDK 27 のヘッダとライブラリでコンパイルし、OpenXR ローダ以外の未解決シンボルが無いことをリンクで確認しました。OBJ の読み込みは実際の手のモデルで確認しました。Gradle によるビルドと実機での動作は未確認です。
+- `git diff --check` を実行しました。
+
+## 2026-09-29: PC 版の作業者 (PC → PC) 機能の復元とネットワーク関連の点検・最適化
+
+### 依頼
+
+- 誤って削除された PC 版の「PC → PC」（作業者として映像と姿勢を送信する）機能を、履歴をもとに復元する。
+- 現状のネットワーク関連のコードとあわせて点検し、最適化できるところを最適化する。
+
+### 経緯
+
+- 作業者側の送信は `Camera::startWorker()` / `send()` / `recv()` で実装され、`main.cpp` から `role` が作業者のときに起動していた（最後に存在したのは master の ce7b96e、2026-05-08）。
+- ted ブランチで `main.cpp` を `GgApp` / `ted.cpp` へ再構成した後、1dc4859（master を ted へマージ）で ted 側の構成が採用され、起動処理が失われた。
+- その後 d1a059d（Camera 基底クラスの刷新）で `Camera` から送受信処理自体も削除された。
+
+### 対応内容
+
+1. **作業者機能の復元** (`Worker.h/.cpp`, `ted.cpp`, `GgApp.h`, `CMakeLists.txt`)
+   - 旧 `Camera::send()` / `recv()` / `startWorker()` を、現在の NVI 設計に合わせて独立した `Worker` クラスとして復元しました。
+   - `role` が作業者で入力がリモート以外なら、`selectInput()` の成功時に `GgApp::updateWorker()` が送信を開始します。入力を切り替えると新しいカメラで送信し直します。`Worker` はカメラを共有所有するので、送信中にカメラが破棄されることはありません。
+   - 論理的な左右眼（`swap_camera_eyes`）で送信し、伝送解像度・fps・JPEG 品質は従来どおり `transmit_*` を使います。BGRA 入力は BGR に変換してから符号化します。
+   - 静止画像は、後から起動した指示者にも届くよう 1 秒ごとに送り直します（旧実装は 1 回だけ送っていました）。
+   - 画像が無い間も姿勢を `minDelay` 間隔で送ります（旧実装は画像を送るときだけ姿勢を送っていました）。
+2. **カメラからの送信用フレーム取得** (`Camera.h`, `CamMf`, `CamOv`, `CamImage`)
+   - テクスチャ転送用の `captured` と独立したフレーム通し番号 (`notifyFrame()` / `getFrameSerial()`) と、ロック中は複製だけを行う `copyFrame()` を追加しました。送信がテクスチャ転送のフレームを奪ったり、キャプチャを長時間止めたりしないようにしています。
+3. **受信側 (`CamRemote`) の最適化**
+   - 受信ループで 1 フレームごとに `minDelay` 待っていたのを止めました。送信側の頻度に受信が追いつかず、ソケットに古いフレームが溜まって遅延が増えるのを防ぎます。
+   - JPEG を `std::vector` へ複製してから復号していたのを、受信バッファ上で直接復号するようにしました。
+   - EOF を受け取っても受信スレッドを終了せず、相手の再起動後に通信を再開できるようにしました（`Worker`、Quest 3 版も同じ扱い）。
+   - 送信間隔の計算を `steady_clock` の `sleep_until()` に簡素化しました。
+   - 役割の番号を `INSTRUCTOR` / `WORKER` の定数で指定するようにしました。
+4. **`Network` の最適化** (`Network.h/.cpp`, `server/Network.h/.cpp`)
+   - 受信済みパケットの記録をフレームごとに確保し直さず、メンバとして再利用するようにしました。
+5. **文書**
+   - `config.md`、`README.md`、`Quest.md` を、作業者機能と EOF の扱いに合わせて更新しました。
+
+### 検証
+
+- MinGW-w64 と実際の依存ヘッダ（OpenCV、GLFW、OpenXR、Ovrvision、Leap）で、`Worker.cpp`、`ted.cpp`、`GgApp.cpp`、`main.cpp`、`Menu.cpp`、`CamRemote.cpp`、`CamImage.cpp`、`CamOv.cpp`、`Scene.cpp`、`Network.cpp` の構文検査を通しました。MSVC でのビルドと、PC 同士の実機での送受信は未確認です。
+- `git diff --check` を実行しました。
