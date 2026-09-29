@@ -25,9 +25,12 @@
 
 #include "Network.h"
 #include "QuestMath.h"
+#include "TedProtocol.h"
 
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
+#include <deque>
 #include <cstdint>
 #include <memory>
 #include <mutex>
@@ -97,6 +100,37 @@ public:
   void publish(const qm::Mat4* table, Image left, Image right);
 
   ///
+  /// 動画の 1 アクセスユニットを送信する
+  ///
+  /// @param table アクセスユニットを撮影したときの変換行列のテーブル (tableSize 個)
+  /// @param eye 視点 (0: 左, 1: 右)
+  /// @param format 画像の形式 (ted::IMAGE_H264 または ted::IMAGE_HEVC)
+  /// @param payload VideoUnitHeader 付きのアクセスユニット
+  ///
+  /// @details
+  /// 動画は途中のアクセスユニットが欠けると復号できなくなるので、JPEG と違って
+  /// 新しいもので置き換えず、登録した順にすべて送る。送信が追いつかずに溢れたら捨てて、
+  /// takeOverflow() で知らせる (キーフレームで受信側を復帰させる)。
+  ///
+  void publishVideo(const qm::Mat4* table, int eye, std::uint32_t format, Image payload);
+
+  ///
+  /// 受信側からキーフレームを要求されていれば true を返して要求を消す
+  ///
+  bool takeKeyframeRequest()
+  {
+    return keyframeRequested.exchange(false);
+  }
+
+  ///
+  /// 送信待ちの動画が溢れて捨てていれば true を返して記録を消す
+  ///
+  bool takeOverflow()
+  {
+    return videoOverflowed.exchange(false);
+  }
+
+  ///
   /// 受信した変換行列のテーブルを取り出す
   ///
   /// @param table 格納先 (maxTableSize 個)
@@ -130,6 +164,35 @@ private:
 
   /// 次のフレームで送る画像
   Image pendingImage[camCount];
+
+  ///
+  /// 送信待ちの動画のアクセスユニット
+  ///
+  struct VideoUnit
+  {
+    std::vector<qm::Mat4> table;
+    int eye{ 0 };
+    std::uint32_t format{ 0 };
+    Image payload;
+  };
+
+  /// 送信待ちの動画のアクセスユニット
+  std::deque<VideoUnit> videoUnits;
+
+  /// 送信待ちの動画が届いたことを送信スレッドに知らせる
+  std::condition_variable sendReady;
+
+  /// 送信待ちの動画が溢れて捨てたら true
+  std::atomic<bool> videoOverflowed{ false };
+
+  /// 受信側からキーフレームを要求されたら true
+  std::atomic<bool> keyframeRequested{ false };
+
+  ///
+  /// フレームを組み立てて送信する
+  ///
+  void sendFrame(std::vector<std::uint8_t>& buffer, const std::vector<qm::Mat4>& table, std::uint32_t format,
+    const Image* image);
 
   /// 姿勢を送信する間隔 (ミリ秒)
   int interval{ 10 };

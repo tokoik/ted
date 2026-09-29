@@ -197,6 +197,9 @@ bool QuestConfig::load(const std::string& path)
   getValue(o, "send_images", send_images);
   getValue(o, "camera_width", camera_width);
   getValue(o, "camera_height", camera_height);
+  getValue(o, "codec", codec);
+  getValue(o, "bitrate", bitrate);
+  getValue(o, "keyframe_interval", keyframe_interval);
   getValue(o, "transmit_quality", transmit_quality);
   getValue(o, "transmit_fps", transmit_fps);
   getValue(o, "send_interval", send_interval);
@@ -209,6 +212,9 @@ bool QuestConfig::load(const std::string& path)
   port = std::clamp(port, 1, 65534);
   camera_width = std::max(camera_width, 1);
   camera_height = std::max(camera_height, 1);
+  if (codec != "h264" && codec != "hevc" && codec != "jpeg") codec = "h264";
+  bitrate = std::clamp(bitrate, 100000, 100000000);
+  keyframe_interval = std::clamp(keyframe_interval, 1, 60);
   transmit_quality = std::clamp(transmit_quality, 0, 100);
   transmit_fps = std::max(transmit_fps, 0.0);
   send_interval = std::max(send_interval, 1);
@@ -232,6 +238,9 @@ bool QuestConfig::save(const std::string& path) const
     << "  \"send_images\": " << boolean(send_images) << ",\n"
     << "  \"camera_width\": " << camera_width << ",\n"
     << "  \"camera_height\": " << camera_height << ",\n"
+    << "  \"codec\": \"" << codec << "\",\n"
+    << "  \"bitrate\": " << bitrate << ",\n"
+    << "  \"keyframe_interval\": " << keyframe_interval << ",\n"
     << "  \"transmit_quality\": " << transmit_quality << ",\n"
     << "  \"transmit_fps\": " << transmit_fps << ",\n"
     << "  \"send_interval\": " << send_interval << ",\n"

@@ -15,6 +15,8 @@
 /// JPEG に符号化する (PC 版は cv::imdecode() で復号する)。
 ///
 
+#include "VideoEncoder.h"
+
 #include <camera/NdkCameraCaptureSession.h>
 #include <camera/NdkCameraDevice.h>
 #include <camera/NdkCameraManager.h>
@@ -22,6 +24,7 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <deque>
 #include <cstdint>
 #include <memory>
 #include <mutex>
@@ -54,6 +57,39 @@ public:
     std::uint64_t sequence{ 0 };
   };
 
+  ///
+  /// 動画のアクセスユニット
+  ///
+  struct VideoUnit
+  {
+    /// 視点 (0: 左, 1: 右)
+    int eye{ 0 };
+
+    /// VideoUnitHeader 付きのアクセスユニット
+    Image payload;
+
+    /// 撮影時刻 (ナノ秒, CLOCK_MONOTONIC に換算済み)
+    std::int64_t timestamp{ 0 };
+
+    /// キーフレームなら true
+    bool keyframe{ false };
+  };
+
+  ///
+  /// 動画の符号化の設定
+  ///
+  struct VideoSettings
+  {
+    /// 画像の形式 (ted::IMAGE_JPEG なら JPEG を 1 枚ずつ送る)
+    std::uint32_t format{ 0 };
+
+    /// 片眼あたりのビットレート (bps)
+    int bitrate{ 6000000 };
+
+    /// キーフレームの間隔 (秒)
+    int keyframeInterval{ 2 };
+  };
+
   PassthroughCamera() = default;
   ~PassthroughCamera();
 
@@ -67,9 +103,39 @@ public:
   /// @param height 画像の高さ
   /// @param quality JPEG の品質 (0～100)
   /// @param fps 符号化するフレームレートの上限 (0 なら制限しない)
+  /// @param video 動画として符号化する場合の設定
   /// @return 少なくとも左 (または唯一の) カメラが開けたら true
   ///
-  bool open(int width, int height, int quality, double fps);
+  bool open(int width, int height, int quality, double fps, const VideoSettings& video);
+
+  ///
+  /// 左右のパススルーカメラを開いて JPEG で取得を開始する
+  ///
+  bool open(int width, int height, int quality, double fps)
+  {
+    return open(width, height, quality, fps, VideoSettings{});
+  }
+
+  ///
+  /// 動画として符号化しているか
+  ///
+  bool isVideo() const
+  {
+    return video.format != 0;
+  }
+
+  ///
+  /// 符号化した動画のアクセスユニットをすべて取り出す
+  ///
+  /// @param units 格納先 (取り出した順に左右が混在する)
+  /// @return 取り出したアクセスユニットがあれば true
+  ///
+  bool takeVideoUnits(std::vector<VideoUnit>& units);
+
+  ///
+  /// 動画の次のフレームをキーフレームにする
+  ///
+  void requestKeyframe();
 
   ///
   /// カメラを閉じる
@@ -124,6 +190,9 @@ private:
     ACameraCaptureSession_stateCallbacks sessionCallbacks{};
     AImageReader_ImageListener imageListener{};
 
+    /// 動画のエンコーダ (動画として符号化する場合)
+    std::unique_ptr<VideoEncoder> encoder;
+
     /// 最後に受け取った画像 (符号化スレッドが取り出したら fresh を false にする)
     Yuv yuv;
     bool fresh{ false };
@@ -145,6 +214,9 @@ private:
   /// キャプチャセッションのコールバック (何もしない)
   static void onSessionState(void* context, ACameraCaptureSession* session);
 
+  /// エンコーダが出力したアクセスユニットを保存する
+  void pushVideoUnit(int eye, VideoEncoder::Unit&& unit);
+
   /// 符号化スレッド
   void encodeLoop();
 
@@ -165,6 +237,9 @@ private:
 
   /// JPEG の品質
   int quality{ 50 };
+
+  /// 符号化するフレームレートの上限 (0 なら制限しない)
+  double fps{ 0.0 };
 
   /// 符号化の最小間隔 (秒)
   double minInterval{ 0.0 };
@@ -190,4 +265,16 @@ private:
 
   /// 最新の符号化済み画像の組
   Frame latest;
+
+  /// 動画の符号化の設定
+  VideoSettings video;
+
+  /// 符号化した動画のアクセスユニットの排他制御
+  std::mutex unitMutex;
+
+  /// 取り出されていない動画のアクセスユニット
+  std::deque<VideoUnit> units;
+
+  /// 取り出されずに溢れたら true (キーフレームで復帰させる)
+  std::atomic<bool> unitsOverflowed{ false };
 };

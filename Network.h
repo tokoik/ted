@@ -64,6 +64,63 @@ inline unsigned int getMatrixCount(const unsigned int* head)
 }
 
 ///
+/// 通信フレームのヘッダの 3 番目の要素 (head[camCount]) の構成
+///
+/// @details
+/// - ビット 0～15: 変換行列の数
+/// - ビット 16: キーフレーム要求 (動画を受信する側が送信側へ要求する)
+/// - ビット 24～27: 画像の形式 (ImageFormat)
+///
+/// 画像が動画 (H.264 / HEVC) のとき、左右の画像はそれぞれ 1 アクセスユニットで、
+/// 先頭に VideoUnitHeader (8 バイト) が付く。左右のどちらか一方だけのフレームもある。
+///
+constexpr unsigned int frameCountMask{ 0xffffu };
+constexpr unsigned int frameKeyframeRequest{ 1u << 16 };
+constexpr unsigned int frameFormatShift{ 24 };
+constexpr unsigned int frameFormatMask{ 0xfu << frameFormatShift };
+
+/// 画像の形式
+enum ImageFormat : unsigned int
+{
+  IMAGE_JPEG = 0,                   ///< 1 枚ずつ独立した JPEG
+  IMAGE_H264 = 1,                   ///< H.264 (Annex B) のアクセスユニット
+  IMAGE_HEVC = 2                    ///< HEVC (Annex B) のアクセスユニット
+};
+
+///
+/// 動画のアクセスユニットの前に付ける情報
+///
+struct VideoUnitHeader
+{
+  /// 視点ごとの通し番号 (欠落の検出に使う)
+  unsigned int number;
+
+  /// フラグ (VIDEO_UNIT_KEYFRAME)
+  unsigned int flags;
+};
+
+/// キーフレーム (これだけで復号できるアクセスユニット)
+constexpr unsigned int VIDEO_UNIT_KEYFRAME{ 1u };
+
+/// 変換行列の数を取り出す
+inline unsigned int getMatrixCount(const unsigned int* head)
+{
+  return head[camCount] & frameCountMask;
+}
+
+/// 画像の形式を取り出す
+inline unsigned int getImageFormat(const unsigned int* head)
+{
+  return (head[camCount] & frameFormatMask) >> frameFormatShift;
+}
+
+/// キーフレームが要求されているか
+inline bool isKeyframeRequested(const unsigned int* head)
+{
+  return (head[camCount] & frameKeyframeRequest) != 0;
+}
+
+///
 /// 受信したフレームの解析
 ///
 /// @param buffer 受信したフレームの先頭アドレス

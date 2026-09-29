@@ -32,6 +32,15 @@ struct QuestConfig
   int camera_width{ 1280 };
   int camera_height{ 960 };
 
+  /// 画像の送り方 ("h264", "hevc": ハードウェアエンコーダで動画に符号化, "jpeg": 1 枚ずつ JPEG)
+  std::string codec{ "h264" };
+
+  /// 動画の片眼あたりのビットレート (bps)
+  int bitrate{ 6000000 };
+
+  /// 動画のキーフレームの間隔 (秒, 欠落からの復帰は受信側の要求でも行う)
+  int keyframe_interval{ 2 };
+
   /// 送信する JPEG 画像の品質 (0～100)
   int transmit_quality{ 50 };
 

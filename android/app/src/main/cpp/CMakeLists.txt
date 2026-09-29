@@ -41,6 +41,7 @@ add_library(ted_android SHARED
     PassthroughCamera.cpp
     QuestConfig.cpp
     TedLink.cpp
+    VideoEncoder.cpp
     "${TED_SERVER_DIR}/Network.cpp"
 )
 

@@ -6,6 +6,7 @@
 /// @date September 29, 2026
 ///
 #include "PassthroughCamera.h"
+#include "TedProtocol.h"
 
 #include <android/bitmap.h>
 #include <android/data_space.h>
@@ -165,13 +166,17 @@ PassthroughCamera::~PassthroughCamera()
 //
 // 左右のパススルーカメラを開いて取得を開始する
 //
-bool PassthroughCamera::open(int width, int height, int quality, double fps)
+bool PassthroughCamera::open(int width, int height, int quality, double fps, const VideoSettings& video)
 {
   close();
+
+  this->video = video;
+  unitsOverflowed = false;
 
   this->width = width;
   this->height = height;
   this->quality = std::clamp(quality, 0, 100);
+  this->fps = fps;
   minInterval = fps > 0.0 ? 1.0 / fps : 0.0;
   failed = false;
 
@@ -242,10 +247,11 @@ bool PassthroughCamera::open(int width, int height, int quality, double fps)
     else LOGW("right passthrough camera %s is not available; sending monocular images", cameraId[1].c_str());
   }
 
-  encoder = std::thread([this]() { encodeLoop(); });
+  // JPEG の場合は符号化スレッドを動かす (動画はハードウェアエンコーダが符号化する)
+  if (!isVideo()) encoder = std::thread([this]() { encodeLoop(); });
 
-  LOGI("passthrough camera: %d camera(s), %dx%d, quality %d", eyeCount, this->width, this->height,
-    this->quality);
+  LOGI("passthrough camera: %d camera(s), %dx%d, %s", eyeCount, this->width, this->height,
+    isVideo() ? (video.format == ted::IMAGE_HEVC ? "HEVC" : "H.264") : "JPEG");
   return true;
 }
 
@@ -270,12 +276,26 @@ bool PassthroughCamera::openEye(Eye& eye, const std::string& id)
     return false;
   };
 
-  media_status_t media{ AImageReader_new(width, height, AIMAGE_FORMAT_YUV_420_888, 4, &eye.reader) };
-  if (media != AMEDIA_OK) return fail("AImageReader_new", media);
-  media = AImageReader_setImageListener(eye.reader, &eye.imageListener);
-  if (media != AMEDIA_OK) return fail("AImageReader_setImageListener", media);
-  media = AImageReader_getWindow(eye.reader, &eye.window);
-  if (media != AMEDIA_OK) return fail("AImageReader_getWindow", media);
+  if (isVideo())
+  {
+    // カメラの出力先をハードウェアエンコーダの入力 Surface にする
+    const int index{ static_cast<int>(&eye - eyes) };
+    eye.encoder = std::make_unique<VideoEncoder>();
+    const auto callback = [this, index](VideoEncoder::Unit&& unit) { pushVideoUnit(index, std::move(unit)); };
+    const bool ok{ eye.encoder->open(video.format, width, height, video.bitrate, fps, video.keyframeInterval,
+      callback) };
+    if (!ok) return fail("VideoEncoder::open", -1);
+    eye.window = eye.encoder->getInputSurface();
+  }
+  else
+  {
+    media_status_t media{ AImageReader_new(width, height, AIMAGE_FORMAT_YUV_420_888, 4, &eye.reader) };
+    if (media != AMEDIA_OK) return fail("AImageReader_new", media);
+    media = AImageReader_setImageListener(eye.reader, &eye.imageListener);
+    if (media != AMEDIA_OK) return fail("AImageReader_setImageListener", media);
+    media = AImageReader_getWindow(eye.reader, &eye.window);
+    if (media != AMEDIA_OK) return fail("AImageReader_getWindow", media);
+  }
 
   camera_status_t status{ ACameraManager_openCamera(manager, id.c_str(), &eye.deviceCallbacks, &eye.device) };
   if (status != ACAMERA_OK) return fail("ACameraManager_openCamera", status);
@@ -351,6 +371,13 @@ void PassthroughCamera::closeEye(Eye& eye)
     eye.reader = nullptr;
     eye.window = nullptr;
   }
+  if (eye.encoder)
+  {
+    // カメラを閉じてからエンコーダを止める (入力 Surface はエンコーダが所有する)
+    eye.encoder->close();
+    eye.encoder.reset();
+    eye.window = nullptr;
+  }
 
   std::lock_guard<std::mutex> lock{ yuvMutex };
   eye.fresh = false;
@@ -374,8 +401,60 @@ void PassthroughCamera::close()
     manager = nullptr;
   }
 
-  std::lock_guard<std::mutex> lock{ frameMutex };
-  latest = Frame{};
+  {
+    std::lock_guard<std::mutex> lock{ frameMutex };
+    latest = Frame{};
+  }
+
+  std::lock_guard<std::mutex> lock{ unitMutex };
+  units.clear();
+}
+
+//
+// エンコーダが出力したアクセスユニットを保存する (エンコーダの出力スレッドから呼ばれる)
+//
+void PassthroughCamera::pushVideoUnit(int eye, VideoEncoder::Unit&& unit)
+{
+  // 撮影時刻を CLOCK_MONOTONIC に揃える
+  std::int64_t timestamp{ unit.timestamp };
+  if (bootTime) timestamp -= now(CLOCK_BOOTTIME) - now(CLOCK_MONOTONIC);
+
+  std::lock_guard<std::mutex> lock{ unitMutex };
+
+  // 描画が止まっていて取り出されなければ捨てる (受信側は欠落を検出してキーフレームを待つ)
+  constexpr std::size_t maxUnits{ 60 };
+  if (units.size() >= maxUnits)
+  {
+    units.clear();
+    unitsOverflowed = true;
+  }
+  units.push_back(VideoUnit{ eye, std::move(unit.payload), timestamp, unit.keyframe });
+}
+
+//
+// 符号化した動画のアクセスユニットをすべて取り出す
+//
+bool PassthroughCamera::takeVideoUnits(std::vector<VideoUnit>& out)
+{
+  out.clear();
+  {
+    std::lock_guard<std::mutex> lock{ unitMutex };
+    out.assign(std::make_move_iterator(units.begin()), std::make_move_iterator(units.end()));
+    units.clear();
+  }
+
+  // 溢れて捨てたアクセスユニットがあれば、キーフレームで受信側を復帰させる
+  if (unitsOverflowed.exchange(false)) requestKeyframe();
+  return !out.empty();
+}
+
+//
+// 動画の次のフレームをキーフレームにする
+//
+void PassthroughCamera::requestKeyframe()
+{
+  for (auto& eye : eyes)
+    if (eye.encoder) eye.encoder->requestKeyframe();
 }
 
 //

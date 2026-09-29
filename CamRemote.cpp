@@ -1,4 +1,4 @@
-///
+﻿///
 /// リモートのカメラからキャプチャするクラスの実装
 ///
 /// @file
@@ -13,9 +13,13 @@
 // 共有メモリ
 #include "SharedMemory.h"
 
+// エラー通知 (NOTIFY)
+#include "GgApp.h"
+
 #include <cmath>
 #include <chrono>
 #include <iostream>
+#include <cstring>
 
 //
 // 受信バッファ上の JPEG を複製せずにデコードする
@@ -122,59 +126,33 @@ int CamRemote::open(unsigned short port, const char* address)
   recvbuf = new unsigned char[maxFrameSize];
   stereoSource = false;
 
-  const unsigned int* head{ nullptr };
-  const GgMatrix* body{ nullptr };
-  const unsigned char* data{ nullptr };
+  // 受信状態を初期化する
+  firstImage = false;
+  stereoSource = false;
+  keyframeNeeded = false;
 
-  // テクスチャ確保には画像寸法が必要なため、境界が正しく左画像を含むフレームまで待つ
-  for (int i = 0;;)
+  // 通信スレッドを開始する。
+  // 動画の場合はキーフレームが届くまで復号できないので、送信スレッドがキーフレームを要求しながら、
+  // 受信スレッドが最初の左画像を復号するのを待つ。
+  start();
+  const auto deadline{ std::chrono::steady_clock::now()
+    + std::chrono::milliseconds(receiveRetry * 500) };
+  while (!firstImage && std::chrono::steady_clock::now() < deadline)
+    std::this_thread::sleep_for(std::chrono::milliseconds(minDelay));
+  if (!firstImage)
   {
-    const int ret(network.recvData(recvbuf, maxFrameSize));
-#if defined(DEBUG)
-    std::cerr << "CamRemote open:" << ret << '\n';
-#endif
-    if (ret > 0 && network.checkRemote() && unpackFrame(recvbuf, ret, head, body, data)
-      && head[camL] > 0) break;
-    if (++i > receiveRetry) return ret < 0 ? ret : -1;
+    stop();
+    network.finalize();
+    return -1;
   }
 
-  // 変換行列を共有メモリに格納する
-  remoteAttitude->store(body, head[camCount]);
-
-  // 左フレームを受信バッファ上で直接デコードする
-  remote[camL] = decode(data, head[camL]);
-  if (remote[camL].empty()) return -1;
-
-  // リモートから取得したフレームのサイズ
+  // テクスチャ確保には画像寸法が必要なため、最初に受け取った画像の大きさを使う
   cv::Size rsize[camCount];
-
-  // 左フレームのサイズを求める
-  rsize[camL] = remote[camL].size();
-
-  // 右フレームが存在すれば
-  if (head[camR] > 0)
   {
-    // 右フレームをデコードする
-    remote[camR] = decode(data + head[camL], head[camR]);
-    if (remote[camR].empty()) remote[camR] = remote[camL];
-
-    // 右フレームのサイズを求める
-    rsize[camR] = remote[camR].size();
+    std::lock_guard<std::mutex> lock{ mtx };
+    rsize[camL] = remote[camL].size();
+    rsize[camR] = remote[camR].empty() ? rsize[camL] : remote[camR].size();
   }
-  else
-  {
-    // 右フレームは左と同じにする
-    remote[camR] = remote[camL];
-
-    // 右フレームのサイズは左フレームと同じにする
-    rsize[camR] = rsize[camL];
-  }
-
-  width = rsize[camL].width;
-  height = rsize[camL].height;
-  widthR = rsize[camR].width;
-  heightR = rsize[camR].height;
-  channels = 3;
 
   // 背景画像の変形に使うメッシュの縦横の格子点数を求める
   const GLfloat aspect(static_cast<GLfloat>(size[camL].width) / static_cast<GLfloat>(size[camL].height));
@@ -204,9 +182,6 @@ int CamRemote::open(unsigned short port, const char* address)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
   }
-
-  // 通信スレッドを開始する
-  start();
 
   return 0;
 }
@@ -274,10 +249,67 @@ bool CamRemote::transmit(int eye, unsigned int texture, const int* transmitSize)
 }
 
 //
+// 動画の 1 アクセスユニットを復号する
+//
+void CamRemote::decodeVideo(int eye, unsigned int format, const unsigned char* data, unsigned int size,
+  cv::Mat& image)
+{
+  image.release();
+  if (size <= sizeof(VideoUnitHeader)) return;
+
+  VideoUnitHeader unit;
+  std::memcpy(&unit, data, sizeof unit);
+  const bool keyframe{ (unit.flags & VIDEO_UNIT_KEYFRAME) != 0 };
+  auto& state{ video[eye] };
+
+  // 形式が変わったらデコーダを開き直す
+  if (!state.decoder.isOpen() || state.format != format)
+  {
+    state.format = format;
+    state.waitKeyframe = true;
+    state.hasExpected = false;
+    if (!state.decoder.open(format))
+    {
+      static std::atomic<bool> notified{ false };
+      if (!notified.exchange(true)) NOTIFY(u8"受信した動画を復号するデコーダが見つかりません。");
+      return;
+    }
+  }
+
+  // 通し番号が飛んでいたら (途中のアクセスユニットが欠けたら) キーフレームまで復号しない
+  if (state.hasExpected && unit.number != state.expected) state.waitKeyframe = true;
+  state.expected = unit.number + 1;
+  state.hasExpected = true;
+
+  if (state.waitKeyframe)
+  {
+    if (!keyframe)
+    {
+      keyframeNeeded = true;
+      return;
+    }
+    state.waitKeyframe = false;
+  }
+
+  // 時刻はデコーダの内部で順序付けに使われるだけなので、フレームごとに進めればよい
+  state.time += 333333;
+  if (state.decoder.decode(data + sizeof unit, size - sizeof unit, state.time, image) < 0)
+  {
+    state.waitKeyframe = true;
+    keyframeNeeded = true;
+    image.release();
+  }
+}
+
+//
 // リモートの映像と姿勢を受信する
 //
 void CamRemote::recv()
 {
+  // 動画のデコーダ (Media Foundation) はこのスレッドで使う
+  const bool comInitialized{ SUCCEEDED(CoInitializeEx(nullptr, COINIT_MULTITHREADED)) };
+  const bool mfStarted{ SUCCEEDED(MFStartup(MF_VERSION, MFSTARTUP_LITE)) };
+
   // スレッドが実行可の間
   while (running)
   {
@@ -289,65 +321,73 @@ void CamRemote::recv()
 #endif
 
     // 長さ 0 は相手の停止通知 (EOF) だが、相手の再起動に備えて受信を続ける
-    if (ret == 0) continue;
+    if (ret <= 0 || !network.checkRemote()) continue;
 
-    // エラーがなく、送信元とフレーム内部の境界が正しければデータを読み込む
-    if (ret > 0 && network.checkRemote())
+    // フレーム内部の境界が正しければデータを読み込む
+    const unsigned int* head{ nullptr };
+    const GgMatrix* body{ nullptr };
+    const unsigned char* data{ nullptr };
+    if (!unpackFrame(recvbuf, ret, head, body, data)) continue;
+
+    // 変換行列を共有メモリに格納する
+    remoteAttitude->store(body, getMatrixCount(head));
+
+    const unsigned int format{ getImageFormat(head) };
+    for (int eye = 0; eye < camCount; ++eye)
     {
-      const unsigned int* head{ nullptr };
-      const GgMatrix* body{ nullptr };
-      const unsigned char* data{ nullptr };
-      if (!unpackFrame(recvbuf, ret, head, body, data)) continue;
-
-      // 変換行列を共有メモリに格納する
-      remoteAttitude->store(body, getMatrixCount(head));
-
-      // 左バッファが空のとき左フレームが送られてきていれば
-      if (!captured && head[camL] > 0)
+      const unsigned int bytes{ head[eye] };
+      const unsigned char* const payload{ data };
+      data += bytes;
+      cv::Mat decoded;
+      if (format == IMAGE_JPEG)
       {
-        cv::Mat decoded{ decode(data, head[camL]) };
-
-        if (!decoded.empty())
-        {
-          std::lock_guard<std::mutex> lock{ mtx };
-          remote[camL] = decoded;
-          width = decoded.cols;
-          height = decoded.rows;
-          channels = 3;
-          captured = true;
-        }
+        // JPEG は前の画像がまだ使われていなければ復号を省く
+        if (eye == camL ? captured.load() : capturedR.load()) continue;
+        decoded = decode(payload, bytes);
       }
-
-      // 右バッファが空のとき右フレームが送られてきていれば
-      if (!capturedR && head[camR] > 0)
+      else
       {
-        cv::Mat decoded{ decode(data + head[camL], head[camR]) };
-
-        if (!decoded.empty())
-        {
-          std::lock_guard<std::mutex> lock{ mtx };
-          remote[camR] = decoded;
-          widthR = decoded.cols;
-          heightR = decoded.rows;
-          capturedR = true;
-          stereoSource = true;
-        }
+        // 動画は参照関係を保つため、表示に使わない画像も必ず復号する
+        decodeVideo(eye, format, payload, bytes, decoded);
       }
+      if (decoded.empty()) continue;
 
-      // 右の画像を受け取っていなければ (単眼の送信側なら) 左の画像を右にも使う
-      if (!stereoSource && captured && !capturedR)
+      std::lock_guard<std::mutex> lock{ mtx };
+      remote[eye] = decoded;
+      if (eye == camL)
       {
-        std::lock_guard<std::mutex> lock{ mtx };
-        remote[camR] = remote[camL];
-        widthR = width;
-        heightR = height;
+        width = decoded.cols;
+        height = decoded.rows;
+        channels = 3;
+        captured = true;
+        firstImage = true;
+      }
+      else
+      {
+        widthR = decoded.cols;
+        heightR = decoded.rows;
         capturedR = true;
+        stereoSource = true;
       }
+    }
+
+    // 右の画像を受け取っていなければ (単眼の送信側なら) 左の画像を右にも使う
+    if (!stereoSource && captured && !capturedR)
+    {
+      std::lock_guard<std::mutex> lock{ mtx };
+      remote[camR] = remote[camL];
+      widthR = width;
+      heightR = height;
+      capturedR = true;
     }
 
     // recvData() はデータが届くまで (最長 500ms) 待つので、ここでは待たない。
     // 待つと送信側の頻度に受信が追いつかず、ソケットに古いフレームが溜まって遅延が増える。
   }
+
+  for (auto& state : video) state.decoder.close();
+  if (mfStarted) MFShutdown();
+  if (comInitialized) CoUninitialize();
 }
 
 //
@@ -372,6 +412,9 @@ void CamRemote::send()
     // 変換行列の数を保存する
     const unsigned int count{ std::min(localAttitude->getSize(), frameCountMask) };
     head[camCount] = count;
+
+    // 動画の欠落を検出していたら、送信側にキーフレームを要求する
+    if (keyframeNeeded.exchange(false)) head[camCount] |= frameKeyframeRequest;
 
     // 送信する変換行列の格納場所
     const auto body{ reinterpret_cast<GgMatrix*>(head + headLength) };

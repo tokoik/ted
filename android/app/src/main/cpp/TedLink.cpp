@@ -48,6 +48,7 @@ bool TedLink::start(const std::string& host, unsigned short port, int interval)
     std::fill(sendTable.begin() + camCount + 1, sendTable.end(), qm::zero());
     pendingImage[0].reset();
     pendingImage[1].reset();
+    videoUnits.clear();
   }
 
   {
@@ -72,6 +73,8 @@ void TedLink::stop()
 {
   if (running.exchange(false))
   {
+    sendReady.notify_all();
+
     // 受信スレッドは受信のタイムアウト (500ms) ごとに running を確認して抜ける。
     // 相手へ EOF (長さ 0 のデータグラム) は送らない (受信側はいずれも EOF を無通信として扱う)。
     if (sendThread.joinable()) sendThread.join();
@@ -109,69 +112,107 @@ bool TedLink::getRemote(qm::Mat4* table, int& count) const
 }
 
 //
+// 動画の 1 アクセスユニットを送信する
+//
+void TedLink::publishVideo(const qm::Mat4* table, int eye, std::uint32_t format, Image payload)
+{
+  if (!payload || eye < 0 || eye >= camCount) return;
+  {
+    std::lock_guard<std::mutex> lock{ sendMutex };
+
+    // 送信が追いつかなければ捨てる (受信側は通し番号の欠落を検出してキーフレームを待つ)
+    constexpr std::size_t maxUnits{ 60 };
+    if (videoUnits.size() >= maxUnits)
+    {
+      videoUnits.clear();
+      videoOverflowed = true;
+    }
+    videoUnits.push_back(VideoUnit{ std::vector<qm::Mat4>(table, table + tableSize), eye, format,
+      std::move(payload) });
+  }
+  sendReady.notify_one();
+}
+
+//
+// フレームを組み立てて送信する
+//
+void TedLink::sendFrame(std::vector<std::uint8_t>& buffer, const std::vector<qm::Mat4>& table,
+  std::uint32_t format, const Image* image)
+{
+  // ヘッダと変換行列
+  auto* const head{ reinterpret_cast<unsigned int*>(buffer.data()) };
+  head[0] = head[1] = 0;
+  head[camCount] = static_cast<unsigned int>(table.size()) | (format << ted::frameFormatShift);
+  std::uint8_t* data{ buffer.data() + headLength * sizeof(unsigned int) };
+  std::memcpy(data, table.data(), table.size() * sizeof(qm::Mat4));
+  data += table.size() * sizeof(qm::Mat4);
+
+  // 画像があれば左、右の順に続ける
+  std::size_t total{ static_cast<std::size_t>(data - buffer.data()) };
+  for (int eye = 0; eye < camCount; ++eye)
+    if (image[eye]) total += image[eye]->size();
+
+  if (total <= buffer.size())
+  {
+    for (int eye = 0; eye < camCount; ++eye)
+    {
+      if (!image[eye]) continue;
+      std::memcpy(data, image[eye]->data(), image[eye]->size());
+      data += image[eye]->size();
+      head[eye] = static_cast<unsigned int>(image[eye]->size());
+    }
+  }
+  else
+  {
+    // PC 版の受信バッファに収まらない画像は送らない (姿勢だけ送る)
+    LOGW("TedLink: image data (%zu bytes) exceeds the frame limit; lower the quality or bitrate", total);
+    if (format != ted::IMAGE_JPEG) videoOverflowed = true;
+  }
+
+  network.sendData(buffer.data(), static_cast<int>(data - buffer.data()));
+}
+
+//
 // 送信スレッド
 //
 void TedLink::sendLoop()
 {
   std::vector<std::uint8_t> buffer(maxFrameSize);
   auto next{ std::chrono::steady_clock::now() };
-  bool warned{ false };
 
   while (running)
   {
-    // 送信するデータのスナップショットをロック中に取る
-    std::vector<qm::Mat4> table;
-    Image image[camCount];
+    std::unique_lock<std::mutex> lock{ sendMutex };
+
+    // 動画のアクセスユニットが届けばすぐに、そうでなければ次の姿勢の送信時刻まで待つ
+    sendReady.wait_until(lock, next, [this]() { return !running || !videoUnits.empty(); });
+    if (!running) break;
+
+    if (!videoUnits.empty())
     {
-      std::lock_guard<std::mutex> lock{ sendMutex };
-      table = sendTable;
-      image[0] = std::move(pendingImage[0]);
-      image[1] = std::move(pendingImage[1]);
+      // 動画はアクセスユニットごとに、撮影時の姿勢と一緒に送る
+      VideoUnit unit{ std::move(videoUnits.front()) };
+      videoUnits.pop_front();
+      lock.unlock();
+
+      Image image[camCount];
+      image[unit.eye] = std::move(unit.payload);
+      sendFrame(buffer, unit.table, unit.format, image);
+      continue;
     }
 
-    // ヘッダと変換行列
-    auto* const head{ reinterpret_cast<unsigned int*>(buffer.data()) };
-    head[0] = head[1] = 0;
-    head[camCount] = static_cast<unsigned int>(table.size());
-    std::uint8_t* data{ buffer.data() + headLength * sizeof(unsigned int) };
-    std::memcpy(data, table.data(), table.size() * sizeof(qm::Mat4));
-    data += table.size() * sizeof(qm::Mat4);
+    // 一定間隔で姿勢 (と JPEG 画像があれば画像) を送る
+    const std::vector<qm::Mat4> table{ sendTable };
+    Image image[camCount]{ std::move(pendingImage[0]), std::move(pendingImage[1]) };
+    lock.unlock();
 
-    // 画像があれば左、右の順に続ける (右だけを送ることはできない)
-    if (image[0])
-    {
-      const std::size_t used{ static_cast<std::size_t>(data - buffer.data()) };
-      const std::size_t sizeL{ image[0]->size() };
-      const std::size_t sizeR{ image[1] ? image[1]->size() : 0 };
-      if (used + sizeL + sizeR <= buffer.size())
-      {
-        std::memcpy(data, image[0]->data(), sizeL);
-        data += sizeL;
-        head[0] = static_cast<unsigned int>(sizeL);
-        if (sizeR > 0)
-        {
-          std::memcpy(data, image[1]->data(), sizeR);
-          data += sizeR;
-          head[1] = static_cast<unsigned int>(sizeR);
-        }
-        warned = false;
-      }
-      else if (!warned)
-      {
-        // PC 版の受信バッファに収まらない画像は送らない (姿勢だけ送る)
-        LOGW("TedLink: encoded images (%zu + %zu bytes) exceed the frame limit; "
-          "lower transmit_quality or camera size", sizeL, sizeR);
-        warned = true;
-      }
-    }
+    // 右画像だけのフレームは送らない
+    if (!image[0]) image[1].reset();
+    sendFrame(buffer, table, ted::IMAGE_JPEG, image);
 
-    network.sendData(buffer.data(), static_cast<int>(data - buffer.data()));
-
-    // 一定間隔で送信する
     next += std::chrono::milliseconds(interval);
     const auto now{ std::chrono::steady_clock::now() };
     if (next < now) next = now;
-    std::this_thread::sleep_until(next);
   }
 }
 
@@ -195,9 +236,12 @@ void TedLink::recvLoop()
     if (length < headerBytes) continue;
     unsigned int head[headLength];
     std::memcpy(head, buffer.data(), headerBytes);
-    const unsigned int matrices{ head[camCount] & 0xffffu };
+    const unsigned int matrices{ head[camCount] & ted::frameCountMask };
     const std::size_t matrixBytes{ static_cast<std::size_t>(matrices) * sizeof(qm::Mat4) };
     if (matrixBytes > length - headerBytes) continue;
+
+    // 受信側 (指示者) がキーフレームを要求していれば記録する
+    if (head[camCount] & ted::frameKeyframeRequest) keyframeRequested = true;
 
     // 指示者の変換行列を保存する (指示者から画像は送られてこないので読み捨てる)
     const int count{ std::min(static_cast<int>(matrices), maxTableSize) };

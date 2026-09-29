@@ -53,6 +53,7 @@
 #include "QuestConfig.h"
 #include "QuestMath.h"
 #include "TedLink.h"
+#include "TedProtocol.h"
 
 #define LOG_TAG "TED"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -154,6 +155,12 @@ struct Engine
   bool permissionRequested{ false };
   std::chrono::steady_clock::time_point nextCameraRetry{};
   std::uint64_t lastCameraSequence{ 0 };
+
+  // 動画の形式 (ted::IMAGE_JPEG なら JPEG を 1 枚ずつ送る)
+  std::uint32_t videoFormat{ ted::IMAGE_JPEG };
+
+  // 次にキーフレームを作ってよい時刻
+  std::chrono::steady_clock::time_point nextKeyframe{};
 
   // 送信中の画像を撮影したときの頭部中心姿勢
   qm::Mat4 imagePose{ qm::identity() };
@@ -919,7 +926,11 @@ static void serviceCamera(Engine* engine)
   engine->permissionRequested = false;
 
   const auto& s{ engine->settings };
-  if (!engine->camera.open(s.camera_width, s.camera_height, s.transmit_quality, s.transmit_fps))
+  PassthroughCamera::VideoSettings video;
+  video.format = engine->videoFormat;
+  video.bitrate = s.bitrate;
+  video.keyframeInterval = s.keyframe_interval;
+  if (!engine->camera.open(s.camera_width, s.camera_height, s.transmit_quality, s.transmit_fps, video))
   {
     LOGW("passthrough camera is not available; retrying");
   }
@@ -996,46 +1007,81 @@ static void renderFrame(Engine* engine)
   qm::Mat4 head{ qm::identity() };
   const bool headValid{ locateHead(engine, displayTime, head) };
 
-  // 新しいカメラ画像があれば、撮影時の頭部姿勢を求める
-  PassthroughCamera::Frame frame;
-  const bool newImage{ engine->settings.send_images
-    && engine->camera.getLatest(frame, engine->lastCameraSequence) };
-  if (newImage)
+  // 手の関節姿勢 (基準空間) を求める。PC 版と同じく OpenXR の左手 (0) をテーブルの 1 に、右手 (1) を 0 に置く
+  std::array<qm::Mat4, jointsPerHand> handMatrices[2];
+  bool handValid[2]{ false, false };
+  for (int xrHand = 0; xrHand < 2; ++xrHand)
+    handValid[1 - xrHand] = locateHand(engine, xrHand, displayTime, handMatrices[1 - xrHand]);
+
+  // 基準の姿勢 (画像を撮影したときの頭部中心姿勢) から変換行列テーブルを作る
+  const auto makeTable = [&handMatrices, &handValid](const qm::Mat4& reference)
   {
-    engine->lastCameraSequence = frame.sequence;
+    const qm::Mat4 worldToReference{ qm::invertRigid(reference) };
+    std::array<qm::Mat4, TedLink::tableSize> table;
+    table[0] = table[1] = reference;
+    table[2] = qm::identity();
+    for (int hand = 0; hand < 2; ++hand)
+      for (int joint = 0; joint < jointsPerHand; ++joint)
+        table[firstJoint + joint * 2 + hand] = handValid[hand]
+        ? worldToReference * handMatrices[hand][joint] : qm::zero();
+    return table;
+  };
+
+  // カメラの撮影時刻の頭部中心姿勢を求める
+  const auto poseAt = [engine, headValid, &head](std::int64_t timestamp, qm::Mat4& pose)
+  {
     XrTime captureTime{ 0 };
-    qm::Mat4 pose;
-    if (convertTime(engine, frame.timestamp, captureTime) && locateHead(engine, captureTime, pose))
+    if (convertTime(engine, timestamp, captureTime) && locateHead(engine, captureTime, pose)) return true;
+    pose = head;
+    return headValid;
+  };
+
+  PassthroughCamera::Frame frame;
+  bool newImage{ false };
+  if (engine->settings.send_images && engine->camera.isVideo())
+  {
+    // 動画はアクセスユニットごとに、撮影時の姿勢のテーブルと一緒に登録順に送る
+    std::vector<PassthroughCamera::VideoUnit> units;
+    engine->camera.takeVideoUnits(units);
+    for (auto& unit : units)
     {
+      qm::Mat4 pose;
+      if (!poseAt(unit.timestamp, pose)) continue;
       engine->imagePose = pose;
       engine->imagePoseValid = true;
+      const auto table{ makeTable(pose) };
+      engine->link.publishVideo(table.data(), unit.eye, engine->videoFormat, std::move(unit.payload));
     }
-    else if (headValid)
+
+    // 受信側の要求や送信待ちの溢れでキーフレームを作る (要求が続いても 300ms に 1 回にする)
+    const bool request{ engine->link.takeKeyframeRequest() };
+    const bool overflow{ engine->link.takeOverflow() };
+    const auto now{ std::chrono::steady_clock::now() };
+    if ((request || overflow) && now >= engine->nextKeyframe)
     {
-      engine->imagePose = head;
-      engine->imagePoseValid = true;
+      engine->camera.requestKeyframe();
+      engine->nextKeyframe = now + std::chrono::milliseconds(300);
+    }
+  }
+  else if (engine->settings.send_images)
+  {
+    // JPEG は新しい画像の組があれば、撮影時の姿勢と同じフレームで送る
+    newImage = engine->camera.getLatest(frame, engine->lastCameraSequence);
+    if (newImage)
+    {
+      engine->lastCameraSequence = frame.sequence;
+      qm::Mat4 pose;
+      if (poseAt(frame.timestamp, pose))
+      {
+        engine->imagePose = pose;
+        engine->imagePoseValid = true;
+      }
     }
   }
 
-  // 送信する変換行列の基準 (画像を送っていれば撮影時, そうでなければ現在の頭部中心姿勢)
+  // 一定間隔で送る姿勢の基準 (画像を送っていれば最後の画像の撮影時, そうでなければ現在の頭部中心姿勢)
   const qm::Mat4 reference{ engine->imagePoseValid ? engine->imagePose : head };
-  const qm::Mat4 worldToReference{ qm::invertRigid(reference) };
-
-  // 変換行列テーブル
-  std::array<qm::Mat4, TedLink::tableSize> table;
-  table[0] = table[1] = reference;
-  table[2] = qm::identity();
-  for (int xrHand = 0; xrHand < 2; ++xrHand)
-  {
-    // PC 版と同じく OpenXR の左手 (0) をテーブルの 1 に、右手 (1) を 0 に置く
-    const int hand{ 1 - xrHand };
-    std::array<qm::Mat4, jointsPerHand> matrices;
-    const bool valid{ locateHand(engine, xrHand, displayTime, matrices) };
-    for (int joint = 0; joint < jointsPerHand; ++joint)
-      table[firstJoint + joint * 2 + hand] = valid ? worldToReference * matrices[joint] : qm::zero();
-  }
-
-  // 送信する (新しい画像はその撮影時の姿勢と同じフレームで送られる)
+  const auto table{ makeTable(reference) };
   if (headValid || engine->imagePoseValid)
     engine->link.publish(table.data(), newImage ? frame.jpeg[0] : nullptr, newImage ? frame.jpeg[1] : nullptr);
 
@@ -1225,6 +1271,8 @@ void android_main(struct android_app* app)
 
   // 設定を読み込んで通信を開始する
   loadSettings(&engine);
+  engine.videoFormat = engine.settings.codec == "hevc" ? ted::IMAGE_HEVC
+    : engine.settings.codec == "jpeg" ? ted::IMAGE_JPEG : ted::IMAGE_H264;
   if (!engine.link.start(engine.settings.host, static_cast<unsigned short>(engine.settings.port),
     engine.settings.send_interval))
   {

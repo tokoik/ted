@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 ///
 /// リモートのカメラからキャプチャするクラスの定義
@@ -22,6 +22,9 @@
 
 // 設定
 #include "Config.h"
+
+// 動画の復号
+#include "VideoDecoder.h"
 
 #include <vector>
 #include <atomic>
@@ -81,6 +84,47 @@ class CamRemote
   /// 右眼の画像を一度でも受け取ったら true (受け取るまでは左の画像を右にも使う)
   std::atomic<bool> stereoSource{ false };
 
+  /// 最初の左画像を受け取ったら true
+  std::atomic<bool> firstImage{ false };
+
+  /// 動画のキーフレームを送信側へ要求するなら true
+  std::atomic<bool> keyframeNeeded{ false };
+
+  ///
+  /// 視点ごとの動画の復号の状態 (受信スレッドだけが使う)
+  ///
+  struct VideoState
+  {
+    /// デコーダ
+    VideoDecoder decoder;
+
+    /// デコーダを開いた画像の形式
+    unsigned int format{ IMAGE_JPEG };
+
+    /// キーフレームを待っているなら true (受信開始時や欠落の後)
+    bool waitKeyframe{ true };
+
+    /// 次に届くはずのアクセスユニットの通し番号
+    unsigned int expected{ 0 };
+    bool hasExpected{ false };
+
+    /// デコーダに渡す時刻
+    LONGLONG time{ 0 };
+  };
+
+  /// 左右の動画の復号の状態
+  VideoState video[camCount];
+
+  ///
+  /// 動画の 1 アクセスユニットを復号する
+  ///
+  /// @param eye 視点番号
+  /// @param format 画像の形式
+  /// @param data VideoUnitHeader 付きのアクセスユニット
+  /// @param size data のバイト数
+  /// @param image 復号した画像の格納先 (画像が得られなければ空)
+  ///
+  void decodeVideo(int eye, unsigned int format, const unsigned char* data, unsigned int size, cv::Mat& image);
   /// リモートから取得したフレームのサンプリングに使うテクスチャ
   GLuint resample[camCount]{ 0 };
 
