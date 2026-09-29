@@ -1,8 +1,5 @@
 #pragma once
 
-#include <chrono>
-#include <vector>
-
 ///
 /// ネットワーク関連の処理クラスの定義
 ///
@@ -33,6 +30,10 @@ using SOCKET = int;
 #    define SOCKET_ERROR (-1)
 #  endif
 #endif
+
+// C++ 標準ライブラリ
+#include <chrono>
+#include <vector>
 
 // 各種設定
 #include "Config.h"

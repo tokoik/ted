@@ -14,6 +14,11 @@
 /// COM と Media Foundation は、このクラスを使うスレッドで初期化しておくこと。
 ///
 
+// windows.h が古い winsock.h を巻き込み、Network.h の winsock2.h と衝突するのを防ぐ
+#ifndef WIN32_LEAN_AND_MEAN
+#  define WIN32_LEAN_AND_MEAN
+#endif
+
 // windows.h の min/max マクロが std::min/std::max と衝突しないようにする
 #ifndef NOMINMAX
 #  define NOMINMAX
