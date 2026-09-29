@@ -1,33 +1,39 @@
 ﻿///
-/// アプリケーションクラスの実装
+/// アプリケーションのクラスの実装
 ///
 /// @file
 /// @author Kohe Tokoi
 /// @date July 19, 2026
 ///
 #include "GgApp.h"
-#include "Scene.h"
+
+// 各種設定
+#include "Config.h"
+
+// 姿勢
 #include "Attitude.h"
 
+// シーングラフ
+#include "Scene.h"
+
+// 標準ライブラリ
 #include <iostream>
 #include <cmath>
 #include <cassert>
 #include <chrono>
+#include <stdexcept>
 #include <algorithm>
 
 #if defined(_WIN32)
 #  include <windows.h>
-#endif
 
-//
-// メッセージ通知
-//
-#if defined(_WIN32)
 //
 // UTF-8 のメッセージを Windows のダイアログに表示する
 //
 int showNotification(const char* message)
 {
+  // アプリケーション内部の UTF-8 を Win32 の UTF-16 へ変換し、
+  // 日本語をシステムの ANSI コードページに依存せず表示する。
   const int length{ MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
     message, -1, nullptr, 0) };
   if (length <= 0)
@@ -45,20 +51,26 @@ int showNotification(const char* message)
 //
 bool GgApp::setHandTrackingMode(int mode)
 {
+  // 同じモードなら何もしない
   if (mode == defaults.hand_tracking) return true;
 
+  // 以前のモードのクリーンアップ
   if (defaults.hand_tracking == HAND_TRACKING_LEAP_MOTION)
   {
+    // Leap Motion の取得を停止する
     Scene::stopLeapMotion();
   }
   else if (defaults.hand_tracking == HAND_TRACKING_OPENXR)
   {
+    // OpenXR が格納した手の姿勢を消去する
     Scene::setLocalHandAttitudes(0, nullptr);
     Scene::setLocalHandAttitudes(1, nullptr);
   }
 
+  // 新しいモードの初期化
   if (mode == HAND_TRACKING_LEAP_MOTION)
   {
+    // Leap Motion が使えなければハンドトラッキングを使わない
     if (!Scene::startLeapMotion())
     {
       defaults.hand_tracking = HAND_TRACKING_NONE;
@@ -68,12 +80,14 @@ bool GgApp::setHandTrackingMode(int mode)
   else if (mode == HAND_TRACKING_OPENXR)
   {
 #if defined(GG_USE_OPENXR)
+    // HMD のハンドトラッキングが使えなければハンドトラッキングを使わない
     if (!OpenXR::getInstance().hasHandTracking())
     {
       defaults.hand_tracking = HAND_TRACKING_NONE;
       return false;
     }
 #else
+    // OpenXR を使わないときは OpenXR のハンドトラッキングは使えない
     defaults.hand_tracking = HAND_TRACKING_NONE;
     return false;
 #endif
@@ -84,39 +98,60 @@ bool GgApp::setHandTrackingMode(int mode)
 }
 
 //
-// HumanInterface の実装
+// HMD を使用中か調べる
 //
-void GgApp::Window::HumanInterface::resetTranslation()
+bool GgApp::Window::isHMD()
 {
-  for (int button = 0; button < GG_BUTTON_COUNT; ++button)
-  {
-    translation[button][0] = translation[button][1] = GgVector{ 0.0f, 0.0f, 0.0f, 1.0f };
-    rotation[button].reset();
-  }
-}
-
-void GgApp::Window::HumanInterface::calcTranslation(int button, const std::array<GLfloat, 3>& velocity)
-{
-  const GLfloat dx{ (mouse[0] - translation[button][0][0]) * velocity[0] };
-  const GLfloat dy{ (mouse[1] - translation[button][0][1]) * velocity[1] };
-  translation[button][1] = GgVector{ dx, dy, wheel[1] * velocity[2], 1.0f };
-  rotation[button].motion(mouse[0], mouse[1]);
+#if defined(GG_USE_OPENXR)
+  return OpenXR::getInstance().isInitialized();
+#else
+  return false;
+#endif
 }
 
 //
-// GgApp::Window のコンストラクタ
+// GgApp::Window コンストラクタ
 //
 GgApp::Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share)
-  : size{ width, height }
-  , width{ width }
-  , height{ height }
 {
-  if (defaults.display_quadbuffer)
+  // 最初のインスタンスで一度だけ実行
+  static bool firstTime{ true };
+  if (firstTime)
   {
-    glfwWindowHint(GLFW_STEREO, GLFW_TRUE);
+    // SRGB モードでレンダリングできるようにする
+    glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
+
+    // OpenGL のバージョンを指定する
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+    // Core Profile を選択する
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#if defined(IMGUI_VERSION)
+    // ImGui のバージョンをチェックする
+    IMGUI_CHECKVERSION();
+
+    // ImGui のコンテキストを作成する
+    ImGui::CreateContext();
+
+    // プログラム終了時には ImGui のコンテキストを破棄する
+    atexit([] { ImGui::DestroyContext(); });
+#endif
+
+    // 実行済みの印をつける
+    firstTime = false;
   }
 
+  // Quad Buffer は作成後に追加できないため、起動時設定に応じてステレオバッファを要求する。
+  // ドライバが実際に提供したかどうかは、ウィンドウ作成後に GLFW_STEREO 属性で検証する。
+  glfwWindowHint(GLFW_STEREO, defaults.display_quadbuffer ? GLFW_TRUE : GLFW_FALSE);
+
+  // GLFW のウィンドウを開く
   window = glfwCreateWindow(width, height, title, monitor, share);
+
+  // ステレオバッファを要求してウィンドウが開けなければ、要求を取り下げて開き直す
   if (!window && defaults.display_quadbuffer)
   {
     glfwWindowHint(GLFW_STEREO, GLFW_FALSE);
@@ -124,44 +159,122 @@ GgApp::Window::Window(int width, int height, const char* title, GLFWmonitor* mon
     window = glfwCreateWindow(width, height, title, monitor, share);
   }
 
+  // ウィンドウが開かれなかったら戻る
   if (!window) return;
 
-  glfwMakeContextCurrent(window);
+  //
+  // 初期設定
+  //
 
-  glfwSetWindowUserPointer(window, this);
-  glfwSetFramebufferSizeCallback(window, resize);
-  glfwSetMouseButtonCallback(window, mouse);
-  glfwSetScrollCallback(window, wheel);
-  glfwSetKeyCallback(window, keyboard);
-
-#if defined(IMGUI_VERSION)
-  ImGui_ImplGlfw_InitForOpenGL(window, true);
-  ImGui_ImplOpenGL3_Init();
-#endif
-
-  glfwGetFramebufferSize(window, &fboSize[0], &fboSize[1]);
-
+  // 設定を初期化する
   reset();
 
-  for (joy = GLFW_JOYSTICK_1; joy <= GLFW_JOYSTICK_LAST; ++joy)
+  //
+  // 表示用のウィンドウの設定
+  //
+
+  // 現在のウィンドウを処理対象にする
+  glfwMakeContextCurrent(window);
+
+  // ゲームグラフィックス特論の都合にもとづく初期化を行う
+  ggInit();
+
+  // フルスクリーンモードでもマウスカーソルを表示する
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+  // このインスタンスの this ポインタを記録しておく
+  glfwSetWindowUserPointer(window, this);
+
+  // マウスボタンを操作したときの処理を登録する
+  glfwSetMouseButtonCallback(window, mouse);
+
+  // マウスホイール操作時に呼び出す処理を登録する
+  glfwSetScrollCallback(window, wheel);
+
+  // キーボードを操作した時の処理を登録する
+  glfwSetKeyCallback(window, keyboard);
+
+  // ウィンドウのサイズ変更時に呼び出す処理を登録する
+  glfwSetFramebufferSizeCallback(window, resize);
+
+  //
+  // ジョイスティックの設定
+  //
+
+  // ジョイステックの有無を調べて番号を決める
+  constexpr int maxJoystick{ 4 };
+  for (int i = 0; i < maxJoystick; ++i)
   {
-    if (glfwJoystickPresent(joy))
+    if (glfwJoystickPresent(i))
     {
-      int count;
-      const float* const axes{ glfwGetJoystickAxes(joy, &count) };
-      if (count >= 4)
+      // 存在するジョイスティック番号
+      joy = i;
+
+      // スティックの中立位置を求める
+      int axesCount;
+      const auto* const axes(glfwGetJoystickAxes(joy, &axesCount));
+
+      if (axesCount > 3)
       {
+        // 起動直後のスティックの位置を基準にする
         origin[0] = axes[0];
         origin[1] = axes[1];
         origin[2] = axes[2];
         origin[3] = axes[3];
-        break;
       }
+
+      break;
     }
   }
-  if (joy > GLFW_JOYSTICK_LAST) joy = -1;
+
+  //
+  // OpenGL の設定
+  //
+
+  // 背景色
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+#if defined(IMGUI_VERSION)
+  // Setup Platform/Renderer bindings
+  // (上で登録したコールバック関数は ImGui のコールバック関数から呼び出される)
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  ImGui_ImplOpenGL3_Init("#version 430");
+
+  //
+  // ユーザインタフェースの準備
+  //
+  ImGuiIO& io = ImGui::GetIO();
+
+  // メニューフォントを読み込む
+  const ImFont* const font
+  {
+    io.Fonts->AddFontFromFileTTF(
+      defaults.menu_font.c_str(),
+      defaults.menu_font_size,
+      NULL,
+      io.Fonts->GetGlyphRangesJapanese()
+    )
+  };
+  IM_ASSERT(font != NULL);
+#endif
+
+  // sRGB カラースペースに切り替える
+  glEnable(GL_FRAMEBUFFER_SRGB);
+
+  // スワップ間隔を待つ
+  glfwSwapInterval(1);
+
+  // 実際のフレームバッファのサイズを取得する
+  int fboWidth, fboHeight;
+  glfwGetFramebufferSize(window, &fboWidth, &fboHeight);
+
+  // 投影変換行列・ビューポートを初期化する
+  resize(window, fboWidth, fboHeight);
 }
 
+//
+// ムーブコンストラクタ
+//
 GgApp::Window::Window(Window&& w) noexcept
   : window{ w.window }
   , size{ w.size }
@@ -169,197 +282,468 @@ GgApp::Window::Window(Window&& w) noexcept
   , width{ w.width }
   , height{ w.height }
   , aspect{ w.aspect }
-  , velocity{ w.velocity }
-  , status{ w.status }
-  , interfaceData{ std::move(w.interfaceData) }
-  , interfaceNo{ w.interfaceNo }
+  , samples{ w.samples }
+  , gap{ w.gap }
+  , key{ w.key }
+  , joy{ w.joy }
+  , origin{ w.origin }
+  , cx{ w.cx }
+  , cy{ w.cy }
+  , camera{ w.camera }
+  , qo{ w.qo }
+  , po{ w.po }
+  , mo{ w.mo }
+  , mm{ w.mm }
+  , mv{ w.mv }
+  , mp{ w.mp }
+  , zoom{ w.zoom }
+  , circle{ w.circle }
+  , screen{ w.screen }
+  , focal{ w.focal }
+  , parallax{ w.parallax }
+  , offset{ w.offset }
+  , showScene{ w.showScene }
+  , showMirror{ w.showMirror }
+  , showMenu{ w.showMenu }
 {
+  // ムーブ元はウィンドウを持たない
   w.window = nullptr;
+
+  // コールバック関数から参照するインスタンスをムーブ先に切り替える
   if (window) glfwSetWindowUserPointer(window, this);
 }
 
+//
+// ムーブ代入演算子
+//
 GgApp::Window& GgApp::Window::operator=(Window&& w) noexcept
 {
   if (this != &w)
   {
+    // 自分のウィンドウを破棄する
     if (window) glfwDestroyWindow(window);
+
+    // ムーブ元のウィンドウと設定を引き継ぐ
     window = w.window;
     size = w.size;
     fboSize = w.fboSize;
     width = w.width;
     height = w.height;
     aspect = w.aspect;
-    velocity = w.velocity;
-    status = w.status;
-    interfaceData = std::move(w.interfaceData);
-    interfaceNo = w.interfaceNo;
+    samples = w.samples;
+    gap = w.gap;
+    key = w.key;
+    joy = w.joy;
+    origin = w.origin;
+    cx = w.cx;
+    cy = w.cy;
+    camera = w.camera;
+    qo = w.qo;
+    po = w.po;
+    mo = w.mo;
+    mm = w.mm;
+    mv = w.mv;
+    mp = w.mp;
+    zoom = w.zoom;
+    circle = w.circle;
+    screen = w.screen;
+    focal = w.focal;
+    parallax = w.parallax;
+    offset = w.offset;
+    showScene = w.showScene;
+    showMirror = w.showMirror;
+    showMenu = w.showMenu;
+
+    // ムーブ元はウィンドウを持たない
     w.window = nullptr;
+
+    // コールバック関数から参照するインスタンスをムーブ先に切り替える
     if (window) glfwSetWindowUserPointer(window, this);
   }
   return *this;
 }
 
+//
+// デストラクタ
+//
 GgApp::Window::~Window()
 {
+  // ウィンドウが開かれていなかったら戻る
+  if (!window) return;
+
+  // HMD を使っていたら停止する
   stopHMD();
-  if (window)
-  {
-    glfwDestroyWindow(window);
-    window = nullptr;
-  }
+
+#if defined(IMGUI_VERSION)
+  // Shutdown Platform/Renderer bindings
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+#endif
+
+  // 表示用のウィンドウを破棄する
+  glfwDestroyWindow(window);
+  window = nullptr;
 }
 
 //
-// operator bool
+// イベントを取得してループを継続するなら真を返す
 //
 GgApp::Window::operator bool()
 {
+  // イベントを取り出す
+  glfwPollEvents();
+
+  // ウィンドウを閉じるべきなら false
   if (glfwWindowShouldClose(window)) return false;
 
-  // コントローラー操作
-  if (defaults.use_controller && joy >= 0)
+#if defined(LEAP_INTERPORATE_FRAME)
+  // Leap Motion の変換行列を更新する
+  Scene::update();
+#endif
+
+  // 速度を距離に比例させる
+  const auto speedFactor((fabs(attitude.position[2]) + 0.2f));
+
+  //
+  // ジョイスティックによる操作
+  //
+
+  // ジョイスティックが有効なら
+  if (joy >= 0 && defaults.use_controller)
   {
-    int count;
-    const float* const axes{ glfwGetJoystickAxes(joy, &count) };
-    if (count >= 4)
+    // ボタン
+    int btnsCount;
+    const auto* const btns{ glfwGetJoystickButtons(joy, &btnsCount) };
+
+    // スティック
+    int axesCount;
+    const auto* const axes{ glfwGetJoystickAxes(joy, &axesCount) };
+
+    // スティックの速度係数
+    const auto axesSpeedFactor(axesSpeedScale * speedFactor);
+
+    // ボタンの数が足りなければボタンは使わない
+    constexpr int requiredButtons{ 14 };
+    const bool buttonsAvailable{ btns && btnsCount >= requiredButtons };
+
+    // L ボタンと R ボタンの状態
+    const auto lrButton(buttonsAvailable ? btns[4] | btns[5] : 0);
+
+    if (axes && axesCount > 3)
     {
-      const float dx{ axes[0] - origin[0] };
-      const float dy{ axes[1] - origin[1] };
-      const float dr{ axes[2] - origin[2] };
-      const float dp{ axes[3] - origin[3] };
-      constexpr float thresh{ 0.15f };
-      if (std::abs(dx) > thresh || std::abs(dy) > thresh)
+      // 物体を左右に移動する
+      attitude.position[0] += (axes[0] - origin[0]) * axesSpeedFactor;
+
+      // L ボタンか R ボタンを同時に押していれば
+      if (lrButton)
       {
-        attitude.position[0] += dx * 0.05f;
-        attitude.position[2] += dy * 0.05f;
+        // 物体を前後に移動する
+        attitude.position[2] += (axes[1] - origin[1]) * axesSpeedFactor;
       }
-      if (std::abs(dr) > thresh || std::abs(dp) > thresh)
+      else
       {
-        const GgQuaternion qr{ ggEulerQuaternion(0.0f, -dr * 0.03f, 0.0f) };
-        const GgQuaternion qp{ ggEulerQuaternion(-dp * 0.03f, 0.0f, 0.0f) };
-        attitude.orientation = attitude.orientation * qr * qp;
+        // 物体を上下に移動する
+        attitude.position[1] += (axes[1] - origin[1]) * axesSpeedFactor;
       }
+
+      // 物体を左右に回転する
+      attitude.orientation.rotate(ggRotateQuaternion(0.0f, 1.0f, 0.0f, (axes[2] - origin[2]) * axesSpeedFactor));
+
+      // 物体を上下に回転する
+      attitude.orientation.rotate(ggRotateQuaternion(1.0f, 0.0f, 0.0f, (axes[3] - origin[3]) * axesSpeedFactor));
+    }
+
+    if (buttonsAvailable)
+    {
+      // B, X ボタンの状態
+      const auto parallaxButton(btns[1] - btns[2]);
+
+      // B, X ボタンに変化があれば
+      if (parallaxButton)
+      {
+        // L ボタンか R ボタンを同時に押していれば
+        if (lrButton)
+        {
+          // 背景を左右に回転する
+          if (parallaxButton > 0)
+          {
+            attitude.eyeOrientation[camL] *= Attitude::eyeOrientationStep[0];
+            attitude.eyeOrientation[camR] *= Attitude::eyeOrientationStep[0].conjugate();
+          }
+          else
+          {
+            attitude.eyeOrientation[camL] *= Attitude::eyeOrientationStep[0].conjugate();
+            attitude.eyeOrientation[camR] *= Attitude::eyeOrientationStep[0];
+          }
+        }
+        else
+        {
+          // スクリーンの間隔を調整する
+          offset = offsetDefault + offsetStep * (attitude.offset += parallaxButton);
+        }
+      }
+
+      // Y, A ボタンの状態
+      const auto zoomButton(btns[3] - btns[0]);
+
+      // Y, A ボタンに変化があれば
+      if (zoomButton)
+      {
+        // L ボタンか R ボタンを同時に押していれば
+        if (lrButton)
+        {
+          // 背景を上下に回転する
+          if (zoomButton > 0)
+          {
+            attitude.eyeOrientation[camL] *= Attitude::eyeOrientationStep[1];
+            attitude.eyeOrientation[camR] *= Attitude::eyeOrientationStep[1].conjugate();
+          }
+          else
+          {
+            attitude.eyeOrientation[camL] *= Attitude::eyeOrientationStep[1].conjugate();
+            attitude.eyeOrientation[camR] *= Attitude::eyeOrientationStep[1];
+          }
+        }
+        else
+        {
+          // 焦点距離を調整する
+          focal = 1.0f / (1.0f - backFocalStep * (attitude.backAdjust[0] += zoomButton));
+        }
+      }
+
+      // 十字キーの左右ボタンの状態
+      const auto textureXButton(btns[11] - btns[13]);
+
+      // 十字キーの左右ボタンに変化があれば
+      if (textureXButton)
+      {
+        // L ボタンか R ボタンを同時に押していれば
+        if (lrButton)
+        {
+          // 背景に対する横方向の画角を調整する
+          circle[0] = defaults.camera_fov_x + fovStep * (attitude.circleAdjust[0] += textureXButton);
+        }
+        else
+        {
+          // 背景の横位置を調整する
+          circle[2] = defaults.camera_center_x + shiftStep * (attitude.circleAdjust[2] += textureXButton);
+        }
+      }
+
+      // 十字キーの上下ボタンの状態
+      const auto textureYButton(btns[10] - btns[12]);
+
+      // 十字キーの上下ボタンに変化があれば
+      if (textureYButton)
+      {
+        // L ボタンか R ボタンを同時に押していれば
+        if (lrButton)
+        {
+          // 背景に対する縦方向の画角を調整する
+          circle[1] = defaults.camera_fov_y + fovStep * (attitude.circleAdjust[1] += textureYButton);
+        }
+        else
+        {
+          // 背景の縦位置を調整する
+          circle[3] = defaults.camera_center_y + shiftStep * (attitude.circleAdjust[3] += textureYButton);
+        }
+      }
+
+      // 設定をリセットする
+      if (btns[7]) reset();
     }
   }
 
+  //
+  // マウスによる操作
+  //
+
+  // マウスの位置
+  double x, y;
+
 #if defined(IMGUI_VERSION)
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
+  // メニューを表示するとき
+  if (showMenu)
+  {
+    // ImGui の新規フレームを作成する (ImGui::NewFrame() は Menu::show() で呼び出す)
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+
+    // ImGui がマウスを使うときは Window クラスのマウス位置を更新しない
+    if (ImGui::GetIO().WantCaptureMouse) return true;
+  }
+
+  // マウスの現在位置を調べる
+  const ImGuiIO& io{ ImGui::GetIO() };
+  x = io.MousePos.x;
+  y = io.MousePos.y;
+#else
+  // マウスの位置を調べる
+  glfwGetCursorPos(window, &x, &y);
 #endif
 
-  glfwPollEvents();
+  // 左ボタンドラッグ
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1))
+  {
+    // 物体の位置を移動する
+    const auto speed(speedScale * speedFactor);
+    attitude.position[0] += static_cast<GLfloat>(x - cx) * speed;
+    attitude.position[1] += static_cast<GLfloat>(cy - y) * speed;
+    cx = x;
+    cy = y;
+  }
+
+  // 右ボタンドラッグ
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2))
+  {
+    // 物体を回転する
+    attitude.orientation.motion(static_cast<float>(x), static_cast<float>(y));
+  }
+
   return true;
 }
 
 //
-// swapBuffers
+// カラーバッファを入れ替える
 //
 void GgApp::Window::swapBuffers()
 {
-#if defined(IMGUI_VERSION)
-  ImGui::Render();
-  ImDrawData* data{ ImGui::GetDrawData() };
-  if (data) ImGui_ImplOpenGL3_RenderDrawData(data);
-#endif
+  // エラーチェック
   ggError();
+
+#if defined(IMGUI_VERSION)
+  // メニューを表示するとき
+  if (showMenu)
+  {
+    // OpenXR の描画でガンマ補正が無効になっていてもデスクトップ表示と同じ色で描く
+    glEnable(GL_FRAMEBUFFER_SRGB);
+
+    // Dear ImGui のメニューを描画する (ImGui::Render() は Menu::show() で呼び出す)
+    ImDrawData* const imDrawData{ ImGui::GetDrawData() };
+    if (imDrawData) ImGui_ImplOpenGL3_RenderDrawData(imDrawData);
+  }
+#endif
+
+  // カラーバッファを入れ替える
   glfwSwapBuffers(window);
 }
 
 //
-// コールバック関数
+// ウィンドウのサイズ変更時の処理
 //
 void GgApp::Window::resize(GLFWwindow* window, int width, int height)
 {
-  auto* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
-  if (!instance) return;
+  // このインスタンスの this ポインタを得る
+  Window* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
 
-  instance->size[0] = width;
-  instance->size[1] = height;
-  glfwGetFramebufferSize(window, &instance->fboSize[0], &instance->fboSize[1]);
-
-  switch (defaults.display_mode)
+  if (instance)
   {
-  case MONOCULAR:
-  case QUADBUFFER:
-  case OPENXR:
-    instance->width = instance->fboSize[0];
-    instance->height = instance->fboSize[1];
-    break;
-  case TOP_AND_BOTTOM:
-    instance->width = instance->fboSize[0];
-    instance->height = instance->fboSize[1] / 2;
-    break;
-  case SIDE_BY_SIDE:
-  case OVERLAY:
-    instance->width = instance->fboSize[0] / 2;
-    instance->height = instance->fboSize[1];
-    break;
-  default:
-    break;
-  }
+    // ウィンドウのサイズを保存する
+    glfwGetWindowSize(window, &instance->size[0], &instance->size[1]);
 
-  instance->aspect = static_cast<GLfloat>(instance->width) / static_cast<GLfloat>(instance->height);
-  instance->update();
+    // フレームバッファのサイズを保存する
+    instance->fboSize[0] = width;
+    instance->fboSize[1] = height;
+
+    // 最小化されたときはビューポートを更新しない
+    if (width <= 0 || height <= 0) return;
+
+    // HMD 使用時以外
+    if (!isHMD())
+    {
+      if (defaults.display_mode == OVERLAY)
+      {
+        // ビューポートの横半分を画面の横サイズにする
+        width /= 2;
+        instance->aspect = static_cast<GLfloat>(width) / static_cast<GLfloat>(height);
+      }
+      else
+      {
+        // リサイズ後のディスプレイのアスペクト比を求める
+        instance->aspect = defaults.display_aspect
+          ? defaults.display_aspect
+          : static_cast<GLfloat>(width) / static_cast<GLfloat>(height);
+
+        // リサイズ後のビューポートを設定する
+        switch (defaults.display_mode)
+        {
+        case SIDE_BY_SIDE:
+          width /= 2;
+          break;
+
+        case TOP_AND_BOTTOM:
+          height /= 2;
+          break;
+
+        default:
+          break;
+        }
+      }
+    }
+
+    // ビューポートの大きさを保存しておく
+    instance->width = width;
+    instance->height = height;
+
+    // 背景描画用のメッシュの縦横の格子点数を求める
+    instance->samples[0] = static_cast<GLsizei>(sqrt(instance->aspect * defaults.camera_texture_samples));
+    instance->samples[1] = defaults.camera_texture_samples / instance->samples[0];
+
+    // 背景描画用のメッシュの縦横の格子間隔を求める
+    instance->gap[0] = 2.0f / static_cast<GLfloat>(instance->samples[0] - 1);
+    instance->gap[1] = 2.0f / static_cast<GLfloat>(instance->samples[1] - 1);
+
+    // 透視投影変換行列を求める
+    instance->update();
+
+    // トラックボール処理の範囲を設定する
+    attitude.orientation.region(static_cast<float>(width) / angleScale, static_cast<float>(height) / angleScale);
+  }
 }
 
+//
+// マウスボタンを操作したときの処理
+//
 void GgApp::Window::mouse(GLFWwindow* window, int button, int action, int mods)
 {
-  auto* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
-  if (!instance) return;
-
 #if defined(IMGUI_VERSION)
+  // ImGui がマウスを使うときは何もしない
   if (ImGui::GetIO().WantCaptureMouse) return;
 #endif
 
-  if (button >= 0 && button < GG_BUTTON_COUNT)
+  // このインスタンスの this ポインタを得る
+  Window* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
+
+  if (instance)
   {
-    instance->status[button] = (action == GLFW_PRESS);
-    if (action == GLFW_PRESS)
+    // マウスの現在位置を得る
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+
+    switch (button)
     {
-      double x, y;
-      glfwGetCursorPos(window, &x, &y);
-      instance->cx = x;
-      instance->cy = y;
-    }
-  }
-}
-
-void GgApp::Window::wheel(GLFWwindow* window, double x, double y)
-{
-  auto* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
-  if (!instance) return;
-
-#if defined(IMGUI_VERSION)
-  if (ImGui::GetIO().WantCaptureMouse) return;
-#endif
-
-  instance->zoom *= std::pow(1.05f, static_cast<GLfloat>(y));
-  instance->update();
-}
-
-void GgApp::Window::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-  auto* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
-  if (!instance) return;
-
-#if defined(IMGUI_VERSION)
-  if (ImGui::GetIO().WantCaptureKeyboard) return;
-#endif
-
-  if (action == GLFW_PRESS || action == GLFW_REPEAT)
-  {
-    switch (key)
-    {
-    case GLFW_KEY_R:
-      instance->reset();
+    case GLFW_MOUSE_BUTTON_1:
+      if (action)
+      {
+        // 左ドラッグ開始位置を記録する
+        instance->cx = x;
+        instance->cy = y;
+      }
       break;
-    case GLFW_KEY_M:
-      instance->showMenu = !instance->showMenu;
+
+    case GLFW_MOUSE_BUTTON_2:
+      if (action)
+      {
+        // 右ドラッグによるトラックボール処理を開始する
+        attitude.orientation.begin(static_cast<float>(x), static_cast<float>(y));
+      }
+      else
+      {
+        // 右ドラッグによるトラックボール処理を終了する
+        attitude.orientation.end(static_cast<float>(x), static_cast<float>(y));
+      }
       break;
-    case GLFW_KEY_S:
-      instance->showScene = !instance->showScene;
-      break;
+
     default:
       break;
     }
@@ -367,7 +751,274 @@ void GgApp::Window::keyboard(GLFWwindow* window, int key, int scancode, int acti
 }
 
 //
-// reset
+// マウスホイール操作時の処理
+//
+void GgApp::Window::wheel(GLFWwindow* window, double x, double y)
+{
+#if defined(IMGUI_VERSION)
+  // ImGui がマウスを使うときは何もしない
+  if (ImGui::GetIO().WantCaptureMouse) return;
+#endif
+
+  // このインスタンスの this ポインタを得る
+  Window* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
+
+  if (instance)
+  {
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT))
+    {
+      // シフトキーを押していればズーム率を調整する
+      attitude.foreAdjust[0] += static_cast<int>(y);
+      instance->update();
+    }
+    else
+    {
+      // 物体を前後に移動する (遠いほど速く移動する)
+      const GLfloat advSpeed((fabs(attitude.position[2]) * 5.0f + 1.0f) * wheelYStep * static_cast<GLfloat>(y));
+      attitude.position[2] += advSpeed;
+    }
+  }
+}
+
+//
+// キーボードをタイプした時の処理
+//
+void GgApp::Window::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+#if defined(IMGUI_VERSION)
+  // ImGui がキーボードを使うときは何もしない
+  if (ImGui::GetIO().WantCaptureKeyboard) return;
+#endif
+
+  // このインスタンスの this ポインタを得る
+  Window* const instance{ static_cast<Window*>(glfwGetWindowUserPointer(window)) };
+
+  if (instance)
+  {
+    if (action != GLFW_RELEASE)
+    {
+      // 修飾キーの状態
+      const auto shiftKey{ glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) };
+      const auto ctrlKey{ glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) };
+      const auto altKey{ glfwGetKey(window, GLFW_KEY_LEFT_ALT) || glfwGetKey(window, GLFW_KEY_RIGHT_ALT) };
+
+      // 最後にタイプしたキーを記録する
+      instance->key = key;
+
+      switch (key)
+      {
+      case GLFW_KEY_R:
+        // 設定をリセットする
+        instance->reset();
+        break;
+
+      case GLFW_KEY_M:
+        // メニューの表示・非表示を切り替える
+        instance->showMenu = !instance->showMenu;
+        break;
+
+      case GLFW_KEY_S:
+        // シーンの表示・非表示を切り替える
+        instance->showScene = !instance->showScene;
+        break;
+
+      case GLFW_KEY_Z:
+        // ズーム率を調整する
+        if (shiftKey)
+          --attitude.foreAdjust[0];
+        else
+          ++attitude.foreAdjust[0];
+        instance->update();
+        break;
+
+      case GLFW_KEY_P:
+        // HMD では視差は調整しない
+        if (isHMD()) break;
+
+        // 視差を調整する
+        if (shiftKey)
+          --attitude.parallax;
+        else
+          ++attitude.parallax;
+        instance->update();
+        break;
+
+      case GLFW_KEY_E:
+        // カメラの露出を調整する
+        if (!instance->camera) break;
+        if (shiftKey)
+          instance->camera->decreaseExposure();
+        else
+          instance->camera->increaseExposure();
+        break;
+
+      case GLFW_KEY_G:
+        // カメラの利得を調整する
+        if (!instance->camera) break;
+        if (shiftKey)
+          instance->camera->decreaseGain();
+        else
+          instance->camera->increaseGain();
+        break;
+
+      case GLFW_KEY_UP:
+        if (altKey)
+        {
+          // 背景を上に回転する (Ctrl なら右だけ, Shift なら左だけ)
+          if (!ctrlKey) attitude.eyeOrientation[camL] *= Attitude::eyeOrientationStep[1];
+          if (!shiftKey) attitude.eyeOrientation[camR] *= Attitude::eyeOrientationStep[1];
+        }
+        else if (ctrlKey)
+        {
+          // 背景に対する縦方向の画角を広げる
+          ++attitude.circleAdjust[1];
+        }
+        else if (shiftKey)
+        {
+          // 背景を上に移動する
+          ++attitude.circleAdjust[3];
+        }
+        else
+        {
+          // 焦点距離を延ばす
+          ++attitude.backAdjust[0];
+        }
+        instance->updateCircle();
+        break;
+
+      case GLFW_KEY_DOWN:
+        if (altKey)
+        {
+          // 背景を下に回転する (Ctrl なら右だけ, Shift なら左だけ)
+          if (!ctrlKey) attitude.eyeOrientation[camL] *= Attitude::eyeOrientationStep[1].conjugate();
+          if (!shiftKey) attitude.eyeOrientation[camR] *= Attitude::eyeOrientationStep[1].conjugate();
+        }
+        else if (ctrlKey)
+        {
+          // 背景に対する縦方向の画角を狭める
+          --attitude.circleAdjust[1];
+        }
+        else if (shiftKey)
+        {
+          // 背景を下に移動する
+          --attitude.circleAdjust[3];
+        }
+        else
+        {
+          // 焦点距離を縮める
+          --attitude.backAdjust[0];
+        }
+        instance->updateCircle();
+        break;
+
+      case GLFW_KEY_RIGHT:
+        if (altKey)
+        {
+          // 背景を右に回転する (Ctrl なら右だけ, Shift なら左だけ)
+          if (!ctrlKey) attitude.eyeOrientation[camL] *= Attitude::eyeOrientationStep[0].conjugate();
+          if (!shiftKey) attitude.eyeOrientation[camR] *= Attitude::eyeOrientationStep[0].conjugate();
+        }
+        else if (ctrlKey)
+        {
+          // 背景に対する横方向の画角を広げる
+          ++attitude.circleAdjust[0];
+        }
+        else if (shiftKey)
+        {
+          // 背景を右に移動する
+          ++attitude.circleAdjust[2];
+        }
+        else if (defaults.display_mode != MONOCULAR)
+        {
+          // スクリーンの間隔を広げる
+          ++attitude.offset;
+        }
+        instance->updateCircle();
+        break;
+
+      case GLFW_KEY_LEFT:
+        if (altKey)
+        {
+          // 背景を左に回転する (Ctrl なら右だけ, Shift なら左だけ)
+          if (!ctrlKey) attitude.eyeOrientation[camL] *= Attitude::eyeOrientationStep[0];
+          if (!shiftKey) attitude.eyeOrientation[camR] *= Attitude::eyeOrientationStep[0];
+        }
+        else if (ctrlKey)
+        {
+          // 背景に対する横方向の画角を狭める
+          --attitude.circleAdjust[0];
+        }
+        else if (shiftKey)
+        {
+          // 背景を左に移動する
+          --attitude.circleAdjust[2];
+        }
+        else if (defaults.display_mode != MONOCULAR)
+        {
+          // スクリーンの間隔を狭める
+          --attitude.offset;
+        }
+        instance->updateCircle();
+        break;
+
+      default:
+        break;
+      }
+    }
+  }
+}
+
+//
+// 表示モードの変更
+//
+bool GgApp::Window::setDisplayMode(int mode)
+{
+  if (mode < MONOCULAR || mode > OPENXR) return false;
+
+  // 起動時は設定値だけが先に反映されているため、同じモードでも必要な資源を検証する。
+  // 実行中の再選択では、既に確保済みの資源をそのまま利用する。
+  if (mode == defaults.display_mode)
+  {
+    if (mode == QUADBUFFER) return isQuadBufferAvailable();
+    if (mode == OPENXR) return isHMD() || startHMD();
+    return true;
+  }
+
+  if (mode == OPENXR)
+  {
+    // OpenXR の全資源を確保できた場合だけ、設定値を HMD 表示へ進める。
+    if (!startHMD()) return false;
+  }
+  else
+  {
+    // Quad Buffer はウィンドウ作成後に追加できないため、実際の属性で利用可否を判定する。
+    if (mode == QUADBUFFER && !isQuadBufferAvailable()) return false;
+
+    // HMD 以外へ移るときは、OpenXR 資源を先に解放して通常描画へ戻す。
+    if (defaults.display_mode == OPENXR) stopHMD();
+  }
+
+  // 資源の準備が完了してから実行時設定とビューポートを同時に更新する。
+  defaults.display_mode = mode;
+  resetViewport();
+  return true;
+}
+
+//
+// 前方面と後方面の変更
+//
+bool GgApp::Window::setClipPlanes(float nearPlane, float farPlane)
+{
+  if (nearPlane <= 0.0f || farPlane <= nearPlane) return false;
+
+  defaults.display_near = nearPlane;
+  defaults.display_far = farPlane;
+  update();
+  return true;
+}
+
+//
+// 設定値の初期化
 //
 void GgApp::Window::reset()
 {
@@ -384,12 +1035,82 @@ void GgApp::Window::reset()
 
 #if defined(GG_USE_OPENXR)
   // 次に取得する頭部位置を、シーン座標の新しい原点として採用する
-  OpenXR::getInstance().setOriginPosition(GgVector{ 0.0f, 0.0f, 0.0f, 1.0f });
+  OpenXR::getInstance().resetOrigin();
 #endif
 }
 
 //
-// updateCircle
+// 透視投影変換行列を更新する
+//
+void GgApp::Window::update()
+{
+  // ズーム率・焦点距離・スクリーンの間隔を求める
+  zoom = 1.0f / (1.0f - zoomStep * attitude.foreAdjust[0]);
+  focal = 1.0f / (1.0f - backFocalStep * attitude.backAdjust[0]);
+  offset = offsetDefault + offsetStep * attitude.offset;
+
+  // HMD 使用時の透視投影変換行列は updateHMD() で求める
+  if (isHMD()) return;
+
+  // 視差
+  parallax = (defaults.display_mode == MONOCULAR ? 0.0f : defaultParallax) + parallaxStep * attitude.parallax;
+
+  // 前方面におけるスクリーンの高さと幅の半分
+  const GLfloat screenHeight{ defaults.display_center / defaults.display_distance };
+  const GLfloat screenWidth{ screenHeight * aspect };
+
+  // 視差による視錐台の水平方向のずれ
+  const GLfloat shift{ defaults.display_mode != MONOCULAR
+    ? parallax * defaults.display_near / defaults.display_distance : 0.0f };
+
+  // ズーム率を反映した前方面の大きさの係数
+  const GLfloat zf{ defaults.display_near / zoom };
+
+  // 左目の視錐台
+  const GLfloat fovL[]
+  {
+    -screenWidth + shift,
+    screenWidth + shift,
+    -screenHeight,
+    screenHeight
+  };
+
+  // 左目の透視投影変換行列を求める
+  mp[0].loadFrustum(fovL[0] * zf, fovL[1] * zf, fovL[2] * zf, fovL[3] * zf,
+    defaults.display_near, defaults.display_far);
+
+  // 左目のスクリーンの幅と高さ・中心位置を求める
+  screen[0][0] = (fovL[1] - fovL[0]) * 0.5f;
+  screen[0][1] = (fovL[3] - fovL[2]) * 0.5f;
+  screen[0][2] = (fovL[1] + fovL[0]) * 0.5f;
+  screen[0][3] = (fovL[3] + fovL[2]) * 0.5f;
+
+  // 立体視のとき
+  if (defaults.display_mode != MONOCULAR)
+  {
+    // 右目の視錐台
+    const GLfloat fovR[] =
+    {
+      -screenWidth - shift,
+      screenWidth - shift,
+      -screenHeight,
+      screenHeight,
+    };
+
+    // 右目の透視投影変換行列を求める
+    mp[1].loadFrustum(fovR[0] * zf, fovR[1] * zf, fovR[2] * zf, fovR[3] * zf,
+      defaults.display_near, defaults.display_far);
+
+    // 右目のスクリーンの幅と高さ・中心位置を求める
+    screen[1][0] = (fovR[1] - fovR[0]) * 0.5f;
+    screen[1][1] = (fovR[3] - fovR[2]) * 0.5f;
+    screen[1][2] = (fovR[1] + fovR[0]) * 0.5f;
+    screen[1][3] = (fovR[3] + fovR[2]) * 0.5f;
+  }
+}
+
+//
+// カメラの画角と中心位置を更新する
 //
 void GgApp::Window::updateCircle()
 {
@@ -400,125 +1121,19 @@ void GgApp::Window::updateCircle()
 }
 
 //
-// update
-//
-void GgApp::Window::update()
-{
-  zoom = 1.0f / (1.0f - zoomStep * attitude.foreAdjust[0]);
-  focal = 1.0f / (1.0f - backFocalStep * attitude.backAdjust[0]);
-  offset = offsetDefault + offsetStep * attitude.offset;
-
-#if defined(GG_USE_OPENXR)
-  if (OpenXR::getInstance().isRunning())
-  {
-    return;
-  }
-#endif
-
-  parallax = (defaults.display_mode == MONOCULAR ? 0.0f : defaultParallax) + parallaxStep * attitude.parallax;
-  const GLfloat screenHeight{ defaults.display_center / defaults.display_distance };
-  const GLfloat screenWidth{ screenHeight * aspect };
-  const GLfloat shift{ defaults.display_mode != MONOCULAR
-    ? parallax * defaults.display_near / defaults.display_distance : 0.0f };
-  const GLfloat zf{ defaults.display_near / zoom };
-
-  const GLfloat fovL[]
-  {
-    -screenWidth + shift,
-    screenWidth + shift,
-    -screenHeight,
-    screenHeight
-  };
-
-  mp[0].loadFrustum(fovL[0] * zf, fovL[1] * zf, fovL[2] * zf, fovL[3] * zf,
-    defaults.display_near, defaults.display_far);
-
-  screen[0][0] = (fovL[1] - fovL[0]) * 0.5f;
-  screen[0][1] = (fovL[3] - fovL[2]) * 0.5f;
-  screen[0][2] = (fovL[1] + fovL[0]) * 0.5f;
-  screen[0][3] = (fovL[3] + fovL[2]) * 0.5f;
-
-  if (defaults.display_mode != MONOCULAR)
-  {
-    const GLfloat fovR[] =
-    {
-      -screenWidth - shift,
-      screenWidth - shift,
-      -screenHeight,
-      screenHeight,
-    };
-
-    mp[1].loadFrustum(fovR[0] * zf, fovR[1] * zf, fovR[2] * zf, fovR[3] * zf,
-      defaults.display_near, defaults.display_far);
-
-    screen[1][0] = (fovR[1] - fovR[0]) * 0.5f;
-    screen[1][1] = (fovR[3] - fovR[2]) * 0.5f;
-    screen[1][2] = (fovR[1] + fovR[0]) * 0.5f;
-    screen[1][3] = (fovR[3] + fovR[2]) * 0.5f;
-  }
-}
-
-//
-// setDisplayMode
-//
-bool GgApp::Window::setDisplayMode(int mode)
-{
-  if (mode < MONOCULAR || mode > OPENXR) return false;
-
-  if (mode == defaults.display_mode)
-  {
-    if (mode == QUADBUFFER) return isQuadBufferAvailable();
-    if (mode == OPENXR)
-    {
-#if defined(GG_USE_OPENXR)
-      return OpenXR::getInstance().isRunning() || startHMD();
-#else
-      return false;
-#endif
-    }
-    return true;
-  }
-
-  if (mode == OPENXR)
-  {
-    if (!startHMD()) return false;
-  }
-  else
-  {
-    if (mode == QUADBUFFER && !isQuadBufferAvailable()) return false;
-    if (defaults.display_mode == OPENXR) stopHMD();
-  }
-
-  defaults.display_mode = mode;
-  resetViewport();
-  return true;
-}
-
-//
-// setClipPlanes
-//
-bool GgApp::Window::setClipPlanes(float nearPlane, float farPlane)
-{
-  if (nearPlane <= 0.0f || farPlane <= nearPlane) return false;
-  defaults.display_near = nearPlane;
-  defaults.display_far = farPlane;
-  update();
-  return true;
-}
-
-//
-// startHMD / stopHMD
+// HMD を起動する
 //
 bool GgApp::Window::startHMD()
 {
 #if defined(GG_USE_OPENXR)
   try
   {
-    OpenXR::initialize(*this, XR_REFERENCE_SPACE_TYPE_STAGE, "TED");
-    return OpenXR::getInstance().isRunning();
+    // OpenXR のセッションを作成する (セッションは begin() の中で READY になってから開始する)
+    return OpenXR::initialize(*this, XR_REFERENCE_SPACE_TYPE_STAGE, "TED").isInitialized();
   }
   catch (const std::exception& e)
   {
+    // HMD が接続されていないときなどは通常表示に戻す
     std::cerr << "OpenXR start failed: " << e.what() << '\n';
     return false;
   }
@@ -527,35 +1142,115 @@ bool GgApp::Window::startHMD()
 #endif
 }
 
+//
+// HMD を停止する
+//
 void GgApp::Window::stopHMD()
 {
 #if defined(GG_USE_OPENXR)
-  OpenXR::getInstance().terminate();
+  // OpenXR を使っていなければ何もしない
+  auto& openxr{ OpenXR::getInstance() };
+  if (!openxr.isInitialized()) return;
+
+  // OpenXR のセッションを破棄する
+  openxr.terminate();
+
+  // OpenXR の手の姿勢が残らないようにする
+  if (defaults.hand_tracking == HAND_TRACKING_OPENXR)
+  {
+    Scene::setLocalHandAttitudes(0, nullptr);
+    Scene::setLocalHandAttitudes(1, nullptr);
+  }
+
+  // terminate() で無効にされた sRGB カラースペースに戻す
+  glEnable(GL_FRAMEBUFFER_SRGB);
 #endif
 }
 
 //
-// start (デスクトップ描画用)
+// HMD の視点の姿勢と視野角から、左右の目の変換行列とスクリーンを更新する
+//
+void GgApp::Window::updateHMD()
+{
+#if defined(GG_USE_OPENXR)
+  const auto& openxr{ OpenXR::getInstance() };
+
+  // 視点の姿勢が得られていなければ何もしない
+  if (!openxr.isPoseValid()) return;
+
+  // シーン座標の原点 (起動時または回復時の頭部中心位置)
+  const auto& origin{ openxr.getOriginPosition() };
+
+  // 近クリップ面の位置 (ズーム対応)
+  const GLfloat zf{ defaults.display_near / zoom };
+
+  // 左右の目について
+  const int eyes{ std::min(static_cast<int>(openxr.getViewCount()), static_cast<int>(camCount)) };
+  for (int eye = 0; eye < eyes; ++eye)
+  {
+    // libOVR と同じく、OpenXR の姿勢を逆回転のビュー行列として扱う
+    const auto& p{ openxr.getPose(eye).position };
+    const auto& o{ openxr.getPose(eye).orientation };
+    po[eye] = GgVector{ p.x, p.y, p.z, 1.0f };
+    qo[eye] = GgQuaternion{ o.x, o.y, o.z, -o.w };
+    mo[eye] = qo[eye].getMatrix();
+
+    // 視野角 (FOV) 情報を取得する
+    const auto& fov{ openxr.getFov(eye) };
+
+    // 背景画像もシーンと同じ目別 FOV で投影する
+    const GLfloat left{ tanf(fov.angleLeft) * focal };
+    const GLfloat right{ tanf(fov.angleRight) * focal };
+    const GLfloat down{ tanf(fov.angleDown) * focal };
+    const GLfloat up{ tanf(fov.angleUp) * focal };
+    screen[eye][0] = (right - left) * 0.5f;
+    screen[eye][1] = (up - down) * 0.5f;
+    screen[eye][2] = (right + left) * 0.5f;
+    screen[eye][3] = (up + down) * 0.5f;
+
+    // 視差補正シフト量
+    const GLfloat shift{ static_cast<GLfloat>((1 - eye * 2) * attitude.parallax) * parallaxStep };
+
+    // 視野角 (角度のタンジェント) から視錐台の透視投影変換行列を求める
+    mp[eye].loadFrustum(
+      (shift + tanf(fov.angleLeft)) * zf, (shift + tanf(fov.angleRight)) * zf,
+      tanf(fov.angleDown) * zf, tanf(fov.angleUp) * zf,
+      defaults.display_near, defaults.display_far
+    );
+
+    // 頭部原点からの相対的な各眼位置を、ワールド座標から眼座標へ移すビュー平行移動 T^-1 にする
+    mv[eye].loadTranslate(-(p.x - origin[0]), -(p.y - origin[1]), -(p.z - origin[2]));
+  }
+#endif
+}
+
+//
+// 描画を開始する (デスクトップ表示)
 //
 bool GgApp::Window::start()
 {
+  // 設定からローカルモデルの座標変換行列を作成し、シーングラフの基準行列として設定する
   mm = ggTranslate(attitude.position) * attitude.orientation.getMatrix();
   Scene::setup(mm);
+
   return true;
 }
 
 //
-// select (デスクトップ描画用)
+// 描画する目を選択する (デスクトップ表示)
 //
 void GgApp::Window::select(int eye)
 {
   switch (defaults.display_mode)
   {
   case MONOCULAR:
+    // 分割表示から戻った場合も、ビューポートをウィンドウ全体へ戻す
     glViewport(0, 0, width, height);
     glClear(GL_DEPTH_BUFFER_BIT);
     break;
+
   case TOP_AND_BOTTOM:
+    // 左目は上半分、右目は下半分に描く
     if (eye == camL)
     {
       glViewport(0, height, width, height);
@@ -566,8 +1261,10 @@ void GgApp::Window::select(int eye)
       glViewport(0, 0, width, height);
     }
     break;
+
   case SIDE_BY_SIDE:
   case OVERLAY:
+    // 左目は左半分、右目は右半分に描く
     if (eye == camL)
     {
       glViewport(0, 0, width, height);
@@ -578,19 +1275,23 @@ void GgApp::Window::select(int eye)
       glViewport(width, 0, width, height);
     }
     break;
+
   case QUADBUFFER:
+    // 左右のバックバッファに描く
     glDrawBuffer(eye == camL ? GL_BACK_LEFT : GL_BACK_RIGHT);
     glClear(GL_DEPTH_BUFFER_BIT);
     break;
+
   default:
     break;
   }
 
+  // 視差に応じて目の位置を左右にずらす
   mv[eye] = ggTranslate(static_cast<GLfloat>(1 - eye * 2) * parallax, 0.0f, 0.0f);
 }
 
 //
-// commit (デスクトップ描画用)
+// 描画を完了する (デスクトップ表示)
 //
 void GgApp::Window::commit(int eye)
 {
@@ -1143,12 +1844,13 @@ void GgApp::OpenXR::createSwapchains()
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-static GgApp::OpenXR* s_openxrInstance = nullptr;
-
+//
+// OpenXR の static object を取得する
+//
 GgApp::OpenXR& GgApp::OpenXR::getInstance()
 {
+  // 最初に呼び出されたときに作成されるシングルトン
   static OpenXR openxr;
-  s_openxrInstance = &openxr;
   return openxr;
 }
 
@@ -1168,6 +1870,9 @@ GgApp::OpenXR& GgApp::OpenXR::initialize(const Window& window,
 
   openxr.window = &window;
   openxr.referenceSpaceType = spaceType;
+
+  // 最初に取得した頭部中心位置をシーン座標の原点にする
+  openxr.xrOriginValid = false;
 
   try
   {
@@ -1329,6 +2034,10 @@ GgApp::OpenXR& GgApp::OpenXR::initialize(const Window& window,
         }
       }
     }
+
+    // 拡張があってもハンドトラッカーを作成できなければハンドトラッキングは使えない
+    openxr.xrHandTrackingSupported = openxr.xrHandTracker[Hand::Left] != XR_NULL_HANDLE
+      || openxr.xrHandTracker[Hand::Right] != XR_NULL_HANDLE;
 
     // スワップチェーンの作成
     openxr.createSwapchains();
@@ -1503,7 +2212,25 @@ bool GgApp::OpenXR::begin()
   }
 
   // 描画するなら true を返す
-  if (viewPoseValid) return true;
+  if (viewPoseValid)
+  {
+    // 起動時または回復時の頭部中心を、シーン座標の原点として保存する
+    if (!xrOriginValid && viewStates.size() >= 2)
+    {
+      const auto& leftEye{ viewStates[0].pose.position };
+      const auto& rightEye{ viewStates[1].pose.position };
+      xrOriginPosition = GgVector
+      {
+        (leftEye.x + rightEye.x) * 0.5f,
+        (leftEye.y + rightEye.y) * 0.5f,
+        (leftEye.z + rightEye.z) * 0.5f,
+        1.0f
+      };
+      xrOriginValid = true;
+    }
+
+    return true;
+  }
 
   // 描画しないフレームでもここで xrEndFrame() を呼んで辻褄を合わせる
   endFrame();
@@ -2075,6 +2802,246 @@ void GgApp::OpenXR::applyHapticVibration(int hand, float durationSeconds, float 
     "Can't apply the haptic feedback");
 }
 
+//
+// Quest 等の OpenXR ランタイムから手の関節姿勢を取得し、Leap Motion 互換の 22 姿勢へ変換する
+//
+void GgApp::OpenXR::updateOpenXRHands(XrTime time)
+{
+  // ハンドトラッキングが使えないか、シーン座標の原点が決まっていなければ何もしない
+  if (!xrHandTrackingSupported || !xrLocateHandJoints || appSpace == XR_NULL_HANDLE || !xrOriginValid) return;
+
+  // Leap 側の各指 4 骨は、OpenXR では各骨の末端に当たる 4 関節へ対応させる。
+  constexpr std::array<XrHandJointEXT, 22> jointMap
+  {
+    XR_HAND_JOINT_PALM_EXT, XR_HAND_JOINT_WRIST_EXT,
+    XR_HAND_JOINT_THUMB_METACARPAL_EXT, XR_HAND_JOINT_THUMB_PROXIMAL_EXT,
+    XR_HAND_JOINT_THUMB_DISTAL_EXT, XR_HAND_JOINT_THUMB_TIP_EXT,
+    XR_HAND_JOINT_INDEX_PROXIMAL_EXT, XR_HAND_JOINT_INDEX_INTERMEDIATE_EXT,
+    XR_HAND_JOINT_INDEX_DISTAL_EXT, XR_HAND_JOINT_INDEX_TIP_EXT,
+    XR_HAND_JOINT_MIDDLE_PROXIMAL_EXT, XR_HAND_JOINT_MIDDLE_INTERMEDIATE_EXT,
+    XR_HAND_JOINT_MIDDLE_DISTAL_EXT, XR_HAND_JOINT_MIDDLE_TIP_EXT,
+    XR_HAND_JOINT_RING_PROXIMAL_EXT, XR_HAND_JOINT_RING_INTERMEDIATE_EXT,
+    XR_HAND_JOINT_RING_DISTAL_EXT, XR_HAND_JOINT_RING_TIP_EXT,
+    XR_HAND_JOINT_LITTLE_PROXIMAL_EXT, XR_HAND_JOINT_LITTLE_INTERMEDIATE_EXT,
+    XR_HAND_JOINT_LITTLE_DISTAL_EXT, XR_HAND_JOINT_LITTLE_TIP_EXT
+  };
+
+  // 各指 4 骨の始点。終点は jointMap の同じ要素を使う。
+  constexpr std::array<XrHandJointEXT, 20> boneStartMap
+  {
+    XR_HAND_JOINT_WRIST_EXT, XR_HAND_JOINT_THUMB_METACARPAL_EXT,
+    XR_HAND_JOINT_THUMB_PROXIMAL_EXT, XR_HAND_JOINT_THUMB_DISTAL_EXT,
+    XR_HAND_JOINT_INDEX_METACARPAL_EXT, XR_HAND_JOINT_INDEX_PROXIMAL_EXT,
+    XR_HAND_JOINT_INDEX_INTERMEDIATE_EXT, XR_HAND_JOINT_INDEX_DISTAL_EXT,
+    XR_HAND_JOINT_MIDDLE_METACARPAL_EXT, XR_HAND_JOINT_MIDDLE_PROXIMAL_EXT,
+    XR_HAND_JOINT_MIDDLE_INTERMEDIATE_EXT, XR_HAND_JOINT_MIDDLE_DISTAL_EXT,
+    XR_HAND_JOINT_RING_METACARPAL_EXT, XR_HAND_JOINT_RING_PROXIMAL_EXT,
+    XR_HAND_JOINT_RING_INTERMEDIATE_EXT, XR_HAND_JOINT_RING_DISTAL_EXT,
+    XR_HAND_JOINT_LITTLE_METACARPAL_EXT, XR_HAND_JOINT_LITTLE_PROXIMAL_EXT,
+    XR_HAND_JOINT_LITTLE_INTERMEDIATE_EXT, XR_HAND_JOINT_LITTLE_DISTAL_EXT
+  };
+
+  // hand.json の親 controller 0 は左右眼の中点 (頭部中心) を使う。
+  // 左眼を親にすると右眼との眼間距離が回転半径へ混入し、頭部回転時に
+  // 視界固定の手が微小に並進して見えるため、関節も同じ頭部中心ローカルへ戻す。
+  const GgMatrix worldToHandParent{ getHeadPoseMatrix().invert() };
+
+  for (int hand = 0; hand < Hand::Count; ++hand)
+  {
+    if (xrHandTracker[hand] == XR_NULL_HANDLE) continue;
+
+    // 全関節の位置と向きを取得する
+    std::array<XrHandJointLocationEXT, XR_HAND_JOINT_COUNT_EXT> locations{};
+    XrHandJointLocationsEXT joints{ XR_TYPE_HAND_JOINT_LOCATIONS_EXT };
+    joints.jointCount = static_cast<uint32_t>(locations.size());
+    joints.jointLocations = locations.data();
+    XrHandJointsLocateInfoEXT locateInfo{ XR_TYPE_HAND_JOINTS_LOCATE_INFO_EXT };
+    locateInfo.baseSpace = appSpace;
+    locateInfo.time = time;
+    if (XR_FAILED(xrLocateHandJoints(xrHandTracker[hand], &locateInfo, &joints)) || !joints.isActive)
+    {
+      // シーングラフの左右スロットは Leap Motion のモデル対応を基準にしているため、
+      // OpenXR の XrHandEXT 順序だけを反転して格納する。
+      Scene::setLocalHandAttitudes(1 - hand, nullptr);
+      continue;
+    }
+
+    // すべての関節の位置が有効か調べる
+    std::array<GgMatrix, jointMap.size()> matrices;
+    bool valid{ true };
+    constexpr XrSpaceLocationFlags requiredFlags{ XR_SPACE_LOCATION_POSITION_VALID_BIT };
+    for (const auto& joint : locations)
+    {
+      if ((joint.locationFlags & requiredFlags) != requiredFlags)
+      {
+        valid = false;
+        break;
+      }
+    }
+
+    if (valid)
+    {
+      const auto& wrist{ locations[XR_HAND_JOINT_WRIST_EXT].pose.position };
+      const auto& middle{ locations[XR_HAND_JOINT_MIDDLE_PROXIMAL_EXT].pose.position };
+      const auto& index{ locations[XR_HAND_JOINT_INDEX_METACARPAL_EXT].pose.position };
+      const auto& little{ locations[XR_HAND_JOINT_LITTLE_METACARPAL_EXT].pose.position };
+
+      // 左右で同じ解剖学的意味の横軸になるよう、右手ではランドマークの差分順を反転する。
+      const GLfloat side{ hand == 0 ? 1.0f : -1.0f };
+      GLfloat palmX[]{ side * (index.x - little.x), side * (index.y - little.y),
+        side * (index.z - little.z) };
+      GLfloat palmY[]{ middle.x - wrist.x, middle.y - wrist.y, middle.z - wrist.z };
+      const auto lengthSquared = [](const GLfloat* v)
+      {
+        return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+      };
+      constexpr GLfloat minimumAxisLengthSquared{ 1.0e-8f };
+      if (lengthSquared(palmX) < minimumAxisLengthSquared
+        || lengthSquared(palmY) < minimumAxisLengthSquared)
+      {
+        continue;
+      }
+      ggNormalize3(palmX);
+      ggNormalize3(palmY);
+      GLfloat palmZ[3];
+      ggCross(palmZ, palmX, palmY);
+      if (lengthSquared(palmZ) < minimumAxisLengthSquared) continue;
+      ggNormalize3(palmZ);
+      ggCross(palmY, palmZ, palmX);
+
+      // 関節の位置と軸から、頭部中心を親とする座標系の変換行列を作る
+      const auto makeMatrix = [this, &worldToHandParent](const XrVector3f& p, const GLfloat* x,
+        const GLfloat* y, const GLfloat* z)
+      {
+        const GLfloat m[]
+        {
+          x[0], x[1], x[2], 0.0f,
+          y[0], y[1], y[2], 0.0f,
+          z[0], z[1], z[2], 0.0f,
+          p.x - xrOriginPosition[0], p.y - xrOriginPosition[1],
+          p.z - xrOriginPosition[2], 1.0f
+        };
+        return worldToHandParent * GgMatrix(m);
+      };
+
+      // 手のひらは、手首から中指および人差し指から小指への実測方向で作る。
+      matrices[0] = makeMatrix(locations[XR_HAND_JOINT_PALM_EXT].pose.position,
+        palmX, palmY, palmZ);
+
+      // OpenXR には肘関節がないため、手首から手のひらへ向かう実測方向を
+      // Leap の腕方向 (肘から手首) に相当する長手軸として使う。
+      // 手のひら行列の固定回転を流用すると手首が手のひらへ完全に追従し、
+      // finger.obj の長手軸も逆向きになるため、独立した正規直交基底を作る。
+      const auto& palm{ locations[XR_HAND_JOINT_PALM_EXT].pose.position };
+      GLfloat wristZ[]{ palm.x - wrist.x, palm.y - wrist.y, palm.z - wrist.z };
+      if (lengthSquared(wristZ) < minimumAxisLengthSquared)
+      {
+        valid = false;
+      }
+      else
+      {
+        ggNormalize3(wristZ);
+        const GLfloat wristDot{
+          palmZ[0] * wristZ[0] + palmZ[1] * wristZ[1] + palmZ[2] * wristZ[2] };
+        GLfloat wristY[]{ palmZ[0] - wristDot * wristZ[0],
+          palmZ[1] - wristDot * wristZ[1], palmZ[2] - wristDot * wristZ[2] };
+        if (lengthSquared(wristY) < minimumAxisLengthSquared)
+        {
+          valid = false;
+        }
+        else
+        {
+          ggNormalize3(wristY);
+          GLfloat wristX[3];
+          ggCross(wristX, wristY, wristZ);
+          ggNormalize3(wristX);
+          ggCross(wristY, wristZ, wristX);
+          matrices[1] = makeMatrix(wrist, wristX, wristY, wristZ);
+        }
+      }
+
+      // finger.obj の先端方向に合わせ、各ボーンの始点から終点への方向をローカル Z 軸にする。
+      // Leap Motion と同じく、ボーンの姿勢はボーンの終点 (next_joint) に置く。
+      for (size_t bone = 0; valid && bone < boneStartMap.size(); ++bone)
+      {
+        const auto& start{ locations[static_cast<size_t>(boneStartMap[bone])].pose.position };
+        const auto& end{
+          locations[static_cast<size_t>(jointMap[bone + 2])].pose.position };
+        GLfloat z[]{ end.x - start.x, end.y - start.y, end.z - start.z };
+        if (lengthSquared(z) < minimumAxisLengthSquared)
+        {
+          valid = false;
+          break;
+        }
+        ggNormalize3(z);
+
+        // 手のひら法線を基準にロールを決め、ボーン方向と直交する正規直交基底にする。
+        const GLfloat dot{ palmZ[0] * z[0] + palmZ[1] * z[1] + palmZ[2] * z[2] };
+        GLfloat y[]{ palmZ[0] - dot * z[0], palmZ[1] - dot * z[1],
+          palmZ[2] - dot * z[2] };
+        if (lengthSquared(y) < minimumAxisLengthSquared)
+        {
+          valid = false;
+          break;
+        }
+        ggNormalize3(y);
+        GLfloat x[3];
+        ggCross(x, y, z);
+        ggNormalize3(x);
+        ggCross(y, z, x);
+        matrices[bone + 2] = makeMatrix(end, x, y, z);
+      }
+    }
+
+    if (valid)
+    {
+      Scene::setLocalHandAttitudes(1 - hand, matrices.data());
+    }
+    // 一時的な無効値や縮退した関節では、ちらつきを避けるため直前の姿勢を維持する。
+  }
+}
+
+//
+// 頭部中心 (左右の目の中点) の位置を取得する
+//
+GgVector GgApp::OpenXR::getHeadPosition() const
+{
+  // 左右の目の姿勢が得られていなければ原点を返す
+  if (viewStates.size() < 2 || !viewPoseValid) return GgVector{ 0.0f, 0.0f, 0.0f, 1.0f };
+
+  // シーン座標の原点を基準にした左右の目の中点
+  const auto& leftEye{ viewStates[0].pose.position };
+  const auto& rightEye{ viewStates[1].pose.position };
+  return GgVector{
+    (leftEye.x + rightEye.x) * 0.5f - xrOriginPosition[0],
+    (leftEye.y + rightEye.y) * 0.5f - xrOriginPosition[1],
+    (leftEye.z + rightEye.z) * 0.5f - xrOriginPosition[2],
+    1.0f
+  };
+}
+
+//
+// 頭部の向きを取得する
+//
+GgQuaternion GgApp::OpenXR::getHeadOrientation() const
+{
+  // 視点の姿勢が得られていなければ回転しない
+  if (viewStates.empty() || !viewPoseValid) return ggIdentityQuaternion();
+
+  // 左右の目は同じ向きなので左目の向きを使う
+  const auto& q{ viewStates[0].pose.orientation };
+  return GgQuaternion{ q.x, q.y, q.z, q.w };
+}
+
+//
+// 頭部中心姿勢の変換行列を取得する
+//
+GgMatrix GgApp::OpenXR::getHeadPoseMatrix() const
+{
+  // 頭部中心の位置に平行移動して頭部の向きに回転する
+  return ggTranslate(getHeadPosition()) * getHeadOrientation().getMatrix();
+}
+
 #endif
 
 #if defined(_WIN32)
@@ -2114,217 +3081,4 @@ std::string GgApp::getUsername()
 
   // ユーザ名が得られなかった
   return "unknown";
-}
-
-//
-// OpenXR のハンドトラッキング更新
-//
-void GgApp::OpenXR::updateOpenXRHands(XrTime time)
-{
-  if (!xrHandTrackingSupported || !xrLocateHandJoints || !appSpace) return;
-
-  constexpr std::array<XrHandJointEXT, 22> jointMap
-  {
-    XR_HAND_JOINT_PALM_EXT, XR_HAND_JOINT_WRIST_EXT,
-    XR_HAND_JOINT_THUMB_METACARPAL_EXT, XR_HAND_JOINT_THUMB_PROXIMAL_EXT,
-    XR_HAND_JOINT_THUMB_DISTAL_EXT, XR_HAND_JOINT_THUMB_TIP_EXT,
-    XR_HAND_JOINT_INDEX_PROXIMAL_EXT, XR_HAND_JOINT_INDEX_INTERMEDIATE_EXT,
-    XR_HAND_JOINT_INDEX_DISTAL_EXT, XR_HAND_JOINT_INDEX_TIP_EXT,
-    XR_HAND_JOINT_MIDDLE_PROXIMAL_EXT, XR_HAND_JOINT_MIDDLE_INTERMEDIATE_EXT,
-    XR_HAND_JOINT_MIDDLE_DISTAL_EXT, XR_HAND_JOINT_MIDDLE_TIP_EXT,
-    XR_HAND_JOINT_RING_PROXIMAL_EXT, XR_HAND_JOINT_RING_INTERMEDIATE_EXT,
-    XR_HAND_JOINT_RING_DISTAL_EXT, XR_HAND_JOINT_RING_TIP_EXT,
-    XR_HAND_JOINT_LITTLE_PROXIMAL_EXT, XR_HAND_JOINT_LITTLE_INTERMEDIATE_EXT,
-    XR_HAND_JOINT_LITTLE_DISTAL_EXT, XR_HAND_JOINT_LITTLE_TIP_EXT
-  };
-
-  for (int hand = 0; hand < 2; ++hand)
-  {
-    if (xrHandTracker[hand] == XR_NULL_HANDLE) continue;
-
-    std::array<XrHandJointLocationEXT, XR_HAND_JOINT_COUNT_EXT> locations{};
-    XrHandJointLocationsEXT joints{ XR_TYPE_HAND_JOINT_LOCATIONS_EXT };
-    joints.jointCount = static_cast<uint32_t>(locations.size());
-    joints.jointLocations = locations.data();
-    XrHandJointsLocateInfoEXT locateInfo{ XR_TYPE_HAND_JOINTS_LOCATE_INFO_EXT };
-    locateInfo.baseSpace = appSpace;
-    locateInfo.time = time;
-    if (XR_FAILED(xrLocateHandJoints(xrHandTracker[hand], &locateInfo, &joints)) || !joints.isActive)
-    {
-      Scene::setLocalHandAttitudes(1 - hand, nullptr);
-      continue;
-    }
-
-    std::array<GgMatrix, jointMap.size()> matrices;
-    bool valid{ true };
-    constexpr XrSpaceLocationFlags requiredFlags{ XR_SPACE_LOCATION_POSITION_VALID_BIT };
-    for (const auto& joint : locations)
-    {
-      if ((joint.locationFlags & requiredFlags) != requiredFlags)
-      {
-        valid = false;
-        break;
-      }
-    }
-
-    if (valid)
-    {
-      const auto& wrist{ locations[XR_HAND_JOINT_WRIST_EXT].pose.position };
-      const auto& middle{ locations[XR_HAND_JOINT_MIDDLE_PROXIMAL_EXT].pose.position };
-      const auto& index{ locations[XR_HAND_JOINT_INDEX_METACARPAL_EXT].pose.position };
-      const auto& little{ locations[XR_HAND_JOINT_LITTLE_METACARPAL_EXT].pose.position };
-
-      const GLfloat side{ hand == 0 ? 1.0f : -1.0f };
-      GLfloat palmX[]{ side * (index.x - little.x), side * (index.y - little.y),
-        side * (index.z - little.z) };
-      GLfloat palmY[]{ middle.x - wrist.x, middle.y - wrist.y, middle.z - wrist.z };
-      const auto lengthSquared = [](const GLfloat* v)
-      {
-        return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
-      };
-      constexpr GLfloat minimumAxisLengthSquared{ 1.0e-8f };
-      if (lengthSquared(palmX) < minimumAxisLengthSquared
-        || lengthSquared(palmY) < minimumAxisLengthSquared)
-      {
-        continue;
-      }
-      ggNormalize3(palmX);
-      ggNormalize3(palmY);
-      GLfloat palmZ[3];
-      ggCross(palmZ, palmX, palmY);
-      if (lengthSquared(palmZ) < minimumAxisLengthSquared) continue;
-      ggNormalize3(palmZ);
-      ggCross(palmY, palmZ, palmX);
-
-      const GgMatrix headPose{ getHeadPoseMatrix() };
-      const GgMatrix worldToHandParent{ headPose.invert() };
-
-      const auto makeMatrix = [this, &worldToHandParent](const XrVector3f& p, const GLfloat* x,
-        const GLfloat* y, const GLfloat* z)
-      {
-        const GLfloat m[]
-        {
-          x[0], x[1], x[2], 0.0f,
-          y[0], y[1], y[2], 0.0f,
-          z[0], z[1], z[2], 0.0f,
-          p.x - xrOriginPosition[0], p.y - xrOriginPosition[1],
-          p.z - xrOriginPosition[2], 1.0f
-        };
-        return worldToHandParent * GgMatrix(m);
-      };
-
-      matrices[0] = makeMatrix(locations[XR_HAND_JOINT_PALM_EXT].pose.position, palmX, palmY, palmZ);
-
-      const auto& palm{ locations[XR_HAND_JOINT_PALM_EXT].pose.position };
-      GLfloat wristZ[]{ palm.x - wrist.x, palm.y - wrist.y, palm.z - wrist.z };
-      if (lengthSquared(wristZ) < minimumAxisLengthSquared)
-      {
-        valid = false;
-      }
-      else
-      {
-        ggNormalize3(wristZ);
-        const GLfloat wristDot{ palmZ[0] * wristZ[0] + palmZ[1] * wristZ[1] + palmZ[2] * wristZ[2] };
-        GLfloat wristY[]{ palmZ[0] - wristDot * wristZ[0], palmZ[1] - wristDot * wristZ[1], palmZ[2] - wristDot * wristZ[2] };
-        if (lengthSquared(wristY) < minimumAxisLengthSquared)
-        {
-          valid = false;
-        }
-        else
-        {
-          ggNormalize3(wristY);
-          GLfloat wristX[3];
-          ggCross(wristX, wristY, wristZ);
-          matrices[1] = makeMatrix(wrist, wristX, wristY, wristZ);
-        }
-      }
-
-      if (valid)
-      {
-        constexpr std::array<XrHandJointEXT, 20> boneStartMap
-        {
-          XR_HAND_JOINT_WRIST_EXT, XR_HAND_JOINT_THUMB_METACARPAL_EXT,
-          XR_HAND_JOINT_THUMB_PROXIMAL_EXT, XR_HAND_JOINT_THUMB_DISTAL_EXT,
-          XR_HAND_JOINT_INDEX_METACARPAL_EXT, XR_HAND_JOINT_INDEX_PROXIMAL_EXT,
-          XR_HAND_JOINT_INDEX_INTERMEDIATE_EXT, XR_HAND_JOINT_INDEX_DISTAL_EXT,
-          XR_HAND_JOINT_MIDDLE_METACARPAL_EXT, XR_HAND_JOINT_MIDDLE_PROXIMAL_EXT,
-          XR_HAND_JOINT_MIDDLE_INTERMEDIATE_EXT, XR_HAND_JOINT_MIDDLE_DISTAL_EXT,
-          XR_HAND_JOINT_RING_METACARPAL_EXT, XR_HAND_JOINT_RING_PROXIMAL_EXT,
-          XR_HAND_JOINT_RING_INTERMEDIATE_EXT, XR_HAND_JOINT_RING_DISTAL_EXT,
-          XR_HAND_JOINT_LITTLE_METACARPAL_EXT, XR_HAND_JOINT_LITTLE_PROXIMAL_EXT,
-          XR_HAND_JOINT_LITTLE_INTERMEDIATE_EXT, XR_HAND_JOINT_LITTLE_DISTAL_EXT
-        };
-
-        for (size_t joint = 0; joint < boneStartMap.size(); ++joint)
-        {
-          const auto& startPos{ locations[boneStartMap[joint]].pose.position };
-          const auto& endPos{ locations[jointMap[joint + 2]].pose.position };
-          GLfloat boneZ[]{ endPos.x - startPos.x, endPos.y - startPos.y, endPos.z - startPos.z };
-          if (lengthSquared(boneZ) < minimumAxisLengthSquared)
-          {
-            valid = false;
-            break;
-          }
-          ggNormalize3(boneZ);
-
-          const GLfloat dot{ palmZ[0] * boneZ[0] + palmZ[1] * boneZ[1] + palmZ[2] * boneZ[2] };
-          GLfloat boneY[]{ palmZ[0] - dot * boneZ[0], palmZ[1] - dot * boneZ[1], palmZ[2] - dot * boneZ[2] };
-          if (lengthSquared(boneY) < minimumAxisLengthSquared)
-          {
-            valid = false;
-            break;
-          }
-          ggNormalize3(boneY);
-          GLfloat boneX[3];
-          ggCross(boneX, boneY, boneZ);
-          matrices[joint + 2] = makeMatrix(startPos, boneX, boneY, boneZ);
-        }
-      }
-    }
-
-    if (valid)
-    {
-      Scene::setLocalHandAttitudes(1 - hand, matrices.data());
-    }
-    else
-    {
-      Scene::setLocalHandAttitudes(1 - hand, nullptr);
-    }
-  }
-}
-
-//
-// 頭部中心位置
-//
-GgVector GgApp::OpenXR::getHeadPosition() const
-{
-  if (viewStates.size() < 2 || !viewPoseValid) return GgVector{ 0.0f, 0.0f, 0.0f, 1.0f };
-  const auto& leftEye{ viewStates[0].pose.position };
-  const auto& rightEye{ viewStates[1].pose.position };
-  return GgVector{
-    (leftEye.x + rightEye.x) * 0.5f - xrOriginPosition[0],
-    (leftEye.y + rightEye.y) * 0.5f - xrOriginPosition[1],
-    (leftEye.z + rightEye.z) * 0.5f - xrOriginPosition[2],
-    1.0f
-  };
-}
-
-//
-// 頭部中心回転
-//
-GgQuaternion GgApp::OpenXR::getHeadOrientation() const
-{
-  if (viewStates.empty() || !viewPoseValid) return ggIdentityQuaternion();
-  const auto& q = viewStates[0].pose.orientation;
-  return GgQuaternion{ q.x, q.y, q.z, q.w };
-}
-
-//
-// 頭部中心姿勢行列
-//
-GgMatrix GgApp::OpenXR::getHeadPoseMatrix() const
-{
-  const auto pos = getHeadPosition();
-  const auto ori = getHeadOrientation();
-  return ggTranslate(pos) * ori.getMatrix();
 }

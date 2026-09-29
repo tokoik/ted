@@ -35,6 +35,7 @@
 
 // 標準ライブラリ
 #include <iostream>
+#include <algorithm>
 
 static Rect* rectPointer{ nullptr };
 
@@ -645,10 +646,14 @@ int GgApp::main(int argc, const char *const *const argv)
 
 #if defined(GG_USE_OPENXR)
     auto& openxr{ GgApp::OpenXR::getInstance() };
-    if (defaults.display_mode == OPENXR && openxr.isRunning())
+    if (defaults.display_mode == OPENXR && openxr.isInitialized())
     {
+      // OpenXR のイベントを処理してフレームを開始する (セッションが READY になるまでは描画しない)
       if (openxr.begin())
       {
+        // HMD の視点の姿勢と視野角から左右の目の変換行列とスクリーンを求める
+        window.updateHMD();
+
         // シーングラフの基準モデル変換を設定
         const GgMatrix mm{ ggTranslate(attitude.position) * attitude.orientation.getMatrix() };
         Scene::setup(mm);
@@ -665,9 +670,11 @@ int GgApp::main(int argc, const char *const *const argv)
           openxr.updateOpenXRHands(openxr.getPredictedDisplayTime());
         }
 
-        const uint32_t viewCount{ openxr.getViewCount() };
-        for (uint32_t eye = 0; eye < viewCount; ++eye)
+        // 左右の目について (背景のテクスチャは左右の 2 枚しかない)
+        const int viewCount{ std::min(static_cast<int>(openxr.getViewCount()), static_cast<int>(camCount)) };
+        for (int eye = 0; eye < viewCount; ++eye)
         {
+          // 描画先をこの目のスワップチェーンイメージにする
           openxr.select(eye);
 
           // 背景の描画設定
@@ -675,9 +682,9 @@ int GgApp::main(int argc, const char *const *const argv)
           glDisable(GL_CULL_FACE);
           glDisable(GL_BLEND);
 
-          // ローカルのヘッドトラッキングの変換行列 (OpenXR の各眼姿勢)
+          // ローカルのヘッドトラッキングの変換行列 (OpenXR の各眼の回転)
           const GgMatrix mo{ defaults.head_tracking
-            ? openxr.getPoseMatrix(eye) : attitude.eyeOrientation[eye].getMatrix() };
+            ? window.getMo(eye) : attitude.eyeOrientation[eye].getMatrix() };
 
           // リモートのヘッドトラッキングの変換行列
           const GgMatrix mr{ mo * Scene::getRemoteAttitude(eye) };
@@ -696,9 +703,10 @@ int GgApp::main(int argc, const char *const *const argv)
           // 図形を描画する
           if (window.isSceneVisible())
           {
+            // OpenXR は各眼 pose の逆変換 R^-1 * T^-1 をビュー行列に使う
             const GgMatrix sceneView{ defaults.head_tracking
-              ? openxr.getViewMatrix(eye) : ggIdentity() };
-            scene->draw(openxr.getProjectionMatrix(eye, defaults.display_near, defaults.display_far), sceneView);
+              ? window.getMo(eye) * window.getMv(eye) : ggIdentity() };
+            scene->draw(window.getMp(eye), sceneView);
           }
 
           // 片目の処理を完了する
@@ -707,6 +715,12 @@ int GgApp::main(int argc, const char *const *const argv)
 
         // フレームを転送して HMD に表示し、ミラー表示も行う
         openxr.submit(window.isMirrorVisible());
+      }
+      else
+      {
+        // HMD に描画しないフレームではウィンドウを消去してメニューだけを表示する
+        window.restoreViewport();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       }
     }
     else

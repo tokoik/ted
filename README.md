@@ -48,7 +48,8 @@
 現在の実装では、主に次のクラスが機能を分担しています。
 
 * `GgApp`: 入力ソース、画像テクスチャ、描画ループを統括するアプリケーション本体
-* `GgApp::Window`: GLFW ウィンドウ、通常表示、OpenXR 表示、投影行列、入力イベントを管理。描画や画像解放の失敗時にはアクティブなフレームの終了処理を試みてからセッションを破棄し、通常表示（MONOCULAR）へ復旧させる遅延停止制御を内包
+* `GgApp::Window`: GLFW ウィンドウ、Dear ImGui の初期化、デスクトップ表示（単眼視・上下・左右・オーバーレイ・Quad Buffer）の描画制御、投影行列、マウス・キーボード・ジョイスティックによる操作を管理。表示モードの切り替えに合わせて OpenXR を開始・停止し、HMD の視点の姿勢と視野角から背景とシーンの描画に使う変換行列を求める
+* `GgApp::OpenXR`: OpenXR の instance、session、swapchain、フレーム同期、ミラー表示、コントローラー入力、ハンドトラッキング、頭部中心姿勢を管理するシングルトン（calib-openxr と同じ設計）。初期化に失敗した場合は確保済みの資源を解放して例外を投げ、実行中の一時的な失敗は警告して次のフレームへ進む
 * `Menu`: Dear ImGui による設定 UI。設定値を編集し、状態変更は各クラスの操作 API へ要求
 * `Config`: JSON 設定と対応する永続設定値を保持
 * `Attitude`: 視点、投影補正、背景テクスチャ補正と、その初期値を保持
@@ -235,7 +236,7 @@ cmake --build build --config Release
 * [scenegraph.md](scenegraph.md)
   + シーングラフ記述ファイル (`scene.json`) の書式、変換の合成順序、および C++ `Scene` クラスの仕様
 * [OpenXR.md](OpenXR.md)
-  + `GgApp::Window` に組み込まれた OpenXR 表示、フレーム処理、頭部中心姿勢、ハンドトラッキングの仕様
+  + `GgApp::OpenXR` による OpenXR 表示、フレーム処理、頭部中心姿勢、ハンドトラッキングの仕様
 * [Quest.md](Quest.md)
   + Quest 3 版 (`ted-quest`) と中継サーバ (`ted-server`) の接続構成、設定、送受信データの仕様
 * [GEMINI.md](GEMINI.md)

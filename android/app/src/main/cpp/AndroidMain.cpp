@@ -853,7 +853,7 @@ static bool locateHand(Engine* engine, int hand, XrTime time, std::array<qm::Mat
   const auto& little{ locations[XR_HAND_JOINT_LITTLE_METACARPAL_EXT].pose.position };
   const auto& palm{ locations[XR_HAND_JOINT_PALM_EXT].pose.position };
 
-  // 手のひらの座標軸 (左手は x 軸の向きを反転する)
+  // 手のひらの座標軸 (左右で同じ向きになるよう, 右手は x 軸の向きを反転する)
   const float side{ hand == 0 ? 1.0f : -1.0f };
   Vec3 palmX{ sub(index, little) };
   for (auto& x : palmX) x *= side;
@@ -872,7 +872,7 @@ static bool locateHand(Engine* engine, int hand, XrTime time, std::array<qm::Mat
   if (!normalize(wristY)) return false;
   matrices[1] = makeMatrix(wrist, cross(wristY, wristZ), wristY, wristZ);
 
-  // 指の骨は始点から終点へ向かう軸を z 軸にする
+  // 指の骨は始点から終点へ向かう軸を z 軸にし, Leap Motion と同じく骨の終点に置く
   for (std::size_t joint = 0; joint < boneStartMap.size(); ++joint)
   {
     const auto& startPos{ locations[boneStartMap[joint]].pose.position };
@@ -882,7 +882,7 @@ static bool locateHand(Engine* engine, int hand, XrTime time, std::array<qm::Mat
     const float d{ dot(palmZ, boneZ) };
     Vec3 boneY{ palmZ[0] - d * boneZ[0], palmZ[1] - d * boneZ[1], palmZ[2] - d * boneZ[2] };
     if (!normalize(boneY)) return false;
-    matrices[joint + 2] = makeMatrix(startPos, cross(boneY, boneZ), boneY, boneZ);
+    matrices[joint + 2] = makeMatrix(endPos, cross(boneY, boneZ), boneY, boneZ);
   }
 
   return true;
