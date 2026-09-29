@@ -331,6 +331,9 @@ bool GgApp::selectInput()
   // テクスチャの境界の処理
   const GLenum border{ static_cast<GLenum>(defaults.camera_texture_repeat ? GL_REPEAT : GL_CLAMP_TO_BORDER) };
 
+  // 静止画像は 3 チャンネルの BGR で行の境界が詰まっている
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
   // テクスチャを準備する
   for (int cam = 0; cam < camCount; ++cam)
   {

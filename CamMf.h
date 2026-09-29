@@ -506,16 +506,19 @@ public:
     std::unique_lock<std::mutex> lock{ mtx, std::try_to_lock };
     if (!lock.owns_lock()) return false;
 
+    // 転送したら転送待ちの印を下ろす (全フレーム処理モードのキャプチャスレッドはこれを待つ)
     if (eye == 0 && captured && !image.empty())
     {
       const auto length{ static_cast<size_t>(width) * height * channels };
       func(image.data(), std::min(image.size(), length), width, height, channels);
+      captured = false;
       return true;
     }
-    else if (eye == 1 && (captured || capturedR) && !imageR.empty())
+    else if (eye == 1 && capturedR && !imageR.empty())
     {
       const auto length{ static_cast<size_t>(widthR) * heightR * 4 };
       func(imageR.data(), std::min(imageR.size(), length), widthR, heightR, 4);
+      capturedR = false;
       return true;
     }
     return false;

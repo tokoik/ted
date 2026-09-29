@@ -232,6 +232,7 @@ bool CamRemote::transmit(int eye, unsigned int texture, const int* transmitSize)
           glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, fsize[0], fsize[1], 0,
             GL_BGR, GL_UNSIGNED_BYTE, nullptr);
         }
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, fsize[0], fsize[1], GL_BGR, GL_UNSIGNED_BYTE, img.data);
 
         if (eye == 0) captured = false;

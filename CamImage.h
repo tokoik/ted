@@ -23,6 +23,9 @@ class CamImage : public Camera
   int widthR{ 0 };
   int heightR{ 0 };
 
+  /// 右眼用の画像をまだテクスチャへ転送していなければ true (左眼用は captured)
+  std::atomic<bool> capturedR{ false };
+
 protected:
 
   ///
@@ -50,6 +53,7 @@ protected:
     imageR.clear();
     widthR = 0;
     heightR = 0;
+    capturedR = false;
   }
 
 public:
@@ -169,18 +173,21 @@ public:
   bool lockFrame(int eye, F&& func)
   {
     std::unique_lock<std::mutex> lock{ mtx, std::try_to_lock };
-    if (!lock.owns_lock() || !captured) return false;
+    if (!lock.owns_lock()) return false;
 
-    if (eye == 0 && !image.empty())
+    // 静止画像はテクスチャへ一度転送すれば足りるので、転送したら転送待ちの印を下ろす
+    if (eye == 0 && captured && !image.empty())
     {
       const auto length{ static_cast<size_t>(width) * height * channels };
       func(image.data(), std::min(image.size(), length), width, height, channels);
+      captured = false;
       return true;
     }
-    else if (eye == 1 && !imageR.empty())
+    else if (eye == 1 && capturedR && !imageR.empty())
     {
       const auto length{ static_cast<size_t>(widthR) * heightR * channels };
       func(imageR.data(), std::min(imageR.size(), length), widthR, heightR, channels);
+      capturedR = false;
       return true;
     }
     return false;
