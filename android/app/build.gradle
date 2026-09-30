@@ -35,16 +35,16 @@ def copyQuestAssets = tasks.register('copyQuestAssets', CopyQuestAssets) {
 }
 
 android {
-    namespace 'com.example.ted_openxr'
-    compileSdk 34
+    namespace = 'com.example.ted_openxr'
+    compileSdk = 34
 
     defaultConfig {
-        applicationId "com.example.ted_openxr"
+        applicationId = "com.example.ted_openxr"
         // AndroidBitmap_compress() は API 30 以降、Passthrough Camera API は Horizon OS v74 以降
-        minSdk 32
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        minSdk = 32
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
 
         externalNativeBuild {
             cmake {
@@ -57,19 +57,19 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
     externalNativeBuild {
         cmake {
-            path file("src/main/cpp/CMakeLists.txt")
-            version "3.22.1+"
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1+"
         }
     }
 
-    ndkVersion "27.0.12077973"
+    ndkVersion = "27.0.12077973"
 }
 
 androidComponents {
