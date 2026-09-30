@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 ///
 /// カメラ画像を背景面へ投影する描画オブジェクトのクラスの定義
@@ -60,7 +60,7 @@ public:
   /// @param window 描画するウィンドウ
   /// @param vert 頂点シェーダのソースファイル名
   /// @param frag フラグメントシェーダのソースファイル名
-  /// 
+  ///
   Rect(const GgApp::Window& window, const std::string& vert, const std::string& frag);
 
   ///

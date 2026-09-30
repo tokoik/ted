@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 ///
 /// Microsoft Media Foundation を使ったビデオキャプチャクラスの定義 (ステレオ対応版)
@@ -435,7 +435,7 @@ public:
   ///
   /// @param cam カメラ番号
   /// @return 利用可能なビデオフォーマットのリスト
-  /// 
+  ///
   const std::vector<VideoFormat>& getAvailableFormats(int cam) const { return caps[cam].availableFormats; }
 
   ///
@@ -454,7 +454,7 @@ public:
   ///
   const std::vector<std::string>& getResolutionList(int cam) const { return caps[cam].resolutionList; }
 
-  /// 
+  ///
   /// 選択されたコーデックのインデックスを取得する
   ///
   /// @param cam カメラ番号
@@ -464,7 +464,7 @@ public:
 
   ///
   /// 選択された解像度のインデックスを取得する
-  /// 
+  ///
   /// @param cam カメラ番号
   /// @return 選択された解像度のインデックス
   ///
@@ -516,8 +516,8 @@ public:
     }
     else if (eye == 1 && capturedR && !imageR.empty())
     {
-      const auto length{ static_cast<size_t>(widthR) * heightR * 4 };
-      func(imageR.data(), std::min(imageR.size(), length), widthR, heightR, 4);
+      const auto length{ static_cast<size_t>(widthR) * heightR * channels };
+      func(imageR.data(), std::min(imageR.size(), length), widthR, heightR, channels);
       capturedR = false;
       return true;
     }

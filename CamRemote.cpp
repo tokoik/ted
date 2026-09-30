@@ -1,4 +1,4 @@
-﻿///
+///
 /// リモートのカメラからキャプチャするクラスの実装
 ///
 /// @file
@@ -100,6 +100,7 @@ void CamRemote::onClose()
   widthR = 0;
   heightR = 0;
   capturedR = false;
+  stereoSource = false;
 }
 
 //
@@ -119,6 +120,7 @@ int CamRemote::open(unsigned short port, const char* address)
   // 作業用のメモリを確保する
   sendbuf = new unsigned char[maxFrameSize];
   recvbuf = new unsigned char[maxFrameSize];
+  stereoSource = false;
 
   const unsigned int* head{ nullptr };
   const GgMatrix* body{ nullptr };
@@ -298,7 +300,7 @@ void CamRemote::recv()
       if (!unpackFrame(recvbuf, ret, head, body, data)) continue;
 
       // 変換行列を共有メモリに格納する
-      remoteAttitude->store(body, head[camCount]);
+      remoteAttitude->store(body, getMatrixCount(head));
 
       // 左バッファが空のとき左フレームが送られてきていれば
       if (!captured && head[camL] > 0)
@@ -328,11 +330,12 @@ void CamRemote::recv()
           widthR = decoded.cols;
           heightR = decoded.rows;
           capturedR = true;
+          stereoSource = true;
         }
       }
 
-      // 右フレームが送られてきていなければ左フレームと同じにする
-      if (!capturedR && captured)
+      // 右の画像を受け取っていなければ (単眼の送信側なら) 左の画像を右にも使う
+      if (!stereoSource && captured && !capturedR)
       {
         std::lock_guard<std::mutex> lock{ mtx };
         remote[camR] = remote[camL];
@@ -367,16 +370,17 @@ void CamRemote::send()
     head[camL] = head[camR] = 0;
 
     // 変換行列の数を保存する
-    head[camCount] = localAttitude->getSize();
+    const unsigned int count{ std::min(localAttitude->getSize(), frameCountMask) };
+    head[camCount] = count;
 
     // 送信する変換行列の格納場所
     const auto body{ reinterpret_cast<GgMatrix*>(head + headLength) };
 
     // 変換行列を共有メモリから取り出す
-    localAttitude->load(body, head[camCount]);
+    localAttitude->load(body, count);
 
     // 左フレームの保存先 (変換行列の最後)
-    const auto data{ reinterpret_cast<unsigned char*>(body + head[camCount]) };
+    const auto data{ reinterpret_cast<unsigned char*>(body + count) };
 
     // フレームを送信する
     network.sendData(sendbuf, static_cast<unsigned int>(data - sendbuf));

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 ///
 /// リモートのカメラからキャプチャするクラスの定義
@@ -77,6 +77,9 @@ class CamRemote
 
   /// 右眼用のキャプチャ完了フラグ
   std::atomic<bool> capturedR{ false };
+
+  /// 右眼の画像を一度でも受け取ったら true (受け取るまでは左の画像を右にも使う)
+  std::atomic<bool> stereoSource{ false };
 
   /// リモートから取得したフレームのサンプリングに使うテクスチャ
   GLuint resample[camCount]{ 0 };

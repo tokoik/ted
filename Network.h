@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <chrono>
 #include <vector>
@@ -10,6 +10,13 @@
 /// @author Kohe Tokoi
 /// @date July 19, 2026
 ///
+
+// windows.h が古い winsock.h を巻き込み、Network.h の winsock2.h と衝突するのを防ぐ
+#if defined(_WIN32)
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN
+#  endif
+#endif
 
 #if defined(_WIN32)
 #  include <winsock2.h>
@@ -46,6 +53,15 @@ constexpr int headLength{ camCount + 1 };
 /// 符号化後の画像が収まらない場合は画像を省略して固定長バッファを越えて書き込まない。
 ///
 constexpr int maxFrameSize{ 1024 * 1024 };
+
+/// 変換行列数のマスク (上位ビットは将来の拡張・フラグ用に予約)
+constexpr unsigned int frameCountMask{ 0xffffu };
+
+/// 変換行列の数を取り出す
+inline unsigned int getMatrixCount(const unsigned int* head)
+{
+  return head[camCount] & frameCountMask;
+}
 
 ///
 /// 受信したフレームの解析
@@ -208,7 +224,7 @@ public:
   /// @param buf 送信バッファ
   /// @param len 送信バッファの長さ
   /// @return 送信したバイト数
-  /// 
+  ///
   /// @details
   /// 1フレームをUDPの最大ペイロード以下に分割し、復元用の残パケット数を付けて送る
   ///

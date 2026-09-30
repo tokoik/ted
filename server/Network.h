@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <chrono>
 #include <vector>
@@ -10,6 +10,13 @@
 /// @author Kohe Tokoi
 /// @date July 19, 2026
 ///
+
+// windows.h が古い winsock.h を巻き込み、Network.h の winsock2.h と衝突するのを防ぐ
+#if defined(_WIN32)
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN
+#  endif
+#endif
 
 #if defined(_WIN32)
 #  include <winsock2.h>
@@ -175,7 +182,7 @@ public:
   /// @param buf 送信バッファ
   /// @param len 送信バッファの長さ
   /// @return 送信したバイト数
-  /// 
+  ///
   /// @details
   /// 1フレームをUDPの最大ペイロード以下に分割し、復元用の残パケット数を付けて送る
   ///

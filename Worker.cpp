@@ -1,4 +1,4 @@
-﻿///
+///
 /// 作業者 (WORKER) として映像と姿勢を送信するクラスの実装
 ///
 /// @file
@@ -134,7 +134,7 @@ void Worker::sendLoop()
     // ヘッダのフォーマット: 左右のフレームのサイズ, 変換行列の数
     auto* const head{ reinterpret_cast<unsigned int*>(sendbuf.data()) };
     head[camL] = head[camR] = 0;
-    head[camCount] = localAttitude->getSize();
+    head[camCount] = std::min(localAttitude->getSize(), frameCountMask);
 
     // 行列数は共有メモリの設定から決まるので、固定長の送信領域を越えないか確認する
     const std::size_t metadataBytes{ headLength * sizeof(unsigned int)
@@ -195,6 +195,6 @@ void Worker::recvLoop()
     const GgMatrix* body{ nullptr };
     const unsigned char* imageData{ nullptr };
     if (unpackFrame(recvbuf.data(), ret, head, body, imageData))
-      remoteAttitude->store(body, head[camCount]);
+      remoteAttitude->store(body, getMatrixCount(head));
   }
 }

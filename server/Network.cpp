@@ -1,4 +1,4 @@
-﻿///
+///
 /// ネットワーク関連の処理クラスの実装
 ///
 /// @file
@@ -10,7 +10,7 @@
 // ウィンドウ関連の処理
 #include "GgApp.h"
 
-// Winsock 2 
+// Winsock 2
 #if defined(_WIN32)
 #  include <ws2tcpip.h>
 #  pragma comment(lib, "ws2_32.lib")

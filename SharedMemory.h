@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 ///
 /// 共有メモリクラスの定義
@@ -113,7 +113,7 @@ public:
   ///
   /// @param dst 呼び出し側バッファの先頭アドレス
   /// @param count コピーする要素の数
-  /// 
+  ///
   void load(GgMatrix* dst, unsigned int count) const;
 
   ///

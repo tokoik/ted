@@ -1,4 +1,4 @@
-﻿///
+///
 /// ネットワーク関連の処理クラスの実装
 ///
 /// @file
@@ -592,7 +592,7 @@ bool unpackFrame(const unsigned char* buffer, int length, const unsigned int*& h
   if (!buffer || length < 0 || static_cast<std::size_t>(length) < headerBytes) return false;
 
   head = reinterpret_cast<const unsigned int*>(buffer);
-  const std::size_t matrixBytes{ static_cast<std::size_t>(head[camCount]) * sizeof(gg::GgMatrix) };
+  const std::size_t matrixBytes{ static_cast<std::size_t>(getMatrixCount(head)) * sizeof(gg::GgMatrix) };
   const std::size_t frameBytes{ static_cast<std::size_t>(length) };
   if (matrixBytes > frameBytes - headerBytes) return false;
 
