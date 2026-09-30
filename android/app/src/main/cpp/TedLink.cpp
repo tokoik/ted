@@ -195,11 +195,12 @@ void TedLink::recvLoop()
     if (length < headerBytes) continue;
     unsigned int head[headLength];
     std::memcpy(head, buffer.data(), headerBytes);
-    const std::size_t matrixBytes{ static_cast<std::size_t>(head[camCount]) * sizeof(qm::Mat4) };
+    const unsigned int matrices{ head[camCount] & 0xffffu };
+    const std::size_t matrixBytes{ static_cast<std::size_t>(matrices) * sizeof(qm::Mat4) };
     if (matrixBytes > length - headerBytes) continue;
 
     // 指示者の変換行列を保存する (指示者から画像は送られてこないので読み捨てる)
-    const int count{ std::min(static_cast<int>(head[camCount]), maxTableSize) };
+    const int count{ std::min(static_cast<int>(matrices), maxTableSize) };
     std::lock_guard<std::mutex> lock{ recvMutex };
     std::memcpy(recvTable.data(), buffer.data() + headerBytes, count * sizeof(qm::Mat4));
     recvCount = count;
