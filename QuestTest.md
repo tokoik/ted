@@ -27,7 +27,7 @@ Quest 3 版 (ted-quest) を実機にインストールし、単体動作、指�
 | Meta アカウント | ヘッドセットの持ち主のアカウントと、開発者組織（開発者モードに必要） |
 | スマートフォン | Meta Horizon アプリ（開発者モードの切り替えに使う） |
 | ビルド用 PC | Android Studio、Android SDK 34、NDK 27.0.12077973、CMake 3.22.1 以降、platform-tools (adb) |
-| 指示者 PC | テストするブランチからビルドした ted.exe（中継サーバを使うなら ted_server.exe も） |
+| 指示者 PC | テストするブランチからビルドした ted.exe（中継サーバを使うなら ted_server.exe も）。HEVC をテストする場合は Microsoft Store の「HEVC ビデオ拡張機能」が必要（H.264 は Windows 標準で対応） |
 | ネットワーク | Quest 3 と PC が同じ LAN にいること。Wi-Fi は 5 GHz 帯以上を推奨。ゲスト用 Wi-Fi など端末間通信が遮断されるネットワークは不可 |
 
 adb は通常 `%LOCALAPPDATA%\Android\Sdk\platform-tools` にあります。このフォルダを PATH に加えるか、以降のコマンドをそのフォルダで実行してください。

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 ///
 /// ネットワーク関連の処理クラスの定義
@@ -55,14 +55,6 @@ constexpr int headLength{ camCount + 1 };
 ///
 constexpr int maxFrameSize{ 1024 * 1024 };
 
-/// 変換行列数のマスク (上位ビットは将来の拡張・フラグ用に予約)
-constexpr unsigned int frameCountMask{ 0xffffu };
-
-/// 変換行列の数を取り出す
-inline unsigned int getMatrixCount(const unsigned int* head)
-{
-  return head[camCount] & frameCountMask;
-}
 
 ///
 /// 通信フレームのヘッダの 3 番目の要素 (head[camCount]) の構成

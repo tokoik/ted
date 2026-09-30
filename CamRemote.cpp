@@ -338,6 +338,8 @@ void CamRemote::recv()
       const unsigned int bytes{ head[eye] };
       const unsigned char* const payload{ data };
       data += bytes;
+      if (bytes == 0) continue;
+
       cv::Mat decoded;
       if (format == IMAGE_JPEG)
       {

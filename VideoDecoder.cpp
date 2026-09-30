@@ -1,4 +1,4 @@
-﻿///
+///
 /// H.264 / HEVC のアクセスユニットを復号するクラスの実装
 ///
 /// @file
@@ -238,6 +238,14 @@ int VideoDecoder::decode(const std::uint8_t* data, std::size_t size, LONGLONG ti
       const HRESULT hr{ decoder->ProcessOutput(0, 1, &output, &status) };
       if (output.pEvents) output.pEvents->Release();
 
+      // MFT が出力サンプルを用意する場合、スコープ脱出時に確実に解放する
+      struct SampleGuard
+      {
+        IMFSample* sample{ nullptr };
+        bool active{ false };
+        ~SampleGuard() { if (active && sample) sample->Release(); }
+      } guard{ output.pSample, providesSamples };
+
       if (hr == MF_E_TRANSFORM_NEED_MORE_INPUT) return true;
       if (hr == MF_E_TRANSFORM_STREAM_CHANGE)
       {
@@ -282,7 +290,6 @@ int VideoDecoder::decode(const std::uint8_t* data, std::size_t size, LONGLONG ti
         buffer->Release();
       }
 
-      if (providesSamples) output.pSample->Release();
       if (!converted) return false;
       result = 1;
     }
