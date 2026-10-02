@@ -276,20 +276,42 @@ int VideoDecoder::decode(const std::uint8_t* data, std::size_t size, LONGLONG ti
       bool converted{ false };
       if (SUCCEEDED(output.pSample->ConvertToContiguousBuffer(&buffer)))
       {
+        IMF2DBuffer2* buffer2d2{ nullptr };
         IMF2DBuffer* buffer2d{ nullptr };
         BYTE* base{ nullptr };
         LONG pitch{ 0 };
-        DWORD currentLength{ 0 };
-        bool locked2d{ false };
-        if (SUCCEEDED(buffer->QueryInterface(IID_PPV_ARGS(&buffer2d)))
-          && SUCCEEDED(buffer2d->Lock2D(&base, &pitch)))
+        DWORD bufferLen{ 0 };
+        bool checkLen{ false };
+
+        if (SUCCEEDED(buffer->QueryInterface(IID_PPV_ARGS(&buffer2d2))))
         {
-          locked2d = true;
-          buffer->GetCurrentLength(&currentLength);
+          BYTE* bufferStart{ nullptr };
+          if (SUCCEEDED(buffer2d2->Lock2DSize(MF2DBuffer_LockFlags_Read, &base, &pitch, &bufferStart, &bufferLen)))
+          {
+            checkLen = true;
+          }
+          else
+          {
+            safeRelease(buffer2d2);
+          }
         }
-        else if (SUCCEEDED(buffer->Lock(&base, nullptr, &currentLength)))
+
+        if (!buffer2d2 && SUCCEEDED(buffer->QueryInterface(IID_PPV_ARGS(&buffer2d))))
         {
-          pitch = stride != 0 ? stride : static_cast<LONG>(codedWidth);
+          if (!SUCCEEDED(buffer2d->Lock2D(&base, &pitch)))
+          {
+            safeRelease(buffer2d);
+          }
+          // IMF2DBuffer では GetCurrentLength() は当てにならないため誤拒否を避けるべく長さチェックは行わない
+        }
+
+        if (!buffer2d2 && !buffer2d)
+        {
+          if (SUCCEEDED(buffer->Lock(&base, nullptr, &bufferLen)))
+          {
+            pitch = stride != 0 ? stride : static_cast<LONG>(codedWidth);
+            checkLen = true;
+          }
         }
 
         // NV12 はトップダウン (正のストライド) のみ対応する (負のストライドは非対応として拒否)
@@ -298,7 +320,7 @@ int VideoDecoder::decode(const std::uint8_t* data, std::size_t size, LONGLONG ti
           const std::size_t ySize{ static_cast<std::size_t>(pitch) * codedHeight };
           const std::size_t totalNeeded{ ySize + static_cast<std::size_t>(pitch) * (codedHeight / 2) };
 
-          if (currentLength == 0 || currentLength >= totalNeeded)
+          if (!checkLen || bufferLen >= totalNeeded)
           {
             const cv::Mat y(static_cast<int>(displayHeight), static_cast<int>(displayWidth), CV_8UC1,
               base, static_cast<std::size_t>(pitch));
@@ -309,8 +331,10 @@ int VideoDecoder::decode(const std::uint8_t* data, std::size_t size, LONGLONG ti
           }
         }
 
-        if (locked2d) buffer2d->Unlock2D();
+        if (buffer2d2) buffer2d2->Unlock2D();
+        else if (buffer2d) buffer2d->Unlock2D();
         else if (base) buffer->Unlock();
+        safeRelease(buffer2d2);
         safeRelease(buffer2d);
         buffer->Release();
       }
