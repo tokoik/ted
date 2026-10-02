@@ -139,19 +139,24 @@ int CamRemote::open(unsigned short port, const char* address)
     + std::chrono::milliseconds(receiveRetry * 500) };
   while (!firstImage && std::chrono::steady_clock::now() < deadline)
     std::this_thread::sleep_for(std::chrono::milliseconds(minDelay));
-  if (!firstImage)
-  {
-    stop();
-    network.finalize();
-    return -1;
-  }
 
   // テクスチャ確保には画像寸法が必要なため、最初に受け取った画像の大きさを使う
+  // (届いていない場合は設定または初期値を用い、後続フレームの到着時に動的リサイズする)
   cv::Size rsize[camCount];
   {
     std::lock_guard<std::mutex> lock{ mtx };
-    rsize[camL] = remote[camL].size();
-    rsize[camR] = remote[camR].empty() ? rsize[camL] : remote[camR].size();
+    if (firstImage && !remote[camL].empty())
+    {
+      rsize[camL] = remote[camL].size();
+      rsize[camR] = remote[camR].empty() ? rsize[camL] : remote[camR].size();
+    }
+    else
+    {
+      const int w{ defaults.camera_width > 0 ? defaults.camera_width : (size[camL].width > 0 ? size[camL].width : 1280) };
+      const int h{ defaults.camera_height > 0 ? defaults.camera_height : (size[camL].height > 0 ? size[camL].height : 720) };
+      rsize[camL] = cv::Size(w, h);
+      rsize[camR] = cv::Size(w, h);
+    }
   }
 
   // 背景画像の変形に使うメッシュの縦横の格子点数を求める
@@ -276,8 +281,12 @@ void CamRemote::decodeVideo(int eye, unsigned int format, const unsigned char* d
     }
   }
 
-  // 通し番号が飛んでいたら (途中のアクセスユニットが欠けたら) キーフレームまで復号しない
-  if (state.hasExpected && unit.number != state.expected) state.waitKeyframe = true;
+  // 通し番号が飛んでいたら (途中のアクセスユニットが欠けたら) 両眼ともキーフレームまで復号しない
+  if (state.hasExpected && unit.number != state.expected)
+  {
+    for (int i = 0; i < camCount; ++i) decoderState[i].waitKeyframe = true;
+    keyframeNeeded = true;
+  }
   state.expected = unit.number + 1;
   state.hasExpected = true;
 
@@ -295,7 +304,7 @@ void CamRemote::decodeVideo(int eye, unsigned int format, const unsigned char* d
   state.time += 333333;
   if (state.decoder.decode(data + sizeof unit, size - sizeof unit, state.time, image) < 0)
   {
-    state.waitKeyframe = true;
+    for (int i = 0; i < camCount; ++i) decoderState[i].waitKeyframe = true;
     keyframeNeeded = true;
     image.release();
   }
@@ -333,6 +342,11 @@ void CamRemote::recv()
     remoteAttitude->store(body, getMatrixCount(head));
 
     const unsigned int format{ getImageFormat(head) };
+    if (format != IMAGE_JPEG && (isKeyframeRequested(head) || head[camL] == 0))
+    {
+      for (int i = 0; i < camCount; ++i) decoderState[i].waitKeyframe = true;
+      keyframeNeeded = true;
+    }
     for (int eye = 0; eye < camCount; ++eye)
     {
       const unsigned int bytes{ head[eye] };

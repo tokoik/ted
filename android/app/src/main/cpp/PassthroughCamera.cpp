@@ -419,16 +419,21 @@ void PassthroughCamera::pushVideoUnit(int eye, VideoEncoder::Unit&& unit)
   std::int64_t timestamp{ unit.timestamp };
   if (bootTime) timestamp -= now(CLOCK_BOOTTIME) - now(CLOCK_MONOTONIC);
 
-  std::lock_guard<std::mutex> lock{ unitMutex };
-
-  // 描画が止まっていて取り出されなければ捨てる (受信側は欠落を検出してキーフレームを待つ)
-  constexpr std::size_t maxUnits{ 60 };
-  if (units.size() >= maxUnits)
+  bool needKeyframe{ false };
   {
-    units.clear();
-    unitsOverflowed = true;
+    std::lock_guard<std::mutex> lock{ unitMutex };
+
+    // 描画が止まっていて取り出されなければ捨てる (受信側は欠落を検出してキーフレームを待つ)
+    constexpr std::size_t maxUnits{ 60 };
+    if (units.size() >= maxUnits)
+    {
+      units.clear();
+      unitsOverflowed = true;
+      needKeyframe = true;
+    }
+    units.push_back(VideoUnit{ eye, std::move(unit.payload), timestamp, unit.keyframe });
   }
-  units.push_back(VideoUnit{ eye, std::move(unit.payload), timestamp, unit.keyframe });
+  if (needKeyframe) requestKeyframe();
 }
 
 //

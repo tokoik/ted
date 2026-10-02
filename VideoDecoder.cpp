@@ -1,4 +1,4 @@
-///
+﻿///
 /// H.264 / HEVC のアクセスユニットを復号するクラスの実装
 ///
 /// @file
@@ -129,7 +129,23 @@ HRESULT VideoDecoder::setOutputType()
       if (SUCCEEDED(hr))
       {
         MFGetAttributeSize(type, MF_MT_FRAME_SIZE, &codedWidth, &codedHeight);
-        stride = static_cast<LONG>(MFGetAttributeUINT32(type, MF_MT_DEFAULT_STRIDE, codedWidth));
+        UINT32 defaultStride{ 0 };
+        if (SUCCEEDED(type->GetUINT32(MF_MT_DEFAULT_STRIDE, &defaultStride)))
+        {
+          stride = static_cast<LONG>(static_cast<INT32>(defaultStride));
+        }
+        else
+        {
+          LONG tempStride{ 0 };
+          if (SUCCEEDED(MFGetStrideForBitmapInfoHeader(MFVideoFormat_NV12.Data1, codedWidth, &tempStride)))
+          {
+            stride = tempStride;
+          }
+          else
+          {
+            stride = static_cast<LONG>(codedWidth);
+          }
+        }
 
         // 符号化の単位 (16 画素) に揃えた余白を表示領域で除く
         MFVideoArea area{};
@@ -263,25 +279,34 @@ int VideoDecoder::decode(const std::uint8_t* data, std::size_t size, LONGLONG ti
         IMF2DBuffer* buffer2d{ nullptr };
         BYTE* base{ nullptr };
         LONG pitch{ 0 };
+        DWORD currentLength{ 0 };
         bool locked2d{ false };
         if (SUCCEEDED(buffer->QueryInterface(IID_PPV_ARGS(&buffer2d)))
           && SUCCEEDED(buffer2d->Lock2D(&base, &pitch)))
         {
           locked2d = true;
+          buffer->GetCurrentLength(&currentLength);
         }
-        else if (SUCCEEDED(buffer->Lock(&base, nullptr, nullptr)))
+        else if (SUCCEEDED(buffer->Lock(&base, nullptr, &currentLength)))
         {
           pitch = stride != 0 ? stride : static_cast<LONG>(codedWidth);
         }
 
-        if (base && pitch > 0 && displayWidth > 0 && displayHeight > 0)
+        const LONG absPitch{ std::abs(pitch) };
+        if (base && absPitch > 0 && displayWidth > 0 && displayHeight > 0)
         {
-          const cv::Mat y(static_cast<int>(displayHeight), static_cast<int>(displayWidth), CV_8UC1,
-            base, static_cast<std::size_t>(pitch));
-          const cv::Mat uv(static_cast<int>(displayHeight / 2), static_cast<int>(displayWidth / 2), CV_8UC2,
-            base + static_cast<std::size_t>(pitch) * codedHeight, static_cast<std::size_t>(pitch));
-          cv::cvtColorTwoPlane(y, uv, image, cv::COLOR_YUV2BGR_NV12);
-          converted = true;
+          const std::size_t ySize{ static_cast<std::size_t>(absPitch) * codedHeight };
+          const std::size_t totalNeeded{ ySize + static_cast<std::size_t>(absPitch) * (codedHeight / 2) };
+
+          if (currentLength == 0 || currentLength >= totalNeeded)
+          {
+            const cv::Mat y(static_cast<int>(displayHeight), static_cast<int>(displayWidth), CV_8UC1,
+              base, static_cast<std::size_t>(absPitch));
+            const cv::Mat uv(static_cast<int>(displayHeight / 2), static_cast<int>(displayWidth / 2), CV_8UC2,
+              base + ySize, static_cast<std::size_t>(absPitch));
+            cv::cvtColorTwoPlane(y, uv, image, cv::COLOR_YUV2BGR_NV12);
+            converted = true;
+          }
         }
 
         if (locked2d) buffer2d->Unlock2D();

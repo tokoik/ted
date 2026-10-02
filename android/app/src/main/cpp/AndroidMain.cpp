@@ -1273,6 +1273,14 @@ void android_main(struct android_app* app)
   loadSettings(&engine);
   engine.videoFormat = engine.settings.codec == "hevc" ? ted::IMAGE_HEVC
     : engine.settings.codec == "jpeg" ? ted::IMAGE_JPEG : ted::IMAGE_H264;
+  engine.link.setKeyframeCallback([&engine]() {
+    const auto now{ std::chrono::steady_clock::now() };
+    if (now >= engine.nextKeyframe)
+    {
+      engine.camera.requestKeyframe();
+      engine.nextKeyframe = now + std::chrono::milliseconds(300);
+    }
+  });
   if (!engine.link.start(engine.settings.host, static_cast<unsigned short>(engine.settings.port),
     engine.settings.send_interval))
   {
