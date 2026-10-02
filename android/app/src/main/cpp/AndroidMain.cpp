@@ -159,8 +159,9 @@ struct Engine
   // 動画の形式 (ted::IMAGE_JPEG なら JPEG を 1 枚ずつ送る)
   std::uint32_t videoFormat{ ted::IMAGE_JPEG };
 
-  // 次にキーフレームを作ってよい時刻
+  // 次にキーフレームを作ってよい時刻と保留中の要求
   std::chrono::steady_clock::time_point nextKeyframe{};
+  bool pendingKeyframe{ false };
 
   // 送信中の画像を撮影したときの頭部中心姿勢
   qm::Mat4 imagePose{ qm::identity() };
@@ -936,6 +937,41 @@ static void serviceCamera(Engine* engine)
   }
 }
 
+//
+// キーフレーム要求の処理 (メインスレッドで実行)
+//
+static void serviceKeyframeRequest(Engine* engine)
+{
+  if (!engine->camera.isRunning()) return;
+
+  const bool linkReq{ engine->link.takeKeyframeRequest() };
+  const bool linkOverflow{ engine->link.takeOverflow() };
+  const bool cameraOverflow{ engine->camera.takeOverflow() };
+
+  if (linkReq || linkOverflow || cameraOverflow)
+  {
+    engine->pendingKeyframe = true;
+  }
+
+  if (engine->pendingKeyframe)
+  {
+    const auto now{ std::chrono::steady_clock::now() };
+    if (now >= engine->nextKeyframe)
+    {
+      if (engine->camera.requestKeyframe())
+      {
+        engine->pendingKeyframe = false;
+        engine->nextKeyframe = now + std::chrono::milliseconds(300);
+      }
+      else
+      {
+        // 失敗した場合は直近 (50ms 後) に再試行する
+        engine->nextKeyframe = now + std::chrono::milliseconds(50);
+      }
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // 描画
 // ---------------------------------------------------------------------------
@@ -1051,16 +1087,6 @@ static void renderFrame(Engine* engine)
       engine->imagePoseValid = true;
       const auto table{ makeTable(pose) };
       engine->link.publishVideo(table.data(), unit.eye, engine->videoFormat, std::move(unit.payload));
-    }
-
-    // 受信側の要求や送信待ちの溢れでキーフレームを作る (要求が続いても 300ms に 1 回にする)
-    const bool request{ engine->link.takeKeyframeRequest() };
-    const bool overflow{ engine->link.takeOverflow() };
-    const auto now{ std::chrono::steady_clock::now() };
-    if ((request || overflow) && now >= engine->nextKeyframe)
-    {
-      engine->camera.requestKeyframe();
-      engine->nextKeyframe = now + std::chrono::milliseconds(300);
     }
   }
   else if (engine->settings.send_images)
@@ -1273,14 +1299,6 @@ void android_main(struct android_app* app)
   loadSettings(&engine);
   engine.videoFormat = engine.settings.codec == "hevc" ? ted::IMAGE_HEVC
     : engine.settings.codec == "jpeg" ? ted::IMAGE_JPEG : ted::IMAGE_H264;
-  engine.link.setKeyframeCallback([&engine]() {
-    const auto now{ std::chrono::steady_clock::now() };
-    if (now >= engine.nextKeyframe)
-    {
-      engine.camera.requestKeyframe();
-      engine.nextKeyframe = now + std::chrono::milliseconds(300);
-    }
-  });
   if (!engine.link.start(engine.settings.host, static_cast<unsigned short>(engine.settings.port),
     engine.settings.send_interval))
   {
@@ -1303,6 +1321,7 @@ void android_main(struct android_app* app)
     if (engine.instance != XR_NULL_HANDLE) pollOpenXREvents(&engine);
 
     serviceCamera(&engine);
+    serviceKeyframeRequest(&engine);
 
     if (engine.windowInitialized && engine.sessionRunning) renderFrame(&engine);
   }

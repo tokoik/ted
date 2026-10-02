@@ -292,18 +292,18 @@ int VideoDecoder::decode(const std::uint8_t* data, std::size_t size, LONGLONG ti
           pitch = stride != 0 ? stride : static_cast<LONG>(codedWidth);
         }
 
-        const LONG absPitch{ std::abs(pitch) };
-        if (base && absPitch > 0 && displayWidth > 0 && displayHeight > 0)
+        // NV12 はトップダウン (正のストライド) のみ対応する (負のストライドは非対応として拒否)
+        if (base && pitch > 0 && displayWidth > 0 && displayHeight > 0)
         {
-          const std::size_t ySize{ static_cast<std::size_t>(absPitch) * codedHeight };
-          const std::size_t totalNeeded{ ySize + static_cast<std::size_t>(absPitch) * (codedHeight / 2) };
+          const std::size_t ySize{ static_cast<std::size_t>(pitch) * codedHeight };
+          const std::size_t totalNeeded{ ySize + static_cast<std::size_t>(pitch) * (codedHeight / 2) };
 
           if (currentLength == 0 || currentLength >= totalNeeded)
           {
             const cv::Mat y(static_cast<int>(displayHeight), static_cast<int>(displayWidth), CV_8UC1,
-              base, static_cast<std::size_t>(absPitch));
+              base, static_cast<std::size_t>(pitch));
             const cv::Mat uv(static_cast<int>(displayHeight / 2), static_cast<int>(displayWidth / 2), CV_8UC2,
-              base + ySize, static_cast<std::size_t>(absPitch));
+              base + ySize, static_cast<std::size_t>(pitch));
             cv::cvtColorTwoPlane(y, uv, image, cv::COLOR_YUV2BGR_NV12);
             converted = true;
           }

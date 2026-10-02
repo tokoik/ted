@@ -371,12 +371,15 @@ void PassthroughCamera::closeEye(Eye& eye)
     eye.reader = nullptr;
     eye.window = nullptr;
   }
-  if (eye.encoder)
   {
-    // カメラを閉じてからエンコーダを止める (入力 Surface はエンコーダが所有する)
-    eye.encoder->close();
-    eye.encoder.reset();
-    eye.window = nullptr;
+    std::lock_guard<std::mutex> lock{ encoderMutex };
+    if (eye.encoder)
+    {
+      // カメラを閉じてからエンコーダを止める (入力 Surface はエンコーダが所有する)
+      eye.encoder->close();
+      eye.encoder.reset();
+      eye.window = nullptr;
+    }
   }
 
   std::lock_guard<std::mutex> lock{ yuvMutex };
@@ -419,21 +422,16 @@ void PassthroughCamera::pushVideoUnit(int eye, VideoEncoder::Unit&& unit)
   std::int64_t timestamp{ unit.timestamp };
   if (bootTime) timestamp -= now(CLOCK_BOOTTIME) - now(CLOCK_MONOTONIC);
 
-  bool needKeyframe{ false };
-  {
-    std::lock_guard<std::mutex> lock{ unitMutex };
+  std::lock_guard<std::mutex> lock{ unitMutex };
 
-    // 描画が止まっていて取り出されなければ捨てる (受信側は欠落を検出してキーフレームを待つ)
-    constexpr std::size_t maxUnits{ 60 };
-    if (units.size() >= maxUnits)
-    {
-      units.clear();
-      unitsOverflowed = true;
-      needKeyframe = true;
-    }
-    units.push_back(VideoUnit{ eye, std::move(unit.payload), timestamp, unit.keyframe });
+  // 描画が止まっていて取り出されなければ捨てる (受信側は欠落を検出してキーフレームを待つ)
+  constexpr std::size_t maxUnits{ 60 };
+  if (units.size() >= maxUnits)
+  {
+    units.clear();
+    unitsOverflowed = true;
   }
-  if (needKeyframe) requestKeyframe();
+  units.push_back(VideoUnit{ eye, std::move(unit.payload), timestamp, unit.keyframe });
 }
 
 //
@@ -442,24 +440,24 @@ void PassthroughCamera::pushVideoUnit(int eye, VideoEncoder::Unit&& unit)
 bool PassthroughCamera::takeVideoUnits(std::vector<VideoUnit>& out)
 {
   out.clear();
-  {
-    std::lock_guard<std::mutex> lock{ unitMutex };
-    out.assign(std::make_move_iterator(units.begin()), std::make_move_iterator(units.end()));
-    units.clear();
-  }
-
-  // 溢れて捨てたアクセスユニットがあれば、キーフレームで受信側を復帰させる
-  if (unitsOverflowed.exchange(false)) requestKeyframe();
+  std::lock_guard<std::mutex> lock{ unitMutex };
+  out.assign(std::make_move_iterator(units.begin()), std::make_move_iterator(units.end()));
+  units.clear();
   return !out.empty();
 }
 
 //
 // 動画の次のフレームをキーフレームにする
 //
-void PassthroughCamera::requestKeyframe()
+bool PassthroughCamera::requestKeyframe()
 {
+  std::lock_guard<std::mutex> lock{ encoderMutex };
+  bool ok{ false };
   for (auto& eye : eyes)
-    if (eye.encoder) eye.encoder->requestKeyframe();
+  {
+    if (eye.encoder && eye.encoder->requestKeyframe()) ok = true;
+  }
+  return ok;
 }
 
 //

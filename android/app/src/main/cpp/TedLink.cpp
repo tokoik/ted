@@ -117,7 +117,6 @@ bool TedLink::getRemote(qm::Mat4* table, int& count) const
 void TedLink::publishVideo(const qm::Mat4* table, int eye, std::uint32_t format, Image payload)
 {
   if (!payload || eye < 0 || eye >= camCount) return;
-  bool overflow{ false };
   {
     std::lock_guard<std::mutex> lock{ sendMutex };
 
@@ -127,12 +126,10 @@ void TedLink::publishVideo(const qm::Mat4* table, int eye, std::uint32_t format,
     {
       videoUnits.clear();
       videoOverflowed = true;
-      overflow = true;
     }
     videoUnits.push_back(VideoUnit{ std::vector<qm::Mat4>(table, table + tableSize), eye, format,
       std::move(payload) });
   }
-  if (overflow && onKeyframeRequested) onKeyframeRequested();
   sendReady.notify_one();
 }
 
@@ -173,7 +170,6 @@ void TedLink::sendFrame(std::vector<std::uint8_t>& buffer, const std::vector<qm:
     {
       videoOverflowed = true;
       head[camCount] |= ted::frameKeyframeRequest;
-      if (onKeyframeRequested) onKeyframeRequested();
     }
   }
 
@@ -248,12 +244,8 @@ void TedLink::recvLoop()
     const std::size_t matrixBytes{ static_cast<std::size_t>(matrices) * sizeof(qm::Mat4) };
     if (matrixBytes > length - headerBytes) continue;
 
-    // 受信側 (指示者) がキーフレームを要求していれば記録し、即座にエンコーダへ要求する
-    if (head[camCount] & ted::frameKeyframeRequest)
-    {
-      keyframeRequested = true;
-      if (onKeyframeRequested) onKeyframeRequested();
-    }
+    // 受信側 (指示者) がキーフレームを要求していれば記録する
+    if (head[camCount] & ted::frameKeyframeRequest) keyframeRequested = true;
 
     // 指示者の変換行列を保存する (指示者から画像は送られてこないので読み捨てる)
     const int count{ std::min(static_cast<int>(matrices), maxTableSize) };

@@ -149,16 +149,19 @@ void VideoEncoder::close()
   }
 }
 
-//
-// 次のフレームをキーフレームにする
-//
-void VideoEncoder::requestKeyframe()
+bool VideoEncoder::requestKeyframe()
 {
-  if (!codec) return;
+  if (!codec) return false;
   AMediaFormat* const parameters{ AMediaFormat_new() };
   AMediaFormat_setInt32(parameters, "request-sync", 0);
-  AMediaCodec_setParameters(codec, parameters);
+  const media_status_t status{ AMediaCodec_setParameters(codec, parameters) };
   AMediaFormat_delete(parameters);
+  if (status != AMEDIA_OK)
+  {
+    LOGW("AMediaCodec_setParameters(request-sync) failed: %d", status);
+    return false;
+  }
+  return true;
 }
 
 //

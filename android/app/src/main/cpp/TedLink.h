@@ -130,17 +130,6 @@ public:
     return videoOverflowed.exchange(false);
   }
 
-  /// キーフレーム要求時に呼ばれるコールバック
-  using KeyframeCallback = std::function<void()>;
-
-  ///
-  /// キーフレーム要求コールバックを設定する
-  ///
-  void setKeyframeCallback(KeyframeCallback callback)
-  {
-    onKeyframeRequested = std::move(callback);
-  }
-
   ///
   /// 受信した変換行列のテーブルを取り出す
   ///
@@ -151,9 +140,6 @@ public:
   bool getRemote(qm::Mat4* table, int& count) const;
 
 private:
-
-  /// キーフレーム要求コールバック
-  KeyframeCallback onKeyframeRequested;
 
   /// 送信スレッド
   void sendLoop();

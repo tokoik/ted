@@ -135,7 +135,17 @@ public:
   ///
   /// 動画の次のフレームをキーフレームにする
   ///
-  void requestKeyframe();
+  /// @return キーフレームの要求に成功したら true
+  ///
+  bool requestKeyframe();
+
+  ///
+  /// 溢れて捨てたアクセスユニットがあれば true を返して記録を消す
+  ///
+  bool takeOverflow()
+  {
+    return unitsOverflowed.exchange(false);
+  }
 
   ///
   /// カメラを閉じる
@@ -274,6 +284,9 @@ private:
 
   /// 取り出されていない動画のアクセスユニット
   std::deque<VideoUnit> units;
+
+  /// エンコーダの排他制御
+  mutable std::mutex encoderMutex;
 
   /// 取り出されずに溢れたら true (キーフレームで復帰させる)
   std::atomic<bool> unitsOverflowed{ false };

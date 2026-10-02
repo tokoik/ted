@@ -85,7 +85,9 @@ public:
   ///
   /// 次のフレームをキーフレームにする
   ///
-  void requestKeyframe();
+  /// @return 要求に成功したら true
+  ///
+  bool requestKeyframe();
 
 private:
 
