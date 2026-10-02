@@ -897,14 +897,15 @@ static bool locateHand(Engine* engine, int hand, XrTime time, std::array<qm::Mat
 //
 static void serviceCamera(Engine* engine)
 {
+  if (!engine->windowInitialized || !engine->sessionRunning) return;
   if (!engine->settings.send_images || engine->camera.isRunning()) return;
 
   const auto now{ std::chrono::steady_clock::now() };
   if (now < engine->nextCameraRetry) return;
   engine->nextCameraRetry = now + std::chrono::seconds(3);
 
-  bool granted{ false };
-  for (const char* permission : cameraPermissions) granted = granted || hasPermission(engine, permission);
+  bool granted{ true };
+  for (const char* permission : cameraPermissions) granted = granted && hasPermission(engine, permission);
   if (!granted)
   {
     if (!engine->permissionRequested)
@@ -915,6 +916,7 @@ static void serviceCamera(Engine* engine)
     }
     return;
   }
+  engine->permissionRequested = false;
 
   const auto& s{ engine->settings };
   if (!engine->camera.open(s.camera_width, s.camera_height, s.transmit_quality, s.transmit_fps))
@@ -1161,10 +1163,17 @@ static void handleAppCmd(struct android_app* app, int32_t cmd)
     break;
   case APP_CMD_TERM_WINDOW:
     LOGI("APP_CMD_TERM_WINDOW received");
+    engine->camera.close();
+    engine->nextCameraRetry = {};
     engine->windowInitialized = false;
     destroyModels(engine);
     terminateOpenXR(engine);
     terminateEGL(engine);
+    break;
+  case APP_CMD_GAINED_FOCUS:
+  case APP_CMD_RESUME:
+    engine->permissionRequested = false;
+    engine->nextCameraRetry = {};
     break;
   case APP_CMD_DESTROY:
     LOGI("APP_CMD_DESTROY received");
