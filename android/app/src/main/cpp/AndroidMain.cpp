@@ -942,7 +942,11 @@ static void serviceCamera(Engine* engine)
 //
 static void serviceKeyframeRequest(Engine* engine)
 {
-  if (!engine->camera.isRunning()) return;
+  if (!engine->camera.isRunning() || engine->videoFormat == ted::IMAGE_JPEG)
+  {
+    engine->pendingKeyframe = false;
+    return;
+  }
 
   const bool linkReq{ engine->link.takeKeyframeRequest() };
   const bool linkOverflow{ engine->link.takeOverflow() };
@@ -1237,6 +1241,7 @@ static void handleAppCmd(struct android_app* app, int32_t cmd)
     LOGI("APP_CMD_TERM_WINDOW received");
     engine->camera.close();
     engine->nextCameraRetry = {};
+    engine->pendingKeyframe = false;
     engine->windowInitialized = false;
     destroyModels(engine);
     terminateOpenXR(engine);

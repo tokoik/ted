@@ -157,6 +157,9 @@ int CamRemote::open(unsigned short port, const char* address)
       rsize[camL] = cv::Size(w, h);
       rsize[camR] = cv::Size(w, h);
     }
+    width = rsize[camL].width;
+    height = rsize[camL].height;
+    channels = 3;
   }
 
   // 背景画像の変形に使うメッシュの縦横の格子点数を求める

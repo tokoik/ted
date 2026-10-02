@@ -451,6 +451,7 @@ bool PassthroughCamera::takeVideoUnits(std::vector<VideoUnit>& out)
 //
 bool PassthroughCamera::requestKeyframe()
 {
+  if (!isVideo()) return false;
   std::lock_guard<std::mutex> lock{ encoderMutex };
   int count{ 0 };
   int success{ 0 };
